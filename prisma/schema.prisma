@@ -10,14 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tarefas {
-  id                  Int    @id @default(autoincrement())
-  area                String
-  tarefa              String
-  precedentes_diretos String
-  fase                String
-  duracao_planejada   String
-
+model Tarefa {
+  id                  Int     @id @default(autoincrement())
+  area                String  @db.VarChar
+  tarefa              String  @db.VarChar
+  precedentes_diretos String? @db.VarChar
+  fase                String  @db.VarChar
+  duracao_planejada   String? @db.VarChar
 
   @@map("tb_tarefas")
 }
