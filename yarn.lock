@@ -721,7 +721,7 @@
     consola "^2.15.0"
     node-fetch "^2.6.1"
 
-"@prisma/client@3.15.1":
+"@prisma/client@^3.15.1":
   version "3.15.1"
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-3.15.1.tgz#798e8bf0370abe686d599c822e93f7adb7c0c9c0"
   integrity sha512-Lsk7oupvO9g99mrIs07iE6BIMouHs46Yq/YY8itTsUQNKfecsPuZvVYvcKci0pqRQ0neOpvIvoA/ouZmIMBCrQ==
@@ -737,6 +737,11 @@
   version "3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e"
   resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e.tgz#f691893df506b93e3cb1ccc15ec6e5ac64e8e570"
   integrity sha512-NHlojO1DFTsSi3FtEleL9QWXeSF/UjhCW0fgpi7bumnNZ4wj/eQ+BJJ5n2pgoOliTOGv9nX2qXvmHap7rJMNmg==
+
+"@prisma/studio@^0.462.0":
+  version "0.462.0"
+  resolved "https://registry.yarnpkg.com/@prisma/studio/-/studio-0.462.0.tgz#627c9c71ed33383889b64afd4f27ce6ecc18b371"
+  integrity sha512-UojbPC8FzRIv4szMibD+iKp4TkgfkACxalOBbAiSJidR4oOnxdiT1rWDm9DppYKkqxBSoV3aQDRAYqyFAf/z1w==
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
