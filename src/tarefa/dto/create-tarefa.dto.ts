@@ -1,5 +1,4 @@
 class CreateTarefaDto {
-  id: number;
   area: string;
   tarefa: string;
   precedentes_diretos: string;
