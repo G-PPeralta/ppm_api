@@ -3,7 +3,7 @@ name: Semantic Versioning
 on:
   push:
     branches:
-      - development
+      - master
 jobs:
   publish:
     runs-on: ubuntu-latest
