@@ -5,51 +5,39 @@
 ## Installation
 
 ```bash
-$ npm install
-```
-
-OR
-
-```bash
 $ yarn
 ```
 
-## Running the app
+## Running the app locale
 
 ```bash
 # development
-$ npm run start
+$ yarn start:dev
 
-# watch mode
-$ npm run start:dev
+## Padrões de commit
 
-# production mode
-$ npm run start:prod
-```
+  * `fix(:scope): (descrição)`: Corrige um bug.
 
-## Test
+  * `feat(:scope): (descrição)`: Adiciona uma nova funcionalidade.
 
-```bash
-# unit tests
-$ npm run test
+  * `docs(:scope): (descrição)`: Adiciona uma nova documentação.
 
-# e2e tests
-$ npm run test:e2e
+  * `style(:scope): (descrição)`: Corrige um bug de estilo.
 
-# test coverage
-$ npm run test:cov
-```
+  * `refactor(:scope): (descrição)`: Refatora um código.
 
-## Support
+  * `perf(:scope): (descrição)`: Melhora a performance.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  * `test(:scope): (descrição)`: Adiciona um novo teste.
 
-## Stay in touch
+  * `chore(:scope): (descrição)`: Altera o comportamento do projeto.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+  * `revert(:scope): (descrição)`: Reverte um commit.
 
-## License
+  * `WIP(:scope): (descrição)`: Work in progress.
 
-Nest is [MIT licensed](LICENSE).
+  * `BREAKING CHANGE(:scope): (descrição)`: Alteração que pode causar problemas.
+
+  * `release(:scope): (descrição)`: Lançamento de uma nova versão.
+
+* **As descrições são opcionais. Caso coloque ele deverá ser breve.**
