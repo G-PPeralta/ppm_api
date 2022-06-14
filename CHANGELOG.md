@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/iksolution/origem-ppm-api/compare/v1.0.4...v1.0.5) (2022-06-14)
+
+
+### Bug Fixes
+
+* change readme ([3e0c01e](https://github.com/iksolution/origem-ppm-api/commit/3e0c01ed03f9d678a1d12d8afc01ceb60b4cc9af))
+
 ## [1.0.4](https://github.com/iksolution/origem-ppm-api/compare/v1.0.3...v1.0.4) (2022-06-14)
 
 
