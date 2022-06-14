@@ -8,6 +8,12 @@
   "engines": {
     "node": "14.17.5"
   },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "eslint src/ --fix"
+    ]
+  },
   "scripts": {
     "postinstall": "husky install",
     "prebuild": "rimraf dist",
