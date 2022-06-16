@@ -30,7 +30,7 @@ export class UserMapper {
   static mapFromLoginDto(dto: LoginDto): User {
     const _user = this.emptyEntity();
     _user.email = dto.email;
-    _user.senha = 'abc@123';
+    _user.senha = dto.password;
     return _user;
   }
 
