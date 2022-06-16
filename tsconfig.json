@@ -12,7 +12,7 @@
     "strict": true,
     "lib": ["esnext"],
     "esModuleInterop": true,
-    "baseUrl": "./",
+    "baseUrl": "src",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

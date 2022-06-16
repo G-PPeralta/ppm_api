@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -19,4 +16,22 @@ model Tarefa {
   duracao_planejada   String? @db.VarChar
 
   @@map("tb_tarefas")
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  nome         String @db.VarChar
+  email        String @unique @db.VarChar
+  senha        String @db.VarChar
+  telefone     String @db.VarChar
+  area_atuacao String @db.VarChar
+  perfil       Perfil @default(PENDING)
+
+  @@map("tb_usuarios")
+}
+
+enum Perfil {
+  ADMIN
+  USER
+  PENDING
 }
