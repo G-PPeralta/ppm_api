@@ -1,27 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { prismaStudio } from 'src/prisma';
+import { prismaClient } from 'index.prisma';
 import { CreateTarefaDto } from './dto/create-tarefa.dto';
-import { UpdateTarefaDto } from './dto/update-tarefa.dto';
 
 @Injectable()
 export class TarefaService {
   async create(createTarefaDto: CreateTarefaDto) {
-    console.log(createTarefaDto);
-    const tarefa = await prismaStudio.tarefa.create({ data: createTarefaDto });
+    const tarefa = await prismaClient.tarefa.create({ data: createTarefaDto });
     return tarefa;
   }
 
   async findAll() {
-    const tarefas = await prismaStudio.tarefa.findMany();
-    return tarefas;
+    return await prismaClient.tarefa.findMany();
   }
 
   async findOne(id: number) {
-    const tarefa = await prismaStudio.tarefa.findUnique({ where: { id: id } });
+    const tarefa = await prismaClient.tarefa.findUnique({ where: { id: id } });
     return tarefa;
   }
 
-  update(id: number, updateTarefaDto: UpdateTarefaDto) {
+  update(id: number) {
     return `This action updates a #${id} tarefa`;
   }
 

@@ -19,13 +19,19 @@ model Tarefa {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  nome         String  @db.VarChar
-  email        String  @db.VarChar
-  senha        String  @db.VarChar
-  telefone     String  @db.VarChar
-  perfil       String? @db.VarChar
-  area_atuacao String  @db.VarChar
+  id           Int    @id @default(autoincrement())
+  nome         String @db.VarChar
+  email        String @unique @db.VarChar
+  senha        String @db.VarChar
+  telefone     String @db.VarChar
+  area_atuacao String @db.VarChar
+  perfil       Perfil @default(PENDING)
 
   @@map("tb_usuarios")
+}
+
+enum Perfil {
+  ADMIN
+  USER
+  PENDING
 }

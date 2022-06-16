@@ -8,9 +8,8 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
-import { TarefaService } from './tarefa.service';
-import { CreateTarefaDto } from './dto/create-tarefa.dto';
-import { UpdateTarefaDto } from './dto/update-tarefa.dto';
+import { TarefaService } from 'tarefa/tarefa.service';
+import { CreateTarefaDto } from 'tarefa/dto/create-tarefa.dto';
 
 @Controller('tarefa')
 export class TarefaController {
@@ -23,8 +22,10 @@ export class TarefaController {
   }
 
   @Get()
-  findAll() {
-    return this.tarefaService.findAll();
+  async findAll() {
+    const tarefas = await this.tarefaService.findAll();
+    console.log(tarefas);
+    return tarefas;
   }
 
   @Get(':id')
@@ -33,8 +34,8 @@ export class TarefaController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTarefaDto: UpdateTarefaDto) {
-    return this.tarefaService.update(+id, updateTarefaDto);
+  update(@Param('id') id: string) {
+    return this.tarefaService.update(+id);
   }
 
   @Delete(':id')

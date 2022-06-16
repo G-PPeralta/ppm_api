@@ -1,10 +1,10 @@
 import { Perfil } from '@prisma/client';
 
-export class CreateUserDto {
+export class UserShortenedDto {
+  id: number;
   nome: string;
-  telefone: string;
   email: string;
+  telefone: string;
   area_atuacao: string;
-  senha: string;
   perfil: Perfil;
 }
