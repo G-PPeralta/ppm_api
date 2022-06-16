@@ -54,4 +54,10 @@ export class UserService {
       where: { email },
     });
   }
+
+  async findUsersProfilePending() {
+    return await prismaClient.$queryRawUnsafe(
+      'select * from dev.get_users_pending',
+    );
+  }
 }

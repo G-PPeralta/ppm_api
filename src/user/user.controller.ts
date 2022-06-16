@@ -31,6 +31,12 @@ export class UserController {
     }
   }
 
+  @Get('pending')
+  async findAllPending() {
+    const users = await this.userService.findUsersProfilePending();
+    return users;
+  }
+
   @Get()
   async findAll() {
     const users = await this.userService.findAll();
