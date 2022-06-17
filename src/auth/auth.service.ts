@@ -8,6 +8,7 @@ import { join } from 'path';
 
 import * as fs from 'fs';
 import { User } from '@prisma/client';
+import { UserMapper } from 'utils/mapper/userMapper';
 
 @Injectable()
 export class AuthService {
@@ -42,12 +43,14 @@ export class AuthService {
       throw new InternalServerErrorException(`Usuário não existe`);
 
     const userByEmail = await this.usersService.findOneByEmail(email);
-    const jwtPayload = { ...userByEmail };
+    const userWithoutPassword = UserMapper.mapToUserDto(userByEmail);
+    const jwtPayload = { ...userWithoutPassword };
 
     const refreshToken = this.createRefreshToken(userByEmail.id);
 
     return {
       validatedUser,
+      user: userWithoutPassword,
       access_token: this.jwtService.sign(jwtPayload),
       refresh_token: refreshToken,
     };
@@ -101,10 +104,11 @@ export class AuthService {
 
   async regenerateAccessToken(userId: number) {
     const user = await this.usersService.findOne(userId);
+    const userWithoutPassword = UserMapper.mapToUserDto(user);
 
     if (!user) throw new Error('Token inválido [01]');
 
-    const accessToken = this.jwtService.sign({ ...user });
+    const accessToken = this.jwtService.sign({ ...userWithoutPassword });
 
     return accessToken;
   }
