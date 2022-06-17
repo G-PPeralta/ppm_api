@@ -21,11 +21,19 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    // @Res() res: Response
+  ) {
     try {
+      const findUserByEmail = await this.userService.findOneByEmail(
+        createUserDto.email,
+      );
+      if (findUserByEmail) throw Error('Email already exists');
       return await this.userService.create(createUserDto);
     } catch (error: any) {
       return new InternalServerErrorException(error.message);
+      // return res.status(500).send({ message: error.message, status: 500 });
     }
   }
   @ApiBearerAuth()
