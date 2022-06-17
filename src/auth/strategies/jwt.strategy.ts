@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { jwtConstants } from 'auth/constants';
 import { Encrypt64 } from 'utils/security/encrypt.security';
 import { User } from '@prisma/client';

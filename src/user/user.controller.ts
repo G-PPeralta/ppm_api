@@ -12,7 +12,6 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserMapper } from 'utils/mapper/userMapper';
-import { LocalAuthGuard } from 'auth/guards/local-auth.guard';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 

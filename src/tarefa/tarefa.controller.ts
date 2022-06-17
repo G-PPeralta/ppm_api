@@ -24,7 +24,6 @@ export class TarefaController {
   @Get()
   async findAll() {
     const tarefas = await this.tarefaService.findAll();
-    console.log(tarefas);
     return tarefas;
   }
 
