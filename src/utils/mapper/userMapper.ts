@@ -21,7 +21,7 @@ export class UserMapper {
       area_atuacao: '',
       email: '',
       nome: '',
-      perfil: 'PENDING',
+      perfil: 'USER',
       telefone: '',
       senha: '',
     };

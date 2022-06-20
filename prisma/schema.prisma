@@ -25,7 +25,7 @@ model User {
   senha        String @db.VarChar
   telefone     String @db.VarChar
   area_atuacao String @db.VarChar
-  perfil       Perfil @default(PENDING)
+  perfil       Perfil @default(USER)
 
   @@map("tb_usuarios")
 }
@@ -33,5 +33,4 @@ model User {
 enum Perfil {
   ADMIN
   USER
-  PENDING
 }
