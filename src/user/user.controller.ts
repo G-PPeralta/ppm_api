@@ -21,21 +21,21 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(
-    @Body() createUserDto: CreateUserDto,
-    // @Res() res: Response
-  ) {
+  async create(@Body() createUserDto: CreateUserDto) {
     try {
       const findUserByEmail = await this.userService.findOneByEmail(
         createUserDto.email,
       );
+      const hasPerfil = createUserDto.perfil;
+
+      if (hasPerfil) throw Error(`Don't use Perfil here`);
       if (findUserByEmail) throw Error('Email already exists');
+
       const user = await this.userService.create(createUserDto);
 
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
       return new InternalServerErrorException(error.message);
-      // return res.status(500).send({ message: error.message, status: 500 });
     }
   }
 
