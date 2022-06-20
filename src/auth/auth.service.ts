@@ -56,8 +56,8 @@ export class AuthService {
     };
   }
 
-  verifyToken(token: string, publicKey: string): any {
-    const decoded = jwt.verify(token, publicKey, {
+  public verifyToken(token: string): any {
+    const decoded = jwt.verify(token, this.getPublicKey(), {
       ignoreExpiration: true,
     });
 
