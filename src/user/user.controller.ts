@@ -82,8 +82,12 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.userService.update(+id, updateUserDto);
-    return UserMapper.mapToUserDto(user);
+    try {
+      const user = await this.userService.update(+id, updateUserDto);
+      return UserMapper.mapToUserDto(user);
+    } catch (error: any) {
+      return new InternalServerErrorException(error.message);
+    }
   }
 
   @ApiBearerAuth()

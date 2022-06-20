@@ -6,9 +6,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  async create(createUserDto: CreateUserDto) {
+  private encryptPassword(password: string) {
     const crypt = new Encrypt64();
-    const novaSenha = crypt.toBase64fromsha512(createUserDto.senha);
+    const newPassword = crypt.toBase64fromsha512(password);
+    return newPassword;
+  }
+  async create(createUserDto: CreateUserDto) {
+    const novaSenha = this.encryptPassword(createUserDto.senha);
     createUserDto.senha = novaSenha;
     Logger.log(createUserDto);
     return await prismaClient.user.create({ data: createUserDto });
@@ -28,6 +32,8 @@ export class UserService {
   async update(id: number, updateUser: UpdateUserDto) {
     const findUser = await this.findOne(id);
     if (!findUser) throw Error('User not found');
+    const novaSenha = this.encryptPassword(updateUser.senha);
+    updateUser.senha = novaSenha;
     const user = await prismaClient.user.update({
       where: { id },
       data: updateUser,
@@ -43,8 +49,7 @@ export class UserService {
     email: string,
     senha: string,
   ): Promise<boolean> {
-    const crypt = new Encrypt64();
-    const novaSenha = crypt.toBase64fromsha512(senha);
+    const novaSenha = this.encryptPassword(senha);
 
     const user = await prismaClient.user.findFirst({
       where: {

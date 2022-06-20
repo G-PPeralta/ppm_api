@@ -24,6 +24,7 @@ export class UserMapper {
       perfil: 'USER',
       telefone: '',
       senha: '',
+      avatar: '',
     };
   }
 
