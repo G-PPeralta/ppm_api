@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { prismaClient } from 'index.prisma';
 import { Encrypt64 } from 'utils/security/encrypt.security';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -24,8 +25,14 @@ export class UserService {
     });
   }
 
-  update(id: number) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUser: UpdateUserDto) {
+    const findUser = await this.findOne(id);
+    if (!findUser) throw Error('User not found');
+    const user = await prismaClient.user.update({
+      where: { id },
+      data: updateUser,
+    });
+    return user;
   }
 
   remove(id: number) {
