@@ -65,8 +65,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
-    const users = await this.userService.findAll();
-    return UserMapper.mapToListUserShortenedDto(users);
+    return await this.userService.findAll();
   }
 
   @ApiBearerAuth()

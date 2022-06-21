@@ -24,7 +24,9 @@ export class UserService {
   }
 
   async findAll() {
-    const users = await prismaClient.user.findMany();
+    const users = await prismaClient.$queryRawUnsafe(
+      'select * from dev.v_users_with_role',
+    );
     return users;
   }
 
