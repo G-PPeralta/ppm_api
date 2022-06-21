@@ -12,6 +12,7 @@ export class UserMapper {
       nome: user.nome,
       role_id: user.role_id,
       telefone: user.telefone,
+      avatar: user.avatar,
     };
   }
 
