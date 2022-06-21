@@ -76,7 +76,7 @@ export class UserService {
 
   async findUsersProfilePending() {
     return await prismaClient.$queryRawUnsafe(
-      'select * from dev.get_users_pending',
+      'select * from dev.v_users_pending',
     );
   }
 }
