@@ -6,6 +6,9 @@
 
 ```bash
 $ yarn
+
+$ yarn prisma generate
+
 ```
 
 ## Running the app locale
