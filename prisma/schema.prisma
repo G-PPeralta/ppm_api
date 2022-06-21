@@ -19,19 +19,21 @@ model Tarefa {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  nome         String  @db.VarChar
-  email        String  @unique @db.VarChar
-  senha        String  @db.VarChar
-  telefone     String  @db.VarChar
-  area_atuacao String  @db.VarChar
-  perfil       Perfil  @default(USER)
-  avatar       String? @db.VarChar(5000)
+  id           Int      @id @default(autoincrement())
+  nome         String   @db.VarChar
+  email        String   @unique @db.VarChar
+  senha        String   @db.VarChar
+  telefone     String   @db.VarChar
+  area_atuacao String   @db.VarChar
+  avatar       String?  @db.VarChar(5000)
+  role_id      Int?
+  tb_role      tb_role? @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
 
   @@map("tb_usuarios")
 }
 
-enum Perfil {
-  ADMIN
-  USER
+model tb_role {
+  id          Int    @id @default(autoincrement())
+  role        String @db.VarChar
+  tb_usuarios User[] @relation("tb_roleTotb_usuarios")
 }

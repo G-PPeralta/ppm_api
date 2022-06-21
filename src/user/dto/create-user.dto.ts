@@ -1,4 +1,4 @@
-import { Perfil } from '@prisma/client';
+import { IsNotEmpty, Min } from 'class-validator';
 
 export class CreateUserDto {
   nome: string;
@@ -6,5 +6,7 @@ export class CreateUserDto {
   email: string;
   area_atuacao: string;
   senha: string;
-  perfil: Perfil;
+  @Min(1)
+  @IsNotEmpty()
+  role_id: number;
 }

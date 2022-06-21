@@ -16,6 +16,7 @@ import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'auth/roles/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Perfil } from 'types/roles';
 
 @Controller('user')
 export class UserController {
@@ -27,26 +28,24 @@ export class UserController {
       const findUserByEmail = await this.userService.findOneByEmail(
         createUserDto.email,
       );
-      const hasPerfil = createUserDto.perfil;
 
-      if (hasPerfil) throw Error(`Don't use Perfil here`);
       if (findUserByEmail) throw Error('Email already exists');
 
       const user = await this.userService.create(createUserDto);
 
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
-      return new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles('ADMIN')
+  @Roles(Perfil.ADMIN)
   @Post('admin')
   async createUserFromAdmin(@Body() createUserDto: CreateUserDto) {
     try {
-      const hasPefil = createUserDto.perfil;
-      if (!hasPefil) throw Error('Perfil is required');
+      const hasRoleId = createUserDto.role_id;
+      if (!hasRoleId) throw Error('role_id is required');
 
       const user = await this.userService.create(createUserDto);
       return UserMapper.mapToUserDto(user);

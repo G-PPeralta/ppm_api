@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { prismaClient } from 'index.prisma';
 import { Encrypt64 } from 'utils/security/encrypt.security';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -14,7 +15,11 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const novaSenha = this.encryptPassword(createUserDto.senha);
     createUserDto.senha = novaSenha;
-    Logger.log(createUserDto);
+
+    validate(createUserDto).catch((error) => {
+      throw new Error(error.message);
+    });
+
     return await prismaClient.user.create({ data: createUserDto });
   }
 
