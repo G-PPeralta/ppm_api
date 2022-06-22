@@ -39,13 +39,21 @@ export class UserService {
   }
 
   async update(id: number, updateUser: UpdateUserDto) {
-    const findUser = await this.findOne(id);
+    const findUser = await prismaClient.user.findUnique({ where: { id: id } });
     if (!findUser) throw Error('User not found');
-    const novaSenha = this.encryptPassword(updateUser.senha);
-    updateUser.senha = novaSenha;
+
+    const ifExistPassword = Boolean(updateUser.senha);
+
+    if (ifExistPassword) {
+      const novaSenha = this.encryptPassword(updateUser.senha);
+      updateUser.senha = novaSenha;
+    }
+
+    const newUser = { ...findUser, ...updateUser };
+
     const user = await prismaClient.user.update({
       where: { id },
-      data: updateUser,
+      data: newUser,
     });
     return user;
   }

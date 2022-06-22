@@ -16,9 +16,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserMapper } from 'utils/mapper/userMapper';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from 'auth/roles/roles.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Perfil } from 'types/roles';
 
 @Controller('user')
 export class UserController {
@@ -45,7 +43,6 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Perfil.ADMIN)
   @Post('admin')
   async createUserFromAdmin(
     @Body() createUserDto: CreateUserDto,
@@ -100,7 +97,7 @@ export class UserController {
       const user = await this.userService.update(+id, updateUserDto);
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
-      return new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
