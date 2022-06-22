@@ -19,15 +19,14 @@ model Tarefa {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  nome         String  @db.VarChar
-  email        String  @unique @db.VarChar
-  senha        String  @db.VarChar
-  telefone     String  @db.VarChar
-  area_atuacao String  @db.VarChar
-  avatar       String? @db.VarChar
-  role_id      Int     @default(2)
-  tb_role      Role    @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
+  id           Int    @id @default(autoincrement())
+  nome         String @db.VarChar
+  email        String @unique @db.VarChar
+  senha        String @db.VarChar
+  telefone     String @db.VarChar
+  area_atuacao String @db.VarChar
+  role_id      Int    @default(2)
+  tb_role      Role   @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
 
   @@map("tb_usuarios")
 }

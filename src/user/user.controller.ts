@@ -91,13 +91,6 @@ export class UserController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('avatar/:id')
-  async findAvatarFromUser(@Param('id') id: string) {
-    return await this.userService.findOneAvatar(+id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
