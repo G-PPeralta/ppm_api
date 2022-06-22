@@ -31,9 +31,10 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    return await prismaClient.user.findUnique({
-      where: { id },
-    });
+    const users = await prismaClient.$queryRawUnsafe(
+      `select * from dev.v_users_with_role where id = ${id}`,
+    );
+    return users;
   }
 
   async update(id: number, updateUser: UpdateUserDto) {

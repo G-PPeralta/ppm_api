@@ -104,11 +104,10 @@ export class AuthService {
 
   async regenerateAccessToken(userId: number) {
     const user = await this.usersService.findOne(userId);
-    const userWithoutPassword = UserMapper.mapToUserDto(user);
 
     if (!user) throw new Error('Token inválido [01]');
 
-    const accessToken = this.jwtService.sign({ ...userWithoutPassword });
+    const accessToken = this.jwtService.sign({ user });
 
     return accessToken;
   }

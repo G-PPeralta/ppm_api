@@ -72,8 +72,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const user = await this.userService.findOne(+id);
-    return UserMapper.mapToUserDto(user);
+    return await this.userService.findOne(+id);
   }
 
   @ApiBearerAuth()
