@@ -32,7 +32,8 @@ export class UserService {
 
   async findOne(id: number) {
     const users = await prismaClient.$queryRawUnsafe(
-      `select * from dev.v_users_with_role where id = ${id}`,
+      `select * from dev.v_users_with_role where id = $1`,
+      id,
     );
     return users;
   }
