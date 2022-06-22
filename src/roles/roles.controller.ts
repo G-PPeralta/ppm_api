@@ -15,12 +15,12 @@ import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { Roles } from 'auth/roles/roles.decorator';
 import { Perfil } from 'types/roles';
 
-@UseGuards(JwtAuthGuard)
-@Roles(Perfil.ADMIN)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Perfil.ADMIN)
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
@@ -36,11 +36,15 @@ export class RolesController {
     return this.rolesService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Perfil.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(+id, updateRoleDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Perfil.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.rolesService.remove(+id);
