@@ -24,7 +24,6 @@ export class UserMapper {
       role_id: 2,
       telefone: '',
       senha: '',
-      avatar: '',
     };
   }
 
