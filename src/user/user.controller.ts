@@ -25,6 +25,9 @@ export class UserController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
+      if (createUserDto.role_id)
+        throw new InternalServerErrorException('No includes role_id here');
+
       const findUserByEmail = await this.userService.findOneByEmail(
         createUserDto.email,
       );

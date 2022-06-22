@@ -26,7 +26,7 @@ model User {
   telefone     String  @db.VarChar
   area_atuacao String  @db.VarChar
   avatar       String? @db.VarChar
-  role_id      Int
+  role_id      Int     @default(2)
   tb_role      Role    @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
 
   @@map("tb_usuarios")
