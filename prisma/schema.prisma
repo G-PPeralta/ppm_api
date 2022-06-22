@@ -25,13 +25,17 @@ model User {
   senha        String @db.VarChar
   telefone     String @db.VarChar
   area_atuacao String @db.VarChar
-  perfil       Perfil @default(PENDING)
+  role_id      Int    @default(2)
+  tb_role      Role   @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
 
   @@map("tb_usuarios")
 }
 
-enum Perfil {
-  ADMIN
-  USER
-  PENDING
+model Role {
+  id          Int    @id @default(autoincrement())
+  role        String @db.VarChar
+  nome_role   String @db.VarChar(50)
+  tb_usuarios User[] @relation("tb_roleTotb_usuarios")
+
+  @@map("tb_role")
 }

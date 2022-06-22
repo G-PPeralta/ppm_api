@@ -17,10 +17,10 @@
   "scripts": {
     "postinstall": "husky install",
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "yarn prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/main",
-    "dev": "nest start --watch",
+    "start": "yarn prisma generate && node dist/main",
+    "dev": "yarn prisma generate && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

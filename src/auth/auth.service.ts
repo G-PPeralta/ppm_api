@@ -56,8 +56,8 @@ export class AuthService {
     };
   }
 
-  verifyToken(token: string, publicKey: string): any {
-    const decoded = jwt.verify(token, publicKey, {
+  public verifyToken(token: string): any {
+    const decoded = jwt.verify(token, this.getPublicKey(), {
       ignoreExpiration: true,
     });
 
@@ -104,11 +104,10 @@ export class AuthService {
 
   async regenerateAccessToken(userId: number) {
     const user = await this.usersService.findOne(userId);
-    const userWithoutPassword = UserMapper.mapToUserDto(user);
 
     if (!user) throw new Error('Token inválido [01]');
 
-    const accessToken = this.jwtService.sign({ ...userWithoutPassword });
+    const accessToken = this.jwtService.sign({ user });
 
     return accessToken;
   }

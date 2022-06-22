@@ -4,13 +4,13 @@ import { User } from '@prisma/client';
 import { LoginDto } from 'user/dto/login.dto';
 
 export class UserMapper {
-  static mapToUserDto(user: User): UserShortenedDto {
+  static mapToUserDto(user: User): any {
     return {
       id: user.id,
       area_atuacao: user.area_atuacao,
       email: user.email,
       nome: user.nome,
-      perfil: user.perfil,
+      role_id: user.role_id,
       telefone: user.telefone,
     };
   }
@@ -21,7 +21,7 @@ export class UserMapper {
       area_atuacao: '',
       email: '',
       nome: '',
-      perfil: 'PENDING',
+      role_id: 2,
       telefone: '',
       senha: '',
     };
