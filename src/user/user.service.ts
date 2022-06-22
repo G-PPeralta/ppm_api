@@ -38,6 +38,13 @@ export class UserService {
     return users;
   }
 
+  async findOneAvatar(id: number) {
+    return await prismaClient.user.findUnique({
+      where: { id },
+      select: { avatar: true },
+    });
+  }
+
   async update(id: number, updateUser: UpdateUserDto) {
     const findUser = await prismaClient.user.findUnique({ where: { id: id } });
     if (!findUser) throw Error('User not found');
