@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { TarefaService } from 'tarefa/tarefa.service';
 import { CreateTarefaDto } from 'tarefa/dto/create-tarefa.dto';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tarefa')
 export class TarefaController {
   constructor(private readonly tarefaService: TarefaService) {}
