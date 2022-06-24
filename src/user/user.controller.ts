@@ -103,18 +103,16 @@ export class UserController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @Req() req,
+    // @Req() req,
   ) {
-    console.log({
-      rota: req.originalUrl,
-      requisicao: req.method,
-      usuario: req.user,
-    });
+    // console.log({
+    //   rota: req.originalUrl,
+    //   requisicao: req.method,
+    //   usuario: req.user,
+    // });
     try {
-      const reqUser: UserWithRole = req.user;
-      const idsIsEquals = reqUser.id === +id;
-
-      return idsIsEquals;
+      // const reqUser: UserWithRole = req.user;
+      // const idsIsEquals = reqUser.id === +id;
 
       // VERIFICAR: um usuario poderá alterar outro ?
       // if (!idsIsEquals) throw new Error(`You cannot update other user`);
@@ -130,7 +128,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return { name: this.remove.name + UserController.name };
     return this.userService.remove(+id);
   }
 }
