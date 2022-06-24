@@ -8,8 +8,8 @@ import {
   InternalServerErrorException,
   UseGuards,
   Put,
-  Request,
-  UnauthorizedException,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +17,12 @@ import { UserMapper } from 'utils/mapper/userMapper';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RolesGuard } from 'auth/guards/roles.guard';
+import { Roles } from 'auth/roles/roles.decorator';
+import { Perfil } from 'types/roles';
+import { UserWithRole } from './dto/user-with-role.dto';
+import { json } from 'body-parser';
+import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -42,15 +48,12 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Perfil.ADMIN)
   @Post('admin')
-  async createUserFromAdmin(
-    @Body() createUserDto: CreateUserDto,
-    @Request() req,
-  ) {
+  async createUserFromAdmin(@Body() createUserDto: CreateUserDto) {
     try {
-      if (req.user.role_id !== 1) throw Error();
-
       const hasRoleId = createUserDto.role_id;
       if (!hasRoleId) throw Error('role_id is required');
 
@@ -63,18 +66,23 @@ export class UserController {
       const user = await this.userService.create(createUserDto);
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
-      if (req.user.role_id !== 1) throw new UnauthorizedException();
       throw new InternalServerErrorException(error.message);
     }
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Perfil.ADMIN)
   @Get('pending')
   async findAllPending() {
-    const users = await this.userService.findUsersProfilePending();
-    return users;
+    try {
+      const users = await this.userService.findUsersProfilePending();
+      return users;
+    } catch (error: any) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -92,8 +100,25 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req,
+  ) {
+    console.log({
+      rota: req.originalUrl,
+      requisicao: req.method,
+      usuario: req.user,
+    });
     try {
+      const reqUser: UserWithRole = req.user;
+      const idsIsEquals = reqUser.id === +id;
+
+      return idsIsEquals;
+
+      // VERIFICAR: um usuario poderá alterar outro ?
+      // if (!idsIsEquals) throw new Error(`You cannot update other user`);
+
       const user = await this.userService.update(+id, updateUserDto);
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
@@ -105,6 +130,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
+    return { name: this.remove.name + UserController.name };
     return this.userService.remove(+id);
   }
 }

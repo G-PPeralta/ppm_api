@@ -3,6 +3,6 @@ export class CreateUserDto {
   telefone: string;
   email: string;
   area_atuacao: string;
-  senha: string;
   role_id: number;
+  senha: string;
 }

@@ -3,23 +3,24 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
-  HttpCode,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { TarefaService } from 'tarefa/tarefa.service';
 import { CreateTarefaDto } from 'tarefa/dto/create-tarefa.dto';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('Tarefas')
 @UseGuards(JwtAuthGuard)
 @Controller('tarefa')
 export class TarefaController {
   constructor(private readonly tarefaService: TarefaService) {}
 
   @Post()
-  @HttpCode(201)
   create(@Body() createTarefaDto: CreateTarefaDto) {
     return this.tarefaService.create(createTarefaDto);
   }
@@ -35,7 +36,7 @@ export class TarefaController {
     return this.tarefaService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string) {
     return this.tarefaService.update(+id);
   }

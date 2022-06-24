@@ -4,6 +4,8 @@ import { prismaClient } from 'index.prisma';
 import { Encrypt64 } from 'utils/security/encrypt.security';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { validate } from 'class-validator';
+import { Prisma } from '@prisma/client';
+import { UserWithRole } from './dto/user-with-role.dto';
 
 @Injectable()
 export class UserService {
@@ -72,16 +74,17 @@ export class UserService {
       where: {
         email,
         senha: novaSenha,
-        // senha: 'abc@123'
       },
     });
     return Boolean(user);
   }
 
   async findOneByEmail(email: string) {
-    return await prismaClient.user.findUnique({
-      where: { email },
-    });
+    const result: UserWithRole[] = await prismaClient.$queryRaw(
+      Prisma.sql`select * from dev.v_users_to_auth WHERE email = ${email}`,
+    );
+
+    return result[0];
   }
 
   async findUsersProfilePending() {

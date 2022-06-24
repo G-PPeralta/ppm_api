@@ -2,17 +2,12 @@ import { UserShortenedDto } from '../../user/dto/user-shortened.dto';
 
 import { User } from '@prisma/client';
 import { LoginDto } from 'user/dto/login.dto';
+import { UserWithRole } from 'user/dto/user-with-role.dto';
 
 export class UserMapper {
-  static mapToUserDto(user: User): any {
-    return {
-      id: user.id,
-      area_atuacao: user.area_atuacao,
-      email: user.email,
-      nome: user.nome,
-      role_id: user.role_id,
-      telefone: user.telefone,
-    };
+  static mapToUserDto(user: Partial<UserWithRole>): any {
+    delete user.senha;
+    return user;
   }
 
   static emptyEntity(): User {
@@ -30,11 +25,11 @@ export class UserMapper {
   static mapFromLoginDto(dto: LoginDto): User {
     const _user = this.emptyEntity();
     _user.email = dto.email;
-    _user.senha = dto.password;
+    _user.senha = dto.senha;
     return _user;
   }
 
-  static mapToListUserShortenedDto(users: User[]): UserShortenedDto[] {
+  static mapToListUserShortenedDto(users: UserWithRole[]): UserShortenedDto[] {
     return users.map((user) => this.mapToUserDto(user));
   }
 }
