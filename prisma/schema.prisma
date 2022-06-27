@@ -39,3 +39,11 @@ model Role {
 
   @@map("tb_role")
 }
+
+model Log {
+  id   Int      @id @default(autoincrement())
+  log  Json     @db.Json
+  data DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("tb_logs")
+}
