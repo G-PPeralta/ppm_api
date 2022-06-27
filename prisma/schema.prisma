@@ -17,9 +17,9 @@ model Atividade {
   statusId               Int              @map("status_id")
   macroatividadeId       Int?             @map("macroatividade_id")
   projetoId              Int              @map("projeto_id")
-  indNaoIniciarAntesDe   Int              @map("ind_nao_iniciar_antes_de") @default(0)
-  indNaoTerminarDepoisDe Int              @map("ind_nao_terminar_depois_de") @default(0)
-  indMaisBrevePossivel   Int              @map("ind_mais_breve_possivel") @default(0)
+  indNaoIniciarAntesDe   Boolean          @default(false) @map("ind_nao_iniciar_antes_de") @db.Boolean
+  indNaoTerminarDepoisDe Boolean          @default(false) @map("ind_nao_terminar_depois_de") @db.Boolean
+  indMaisBrevePossivel   Boolean          @default(false) @map("ind_mais_breve_possivel") @db.Boolean
   dataRestricaoInicio    DateTime?        @map("data_restricao_inicio") @db.Date
   dataRestricaoDepois    DateTime?        @map("data_restricao_depois") @db.Date
   responsavelId          Int              @map("responsavel_id")
@@ -86,7 +86,7 @@ model Local {
 model Log {
   id   Int      @id @default(autoincrement())
   log  Json
-  data DateTime @default(now()) @db.Timestamp(0)
+  data DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
 
   @@map("tb_logs")
 }
@@ -127,11 +127,6 @@ model AtvHistorico {
   @@map("tb_proj_atv_historico")
 }
 
-enum TipoProjeto {
-  Projeto
-  Estudo
-}
-
 model Projeto {
   id                   Int                   @id @default(autoincrement())
   nomeProjeto          String                @map("nome_projeto") @db.VarChar(100)
@@ -146,7 +141,7 @@ model Projeto {
   classificacaoId      Int?                  @map("classificacao_id")
   divisaoId            Int                   @map("divisao_id")
   gateId               Int?                  @map("gate_id")
-  tipoProjeto          TipoProjeto           @map("tipo_projeto")
+  tipoProjetoId        Int                   @map("tipo_projeto_id")
   demandaId            Int?                  @map("demanda_id")
   statusId             Int                   @map("status_id")
   prioridadeId         Int                   @map("prioridade_id")
@@ -164,6 +159,7 @@ model Projeto {
   prioridadeProjeto    PrioridadeProjeto     @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
   solicitanteProjeto   SolicitanteProjeto    @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
   statusProjeto        StatusProjeto         @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
+  tipoProjeto          TipoProjeto           @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
   atividades           Atividade[]
 
   @@map("tb_projetos")
@@ -202,14 +198,22 @@ model StatusProjeto {
   @@map("tb_status_projetos")
 }
 
+model TipoProjeto {
+  id       Int       @id @default(autoincrement())
+  tipo     String    @db.VarChar(45)
+  projetos Projeto[]
+
+  @@map("tb_tipos_projeto")
+}
+
 model User {
   id          Int         @id @default(autoincrement())
   nome        String      @db.VarChar
-  email       String      @db.VarChar @unique
+  email       String      @unique @db.VarChar
   senha       String      @db.VarChar
   telefone    String      @db.VarChar
   areaAtuacao String      @map("area_atuacao") @db.VarChar
-  roleId      Int         @map("role_id") @default(2)
+  roleId      Int         @default(2) @map("role_id")
   role        Role        @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
   atividades  Atividade[]
 

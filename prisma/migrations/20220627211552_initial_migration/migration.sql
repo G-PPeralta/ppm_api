@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "TipoProjeto" AS ENUM ('Projeto', 'Estudo');
-
 -- CreateTable
 CREATE TABLE "tb_atividades" (
     "id" SERIAL NOT NULL,
@@ -12,9 +9,9 @@ CREATE TABLE "tb_atividades" (
     "status_id" INTEGER NOT NULL,
     "macroatividade_id" INTEGER,
     "projeto_id" INTEGER NOT NULL,
-    "ind_nao_iniciar_antes_de" INTEGER NOT NULL DEFAULT 0,
-    "ind_nao_terminar_depois_de" INTEGER NOT NULL DEFAULT 0,
-    "ind_mais_breve_possivel" INTEGER NOT NULL DEFAULT 0,
+    "ind_nao_iniciar_antes_de" BOOLEAN NOT NULL DEFAULT false,
+    "ind_nao_terminar_depois_de" BOOLEAN NOT NULL DEFAULT false,
+    "ind_mais_breve_possivel" BOOLEAN NOT NULL DEFAULT false,
     "data_restricao_inicio" DATE,
     "data_restricao_depois" DATE,
     "responsavel_id" INTEGER NOT NULL,
@@ -74,7 +71,7 @@ CREATE TABLE "tb_locais" (
 CREATE TABLE "tb_logs" (
     "id" SERIAL NOT NULL,
     "log" JSONB NOT NULL,
-    "data" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data" TIMESTAMP(6) NOT NULL DEFAULT timezone('gmt3'::text, now()),
 
     CONSTRAINT "tb_logs_pkey" PRIMARY KEY ("id")
 );
@@ -128,7 +125,7 @@ CREATE TABLE "tb_projetos" (
     "classificacao_id" INTEGER,
     "divisao_id" INTEGER NOT NULL,
     "gate_id" INTEGER,
-    "tipo_projeto" "TipoProjeto" NOT NULL,
+    "tipo_projeto_id" INTEGER NOT NULL,
     "demanda_id" INTEGER,
     "status_id" INTEGER NOT NULL,
     "prioridade_id" INTEGER NOT NULL,
@@ -171,6 +168,14 @@ CREATE TABLE "tb_status_projetos" (
     "status" VARCHAR(45) NOT NULL,
 
     CONSTRAINT "tb_status_projetos_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "tb_tipos_projeto" (
+    "id" SERIAL NOT NULL,
+    "tipo" VARCHAR(45) NOT NULL,
+
+    CONSTRAINT "tb_tipos_projeto_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -245,6 +250,9 @@ ALTER TABLE "tb_projetos" ADD CONSTRAINT "fk_tb_projetos_tb_departamentos1" FORE
 
 -- AddForeignKey
 ALTER TABLE "tb_projetos" ADD CONSTRAINT "fk_tb_projetos_tb_status_projeto1" FOREIGN KEY ("status_id") REFERENCES "tb_status_projetos"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "tb_projetos" ADD CONSTRAINT "fk_tb_projetos_tb_tipos_projeto1" FOREIGN KEY ("tipo_projeto_id") REFERENCES "tb_tipos_projeto"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "tb_usuarios" ADD CONSTRAINT "role_id_fk" FOREIGN KEY ("role_id") REFERENCES "tb_roles"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
