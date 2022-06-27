@@ -9,6 +9,13 @@ import { UserWithRole } from './dto/user-with-role.dto';
 
 @Injectable()
 export class UserService {
+  static errors = {
+    emailExists: 'Email already exists',
+    noRoleHere: 'No includes role_id here',
+    roleRequired: 'role_id is required',
+    userNotFound: 'User not found',
+  };
+
   private encryptPassword(password: string) {
     const crypt = new Encrypt64();
     const newPassword = crypt.toBase64fromsha512(password);
@@ -42,7 +49,7 @@ export class UserService {
 
   async update(id: number, updateUser: UpdateUserDto) {
     const findUser = await prismaClient.user.findUnique({ where: { id: id } });
-    if (!findUser) throw Error('User not found');
+    if (!findUser) throw Error(UserService.errors.userNotFound);
 
     const ifExistPassword = Boolean(updateUser.senha);
 

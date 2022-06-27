@@ -45,3 +45,22 @@ $ yarn start:dev
 - `release(:scope): (descrição)`: Lançamento de uma nova versão.
 
 - **As descrições são opcionais. Caso coloque ele deverá ser breve.**
+
+## Em desenvolvimento:
+
+_Ao criar rotas do tipo POST, PUT ou DELETE:_
+
+- Insira o decorator @LoggerDB() junto com a propriedade req, pois o mesmo é responsável por criar o Log no sistema;
+- **Não se aplica a rotas onde não há usuário logado**;
+
+Veja o exemplo:
+
+```
+...
+  @Post()
+  async criar(@LoggerDB() req) {
+
+    // implementação da requisição
+  }
+  ...
+```

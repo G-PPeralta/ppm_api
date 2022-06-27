@@ -8,8 +8,6 @@ import {
   InternalServerErrorException,
   UseGuards,
   Put,
-  Req,
-  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,25 +18,24 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesGuard } from 'auth/guards/roles.guard';
 import { Roles } from 'auth/roles/roles.decorator';
 import { Perfil } from 'types/roles';
-import { UserWithRole } from './dto/user-with-role.dto';
-import { json } from 'body-parser';
-import { Response } from 'express';
+import { LoggerDB } from 'decorators/logger-db.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async create(@Body() createUserDto: CreateUserDto, @LoggerDB() req) {
     try {
       if (createUserDto.role_id)
-        throw new InternalServerErrorException('No includes role_id here');
+        throw new InternalServerErrorException(UserService.errors.noRoleHere);
 
       const findUserByEmail = await this.userService.findOneByEmail(
         createUserDto.email,
       );
 
-      if (findUserByEmail) throw Error('Email already exists');
+      if (findUserByEmail) throw Error(UserService.errors.emailExists);
 
       const user = await this.userService.create(createUserDto);
 
@@ -52,16 +49,20 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Perfil.ADMIN)
   @Post('admin')
-  async createUserFromAdmin(@Body() createUserDto: CreateUserDto) {
+  async createUserFromAdmin(
+    @Body() createUserDto: CreateUserDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @LoggerDB() req,
+  ) {
     try {
       const hasRoleId = createUserDto.role_id;
-      if (!hasRoleId) throw Error('role_id is required');
+      if (!hasRoleId) throw Error(UserService.errors.roleRequired);
 
       const findUserByEmail = await this.userService.findOneByEmail(
         createUserDto.email,
       );
 
-      if (findUserByEmail) throw Error('Email already exists');
+      if (findUserByEmail) throw Error(UserService.errors.emailExists);
 
       const user = await this.userService.create(createUserDto);
       return UserMapper.mapToUserDto(user);
@@ -103,20 +104,10 @@ export class UserController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    // @Req() req,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @LoggerDB() req,
   ) {
-    // console.log({
-    //   rota: req.originalUrl,
-    //   requisicao: req.method,
-    //   usuario: req.user,
-    // });
     try {
-      // const reqUser: UserWithRole = req.user;
-      // const idsIsEquals = reqUser.id === +id;
-
-      // VERIFICAR: um usuario poderá alterar outro ?
-      // if (!idsIsEquals) throw new Error(`You cannot update other user`);
-
       const user = await this.userService.update(+id, updateUserDto);
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
@@ -127,7 +118,8 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  remove(@Param('id') id: string, @LoggerDB() req) {
     return this.userService.remove(+id);
   }
 }
