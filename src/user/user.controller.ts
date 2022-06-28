@@ -25,8 +25,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(@Body() createUserDto: CreateUserDto, @LoggerDB() req) {
+  async create(@Body() createUserDto: CreateUserDto) {
     try {
       if (createUserDto.role_id)
         throw new InternalServerErrorException(UserService.errors.noRoleHere);
