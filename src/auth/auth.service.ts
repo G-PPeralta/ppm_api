@@ -1,3 +1,4 @@
+import { LoginDto } from './../user/dto/login.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -8,6 +9,8 @@ import { join } from 'path';
 
 import * as fs from 'fs';
 import { User } from '@prisma/client';
+import { UserMapper } from 'utils/mapper/userMapper';
+import { UserWithRole } from 'user/dto/user-with-role.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +30,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(user: LoginDto) {
     const { email, senha } = user;
 
     if (!email || !senha) throw new InternalServerErrorException();
@@ -39,22 +42,26 @@ export class AuthService {
     );
 
     if (!validatedUser)
-      throw new InternalServerErrorException(`Usuário não existe`);
+      throw new InternalServerErrorException(`User not found`);
 
-    const userByEmail = await this.usersService.findOneByEmail(email);
+    let userByEmail = await this.usersService.findOneByEmail(email);
+
+    userByEmail = UserMapper.mapToUserDto(userByEmail);
+
     const jwtPayload = { ...userByEmail };
 
     const refreshToken = this.createRefreshToken(userByEmail.id);
 
     return {
       validatedUser,
+      user: userByEmail,
       access_token: this.jwtService.sign(jwtPayload),
       refresh_token: refreshToken,
     };
   }
 
-  verifyToken(token: string, publicKey: string): any {
-    const decoded = jwt.verify(token, publicKey, {
+  public verifyToken(token: string): any {
+    const decoded = jwt.verify(token, this.getPublicKey(), {
       ignoreExpiration: true,
     });
 
@@ -104,7 +111,7 @@ export class AuthService {
 
     if (!user) throw new Error('Token inválido [01]');
 
-    const accessToken = this.jwtService.sign({ ...user });
+    const accessToken = this.jwtService.sign({ user });
 
     return accessToken;
   }

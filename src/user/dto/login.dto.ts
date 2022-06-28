@@ -11,5 +11,5 @@ export class LoginDto {
     type: 'string',
   })
   @IsString()
-  password: string;
+  senha: string;
 }
