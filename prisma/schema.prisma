@@ -8,26 +8,27 @@ datasource db {
 }
 
 model Atividade {
-  id                     Int              @id @default(autoincrement())
-  nomeAtividade          String           @map("nome_atividade") @db.VarChar(45)
-  tipoAtividade          String           @map("tipo_atividade") @db.VarChar(45)
-  dataInicio             DateTime         @map("data_inicio") @db.Date
-  dataFim                DateTime         @map("data_fim") @db.Date
-  dataConclusao          DateTime?        @map("data_conclusao") @db.Date
-  statusId               Int              @map("status_id")
-  macroatividadeId       Int?             @map("macroatividade_id")
-  projetoId              Int              @map("projeto_id")
-  indNaoIniciarAntesDe   Boolean          @default(false) @map("ind_nao_iniciar_antes_de") @db.Boolean
-  indNaoTerminarDepoisDe Boolean          @default(false) @map("ind_nao_terminar_depois_de") @db.Boolean
-  indMaisBrevePossivel   Boolean          @default(false) @map("ind_mais_breve_possivel") @db.Boolean
-  dataRestricaoInicio    DateTime?        @map("data_restricao_inicio") @db.Date
-  dataRestricaoDepois    DateTime?        @map("data_restricao_depois") @db.Date
-  responsavelId          Int              @map("responsavel_id")
-  macroatividade         Atividade?       @relation("MacroatividadeAtividades", fields: [macroatividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_atividades1")
-  projetos               Projeto          @relation(fields: [projetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_projetos1")
-  responsavel            User             @relation(fields: [responsavelId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_usuarios1")
-  statusAtividade        StatusAtividade  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_macroatividade_tb_status_acoes1")
-  atividades             Atividade[]      @relation("MacroatividadeAtividades")
+  id                     Int               @id @default(autoincrement())
+  nomeAtividade          String            @map("nome_atividade") @db.VarChar(45)
+  tipoAtividade          String            @map("tipo_atividade") @db.VarChar(45)
+  dataInicio             DateTime          @map("data_inicio") @db.Date
+  dataFim                DateTime          @map("data_fim") @db.Date
+  dataConclusao          DateTime?         @map("data_conclusao") @db.Date
+  statusId               Int               @map("status_id")
+  macroatividadeId       Int?              @map("macroatividade_id")
+  projetoId              Int               @map("projeto_id")
+  indNaoIniciarAntesDe   Boolean           @default(false) @map("ind_nao_iniciar_antes_de") @db.Boolean
+  indNaoTerminarDepoisDe Boolean           @default(false) @map("ind_nao_terminar_depois_de") @db.Boolean
+  indMaisBrevePossivel   Boolean           @default(false) @map("ind_mais_breve_possivel") @db.Boolean
+  dataRestricaoInicio    DateTime?         @map("data_restricao_inicio") @db.Date
+  dataRestricaoDepois    DateTime?         @map("data_restricao_depois") @db.Date
+  responsavelId          Int               @map("responsavel_id")
+  deletado               Boolean           @default(false) @db.Boolean
+  macroatividade         Atividade?        @relation("MacroatividadeAtividades", fields: [macroatividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_atividades1")
+  projetos               Projeto           @relation(fields: [projetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_projetos1")
+  responsavel            User              @relation(fields: [responsavelId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_usuarios1")
+  statusAtividade        StatusAtividade   @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_macroatividade_tb_status_acoes1")
+  atividades             Atividade[]       @relation("MacroatividadeAtividades")
   atividadePredecessor   AtivPredecessor[] @relation("AtividadePredecessor")
   predecessorAtividade   AtivPredecessor[] @relation("PredecessorAtividade")
   projAtvHistorico       AtvHistorico[]
@@ -35,9 +36,32 @@ model Atividade {
   @@map("tb_atividades")
 }
 
+model DesafiosProjetos {
+  desafioId Int     @map("desafio_id")
+  projetoId Int     @map("projeto_id")
+  deletado  Boolean @default(false) @db.Boolean
+  desafio   Desafio @relation(fields: [desafioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_desafios_has_tb_projetos_tb_desafios1")
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_desafios_has_tb_projetos_tb_projetos1")
+
+  @@id([desafioId, projetoId])
+  @@map("rl_tb_desafios_tb_projetos")
+}
+
+model Desafio {
+  id               Int                @id @default(autoincrement())
+  observacoes      String             @db.VarChar(255)
+  dataInicio       DateTime?          @map("data_inicio") @db.Date
+  dataFim          DateTime           @map("data_fim") @db.Date
+  deletado         Boolean            @default(false) @db.Boolean
+  desafiosProjetos DesafiosProjetos[]
+
+  @@map("tb_desafios")
+}
+
 model ClassificacaoProjeto {
   id            Int       @id @default(autoincrement())
   classificacao String    @db.VarChar(45)
+  deletado      Boolean   @default(false) @db.Boolean
   projetos      Projeto[]
 
   @@map("tb_classificacoes_projetos")
@@ -46,6 +70,7 @@ model ClassificacaoProjeto {
 model Complexidade {
   id           Int       @id @default(autoincrement())
   complexidade String    @db.VarChar(45)
+  deletado     Boolean   @default(false) @db.Boolean
   projetos     Projeto[]
 
   @@map("tb_complexidades")
@@ -54,6 +79,7 @@ model Complexidade {
 model Demanda {
   id       Int       @id @default(autoincrement())
   demanda  String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_demandas")
@@ -62,6 +88,7 @@ model Demanda {
 model DivisaoProjeto {
   id       Int       @id @default(autoincrement())
   divisao  String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_divisoes_projetos")
@@ -70,6 +97,7 @@ model DivisaoProjeto {
 model Gate {
   id       Int       @id @default(autoincrement())
   gate     String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_gates")
@@ -78,15 +106,17 @@ model Gate {
 model Local {
   id       Int       @id @default(autoincrement())
   local    String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_locais")
 }
 
 model Log {
-  id   Int      @id @default(autoincrement())
-  log  Json
-  data DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
+  id       Int      @id @default(autoincrement())
+  log      Json
+  data     DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
+  deletado Boolean  @default(false) @db.Boolean
 
   @@map("tb_logs")
 }
@@ -94,6 +124,7 @@ model Log {
 model Polo {
   id       Int       @id @default(autoincrement())
   polo     String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_polos")
@@ -102,6 +133,7 @@ model Polo {
 model PrioridadeProjeto {
   id         Int       @id @default(autoincrement())
   prioridade String    @db.VarChar(45)
+  deletado   Boolean   @default(false) @db.Boolean
   projetos   Projeto[]
 
   @@map("tb_prioridades_projetos")
@@ -110,6 +142,7 @@ model PrioridadeProjeto {
 model AtivPredecessor {
   atividadeId   Int       @map("atividade_id")
   predecessorId Int       @map("predecessor_id")
+  deletado      Boolean   @default(false) @db.Boolean
   atividade     Atividade @relation("AtividadePredecessor", fields: [atividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_ativ_predecessor_tb_atividades1")
   predecessor   Atividade @relation("PredecessorAtividade", fields: [predecessorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_ativ_predecessor_tb_atividades2")
 
@@ -122,6 +155,7 @@ model AtvHistorico {
   descricao     String    @db.VarChar(255)
   dataHistorico DateTime? @map("data_historico") @db.Date
   atividadeId   Int       @map("atividade_id")
+  deletado      Boolean   @default(false) @db.Boolean
   atividade     Atividade @relation(fields: [atividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_atv_historico_tb_atividades1")
 
   @@map("tb_proj_atv_historico")
@@ -149,6 +183,7 @@ model Projeto {
   dataInicioReal       DateTime?             @map("dataInicio_real") @db.Date
   dataFimReal          DateTime?             @map("dataFim_real") @db.Date
   comentarios          String?               @db.VarChar(255)
+  deletado             Boolean               @default(false) @db.Boolean
   classificacaoProjeto ClassificacaoProjeto? @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
   complexidade         Complexidade          @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
   demanda              Demanda?              @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
@@ -161,14 +196,16 @@ model Projeto {
   statusProjeto        StatusProjeto         @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
   tipoProjeto          TipoProjeto           @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
   atividades           Atividade[]
+  desafiosProjetos     DesafiosProjetos[]
 
   @@map("tb_projetos")
 }
 
 model Role {
-  id       Int    @id @default(autoincrement())
-  role     String @db.VarChar
-  nomeRole String @map("nome_role") @db.VarChar(50)
+  id       Int     @id @default(autoincrement())
+  role     String  @db.VarChar
+  nomeRole String  @map("nome_role") @db.VarChar(50)
+  deletado Boolean @default(false) @db.Boolean
   usuarios User[]
 
   @@map("tb_roles")
@@ -177,6 +214,7 @@ model Role {
 model SolicitanteProjeto {
   id          Int       @id @default(autoincrement())
   solicitante String    @db.VarChar(45)
+  deletado    Boolean   @default(false) @db.Boolean
   projetos    Projeto[]
 
   @@map("tb_solicitantes_projetos")
@@ -185,6 +223,7 @@ model SolicitanteProjeto {
 model StatusAtividade {
   id         Int         @id @default(autoincrement())
   status     String      @db.VarChar(45)
+  deletado   Boolean     @default(false) @db.Boolean
   atividades Atividade[]
 
   @@map("tb_status_atividade")
@@ -193,6 +232,7 @@ model StatusAtividade {
 model StatusProjeto {
   id       Int       @id @default(autoincrement())
   status   String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_status_projetos")
@@ -201,6 +241,7 @@ model StatusProjeto {
 model TipoProjeto {
   id       Int       @id @default(autoincrement())
   tipo     String    @db.VarChar(45)
+  deletado Boolean   @default(false) @db.Boolean
   projetos Projeto[]
 
   @@map("tb_tipos_projeto")
@@ -214,6 +255,7 @@ model User {
   telefone    String      @db.VarChar
   areaAtuacao String      @map("area_atuacao") @db.VarChar
   roleId      Int         @default(2) @map("role_id")
+  deletado    Boolean     @default(false) @db.Boolean
   role        Role        @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
   atividades  Atividade[]
 
