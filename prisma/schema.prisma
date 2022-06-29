@@ -28,8 +28,8 @@ model Atividade {
   responsavel            User             @relation(fields: [responsavelId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_usuarios1")
   statusAtividade        StatusAtividade  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_macroatividade_tb_status_acoes1")
   atividades             Atividade[]      @relation("MacroatividadeAtividades")
-  atividadePredecessor   AtivPredecessor? @relation("AtividadePredecessor")
-  predecessorAtividade   AtivPredecessor? @relation("PredecessorAtividade")
+  atividadePredecessor   AtivPredecessor[] @relation("AtividadePredecessor")
+  predecessorAtividade   AtivPredecessor[] @relation("PredecessorAtividade")
   projAtvHistorico       AtvHistorico[]
 
   @@map("tb_atividades")
