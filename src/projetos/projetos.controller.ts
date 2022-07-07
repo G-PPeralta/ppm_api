@@ -22,7 +22,11 @@ export class ProjetosController {
 
   @Get()
   async findAll() {
-    return `This action returns all projetos`;
+    try {
+      return this.projetosService.findAll();
+    } catch (error: any) {
+      return { message: error.message };
+    }
   }
 
   @Get('/count-all-projects')

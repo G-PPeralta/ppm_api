@@ -11,7 +11,9 @@ export class ProjetosService {
   }
 
   async findAll() {
-    return `This action returns all projetos`;
+    const projects = await prismaClient.statusAtividade.findMany();
+    if (!projects) throw new NotFoundException('Falha na listagem de projetos');
+    return projects;
   }
 
   findOne(id: number) {
@@ -27,9 +29,7 @@ export class ProjetosService {
   }
 
   async countAll() {
-    const count = await prismaClient.$queryRaw(
-      Prisma.sql`select count(*) from load_mer.tb_projetos`,
-    );
+    const count = await prismaClient.projeto.count();
     if (!count) throw new NotFoundException('Falha na contagem de projetos');
     return count;
   }
