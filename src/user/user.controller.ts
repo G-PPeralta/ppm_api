@@ -31,7 +31,7 @@ export class UserController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      if (createUserDto.role_id)
+      if (createUserDto.roleId)
         throw new InternalServerErrorException('No includes role_id here');
 
       const findUserByEmail = await this.userService.findOneByEmail(
@@ -54,7 +54,7 @@ export class UserController {
   @Post('admin')
   async createUserFromAdmin(@Body() createUserDto: CreateUserDto) {
     try {
-      const hasRoleId = createUserDto.role_id;
+      const hasRoleId = createUserDto.roleId;
       if (!hasRoleId) throw Error('role_id is required');
 
       const findUserByEmail = await this.userService.findOneByEmail(

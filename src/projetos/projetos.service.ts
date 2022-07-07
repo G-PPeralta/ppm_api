@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { prisma, Prisma } from '@prisma/client';
+import { prismaClient } from 'index.prisma';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
 
@@ -8,7 +10,7 @@ export class ProjetosService {
     return 'This action adds a new projeto';
   }
 
-  findAll() {
+  async findAll() {
     return `This action returns all projetos`;
   }
 
@@ -22,5 +24,13 @@ export class ProjetosService {
 
   remove(id: number) {
     return `This action removes a #${id} projeto`;
+  }
+
+  async countAll() {
+    const count = await prismaClient.$queryRaw(
+      Prisma.sql`select count(*) from load_mer.tb_projetos`,
+    );
+    if (!count) throw new NotFoundException('Falha na contagem de projetos');
+    return count;
   }
 }

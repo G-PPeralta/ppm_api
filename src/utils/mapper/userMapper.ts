@@ -19,6 +19,7 @@ export class UserMapper {
       roleId: 2,
       telefone: '',
       senha: '',
+      deletado: false,
     };
   }
 
