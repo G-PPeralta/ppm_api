@@ -1,5 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { prisma, Prisma } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 import { prismaClient } from 'index.prisma';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
@@ -11,9 +10,18 @@ export class ProjetosService {
   }
 
   async findAll() {
-    const projects = await prismaClient.statusAtividade.findMany();
-    if (!projects) throw new NotFoundException('Falha na listagem de projetos');
+    const projects = await prismaClient.projeto.findMany();
+    if (!projects) throw new Error('Falha na listagem de projetos');
     return projects;
+  }
+
+  async findTotalValue(id: number) {
+    const totalValue = await prismaClient.projeto.findUnique({
+      where: { id },
+      select: { valorTotalPrevisto: true },
+    });
+    if (!totalValue) throw new Error('Valor total previsto não existe');
+    return totalValue;
   }
 
   findOne(id: number) {
@@ -30,7 +38,7 @@ export class ProjetosService {
 
   async countAll() {
     const count = await prismaClient.projeto.count();
-    if (!count) throw new NotFoundException('Falha na contagem de projetos');
+    if (!count) throw new Error('Falha na contagem de projetos');
     return count;
   }
 }

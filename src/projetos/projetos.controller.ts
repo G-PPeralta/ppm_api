@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -25,7 +26,7 @@ export class ProjetosController {
     try {
       return this.projetosService.findAll();
     } catch (error: any) {
-      return { message: error.message };
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -35,7 +36,17 @@ export class ProjetosController {
       const count = await this.projetosService.countAll();
       return count;
     } catch (error: any) {
-      return { message: error.message };
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Get('/find-total-value/:id')
+  async findTotalValue(@Param('id') id: string) {
+    try {
+      const totalValue = await this.projetosService.findTotalValue(+id);
+      return totalValue;
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
     }
   }
 
