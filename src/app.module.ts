@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { RolesModule } from './roles/roles.module';
 import { ProjetosModule } from './projetos/projetos.module';
+import { GanttModule } from './gantt/gantt.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProjetosModule } from './projetos/projetos.module';
     AuthModule,
     RolesModule,
     ProjetosModule,
+    GanttModule,
   ],
   controllers: [AppController],
   providers: [AppService],
