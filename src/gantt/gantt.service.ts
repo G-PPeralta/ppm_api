@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGanttDto } from './dto/create-gantt.dto';
-import { UpdateGanttDto } from './dto/update-gantt.dto';
 
 @Injectable()
 export class GanttService {
