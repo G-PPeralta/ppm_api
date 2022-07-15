@@ -1,7 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { GanttService } from './gantt.service';
 import { CreateGanttDto } from './dto/create-gantt.dto';
-import { UpdateGanttDto } from './dto/update-gantt.dto';
 
 @Controller('gantt')
 export class GanttController {
@@ -13,8 +20,12 @@ export class GanttController {
   }
 
   @Get()
-  findAll() {
-    return this.ganttService.findAll();
+  async findAll() {
+    try {
+      return this.ganttService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')
@@ -22,10 +33,10 @@ export class GanttController {
     return this.ganttService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGanttDto: UpdateGanttDto) {
-    return this.ganttService.update(+id, updateGanttDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateGanttDto: UpdateGanttDto) {
+  //   return this.ganttService.update(+id, updateGanttDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

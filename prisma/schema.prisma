@@ -13,11 +13,11 @@ model Atividade {
   tipoAtividade                atividade                      @default(ENTREGA) @map("tipo_atividade")
   deletado                     Boolean                        @default(false)
   macroatividadeId             Int?                           @map("macroatividade_id")
+  item                         String                         @db.VarChar(55)
+  temporario                   Boolean?                       @default(false)
   macroatividade               Atividade?                     @relation("MacroatividadeAtividades", fields: [macroatividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_atividades1")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_atividades")
   atividades                   Atividade[]                    @relation("MacroatividadeAtividades")
-  atividadePredecessor         AtivPredecessor[]              @relation("AtividadePredecessor")
-  predecessorAtividade         AtivPredecessor[]              @relation("PredecessorAtividade")
   projAtvHistorico             AtvHistorico[]
 
   @@map("tb_atividades")
@@ -126,17 +126,6 @@ model PrioridadeProjeto {
   @@map("tb_prioridades_projetos")
 }
 
-model AtivPredecessor {
-  atividadeId   Int       @map("atividade_id")
-  predecessorId Int       @map("predecessor_id")
-  deletado      Boolean   @default(false)
-  atividade     Atividade @relation("AtividadePredecessor", fields: [atividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_ativ_predecessor_tb_atividades1")
-  predecessor   Atividade @relation("PredecessorAtividade", fields: [predecessorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_ativ_predecessor_tb_atividades2")
-
-  @@id([atividadeId, predecessorId])
-  @@map("tb_proj_ativ_predecessor")
-}
-
 model AtvHistorico {
   id            Int       @id @default(autoincrement())
   descricao     String    @db.VarChar(255)
@@ -153,9 +142,9 @@ model Projeto {
   nomeProjeto                  String                         @map("nome_projeto") @db.VarChar(150)
   descricao                    String?                        @db.VarChar(500)
   justificativa                String?                        @db.VarChar(500)
-  valorTotalPrevisto           Float?                         @map("valor_total_previsto") @db.Real
-  dataInicio                   DateTime                       @map("data_inicio") @db.Date
-  dataFim                      DateTime                       @map("data_fim") @db.Date
+  valorTotalPrevisto           Decimal?                       @map("valor_total_previsto") @db.Decimal(22, 2)
+  dataInicio                   DateTime?                      @map("data_inicio") @db.Date
+  dataFim                      DateTime?                      @map("data_fim") @db.Date
   poloId                       Int                            @map("polo_id")
   localId                      Int                            @map("local_id")
   solicitanteId                Int                            @map("solicitante_id")
@@ -171,6 +160,8 @@ model Projeto {
   dataFimReal                  DateTime?                      @map("dataFim_real") @db.Date
   comentarios                  String?                        @db.VarChar(255)
   deletado                     Boolean                        @default(false)
+  item                         Int?
+  numero                       Int?
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
   complexidade                 Complexidade                   @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
@@ -250,32 +241,25 @@ model User {
 }
 
 model rl_tb_atividades_tb_projetos {
-  id                         Int             @id @default(autoincrement())
-  projeto_id                 Int
-  atividade_id               Int
-  data_inicio                DateTime        @db.Date
-  data_fim                   DateTime        @db.Date
-  data_conclusao             DateTime?       @db.Date
-  status_id                  Int
-  ind_nao_iniciar_antes_de   Boolean         @default(false)
-  ind_nao_terminar_depois_de Boolean         @default(false)
-  ind_mais_breve_possivel    Boolean         @default(false)
-  data_restricao_inicio      DateTime?       @db.Date
-  data_restricao_depois      DateTime?       @db.Date
-  responsavel_id             Int
-  deletado                   Boolean         @default(false)
-  tb_atividades              Atividade       @relation("rl_tb_atividades_tb_projetosTotb_atividades", fields: [atividade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tb_projetos                Projeto         @relation("rl_tb_atividades_tb_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tb_usuarios                User            @relation("rl_tb_atividades_tb_projetosTotb_usuarios", fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tb_status_atividade        StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                    Int             @id @default(autoincrement())
+  projeto_id            Int
+  atividade_id          Int
+  data_inicio           DateTime        @db.Date
+  data_fim              DateTime        @db.Date
+  data_conclusao        DateTime?       @db.Date
+  status_id             Int
+  data_restricao_inicio DateTime?       @db.Date
+  data_restricao_depois DateTime?       @db.Date
+  responsavel_id        Int?
+  deletado              Boolean         @default(false)
+  predecessor           Int?
+  tb_atividades         Atividade       @relation("rl_tb_atividades_tb_projetosTotb_atividades", fields: [atividade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_projetos           Projeto         @relation("rl_tb_atividades_tb_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_usuarios           User?           @relation("rl_tb_atividades_tb_projetosTotb_usuarios", fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_status_atividade   StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum atividade {
   ENTREGA
   ACAO
-}
-
-enum tipo_atividade {
-  ENTREGA
-  A__O @map("AÇÃO")
 }

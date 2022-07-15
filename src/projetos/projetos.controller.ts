@@ -50,7 +50,7 @@ export class ProjetosController {
     }
   }
 
-  @Get(':id')
+  @Get('/:id')
   findOne(@Param('id') id: string) {
     return this.projetosService.findOne(+id);
   }
