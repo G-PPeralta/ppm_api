@@ -263,3 +263,11 @@ enum atividade {
   ENTREGA
   ACAO
 }
+
+model Log {
+  id   Int      @id @default(autoincrement())
+  log  Json     @db.Json
+  data DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
+
+  @@map("tb_logs")
+}

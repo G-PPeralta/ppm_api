@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { RolesModule } from './roles/roles.module';
 import { ProjetosModule } from './projetos/projetos.module';
 import { GanttModule } from './gantt/gantt.module';
+import { LogModule } from './log/log.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GanttModule } from './gantt/gantt.module';
     RolesModule,
     ProjetosModule,
     GanttModule,
+    LogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
