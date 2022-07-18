@@ -13,12 +13,13 @@ export class UserMapper {
   static emptyEntity(): User {
     return {
       id: 0,
-      area_atuacao: '',
+      areaAtuacao: '',
       email: '',
       nome: '',
-      role_id: 2,
+      roleId: 2,
       telefone: '',
       senha: '',
+      deletado: false,
     };
   }
 

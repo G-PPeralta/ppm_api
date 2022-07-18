@@ -27,7 +27,7 @@ export class UserController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      if (createUserDto.role_id)
+      if (createUserDto.roleId)
         throw new InternalServerErrorException(UserService.errors.noRoleHere);
 
       const findUserByEmail = await this.userService.findOneByEmail(
@@ -54,7 +54,7 @@ export class UserController {
     @LoggerDB() req,
   ) {
     try {
-      const hasRoleId = createUserDto.role_id;
+      const hasRoleId = createUserDto.roleId;
       if (!hasRoleId) throw Error(UserService.errors.roleRequired);
 
       const findUserByEmail = await this.userService.findOneByEmail(
