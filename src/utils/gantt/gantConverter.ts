@@ -25,9 +25,15 @@ export function ganttFormatter(dataGantt: GanttPayload[]): Gantt {
     ),
   }));
 
-  const atividadesSemMacro = dataGantt.filter(
-    (dado) => !dado.macroatividade_id,
-  );
+  const atividadesSemMacro = dataGantt
+    .filter((dado) => !dado.macroatividade_id)
+    .map((gantt) =>
+      Object.assign(gantt, {
+        macroatividade_id: gantt.microatividade_id,
+        macroatividade_nome: gantt.nome_atividade,
+        macroatividade_item: gantt.item,
+      }),
+    );
 
   macroAtividadeFormatada.push(...atividadesSemMacro);
 
