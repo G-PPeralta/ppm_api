@@ -222,9 +222,7 @@ model User {
   areaAtuacao                  String                         @map("area_atuacao") @db.VarChar
   roleId                       Int                            @default(2) @map("role_id")
   deletado                     Boolean                        @default(false)
-  tipo_id                      Int?
   role                         Role                           @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
-  tb_tipos_usuario             tb_tipos_usuario?              @relation("tb_tipos_usuarioTotb_usuarios", fields: [tipo_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tipo_id")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_usuarios")
 
   @@map("tb_usuarios")
@@ -249,11 +247,10 @@ model rl_tb_atividades_tb_projetos {
   tb_status_atividade   StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model tb_tipos_usuario {
-  id          Int      @id @default(autoincrement())
-  tipo        String?  @db.VarChar(255)
-  deletado    Boolean? @default(false)
-  tb_usuarios User[]   @relation("tb_tipos_usuarioTotb_usuarios")
+model tb_areas_atuacoes {
+  id       Int      @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
+  tipo     String?  @db.VarChar(255)
+  deletado Boolean? @default(false)
 }
 
 enum atividade {
