@@ -18,7 +18,6 @@ model Atividade {
   macroatividade               Atividade?                     @relation("MacroatividadeAtividades", fields: [macroatividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_atividades1")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_atividades")
   atividades                   Atividade[]                    @relation("MacroatividadeAtividades")
-  projAtvHistorico             AtvHistorico[]
 
   @@map("tb_atividades")
 }
@@ -126,17 +125,6 @@ model PrioridadeProjeto {
   @@map("tb_prioridades_projetos")
 }
 
-model AtvHistorico {
-  id            Int       @id @default(autoincrement())
-  descricao     String    @db.VarChar(255)
-  dataHistorico DateTime? @map("data_historico") @db.Date
-  atividadeId   Int       @map("atividade_id")
-  deletado      Boolean   @default(false)
-  atividade     Atividade @relation(fields: [atividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_proj_atv_historico_tb_atividades1")
-
-  @@map("tb_proj_atv_historico")
-}
-
 model Projeto {
   id                           Int                            @id @default(autoincrement())
   nomeProjeto                  String                         @map("nome_projeto") @db.VarChar(150)
@@ -234,7 +222,9 @@ model User {
   areaAtuacao                  String                         @map("area_atuacao") @db.VarChar
   roleId                       Int                            @default(2) @map("role_id")
   deletado                     Boolean                        @default(false)
+  tipo_id                      Int?
   role                         Role                           @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
+  tb_tipos_usuario             tb_tipos_usuario?              @relation("tb_tipos_usuarioTotb_usuarios", fields: [tipo_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tipo_id")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_usuarios")
 
   @@map("tb_usuarios")
@@ -257,6 +247,13 @@ model rl_tb_atividades_tb_projetos {
   tb_projetos           Projeto         @relation("rl_tb_atividades_tb_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tb_usuarios           User?           @relation("rl_tb_atividades_tb_projetosTotb_usuarios", fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tb_status_atividade   StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tb_tipos_usuario {
+  id          Int      @id @default(autoincrement())
+  tipo        String?  @db.VarChar(255)
+  deletado    Boolean? @default(false)
+  tb_usuarios User[]   @relation("tb_tipos_usuarioTotb_usuarios")
 }
 
 enum atividade {
