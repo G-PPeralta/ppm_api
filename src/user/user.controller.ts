@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   UseGuards,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,7 @@ import { RolesGuard } from 'auth/guards/roles.guard';
 import { Roles } from 'auth/roles/roles.decorator';
 import { Perfil } from 'types/roles';
 import { LoggerDB } from 'decorators/logger-db.decorator';
+import { sendConfirmationEmail } from 'utils/email/sendgrid';
 
 @Controller('user')
 export class UserController {
@@ -41,6 +43,26 @@ export class UserController {
       return UserMapper.mapToUserDto(user);
     } catch (error: any) {
       throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  @Post('resetar-senha')
+  @HttpCode(200)
+  async resetarSenha(@Body() { email: emailbody }: UpdateUserDto) {
+    const user = await this.userService.findOneByEmail(emailbody);
+
+    const { nome, email } = user;
+
+    const sendCodigo = `${Math.round(Math.random() * 1000000)}`;
+
+    try {
+      await sendConfirmationEmail(nome, email, sendCodigo);
+
+      return {
+        message: 'Email enviado com sucesso!',
+      };
+    } catch (err: any) {
+      throw new InternalServerErrorException(err.message);
     }
   }
 
