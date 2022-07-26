@@ -12,7 +12,7 @@ export class GanttService {
 
   async findAll() {
     const gantt: GanttPayload[] = await prismaClient.$queryRaw(Prisma.sql`
-      SELECT * FROM load_mer.v_gantt_temp
+      SELECT * FROM dev.v_gantt_temp
     `);
     const ganttFormatted = ganttFormatter(gantt);
     if (!ganttFormatted) throw new Error('Falha na listagem de dados do gantt');
