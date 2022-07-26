@@ -19,17 +19,17 @@ export class ProjetosService {
   async findTotalValue(id: number) {
     const totalValue = await prismaClient.$queryRaw(Prisma.sql`
     select
-    id,
-    data_inicio_formatada,
-    data_fim_formatada,
-    meses,
-    valor_total_previsto
-from
-    load_mer.v_grafico_curva_s
-where
-    data_fim > data_inicio
-    and valor_total_previsto is not null
-    and id = ${id};`);
+      id,
+      data_inicio_formatada,
+      data_fim_formatada,
+      meses,
+      valor_total_previsto
+    from
+        dev.v_grafico_curva_s
+    where
+        data_fim > data_inicio
+        and valor_total_previsto is not null
+        and id = ${id};`);
     if (!totalValue) throw new Error('Valor total previsto não existe');
     return totalValue;
   }
