@@ -75,6 +75,7 @@ export class AuthService {
 
     return privateKey;
   }
+
   getPublicKey() {
     const caminho = join(process.cwd(), 'src', 'config', 'public.key');
 

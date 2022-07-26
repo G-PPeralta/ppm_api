@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   UseGuards,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,7 @@ import { RolesGuard } from 'auth/guards/roles.guard';
 import { Roles } from 'auth/roles/roles.decorator';
 import { Perfil } from 'types/roles';
 import { LoggerDB } from 'decorators/logger-db.decorator';
+import { sendConfirmationEmail } from 'utils/email/sendgrid';
 
 @Controller('user')
 export class UserController {
@@ -27,7 +29,7 @@ export class UserController {
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      if (createUserDto.role_id)
+      if (createUserDto.roleId)
         throw new InternalServerErrorException(UserService.errors.noRoleHere);
 
       const findUserByEmail = await this.userService.findOneByEmail(
@@ -44,6 +46,26 @@ export class UserController {
     }
   }
 
+  @Post('resetar-senha')
+  @HttpCode(200)
+  async resetarSenha(@Body() { email: emailbody }: UpdateUserDto) {
+    const user = await this.userService.findOneByEmail(emailbody);
+
+    const { nome, email } = user;
+
+    const sendCodigo = `${Math.round(Math.random() * 1000000)}`;
+
+    try {
+      await sendConfirmationEmail(nome, email, sendCodigo);
+
+      return {
+        message: 'Email enviado com sucesso!',
+      };
+    } catch (err: any) {
+      throw new InternalServerErrorException(err.message);
+    }
+  }
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Perfil.ADMIN)
@@ -54,7 +76,7 @@ export class UserController {
     @LoggerDB() req,
   ) {
     try {
-      const hasRoleId = createUserDto.role_id;
+      const hasRoleId = createUserDto.roleId;
       if (!hasRoleId) throw Error(UserService.errors.roleRequired);
 
       const findUserByEmail = await this.userService.findOneByEmail(

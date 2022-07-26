@@ -7,43 +7,253 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tarefa {
-  id                  Int     @id @default(autoincrement())
-  area                String  @db.VarChar
-  tarefa              String  @db.VarChar
-  precedentes_diretos String? @db.VarChar
-  fase                String  @db.VarChar
-  duracao_planejada   String? @db.VarChar
+model Atividade {
+  id                           Int                            @id(map: "tb_atividades2_pkey") @default(autoincrement())
+  nomeAtividade                String                         @map("nome_atividade") @db.VarChar(50)
+  tipoAtividade                atividade                      @default(ENTREGA) @map("tipo_atividade")
+  deletado                     Boolean                        @default(false)
+  macroatividadeId             Int?                           @map("macroatividade_id")
+  item                         String                         @db.VarChar(55)
+  temporario                   Boolean?                       @default(false)
+  macroatividade               Atividade?                     @relation("MacroatividadeAtividades", fields: [macroatividadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_atividades_tb_atividades1")
+  rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_atividades")
+  atividades                   Atividade[]                    @relation("MacroatividadeAtividades")
 
-  @@map("tb_tarefas")
+  @@map("tb_atividades")
+}
+
+model DesafiosProjetos {
+  desafioId Int     @map("desafio_id")
+  projetoId Int     @map("projeto_id")
+  deletado  Boolean @default(false)
+  desafio   Desafio @relation(fields: [desafioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_desafios_has_tb_projetos_tb_desafios1")
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_desafios_has_tb_projetos_tb_projetos1")
+
+  @@id([desafioId, projetoId])
+  @@map("rl_tb_desafios_tb_projetos")
+}
+
+model Desafio {
+  id               Int                @id @default(autoincrement())
+  observacoes      String             @db.VarChar(255)
+  dataInicio       DateTime?          @map("data_inicio") @db.Date
+  dataFim          DateTime           @map("data_fim") @db.Date
+  deletado         Boolean            @default(false)
+  desafiosProjetos DesafiosProjetos[]
+
+  @@map("tb_desafios")
+}
+
+model ClassificacaoProjeto {
+  id            Int       @id @default(autoincrement())
+  classificacao String    @db.VarChar(45)
+  deletado      Boolean   @default(false)
+  projetos      Projeto[]
+
+  @@map("tb_classificacoes_projetos")
+}
+
+model Complexidade {
+  id           Int       @id @default(autoincrement())
+  complexidade String    @db.VarChar(45)
+  deletado     Boolean   @default(false)
+  projetos     Projeto[]
+
+  @@map("tb_complexidades")
+}
+
+model Demanda {
+  id       Int       @id @default(autoincrement())
+  demanda  String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_demandas")
+}
+
+model DivisaoProjeto {
+  id       Int       @id @default(autoincrement())
+  divisao  String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_divisoes_projetos")
+}
+
+model Gate {
+  id       Int       @id @default(autoincrement())
+  gate     String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_gates")
+}
+
+model Local {
+  id       Int       @id @default(autoincrement())
+  local    String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_locais")
+}
+
+model Log {
+  id       Int      @id @default(autoincrement())
+  log      Json
+  data     DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
+  deletado Boolean  @default(false)
+
+  @@map("tb_logs")
+}
+
+model Polo {
+  id       Int       @id @default(autoincrement())
+  polo     String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_polos")
+}
+
+model PrioridadeProjeto {
+  id         Int       @id @default(autoincrement())
+  prioridade String    @db.VarChar(45)
+  deletado   Boolean   @default(false)
+  projetos   Projeto[]
+
+  @@map("tb_prioridades_projetos")
+}
+
+model Projeto {
+  id                           Int                            @id @default(autoincrement())
+  nomeProjeto                  String                         @map("nome_projeto") @db.VarChar(150)
+  descricao                    String?                        @db.VarChar(500)
+  justificativa                String?                        @db.VarChar(500)
+  valorTotalPrevisto           Decimal?                       @map("valor_total_previsto") @db.Decimal(22, 2)
+  dataInicio                   DateTime?                      @map("data_inicio") @db.Date
+  dataFim                      DateTime?                      @map("data_fim") @db.Date
+  poloId                       Int                            @map("polo_id")
+  localId                      Int                            @map("local_id")
+  solicitanteId                Int                            @map("solicitante_id")
+  classificacaoId              Int?                           @map("classificacao_id")
+  divisaoId                    Int                            @map("divisao_id")
+  gateId                       Int?                           @map("gate_id")
+  tipoProjetoId                Int                            @map("tipo_projeto_id")
+  demandaId                    Int?                           @map("demanda_id")
+  statusId                     Int                            @map("status_id")
+  prioridadeId                 Int                            @map("prioridade_id")
+  complexidadeId               Int                            @map("complexidade_id")
+  dataInicioReal               DateTime?                      @map("dataInicio_real") @db.Date
+  dataFimReal                  DateTime?                      @map("dataFim_real") @db.Date
+  comentarios                  String?                        @db.VarChar(255)
+  deletado                     Boolean                        @default(false)
+  item                         Int?
+  numero                       Int?
+  classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
+  complexidade                 Complexidade                   @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
+  demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
+  divisaoProjeto               DivisaoProjeto                 @relation(fields: [divisaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_divisão_projetos1")
+  gate                         Gate?                          @relation(fields: [gateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_gates1")
+  local                        Local                          @relation(fields: [localId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_locais1")
+  polo                         Polo                           @relation(fields: [poloId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_polos1")
+  prioridadeProjeto            PrioridadeProjeto              @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
+  solicitanteProjeto           SolicitanteProjeto             @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
+  statusProjeto                StatusProjeto                  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
+  tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
+  rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
+  desafiosProjetos             DesafiosProjetos[]
+
+  @@map("tb_projetos")
+}
+
+model Role {
+  id       Int     @id @default(autoincrement())
+  role     String  @db.VarChar
+  nomeRole String  @map("nome_role") @db.VarChar(50)
+  deletado Boolean @default(false)
+  usuarios User[]
+
+  @@map("tb_roles")
+}
+
+model SolicitanteProjeto {
+  id          Int       @id @default(autoincrement())
+  solicitante String    @db.VarChar(45)
+  deletado    Boolean   @default(false)
+  projetos    Projeto[]
+
+  @@map("tb_solicitantes_projetos")
+}
+
+model StatusAtividade {
+  id                           Int                            @id @default(autoincrement())
+  status                       String                         @db.VarChar(45)
+  deletado                     Boolean                        @default(false)
+  rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_status_atividade")
+
+  @@map("tb_status_atividade")
+}
+
+model StatusProjeto {
+  id       Int       @id @default(autoincrement())
+  status   String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_status_projetos")
+}
+
+model TipoProjeto {
+  id       Int       @id @default(autoincrement())
+  tipo     String    @db.VarChar(45)
+  deletado Boolean   @default(false)
+  projetos Projeto[]
+
+  @@map("tb_tipos_projeto")
 }
 
 model User {
-  id           Int    @id @default(autoincrement())
-  nome         String @db.VarChar
-  email        String @unique @db.VarChar
-  senha        String @db.VarChar
-  telefone     String @db.VarChar
-  area_atuacao String @db.VarChar
-  role_id      Int    @default(2)
-  tb_role      Role   @relation("tb_roleTotb_usuarios", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
+  id                           Int                            @id @default(autoincrement())
+  nome                         String                         @db.VarChar
+  email                        String                         @unique @db.VarChar
+  senha                        String                         @db.VarChar
+  telefone                     String                         @db.VarChar
+  areaAtuacao                  String                         @map("area_atuacao") @db.VarChar
+  roleId                       Int                            @default(2) @map("role_id")
+  deletado                     Boolean                        @default(false)
+  role                         Role                           @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_fk")
+  rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_usuarios")
 
   @@map("tb_usuarios")
 }
 
-model Role {
-  id          Int    @id @default(autoincrement())
-  role        String @db.VarChar
-  nome_role   String @db.VarChar(50)
-  tb_usuarios User[] @relation("tb_roleTotb_usuarios")
-
-  @@map("tb_role")
+model rl_tb_atividades_tb_projetos {
+  id                    Int             @id @default(autoincrement())
+  projeto_id            Int
+  atividade_id          Int
+  data_inicio           DateTime        @db.Date
+  data_fim              DateTime        @db.Date
+  data_conclusao        DateTime?       @db.Date
+  status_id             Int
+  data_restricao_inicio DateTime?       @db.Date
+  data_restricao_depois DateTime?       @db.Date
+  responsavel_id        Int?
+  deletado              Boolean         @default(false)
+  predecessor           Int?
+  tb_atividades         Atividade       @relation("rl_tb_atividades_tb_projetosTotb_atividades", fields: [atividade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_projetos           Projeto         @relation("rl_tb_atividades_tb_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_usuarios           User?           @relation("rl_tb_atividades_tb_projetosTotb_usuarios", fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_status_atividade   StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Log {
-  id   Int      @id @default(autoincrement())
-  log  Json     @db.Json
-  data DateTime @default(dbgenerated("timezone('gmt3'::text, now())")) @db.Timestamp(6)
+model tb_areas_atuacoes {
+  id       Int      @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
+  tipo     String?  @db.VarChar(255)
+  deletado Boolean? @default(false)
+}
 
-  @@map("tb_logs")
+enum atividade {
+  ENTREGA
+  ACAO
 }
