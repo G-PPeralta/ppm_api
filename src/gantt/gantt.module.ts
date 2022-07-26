@@ -4,6 +4,6 @@ import { GanttController } from './gantt.controller';
 
 @Module({
   controllers: [GanttController],
-  providers: [GanttService]
+  providers: [GanttService],
 })
 export class GanttModule {}
