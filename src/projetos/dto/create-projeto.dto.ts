@@ -20,4 +20,7 @@ export class CreateProjetoDto {
   dataFimReal?: Date;
   comentarios?: string;
   deletado: boolean;
+  item: number;
+  numero: number;
 }
+  

@@ -16,7 +16,7 @@ import { UpdateProjetoDto } from './dto/update-projeto.dto';
 export class ProjetosController {
   constructor(private readonly projetosService: ProjetosService) {}
 
-  @Post()
+  @Post('/registro')
   create(@Body() createProjetoDto: CreateProjetoDto) {
     return this.projetosService.create(createProjetoDto);
   }
