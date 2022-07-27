@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
 import { ClassificacaoService } from './classificacao.service';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
 import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
@@ -14,7 +14,11 @@ export class ClassificacaoController {
 
   @Get()
   findAll() {
-    return this.classificacaoService.findAll();
+    try {
+      return this.classificacaoService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')

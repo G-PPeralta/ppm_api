@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
 import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
 
 @Injectable()
 export class ClassificacaoService {
-  create(createClassificacaoDto: CreateClassificacaoDto) {
-    return 'This action adds a new classificacao';
+  async create(createClassificacaoDto: CreateClassificacaoDto) {
+    await prismaClient.classificacaoProjeto.create({ data: createClassificacaoDto });
   }
 
   findAll() {
-    return `This action returns all classificacao`;
+    const classificacao = prismaClient.polo.findMany();
+    if (!classificacao) throw new Error('Falha na listagem de classificações');
+    return classificacao;
   }
 
   findOne(id: number) {
