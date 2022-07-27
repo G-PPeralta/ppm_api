@@ -19,6 +19,7 @@ import { DemandaModule } from './demanda/demanda.module';
 import { StatusProjetoModule } from './status-projeto/status-projeto.module';
 import { PrioridadeModule } from './prioridade/prioridade.module';
 import { ComplexidadeModule } from './complexidade/complexidade.module';
+import { ResponsavelModule } from './responsavel/responsavel.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ComplexidadeModule } from './complexidade/complexidade.module';
     StatusProjetoModule,
     PrioridadeModule,
     ComplexidadeModule,
+    ResponsavelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
