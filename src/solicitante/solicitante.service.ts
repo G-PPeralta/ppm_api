@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
 import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
 
 @Injectable()
 export class SolicitanteService {
-  create(createSolicitanteDto: CreateSolicitanteDto) {
-    return 'This action adds a new solicitante';
+  async create(createSolicitanteDto: CreateSolicitanteDto) {
+    await prismaClient.solicitanteProjeto.create({ data: createSolicitanteDto });
   }
 
   findAll() {
-    return `This action returns all solicitante`;
+    const solicitante = prismaClient.solicitanteProjeto.findMany();
+    if (!solicitante) throw new Error('Falha na listagem de solicitantes');
+    return solicitante;
   }
 
   findOne(id: number) {

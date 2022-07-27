@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
 import { SolicitanteService } from './solicitante.service';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
 import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
@@ -14,7 +14,11 @@ export class SolicitanteController {
 
   @Get()
   findAll() {
-    return this.solicitanteService.findAll();
+    try {
+      return this.solicitanteService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')

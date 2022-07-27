@@ -1,1 +1,4 @@
-export class CreateSolicitanteDto {}
+export class CreateSolicitanteDto {
+  solicitante: string;
+  deletado: boolean;
+}
