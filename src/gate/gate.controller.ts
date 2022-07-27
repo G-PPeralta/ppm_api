@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
 import { GateService } from './gate.service';
 import { CreateGateDto } from './dto/create-gate.dto';
 import { UpdateGateDto } from './dto/update-gate.dto';
@@ -14,7 +14,11 @@ export class GateController {
 
   @Get()
   findAll() {
-    return this.gateService.findAll();
+    try {
+      return this.gateService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')
