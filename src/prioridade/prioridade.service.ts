@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreatePrioridadeDto } from './dto/create-prioridade.dto';
 import { UpdatePrioridadeDto } from './dto/update-prioridade.dto';
 
@@ -8,8 +9,8 @@ export class PrioridadeService {
     return 'This action adds a new prioridade';
   }
 
-  findAll() {
-    return `This action returns all prioridade`;
+  async findAll() {
+    return await prismaClient.prioridadeProjeto.findMany();
   }
 
   findOne(id: number) {
