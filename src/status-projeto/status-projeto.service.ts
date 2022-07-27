@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateStatusProjetoDto } from './dto/create-status-projeto.dto';
 import { UpdateStatusProjetoDto } from './dto/update-status-projeto.dto';
 
@@ -8,8 +9,8 @@ export class StatusProjetoService {
     return 'This action adds a new statusProjeto';
   }
 
-  findAll() {
-    return `This action returns all statusProjeto`;
+  async findAll() {
+    return await prismaClient.statusProjeto.findMany();
   }
 
   findOne(id: number) {
