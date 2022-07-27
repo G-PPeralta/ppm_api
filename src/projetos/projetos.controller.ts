@@ -17,8 +17,13 @@ export class ProjetosController {
   constructor(private readonly projetosService: ProjetosService) {}
 
   @Post('/registro')
-  create(@Body() createProjetoDto: CreateProjetoDto) {
-    return this.projetosService.create(createProjetoDto);
+  async create(@Body() createProjetoDto: CreateProjetoDto) {
+    try {
+      const newProject = await this.projetosService.create(createProjetoDto);
+      return newProject
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   @Get()
