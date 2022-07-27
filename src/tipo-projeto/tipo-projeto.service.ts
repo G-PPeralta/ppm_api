@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateTipoProjetoDto } from './dto/create-tipo-projeto.dto';
 import { UpdateTipoProjetoDto } from './dto/update-tipo-projeto.dto';
 
@@ -8,8 +9,8 @@ export class TipoProjetoService {
     return 'This action adds a new tipoProjeto';
   }
 
-  findAll() {
-    return `This action returns all tipoProjeto`;
+  async findAll() {
+    return await prismaClient.tipoProjeto.findMany();
   }
 
   findOne(id: number) {
