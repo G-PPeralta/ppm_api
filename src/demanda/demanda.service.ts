@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateDemandaDto } from './dto/create-demanda.dto';
 import { UpdateDemandaDto } from './dto/update-demanda.dto';
 
@@ -8,8 +9,8 @@ export class DemandaService {
     return 'This action adds a new demanda';
   }
 
-  findAll() {
-    return `This action returns all demanda`;
+  async findAll() {
+    return await prismaClient.demanda.findMany();
   }
 
   findOne(id: number) {
