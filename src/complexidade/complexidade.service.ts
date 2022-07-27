@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateComplexidadeDto } from './dto/create-complexidade.dto';
 import { UpdateComplexidadeDto } from './dto/update-complexidade.dto';
 
@@ -8,8 +9,8 @@ export class ComplexidadeService {
     return 'This action adds a new complexidade';
   }
 
-  findAll() {
-    return `This action returns all complexidade`;
+  async findAll() {
+    return await prismaClient.complexidade.findMany();
   }
 
   findOne(id: number) {
