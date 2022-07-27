@@ -1,1 +1,4 @@
-export class CreateDivisaoDto {}
+export class CreateDivisaoDto {
+  divisao: string;
+  deletado: boolean
+}
