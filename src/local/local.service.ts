@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateLocalDto } from './dto/create-local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
 
 @Injectable()
 export class LocalService {
-  create(createLocalDto: CreateLocalDto) {
-    return 'This action adds a new local';
+  async create(createLocalDto: CreateLocalDto) {
+    await prismaClient.local.create({ data: createLocalDto });
   }
 
   findAll() {
-    return `This action returns all local`;
+    const local = prismaClient.local.findMany();
+    if (!local) throw new Error('Falha na listagem de locais');
+    return local;
   }
 
   findOne(id: number) {
