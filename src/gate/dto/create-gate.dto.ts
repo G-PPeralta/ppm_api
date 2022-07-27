@@ -1,1 +1,4 @@
-export class CreateGateDto {}
+export class CreateGateDto {
+  gate: string;
+  deletado: boolean
+}

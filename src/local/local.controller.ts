@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
 import { LocalService } from './local.service';
 import { CreateLocalDto } from './dto/create-local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
@@ -14,7 +14,11 @@ export class LocalController {
 
   @Get()
   findAll() {
-    return this.localService.findAll();
+    try {
+      return this.localService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')

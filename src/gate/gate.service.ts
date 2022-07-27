@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { prismaClient } from 'index.prisma';
 import { CreateGateDto } from './dto/create-gate.dto';
 import { UpdateGateDto } from './dto/update-gate.dto';
 
 @Injectable()
 export class GateService {
-  create(createGateDto: CreateGateDto) {
-    return 'This action adds a new gate';
+  async create(createGateDto: CreateGateDto) {
+    await prismaClient.gate.create({ data: createGateDto });
   }
 
   findAll() {
-    return `This action returns all gate`;
+    const gates = prismaClient.gate.findMany();
+    if (!gates) throw new Error('Falha na listagem de gates');
+    return gates;
   }
 
   findOne(id: number) {

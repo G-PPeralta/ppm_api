@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
 import { DivisaoService } from './divisao.service';
 import { CreateDivisaoDto } from './dto/create-divisao.dto';
 import { UpdateDivisaoDto } from './dto/update-divisao.dto';
@@ -14,7 +14,11 @@ export class DivisaoController {
 
   @Get()
   findAll() {
-    return this.divisaoService.findAll();
+    try {
+      return this.divisaoService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Get(':id')
