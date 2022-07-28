@@ -7,22 +7,49 @@ import {
   Param,
   Delete,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
+// import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
+import { prismaClient } from 'index.prisma';
+import { ResponsavelService } from 'responsavel/responsavel.service';
 
 @Controller('projetos')
 export class ProjetosController {
-  constructor(private readonly projetosService: ProjetosService) {}
+  constructor(
+    private readonly projetosService: ProjetosService,
+    private readonly responsavelService: ResponsavelService,
+  ) {}
 
   @Post('/registro')
-  async create(@Body() createProjetoDto: CreateProjetoDto) {
+  async create(@Body() payload: CreateProjetoDto) {
     try {
-      const newProject = await this.projetosService.create(createProjetoDto);
-      return newProject
-    } catch (error) {
-      console.log(error)
+      if (!payload.responsaveis) {
+        return await this.projetosService.create(payload);
+      }
+
+      const responsaveis = payload.responsaveis;
+      delete payload.responsaveis;
+
+      const novoProjeto = await this.projetosService.create(payload);
+
+      responsaveis.map(async (responsavel) => {
+        const novoResponsavel = await this.responsavelService.create(
+          responsavel,
+        );
+        await prismaClient.responsavel_Projeto.create({
+          data: {
+            projeto_id: novoProjeto.id,
+            responsavel_id: novoResponsavel.id,
+          },
+        });
+      });
+
+      return { message: 'Projeto cadastrado com responsável' };
+    } catch (error: any) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 

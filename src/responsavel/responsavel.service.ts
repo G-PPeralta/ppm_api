@@ -6,11 +6,13 @@ import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
 @Injectable()
 export class ResponsavelService {
   async create(createResponsavelDto: CreateResponsavelDto) {
-    await prismaClient.tb_responsaveis.create({ data: createResponsavelDto });
+    return await prismaClient.responsavel.create({
+      data: createResponsavelDto,
+    });
   }
 
   async findAll() {
-    const responsaveis = await prismaClient.tb_responsaveis.findMany();
+    const responsaveis = await prismaClient.responsavel.findMany();
     if (!responsaveis) throw new Error('Falha na listagem de projetos');
     return responsaveis;
   }
