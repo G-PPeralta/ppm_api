@@ -6,11 +6,13 @@ import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
 @Injectable()
 export class ClassificacaoService {
   async create(createClassificacaoDto: CreateClassificacaoDto) {
-    await prismaClient.classificacaoProjeto.create({ data: createClassificacaoDto });
+    await prismaClient.classificacaoProjeto.create({
+      data: createClassificacaoDto,
+    });
   }
 
   findAll() {
-    const classificacao = prismaClient.polo.findMany();
+    const classificacao = prismaClient.classificacaoProjeto.findMany();
     if (!classificacao) throw new Error('Falha na listagem de classificações');
     return classificacao;
   }
