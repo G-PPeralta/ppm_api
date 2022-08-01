@@ -1,3 +1,5 @@
+import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
+
 export class CreateProjetoDto {
   nomeProjeto: string;
   descricao?: string;
@@ -20,4 +22,7 @@ export class CreateProjetoDto {
   dataFimReal?: Date;
   comentarios?: string;
   deletado: boolean;
+  item: number;
+  numero: number;
+  responsaveis?: CreateResponsavelDto[];
 }

@@ -163,6 +163,7 @@ model Projeto {
   tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
   desafiosProjetos             DesafiosProjetos[]
+  rl_tb_responsaveis_projetos  Responsavel_Projeto[]          @relation("rl_tb_responsaveis_projetosTotb_projetos") @ignore
 
   @@map("tb_projetos")
 }
@@ -251,6 +252,43 @@ model tb_areas_atuacoes {
   id       Int      @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
   tipo     String?  @db.VarChar(255)
   deletado Boolean? @default(false)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Responsavel_Projeto {
+  projeto_id      Int @id
+  responsavel_id  Int
+  tb_projetos     Projeto     @relation("rl_tb_responsaveis_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_responsaveis Responsavel @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("rl_tb_responsaveis_projetos")
+}
+
+model Responsavel {
+  id                          Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
+  nome_responsavel            String?               @db.VarChar(255)
+  responsavel_tipo_id         Int?
+  rl_tb_responsaveis_projetos Responsavel_Projeto[] @ignore
+
+  @@map("tb_responsaveis")
+}
+
+model tb_tipo_valor_projeto {
+  id         Int    @id(map: "tb_tipo_valor_projeto_pk") @default(autoincrement())
+  tipo_valor String @db.VarChar(255)
+}
+
+model tb_tipos_responsavel {
+  id               Int     @id(map: "tb_tipos_responsavel_pk") @default(autoincrement())
+  tipo_responsavel String? @db.VarChar(255)
+}
+
+model tb_valores_projeto {
+  id            Int       @id @default(autoincrement())
+  id_projeto    Int
+  valor         Decimal   @db.Decimal(22, 2)
+  tipo_valor_id Int
+  data_valor    DateTime? @db.Timestamp(6)
 }
 
 enum atividade {
