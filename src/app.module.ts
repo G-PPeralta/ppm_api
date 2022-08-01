@@ -20,6 +20,7 @@ import { StatusProjetoModule } from './status-projeto/status-projeto.module';
 import { PrioridadeModule } from './prioridade/prioridade.module';
 import { ComplexidadeModule } from './complexidade/complexidade.module';
 import { ResponsavelModule } from './responsavel/responsavel.module';
+import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ResponsavelModule } from './responsavel/responsavel.module';
     PrioridadeModule,
     ComplexidadeModule,
     ResponsavelModule,
+    TipoResponsavelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
