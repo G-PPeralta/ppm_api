@@ -4,6 +4,6 @@ import { DemandaController } from './demanda.controller';
 
 @Module({
   controllers: [DemandaController],
-  providers: [DemandaService]
+  providers: [DemandaService],
 })
 export class DemandaModule {}

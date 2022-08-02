@@ -4,6 +4,6 @@ import { GateController } from './gate.controller';
 
 @Module({
   controllers: [GateController],
-  providers: [GateService]
+  providers: [GateService],
 })
 export class GateModule {}

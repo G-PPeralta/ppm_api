@@ -4,6 +4,6 @@ import { SolicitanteController } from './solicitante.controller';
 
 @Module({
   controllers: [SolicitanteController],
-  providers: [SolicitanteService]
+  providers: [SolicitanteService],
 })
 export class SolicitanteModule {}

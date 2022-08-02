@@ -4,6 +4,6 @@ import { ResponsavelController } from './responsavel.controller';
 
 @Module({
   controllers: [ResponsavelController],
-  providers: [ResponsavelService]
+  providers: [ResponsavelService],
 })
 export class ResponsavelModule {}

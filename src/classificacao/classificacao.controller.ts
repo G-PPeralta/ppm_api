@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { ClassificacaoService } from './classificacao.service';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
 import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
@@ -27,7 +36,10 @@ export class ClassificacaoController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassificacaoDto: UpdateClassificacaoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassificacaoDto: UpdateClassificacaoDto,
+  ) {
     return this.classificacaoService.update(+id, updateClassificacaoDto);
   }
 
