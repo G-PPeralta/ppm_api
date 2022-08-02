@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { CreateDashboardDto } from './dto/create-dashboard.dto';
-import { UpdateDashboardDto } from './dto/update-dashboard.dto';
+import { Prisma } from '@prisma/client';
+import { prismaClient } from 'index.prisma';
+import {
+  QueryTotalProjetosDto,
+  TotalProjetosDto,
+} from './dto/total-projetos.dto';
 
 @Injectable()
 export class DashboardService {
-  create(createDashboardDto: CreateDashboardDto) {
-    return 'This action adds a new dashboard';
-  }
+  async getTotalProjetosSGrafico() {
+    const retornoQuery: QueryTotalProjetosDto[] = await prismaClient.$queryRaw(
+      Prisma.sql`SELECT * FROM dev.v_dash_total_projetos_s_grafico`,
+    );
+    const projetosPorStatus = retornoQuery.map(({ id, status, qtd }) => ({
+      id,
+      status,
+      qtd,
+    }));
 
-  findAll() {
-    return `This action returns all dashboard`;
-  }
+    const totalProjetos = retornoQuery[0].total;
 
-  findOne(id: number) {
-    return `This action returns a #${id} dashboard`;
-  }
+    const prioridades = {
+      alta: retornoQuery[0].prioridades_alta,
+      media: retornoQuery[0].prioridades_media,
+      baixa: retornoQuery[0].prioridades_baixa,
+      nula: retornoQuery[0].prioridades_nula,
+    };
 
-  update(id: number, updateDashboardDto: UpdateDashboardDto) {
-    return `This action updates a #${id} dashboard`;
-  }
+    const retornoApi: TotalProjetosDto = {
+      projetosPorStatus,
+      totalProjetos,
+      prioridades,
+    };
 
-  remove(id: number) {
-    return `This action removes a #${id} dashboard`;
+    return retornoApi;
   }
 }
