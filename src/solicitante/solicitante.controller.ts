@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { SolicitanteService } from './solicitante.service';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
 import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
@@ -27,7 +36,10 @@ export class SolicitanteController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSolicitanteDto: UpdateSolicitanteDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSolicitanteDto: UpdateSolicitanteDto,
+  ) {
     return this.solicitanteService.update(+id, updateSolicitanteDto);
   }
 

@@ -6,7 +6,9 @@ import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
 @Injectable()
 export class SolicitanteService {
   async create(createSolicitanteDto: CreateSolicitanteDto) {
-    await prismaClient.solicitanteProjeto.create({ data: createSolicitanteDto });
+    await prismaClient.solicitanteProjeto.create({
+      data: createSolicitanteDto,
+    });
   }
 
   findAll() {

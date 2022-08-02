@@ -4,6 +4,6 @@ import { StatusProjetoController } from './status-projeto.controller';
 
 @Module({
   controllers: [StatusProjetoController],
-  providers: [StatusProjetoService]
+  providers: [StatusProjetoService],
 })
 export class StatusProjetoModule {}

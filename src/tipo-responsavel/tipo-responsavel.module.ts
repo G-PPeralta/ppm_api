@@ -4,6 +4,6 @@ import { TipoResponsavelController } from './tipo-responsavel.controller';
 
 @Module({
   controllers: [TipoResponsavelController],
-  providers: [TipoResponsavelService]
+  providers: [TipoResponsavelService],
 })
 export class TipoResponsavelModule {}

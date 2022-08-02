@@ -4,6 +4,6 @@ import { PoloController } from './polo.controller';
 
 @Module({
   controllers: [PoloController],
-  providers: [PoloService]
+  providers: [PoloService],
 })
 export class PoloModule {}

@@ -4,6 +4,6 @@ import { DivisaoController } from './divisao.controller';
 
 @Module({
   controllers: [DivisaoController],
-  providers: [DivisaoService]
+  providers: [DivisaoService],
 })
 export class DivisaoModule {}

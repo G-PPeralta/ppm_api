@@ -11,7 +11,9 @@ describe('TipoResponsavelController', () => {
       providers: [TipoResponsavelService],
     }).compile();
 
-    controller = module.get<TipoResponsavelController>(TipoResponsavelController);
+    controller = module.get<TipoResponsavelController>(
+      TipoResponsavelController,
+    );
   });
 
   it('should be defined', () => {

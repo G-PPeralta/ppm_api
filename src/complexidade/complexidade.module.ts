@@ -4,6 +4,6 @@ import { ComplexidadeController } from './complexidade.controller';
 
 @Module({
   controllers: [ComplexidadeController],
-  providers: [ComplexidadeService]
+  providers: [ComplexidadeService],
 })
 export class ComplexidadeModule {}

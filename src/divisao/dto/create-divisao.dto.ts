@@ -1,4 +1,4 @@
 export class CreateDivisaoDto {
   divisao: string;
-  deletado: boolean
+  deletado: boolean;
 }

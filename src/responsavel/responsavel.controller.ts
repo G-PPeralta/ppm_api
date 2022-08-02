@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
@@ -27,7 +36,10 @@ export class ResponsavelController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateResponsavelDto: UpdateResponsavelDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateResponsavelDto: UpdateResponsavelDto,
+  ) {
     return this.responsavelService.update(+id, updateResponsavelDto);
   }
 

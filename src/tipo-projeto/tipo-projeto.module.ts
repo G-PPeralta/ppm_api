@@ -4,6 +4,6 @@ import { TipoProjetoController } from './tipo-projeto.controller';
 
 @Module({
   controllers: [TipoProjetoController],
-  providers: [TipoProjetoService]
+  providers: [TipoProjetoService],
 })
 export class TipoProjetoModule {}
