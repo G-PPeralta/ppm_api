@@ -256,11 +256,12 @@ model tb_areas_atuacoes {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Responsavel_Projeto {
-  projeto_id      Int         @id
+  projeto_id      Int
   responsavel_id  Int
   tb_projetos     Projeto     @relation("rl_tb_responsaveis_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tb_responsaveis Responsavel @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@id([projeto_id, responsavel_id])
   @@map("rl_tb_responsaveis_projetos")
 }
 
