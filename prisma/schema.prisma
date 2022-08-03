@@ -128,22 +128,22 @@ model PrioridadeProjeto {
 model Projeto {
   id                           Int                            @id @default(autoincrement())
   nomeProjeto                  String                         @map("nome_projeto") @db.VarChar(150)
-  descricao                    String?                        @db.VarChar(500)
-  justificativa                String?                        @db.VarChar(500)
+  descricao                    String?                        @db.VarChar(512)
+  justificativa                String?                        @db.VarChar(1024)
   valorTotalPrevisto           Decimal?                       @map("valor_total_previsto") @db.Decimal(22, 2)
   dataInicio                   DateTime?                      @map("data_inicio") @db.Date
   dataFim                      DateTime?                      @map("data_fim") @db.Date
   poloId                       Int                            @map("polo_id")
   localId                      Int                            @map("local_id")
-  solicitanteId                Int                            @map("solicitante_id")
+  solicitanteId                Int?                           @map("solicitante_id")
   classificacaoId              Int?                           @map("classificacao_id")
-  divisaoId                    Int                            @map("divisao_id")
+  divisaoId                    Int?                           @map("divisao_id")
   gateId                       Int?                           @map("gate_id")
   tipoProjetoId                Int                            @map("tipo_projeto_id")
   demandaId                    Int?                           @map("demanda_id")
   statusId                     Int                            @map("status_id")
-  prioridadeId                 Int                            @map("prioridade_id")
-  complexidadeId               Int                            @map("complexidade_id")
+  prioridadeId                 Int?                           @map("prioridade_id")
+  complexidadeId               Int?                           @map("complexidade_id")
   dataInicioReal               DateTime?                      @map("dataInicio_real") @db.Date
   dataFimReal                  DateTime?                      @map("dataFim_real") @db.Date
   comentarios                  String?                        @db.VarChar(255)
@@ -151,19 +151,19 @@ model Projeto {
   item                         Int?
   numero                       Int?
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
-  complexidade                 Complexidade                   @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
+  complexidade                 Complexidade?                  @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
-  divisaoProjeto               DivisaoProjeto                 @relation(fields: [divisaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_divisão_projetos1")
+  divisaoProjeto               DivisaoProjeto?                @relation(fields: [divisaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_divisão_projetos1")
   gate                         Gate?                          @relation(fields: [gateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_gates1")
   local                        Local                          @relation(fields: [localId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_locais1")
   polo                         Polo                           @relation(fields: [poloId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_polos1")
-  prioridadeProjeto            PrioridadeProjeto              @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
-  solicitanteProjeto           SolicitanteProjeto             @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
+  prioridadeProjeto            PrioridadeProjeto?             @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
+  solicitanteProjeto           SolicitanteProjeto?            @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
   statusProjeto                StatusProjeto                  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
   tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
   desafiosProjetos             DesafiosProjetos[]
-  rl_tb_responsaveis_projetos  Responsavel_Projeto[]          @relation("rl_tb_responsaveis_projetosTotb_projetos") @ignore
+  rl_tb_responsaveis_projetos  Responsavel_Projeto[]          @relation("rl_tb_responsaveis_projetosTotb_projetos")
 
   @@map("tb_projetos")
 }
@@ -269,7 +269,7 @@ model Responsavel {
   id                          Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
   nome_responsavel            String?               @db.VarChar(255)
   responsavel_tipo_id         Int?
-  rl_tb_responsaveis_projetos Responsavel_Projeto[] @ignore
+  rl_tb_responsaveis_projetos Responsavel_Projeto[]
 
   @@map("tb_responsaveis")
 }

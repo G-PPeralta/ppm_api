@@ -53,7 +53,7 @@ export class ProjetosController {
     }
   }
 
-  @Get()
+  @Get('listagem')
   async findAll() {
     try {
       return this.projetosService.findAll();
