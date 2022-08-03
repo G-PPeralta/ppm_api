@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
+import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import {
   ComplexidadesProjetoDto,
   PrioridadesProjetoDto,
@@ -45,5 +46,13 @@ export class DashboardService {
     };
 
     return retornoApi;
+  }
+
+  async getAreasDemandadas() {
+    const retornoQuery: QueryAreasDemandadasDto =
+      await prismaClient.$queryRaw(Prisma.sql`
+      SELECT * FROM dev.v_dash_areas_demandadas
+    `);
+    return retornoQuery;
   }
 }
