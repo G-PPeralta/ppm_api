@@ -61,4 +61,15 @@ export class DashboardService {
 
     return { totalOrcamento: parseFloat(retornoQuery[0].total_orcamento) };
   }
+
+  async getInfoProjetos() {
+    const retornoQuery = await prismaClient.projeto.findMany({
+      select: {
+        id: true,
+        nomeProjeto: true,
+        valorTotalPrevisto: true,
+      },
+    });
+    return retornoQuery;
+  }
 }
