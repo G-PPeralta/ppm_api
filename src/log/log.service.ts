@@ -14,7 +14,7 @@ export class LogService {
   };
 
   static async create(createLogDto: CreateLogDto) {
-    return await prismaClient.$executeRaw`call dev.post_tb_logs(${Prisma.sql`${createLogDto}`})`;
+    return await prismaClient.$executeRaw`call post_tb_logs(${Prisma.sql`${createLogDto}`})`;
   }
 
   findAll() {

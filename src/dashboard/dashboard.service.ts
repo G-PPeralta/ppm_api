@@ -12,10 +12,8 @@ import {
 @Injectable()
 export class DashboardService {
   async getTotalProjetosSGrafico() {
-    const retornoQuery: QueryTotalProjetosDto[] = await prismaClient.$queryRaw(
-      Prisma.sql`SELECT * FROM dev.v_dash_total_projetos_s_grafico`,
-    );
-
+    const retornoQuery: QueryTotalProjetosDto[] =
+      await prismaClient.$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
     const projetosPorStatus = retornoQuery.map(({ id, status, qtd }) => ({
       id,
       status,
@@ -51,14 +49,14 @@ export class DashboardService {
   async getAreasDemandadas() {
     const retornoQuery: QueryAreasDemandadasDto =
       await prismaClient.$queryRaw(Prisma.sql`
-      SELECT * FROM dev.v_dash_areas_demandadas
+      SELECT * FROM v_dash_areas_demandadas
     `);
     return retornoQuery;
   }
 
   async getTotalOrcamentoPrevisto() {
     const retornoQuery = await prismaClient.$queryRaw(Prisma.sql`
-      select sum(projs.valor_total_previsto)::numeric(22,2) total_orcamento from dev.tb_projetos projs;
+      select sum(projs.valor_total_previsto)::numeric(22,2) total_orcamento from tb_projetos projs;
     `);
 
     return { totalOrcamento: parseFloat(retornoQuery[0].total_orcamento) };

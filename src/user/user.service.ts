@@ -33,17 +33,13 @@ export class UserService {
   }
 
   async findAll() {
-    const users = await prismaClient.$queryRawUnsafe(
-      'select * from dev.v_users_with_role',
-    );
+    const users = await prismaClient.$queryRaw`select * from v_users_with_role`;
     return users;
   }
 
   async findOne(id: number) {
-    const users = await prismaClient.$queryRawUnsafe(
-      `select * from dev.v_users_with_role where id = $1`,
-      id,
-    );
+    const users =
+      await prismaClient.$queryRaw`select * from v_users_with_role where id = ${id}`;
     return users;
   }
 
@@ -88,15 +84,13 @@ export class UserService {
 
   async findOneByEmail(email: string) {
     const result: UserWithRole[] = await prismaClient.$queryRaw(
-      Prisma.sql`select * from dev.v_users_to_auth WHERE email = ${email}`,
+      Prisma.sql`select * from v_users_to_auth WHERE email = ${email}`,
     );
 
     return result[0];
   }
 
   async findUsersProfilePending() {
-    return await prismaClient.$queryRawUnsafe(
-      'select * from dev.v_users_pending',
-    );
+    return await prismaClient.$queryRaw`select * from v_users_pending`;
   }
 }
