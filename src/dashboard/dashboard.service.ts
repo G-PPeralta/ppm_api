@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
+import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import {
   ComplexidadesProjetoDto,
   PrioridadesProjetoDto,
@@ -11,10 +12,8 @@ import {
 @Injectable()
 export class DashboardService {
   async getTotalProjetosSGrafico() {
-    const retornoQuery: QueryTotalProjetosDto[] = await prismaClient.$queryRaw(
-      Prisma.sql`SELECT * FROM dev.v_dash_total_projetos_s_grafico`,
-    );
-
+    const retornoQuery: QueryTotalProjetosDto[] =
+      await prismaClient.$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
     const projetosPorStatus = retornoQuery.map(({ id, status, qtd }) => ({
       id,
       status,
@@ -45,5 +44,32 @@ export class DashboardService {
     };
 
     return retornoApi;
+  }
+
+  async getAreasDemandadas() {
+    const retornoQuery: QueryAreasDemandadasDto =
+      await prismaClient.$queryRaw(Prisma.sql`
+      SELECT * FROM v_dash_areas_demandadas
+    `);
+    return retornoQuery;
+  }
+
+  async getTotalOrcamentoPrevisto() {
+    const retornoQuery = await prismaClient.$queryRaw(Prisma.sql`
+      select sum(projs.valor_total_previsto)::numeric(22,2) total_orcamento from tb_projetos projs;
+    `);
+
+    return { totalOrcamento: parseFloat(retornoQuery[0].total_orcamento) };
+  }
+
+  async getInfoProjetos() {
+    const retornoQuery = await prismaClient.projeto.findMany({
+      select: {
+        id: true,
+        nomeProjeto: true,
+        valorTotalPrevisto: true,
+      },
+    });
+    return retornoQuery;
   }
 }
