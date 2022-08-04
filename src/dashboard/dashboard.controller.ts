@@ -18,4 +18,9 @@ export class DashboardController {
   getTotalOrcamentoPrevisto() {
     return this.dashboardService.getTotalOrcamentoPrevisto();
   }
+
+  @Get('projetos-info')
+  getInfoProjetos() {
+    return this.dashboardService.getInfoProjetos();
+  }
 }
