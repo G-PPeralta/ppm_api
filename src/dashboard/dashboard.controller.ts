@@ -5,7 +5,17 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get('total-projetos')
-  findAll() {
+  getTotalProjetosSGrafico() {
     return this.dashboardService.getTotalProjetosSGrafico();
+  }
+
+  @Get('areas-demandadas')
+  getAreasDemandadas() {
+    return this.dashboardService.getAreasDemandadas();
+  }
+
+  @Get('orcamento-total')
+  getTotalOrcamentoPrevisto() {
+    return this.dashboardService.getTotalOrcamentoPrevisto();
   }
 }
