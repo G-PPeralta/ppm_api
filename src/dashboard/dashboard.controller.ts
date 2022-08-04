@@ -13,4 +13,9 @@ export class DashboardController {
   getAreasDemandadas() {
     return this.dashboardService.getAreasDemandadas();
   }
+
+  @Get('orcamento-total')
+  getTotalOrcamentoPrevisto() {
+    return this.dashboardService.getTotalOrcamentoPrevisto();
+  }
 }
