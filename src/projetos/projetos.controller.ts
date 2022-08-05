@@ -35,17 +35,19 @@ export class ProjetosController {
 
       const novoProjeto = await this.projetosService.create(payload);
 
-      responsaveis.map(async (responsavel) => {
-        const novoResponsavel = await this.responsavelService.create(
-          responsavel,
-        );
-        await prismaClient.responsavel_Projeto.create({
-          data: {
-            projeto_id: novoProjeto.id,
-            responsavel_id: novoResponsavel.id,
-          },
-        });
-      });
+      await Promise.all(
+        responsaveis.map(async (responsavel) => {
+          const novoResponsavel = await this.responsavelService.create(
+            responsavel,
+          );
+          await prismaClient.responsavel_Projeto.create({
+            data: {
+              projeto_id: novoProjeto.id,
+              responsavel_id: novoResponsavel.id,
+            },
+          });
+        }),
+      );
 
       return { message: 'Projeto cadastrado com responsável' };
     } catch (error: any) {

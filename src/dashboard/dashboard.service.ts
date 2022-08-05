@@ -3,6 +3,10 @@ import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import {
+  TotalOrcamentoDto,
+  TransformNumberDto,
+} from './dto/total-orcamento.dto';
+import {
   ComplexidadesProjetoDto,
   PrioridadesProjetoDto,
   QueryTotalProjetosDto,
@@ -11,6 +15,11 @@ import {
 
 @Injectable()
 export class DashboardService {
+  static errors = {
+    totalOrcamento: {
+      badRequestError: 'Query string param polo_id_param is not a number',
+    },
+  };
   async getTotalProjetosSGrafico() {
     const retornoQuery: QueryTotalProjetosDto[] =
       await prismaClient.$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
@@ -54,12 +63,20 @@ export class DashboardService {
     return retornoQuery;
   }
 
-  async getTotalOrcamentoPrevisto() {
-    const retornoQuery = await prismaClient.$queryRaw(Prisma.sql`
-      select sum(projs.valor_total_previsto)::numeric(22,2) total_orcamento from tb_projetos projs;
-    `);
+  async getTotalOrcamentoPrevisto(poloId?: number) {
+    const retornoQuery: TotalOrcamentoDto[] =
+      await prismaClient.$queryRaw`select * from f_orcado_realizado_polo_id(${Prisma.sql`${
+        poloId ? poloId : null
+      }`})`;
 
-    return { totalOrcamento: parseFloat(retornoQuery[0].total_orcamento) };
+    const tranformTotalInNumber: TransformNumberDto[] = retornoQuery.map(
+      ({ total, tipo_valor }) => ({
+        total: Number(total),
+        tipo_valor,
+      }),
+    );
+
+    return tranformTotalInNumber;
   }
 
   async getInfoProjetos() {
