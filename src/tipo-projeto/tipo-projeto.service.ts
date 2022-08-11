@@ -5,8 +5,11 @@ import { UpdateTipoProjetoDto } from './dto/update-tipo-projeto.dto';
 
 @Injectable()
 export class TipoProjetoService {
-  create(createTipoProjetoDto: CreateTipoProjetoDto) {
-    return 'This action adds a new tipoProjeto';
+  async create(createTipoProjetoDto: CreateTipoProjetoDto) {
+    const tipo = await prismaClient.tipoProjeto.create({
+      data: createTipoProjetoDto,
+    });
+    return tipo;
   }
 
   async findAll() {
