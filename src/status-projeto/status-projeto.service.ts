@@ -5,8 +5,10 @@ import { UpdateStatusProjetoDto } from './dto/update-status-projeto.dto';
 
 @Injectable()
 export class StatusProjetoService {
-  create(createStatusProjetoDto: CreateStatusProjetoDto) {
-    return 'This action adds a new statusProjeto';
+  async create(createStatusProjetoDto: CreateStatusProjetoDto) {
+    return await prismaClient.statusProjeto.create({
+      data: createStatusProjetoDto,
+    });
   }
 
   async findAll() {
