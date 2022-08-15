@@ -86,7 +86,12 @@ export class ProjetosController {
 
   @Get('/:id')
   findOne(@Param('id') id: string) {
-    return this.projetosService.findOne(+id);
+    try {
+      const project = this.projetosService.findOne(+id);
+      return project;
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Patch(':id')

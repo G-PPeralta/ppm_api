@@ -36,8 +36,11 @@ export class ProjetosService {
     return totalValue;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} projeto`;
+  async findOne(id: number) {
+    const project = await prismaClient.projeto.findUnique({
+      where: { id },
+    });
+    return project;
   }
 
   update(id: number, updateProjetoDto: UpdateProjetoDto) {
