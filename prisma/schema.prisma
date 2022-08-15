@@ -150,6 +150,8 @@ model Projeto {
   deletado                     Boolean                        @default(false)
   item                         Int?
   numero                       Int?
+  responsavel_id               Int?
+  coordenador_id               Int?
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
   complexidade                 Complexidade?                  @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
@@ -259,17 +261,16 @@ model Responsavel_Projeto {
   projeto_id      Int
   responsavel_id  Int
   tb_projetos     Projeto     @relation("rl_tb_responsaveis_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tb_responsaveis Responsavel @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tb_responsaveis Responsavel @relation("rl_tb_responsaveis_projetosTotb_responsaveis", fields: [responsavel_id], references: [responsavel_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([projeto_id, responsavel_id])
   @@map("rl_tb_responsaveis_projetos")
 }
 
 model Responsavel {
-  id                          Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
+  responsavel_id              Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
   nome_responsavel            String?               @db.VarChar(255)
-  responsavel_tipo_id         Int?
-  rl_tb_responsaveis_projetos Responsavel_Projeto[]
+  rl_tb_responsaveis_projetos Responsavel_Projeto[] @relation("rl_tb_responsaveis_projetosTotb_responsaveis")
 
   @@map("tb_responsaveis")
 }
@@ -279,17 +280,25 @@ model tb_tipo_valor_projeto {
   tipo_valor String @db.VarChar(255)
 }
 
-model tb_tipos_responsavel {
-  id               Int     @id(map: "tb_tipos_responsavel_pk") @default(autoincrement())
-  tipo_responsavel String? @db.VarChar(255)
+model tb_valores_projeto {
+  id             Int      @id @default(autoincrement())
+  id_projeto     Int
+  valor          Decimal  @db.Decimal(22, 2)
+  tipo_valor_id  Int
+  data_inclusao  DateTime @db.Timestamp(6)
+  conta_contabil String?  @db.VarChar(50)
+  classificacao  String?  @db.VarChar(50)
+  aderencia      String?  @db.VarChar(50)
+  evidencia      String?  @db.VarChar(50)
+  obs            String?  @db.VarChar(50)
 }
 
-model tb_valores_projeto {
-  id            Int       @id @default(autoincrement())
-  id_projeto    Int
-  valor         Decimal   @db.Decimal(22, 2)
-  tipo_valor_id Int
-  data_valor    DateTime? @db.Timestamp(6)
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Coordenador {
+  id_coordenador   Int     @id @default(autoincrement())
+  coordenador_nome String? @db.VarChar(255)
+
+  @@map("tb_coordenadores")
 }
 
 enum atividade {

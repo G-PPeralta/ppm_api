@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
@@ -12,7 +13,9 @@ export class ResponsavelService {
   }
 
   async findAll() {
-    const responsaveis = await prismaClient.responsavel.findMany();
+    const responsaveis = await prismaClient.$queryRaw(
+      Prisma.sql`select * from dev.tb_responsaveis tr;`,
+    );
     if (!responsaveis) throw new Error('Falha na listagem de projetos');
     return responsaveis;
   }
