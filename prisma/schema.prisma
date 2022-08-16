@@ -269,7 +269,7 @@ model Responsavel_Projeto {
 
 model Responsavel {
   responsavel_id              Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
-  nome_responsavel            String?               @db.VarChar(255)
+  nomeResponsavel             String?               @map("nome_responsavel") @db.VarChar(255)
   rl_tb_responsaveis_projetos Responsavel_Projeto[] @relation("rl_tb_responsaveis_projetosTotb_responsaveis")
 
   @@map("tb_responsaveis")

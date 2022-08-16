@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+// import { prismaClient } from 'index.prisma';
 import { CreateTipoResponsavelDto } from './dto/create-tipo-responsavel.dto';
 import { UpdateTipoResponsavelDto } from './dto/update-tipo-responsavel.dto';
 
@@ -9,9 +9,9 @@ export class TipoResponsavelService {
     return 'This action adds a new tipoResponsavel';
   }
 
-  findAll() {
-    return prismaClient.tb_tipos_responsavel.findMany();
-  }
+  // findAll() {
+  //   return prismaClient.tb_tipos_responsavel.findMany();
+  // }
 
   findOne(id: number) {
     return `This action returns a #${id} tipoResponsavel`;

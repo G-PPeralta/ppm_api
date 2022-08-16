@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
-import { CreateResponsavelDto } from './dto/create-responsavel.dto';
+import { Responsavel } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
 
 @Injectable()
 export class ResponsavelService {
-  async create(createResponsavelDto: CreateResponsavelDto) {
+  async create(responsavel: Responsavel) {
     return await prismaClient.responsavel.create({
-      data: createResponsavelDto,
+      data: responsavel,
     });
   }
 

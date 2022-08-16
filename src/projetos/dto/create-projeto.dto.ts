@@ -22,6 +22,6 @@ export class CreateProjetoDto {
   deletado: boolean;
   item: number;
   numero: number;
-  responsavelId?: number;
-  coordenadorId?: number;
+  responsavelId?: number[];
+  coordenadorId?: number[];
 }
