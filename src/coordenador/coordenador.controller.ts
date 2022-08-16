@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CoordenadorService } from './coordenador.service';
 import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
@@ -17,7 +18,14 @@ export class CoordenadorController {
 
   @Post()
   create(@Body() createCoordenadorDto: CreateCoordenadorDto) {
-    return this.coordenadorService.create(createCoordenadorDto);
+    try {
+      const coordenador = createCoordenadorDto.coordenadores.map(
+        async (coo) => await this.coordenadorService.create(coo),
+      );
+      return coordenador;
+    } catch (error: any) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   @Get()

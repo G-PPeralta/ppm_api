@@ -1,3 +1,7 @@
+export class Coordenador {
+  coordenadorNome: string;
+}
+
 export class CreateCoordenadorDto {
-  coordenador_nome: string;
+  coordenadores: Coordenador[];
 }
