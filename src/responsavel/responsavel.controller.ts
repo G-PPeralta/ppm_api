@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
@@ -18,7 +19,14 @@ export class ResponsavelController {
 
   @Post()
   create(@Body() createResponsavelDto: CreateResponsavelDto) {
-    return this.responsavelService.create(createResponsavelDto);
+    try {
+      const responsavel = createResponsavelDto.responsaveis.map(
+        async (res) => await this.responsavelService.create(res),
+      );
+      return responsavel;
+    } catch (error: any) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   @Get()

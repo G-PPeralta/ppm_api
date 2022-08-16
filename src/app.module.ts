@@ -22,6 +22,8 @@ import { ComplexidadeModule } from './complexidade/complexidade.module';
 import { ResponsavelModule } from './responsavel/responsavel.module';
 import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DetalhamentoModule } from './detalhamento/detalhamento.module';
+import { CoordenadorModule } from './coordenador/coordenador.module';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ResponsavelModule,
     TipoResponsavelModule,
     DashboardModule,
+    DetalhamentoModule,
+    CoordenadorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

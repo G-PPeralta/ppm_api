@@ -22,10 +22,10 @@ export class TipoResponsavelController {
     return this.tipoResponsavelService.create(createTipoResponsavelDto);
   }
 
-  @Get()
-  findAll() {
-    return this.tipoResponsavelService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.tipoResponsavelService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
