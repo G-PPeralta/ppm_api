@@ -295,8 +295,8 @@ model tb_valores_projeto {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Coordenador {
-  id_coordenador  Int     @id @default(autoincrement())
-  coordenadorNome String? @map("coordenador_nome") @db.VarChar(255)
+  id_coordenador   Int     @id @default(autoincrement())
+  coordenadorNome String @db.VarChar(255) @map("coordenador_nome")
 
   @@map("tb_coordenadores")
 }

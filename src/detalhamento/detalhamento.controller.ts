@@ -27,7 +27,7 @@ export class DetalhamentoController {
   // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     try {
       const project = this.detalhamentoService.findOne(+id);
       return project;

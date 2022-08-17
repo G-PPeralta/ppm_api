@@ -13,9 +13,19 @@ export class CoordenadorService {
   }
 
   async findAll() {
-    const coordenador = await prismaClient.$queryRaw(
-      Prisma.sql`select * from dev.tb_coordenadores tc ;`,
-    );
+    const coordenador = await prismaClient.coordenador.findMany();
+    return coordenador;
+  }
+
+  async findByName(nome: string) {
+    // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
+    // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
+    // `);
+    const coordenador = await prismaClient.coordenador.findFirst({
+      where: {
+        coordenadorNome: nome,
+      },
+    });
     return coordenador;
   }
 
