@@ -20,6 +20,18 @@ export class ResponsavelService {
     return responsaveis;
   }
 
+  async findByName(nome: string) {
+    // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
+    // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
+    // `);
+    const responsavel = await prismaClient.responsavel.findFirst({
+      where: {
+        nomeResponsavel: nome,
+      },
+    });
+    return responsavel;
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} responsavel`;
   }
