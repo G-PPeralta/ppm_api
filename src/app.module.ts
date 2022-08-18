@@ -24,6 +24,7 @@ import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.modul
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
+import { PepModule } from './pep/pep.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CoordenadorModule } from './coordenador/coordenador.module';
     DashboardModule,
     DetalhamentoModule,
     CoordenadorModule,
+    PepModule,
   ],
   controllers: [AppController],
   providers: [AppService],

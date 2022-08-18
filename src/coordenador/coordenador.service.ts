@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+// import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
 import { Coordenador } from './dto/create-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
