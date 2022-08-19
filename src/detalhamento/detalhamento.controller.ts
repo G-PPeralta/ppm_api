@@ -36,6 +36,18 @@ export class DetalhamentoController {
     }
   }
 
+  @Get('/orcamento/:id')
+  async findOneOrcamento(@Param('id') id: number) {
+    const orcamento = await this.detalhamentoService.findOneOrcamento(+id);
+    return orcamento;
+  }
+
+  @Get('/realizado/:id')
+  async findOneRemanescente(@Param('id') id: number) {
+    const realizado = await this.detalhamentoService.findOneRealizado(+id);
+    return realizado;
+  }
+
   // @Patch(':id')
   // update(
   //   @Param('id') id: string,

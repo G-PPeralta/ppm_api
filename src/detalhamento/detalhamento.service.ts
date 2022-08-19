@@ -44,6 +44,22 @@ export class DetalhamentoService {
     return projeto;
   }
 
+  async findOneOrcamento(id: number) {
+    const projeto = await prismaClient.projeto.findFirst({
+      where: { id },
+      select: { valorTotalPrevisto: true },
+    });
+    return projeto;
+  }
+
+  async findOneRealizado(id: number) {
+    const projeto = await prismaClient.tb_valores_projeto.findFirst({
+      where: { id, tipo_valor_id: 2 },
+      select: { valor: true },
+    });
+    return projeto;
+  }
+
   // update(id: number, updateDetalhamentoDto: UpdateDetalhamentoDto) {
   //   return `This action updates a #${id} detalhamento`;
   // }
