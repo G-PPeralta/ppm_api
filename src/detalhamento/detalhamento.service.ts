@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
 // import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
-import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
+// import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
 @Injectable()
 export class DetalhamentoService {
