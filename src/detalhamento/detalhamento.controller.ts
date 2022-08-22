@@ -43,7 +43,7 @@ export class DetalhamentoController {
   }
 
   @Get('/realizado/:id')
-  async findOneRemanescente(@Param('id') id: number) {
+  async findOneRealizado(@Param('id') id: number) {
     const realizado = await this.detalhamentoService.findOneRealizado(+id);
     return realizado;
   }
@@ -58,6 +58,14 @@ export class DetalhamentoController {
   async findOneNaoPrevistoPercentual(@Param('id') id: number) {
     const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
     return naoPrevisto;
+  }
+
+  @Get('/remanescente/:id')
+  async findOneRemanescente(@Param('id') id: number) {
+    const remanescente = await this.detalhamentoService.findOneRemanescente(
+      +id,
+    );
+    return remanescente;
   }
 
   // @Patch(':id')

@@ -66,10 +66,7 @@ export class DetalhamentoService {
 
   async findOneNaoPrevisto(id: number) {
     let naoPrevisto = 0;
-    const realizado = await prismaClient.tb_valores_projeto.findFirst({
-      where: { id, tipo_valor_id: 2 },
-      select: { valor: true },
-    });
+    const realizado = await this.findOneRealizado(id);
     const previsto = await prismaClient.tb_valores_projeto.findFirst({
       where: { id, tipo_valor_id: 1 },
       select: { valor: true },
@@ -95,6 +92,18 @@ export class DetalhamentoService {
       }
     }
     return naoPrevistoPercentual;
+  }
+
+  async findOneRemanescente(id: number) {
+    let remanescente = 0;
+    const orcamento = await this.findOneOrcamento(id);
+    const realizado = await this.findOneRealizado(id);
+
+    if (orcamento !== null && realizado !== null) {
+      remanescente = Number(orcamento.valorTotalPrevisto) - Number(realizado);
+    }
+
+    return remanescente;
   }
 
   // update(id: number, updateDetalhamentoDto: UpdateDetalhamentoDto) {
