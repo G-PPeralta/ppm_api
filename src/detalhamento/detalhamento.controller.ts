@@ -48,6 +48,18 @@ export class DetalhamentoController {
     return realizado;
   }
 
+  @Get('/nao-previsto/:id')
+  async findOneNaoPrevisto(@Param('id') id: number) {
+    const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
+    return naoPrevisto;
+  }
+
+  @Get('/nao-previsto-percentual/:id')
+  async findOneNaoPrevistoPercentual(@Param('id') id: number) {
+    const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
+    return naoPrevisto;
+  }
+
   // @Patch(':id')
   // update(
   //   @Param('id') id: string,

@@ -57,7 +57,44 @@ export class DetalhamentoService {
       where: { id, tipo_valor_id: 2 },
       select: { valor: true },
     });
+
+    // const projeto = prismaClient.$queryRaw(
+    //   Prisma.sql`select valor from dev.tb_valores_projeto where id=${id} and tipo_valor_id=2`,
+    // );
     return projeto;
+  }
+
+  async findOneNaoPrevisto(id: number) {
+    let naoPrevisto = 0;
+    const realizado = await prismaClient.tb_valores_projeto.findFirst({
+      where: { id, tipo_valor_id: 2 },
+      select: { valor: true },
+    });
+    const previsto = await prismaClient.tb_valores_projeto.findFirst({
+      where: { id, tipo_valor_id: 1 },
+      select: { valor: true },
+    });
+
+    if (realizado !== null && previsto !== null) {
+      if (Number(realizado.valor) - Number(previsto.valor) > 0) {
+        naoPrevisto = Number(realizado.valor) - Number(previsto.valor);
+      }
+    }
+    return naoPrevisto;
+  }
+
+  async findOneNaoPrevistoPercentual(id: number) {
+    let naoPrevistoPercentual = 0;
+    const naoPrevisto = await this.findOneNaoPrevisto(id);
+    const orcamento = await this.findOneOrcamento(id);
+
+    if (naoPrevisto !== null) {
+      if (naoPrevisto > 0) {
+        naoPrevistoPercentual =
+          (naoPrevisto / Number(orcamento.valorTotalPrevisto)) * 100;
+      }
+    }
+    return naoPrevistoPercentual;
   }
 
   // update(id: number, updateDetalhamentoDto: UpdateDetalhamentoDto) {
