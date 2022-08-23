@@ -60,13 +60,13 @@ export class DetalhamentoController {
     return naoPrevisto;
   }
 
-  @Get('/remanescente/:id')
-  async findOneRemanescente(@Param('id') id: number) {
-    const remanescente = await this.detalhamentoService.findOneRemanescente(
-      +id,
-    );
-    return remanescente;
-  }
+  // @Get('/remanescente/:id')
+  // async findOneRemanescente(@Param('id') id: number) {
+  //   const remanescente = await this.detalhamentoService.findOneRemanescente(
+  //     +id,
+  //   );
+  //   return remanescente;
+  // }
 
   // @Patch(':id')
   // update(
