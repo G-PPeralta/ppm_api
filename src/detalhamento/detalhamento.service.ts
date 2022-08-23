@@ -45,10 +45,12 @@ export class DetalhamentoService {
   }
 
   async findOneOrcamento(id: number) {
+    const notFound = { valorTotalPrevisto: 0 };
     const orcamento = await prismaClient.projeto.findFirst({
       where: { id },
       select: { valorTotalPrevisto: true },
     });
+    if (!orcamento) return notFound;
     return orcamento;
   }
 
