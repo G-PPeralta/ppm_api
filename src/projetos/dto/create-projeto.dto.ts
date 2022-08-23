@@ -24,4 +24,5 @@ export class CreateProjetoDto {
   numero: number;
   responsavelId?: number[];
   coordenadorId?: number[];
+  elemento_pep: string;
 }

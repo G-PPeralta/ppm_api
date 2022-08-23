@@ -27,13 +27,45 @@ export class DetalhamentoController {
   // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     try {
       const project = this.detalhamentoService.findOne(+id);
       return project;
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
+  }
+
+  @Get('/orcamento/:id')
+  async findOneOrcamento(@Param('id') id: number) {
+    const orcamento = await this.detalhamentoService.findOneOrcamento(+id);
+    return orcamento;
+  }
+
+  @Get('/realizado/:id')
+  async findOneRealizado(@Param('id') id: number) {
+    const realizado = await this.detalhamentoService.findOneRealizado(+id);
+    return realizado;
+  }
+
+  @Get('/nao-previsto/:id')
+  async findOneNaoPrevisto(@Param('id') id: number) {
+    const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
+    return naoPrevisto;
+  }
+
+  @Get('/nao-previsto-percentual/:id')
+  async findOneNaoPrevistoPercentual(@Param('id') id: number) {
+    const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
+    return naoPrevisto;
+  }
+
+  @Get('/remanescente/:id')
+  async findOneRemanescente(@Param('id') id: number) {
+    const remanescente = await this.detalhamentoService.findOneRemanescente(
+      +id,
+    );
+    return remanescente;
   }
 
   // @Patch(':id')

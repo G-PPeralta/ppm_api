@@ -152,6 +152,7 @@ model Projeto {
   numero                       Int?
   responsavel_id               Int?
   coordenador_id               Int?
+  elemento_pep                 String?                        @db.VarChar
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
   complexidade                 Complexidade?                  @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
@@ -295,8 +296,8 @@ model tb_valores_projeto {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Coordenador {
-  id_coordenador  Int     @id @default(autoincrement())
-  coordenadorNome String? @map("coordenador_nome") @db.VarChar(255)
+  id_coordenador  Int    @id @default(autoincrement())
+  coordenadorNome String @map("coordenador_nome") @db.VarChar(255)
 
   @@map("tb_coordenadores")
 }

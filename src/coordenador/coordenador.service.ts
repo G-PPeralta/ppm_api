@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+// import { Prisma } from '@prisma/client';
 import { prismaClient } from 'index.prisma';
 import { Coordenador } from './dto/create-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
@@ -13,9 +13,19 @@ export class CoordenadorService {
   }
 
   async findAll() {
-    const coordenador = await prismaClient.$queryRaw(
-      Prisma.sql`select * from dev.tb_coordenadores tc ;`,
-    );
+    const coordenador = await prismaClient.coordenador.findMany();
+    return coordenador;
+  }
+
+  async findByName(nome: string) {
+    // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
+    // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
+    // `);
+    const coordenador = await prismaClient.coordenador.findFirst({
+      where: {
+        coordenadorNome: nome,
+      },
+    });
     return coordenador;
   }
 

@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { CoordenadorService } from './coordenador.service';
 import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
@@ -17,15 +17,19 @@ export class CoordenadorController {
   constructor(private readonly coordenadorService: CoordenadorService) {}
 
   @Post()
-  create(@Body() createCoordenadorDto: CreateCoordenadorDto) {
-    try {
-      const coordenador = createCoordenadorDto.coordenadores.map(
-        async (coo) => await this.coordenadorService.create(coo),
+  async create(@Body() createCoordenadorDto: CreateCoordenadorDto) {
+    const coordenador = createCoordenadorDto.coordenadores.map(async (coo) => {
+      const coordenadorAlreadyExists = await this.coordenadorService.findByName(
+        coo.coordenadorNome,
       );
-      return coordenador;
-    } catch (error: any) {
-      throw new InternalServerErrorException(error.message);
-    }
+      if (coordenadorAlreadyExists) {
+        throw new ConflictException(
+          `Coordenador ${coo.coordenadorNome} já cadastrado`,
+        );
+      }
+      return await this.coordenadorService.create(coo);
+    });
+    return await Promise.all(coordenador);
   }
 
   @Get()

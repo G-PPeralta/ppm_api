@@ -8,6 +8,7 @@ import {
   Delete,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
@@ -18,15 +19,19 @@ export class ResponsavelController {
   constructor(private readonly responsavelService: ResponsavelService) {}
 
   @Post()
-  create(@Body() createResponsavelDto: CreateResponsavelDto) {
-    try {
-      const responsavel = createResponsavelDto.responsaveis.map(
-        async (res) => await this.responsavelService.create(res),
+  async create(@Body() createResponsavelDto: CreateResponsavelDto) {
+    const responsavel = createResponsavelDto.responsaveis.map(async (res) => {
+      const responsavelAlreadyExists = await this.responsavelService.findByName(
+        res.nomeResponsavel,
       );
-      return responsavel;
-    } catch (error: any) {
-      throw new InternalServerErrorException(error.message);
-    }
+      if (responsavelAlreadyExists) {
+        throw new ConflictException(
+          `Responsável ${res.nomeResponsavel} já cadastrado`,
+        );
+      }
+      return await this.responsavelService.create(res);
+    });
+    return await Promise.all(responsavel);
   }
 
   @Get()
