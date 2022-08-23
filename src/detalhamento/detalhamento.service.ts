@@ -45,23 +45,20 @@ export class DetalhamentoService {
   }
 
   async findOneOrcamento(id: number) {
-    const projeto = await prismaClient.projeto.findFirst({
+    const orcamento = await prismaClient.projeto.findFirst({
       where: { id },
       select: { valorTotalPrevisto: true },
     });
-    return projeto;
+    return orcamento;
   }
 
   async findOneRealizado(id: number) {
-    const notFound = { valor: '' };
+    const notFound = { valor: 0 };
     const projeto = await prismaClient.tb_valores_projeto.findFirst({
       where: { id, tipo_valor_id: 2 },
       select: { valor: true },
     });
 
-    // const projeto = prismaClient.$queryRaw(
-    //   Prisma.sql`select valor from dev.tb_valores_projeto where id=${id} and tipo_valor_id=2`,
-    // );
     if (!projeto) return notFound;
 
     return projeto;
@@ -97,17 +94,22 @@ export class DetalhamentoService {
     return naoPrevistoPercentual;
   }
 
-  async findOneRemanescente(id: number) {
-    let remanescente = 0;
-    const orcamento = await this.findOneOrcamento(id);
-    const realizado = await this.findOneRealizado(id);
+  // async findOneRemanescente(id: number) {
+  //   let remanescente = { valor: 0 };
+  //   const orcamento = await this.findOneOrcamento(id);
+  //   const realizado = await this.findOneRealizado(id);
 
-    if (orcamento !== null && realizado !== null) {
-      remanescente = Number(orcamento.valorTotalPrevisto) - Number(realizado);
-    }
+  //   if (orcamento !== null && realizado !== null) {
+  //     remanescente.valor =
+  //       Number(orcamento.valorTotalPrevisto) - Number(realizado.valor);
+  //   }
 
-    return remanescente;
-  }
+  //   if (remanescente.valor === Number(orcamento.valorTotalPrevisto)) {
+  //     remanescente = { valor: 0 };
+  //   }
+
+  //   return remanescente;
+  // }
 
   // update(id: number, updateDetalhamentoDto: UpdateDetalhamentoDto) {
   //   return `This action updates a #${id} detalhamento`;
