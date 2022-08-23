@@ -53,6 +53,7 @@ export class DetalhamentoService {
   }
 
   async findOneRealizado(id: number) {
+    const notFound = { valor: '' };
     const projeto = await prismaClient.tb_valores_projeto.findFirst({
       where: { id, tipo_valor_id: 2 },
       select: { valor: true },
@@ -61,6 +62,8 @@ export class DetalhamentoService {
     // const projeto = prismaClient.$queryRaw(
     //   Prisma.sql`select valor from dev.tb_valores_projeto where id=${id} and tipo_valor_id=2`,
     // );
+    if (!projeto) return notFound;
+
     return projeto;
   }
 
