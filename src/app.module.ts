@@ -24,6 +24,7 @@ import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.modul
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
+import { CampanhaModule } from './campanha/campanha.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CoordenadorModule } from './coordenador/coordenador.module';
     DashboardModule,
     DetalhamentoModule,
     CoordenadorModule,
+    CampanhaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
