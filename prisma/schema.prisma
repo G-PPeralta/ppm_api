@@ -201,7 +201,7 @@ model StatusAtividade {
 
 model StatusProjeto {
   id       Int       @id @default(autoincrement())
-  status   String    @db.VarChar(45)
+  status   String    @unique(map: "tb_status_projetos_un") @db.VarChar(45)
   deletado Boolean   @default(false)
   projetos Projeto[]
 
@@ -300,6 +300,41 @@ model Coordenador {
   coordenadorNome String @map("coordenador_nome") @db.VarChar(255)
 
   @@map("tb_coordenadores")
+}
+
+model Campanhas {
+  id                  Int       @id(map: "tb_campanhas_pk") @default(autoincrement())
+  responsavel         String?   @db.VarChar(60)
+  area                String?   @db.VarChar(25)
+  spt                 String?   @db.VarChar(15)
+  poco                String?   @db.VarChar(15)
+  tarefa              String?   @db.VarChar(100)
+  old_id              Int?
+  fase                String?   @db.VarChar(15)
+  porcentagem         Int?
+  status              String?   @db.VarChar(20)
+  campanha            String?   @db.Char(2)
+  ordem               Int?
+  sucessores_diretos  Int?
+  inicio_planejado    DateTime? @db.Date
+  fim_planejado       DateTime? @db.Date
+  duracao_real        Int?
+  inicio_real         DateTime? @db.Date
+  fim_real            DateTime? @db.Date
+  duracao_planejada   Int?
+  precedentes_diretos String?   @db.VarChar(55)
+  atualizacao_cip     DateTime? @db.Date
+
+  @@map("tb_campanhas")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_pocos_sondas {
+  poco               String? @db.VarChar(50)
+  sonda              String? @db.VarChar(50)
+  id_tb_pocos_sondas Int     @default(autoincrement())
+
+  @@ignore
 }
 
 enum atividade {
