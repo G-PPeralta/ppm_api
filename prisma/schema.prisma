@@ -201,7 +201,7 @@ model StatusAtividade {
 
 model StatusProjeto {
   id       Int       @id @default(autoincrement())
-  status   String    @db.VarChar(45)
+  status   String    @unique(map: "tb_status_projetos_un") @db.VarChar(45)
   deletado Boolean   @default(false)
   projetos Projeto[]
 
@@ -325,7 +325,7 @@ model Campanhas {
   precedentes_diretos String?   @db.VarChar(55)
   atualizacao_cip     DateTime? @db.Date
 
-   @@map("tb_campanhas")
+  @@map("tb_campanhas")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
