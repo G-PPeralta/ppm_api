@@ -28,17 +28,15 @@ export class CampanhaService {
     `);
     const sondas = new Set(spts.map((s) => s.spt));
     const sondasArr: string[] = Array.from(sondas);
-    const result: SondasDto[] = sondasArr.map((s) => ({
+    const result: any[] = sondasArr.map(async (s) => ({
       sonda: s,
-      pocos: spts
-        .filter((p) => p.spt === s)
-        .map((s: CampanhaDto) => ({
-          poco: s.poco,
-          inicioPlanejado: s.inicioPlanejado,
-          porcentagem: s.porcentagem,
-        })),
+      pocos: await prismaClient.campanhas.findMany({
+        select: { poco: true, inicio_planejado: true },
+        distinct: ['poco'],
+        where: { spt: s },
+      }),
     }));
-    return result;
+    return await Promise.all(result);
   }
 
   findOne(id: number) {

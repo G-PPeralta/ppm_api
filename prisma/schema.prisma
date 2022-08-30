@@ -212,6 +212,7 @@ model TipoProjeto {
   id       Int       @id @default(autoincrement())
   tipo     String    @db.VarChar(45)
   deletado Boolean   @default(false)
+  obs      String?
   projetos Projeto[]
 
   @@map("tb_tipos_projeto")
@@ -333,6 +334,35 @@ model tb_pocos_sondas {
   poco               String? @db.VarChar(50)
   sonda              String? @db.VarChar(50)
   id_tb_pocos_sondas Int     @default(autoincrement())
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb2_projetos2 {
+  item                 String? @db.VarChar(32767)
+  previsto             String? @db.VarChar(32767)
+  status_id            Int?
+  numero               String? @db.VarChar(32767)
+  nome                 String? @db.VarChar(32767)
+  polo_id              Int?
+  local_id             Int?
+  descricao            String? @db.VarChar(32767)
+  justificativa        String? @db.VarChar(32767)
+  valor_previsto_2022  String? @db.VarChar(32767)
+  valor_previsto_2023  String? @db.VarChar(32767)
+  valor_total_previsto String? @db.VarChar(32767)
+  solicitante_id       String? @db.VarChar(45)
+  classificacao_id     Int?
+  divisao_id           Int?
+  pipefy               String? @db.VarChar(32767)
+  gate_id              Int?
+  tipo_id              Int?
+  demanda_id           Int?
+  prioridade_id        Int?
+  complexidade_id      Int?
+  responsavel          String? @db.VarChar(32767)
+  cordenador           String? @db.VarChar(32767)
 
   @@ignore
 }
