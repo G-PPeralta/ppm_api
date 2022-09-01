@@ -340,31 +340,47 @@ model tb_pocos_sondas {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model tb2_projetos2 {
-  item                 String? @db.VarChar(32767)
-  previsto             String? @db.VarChar(32767)
+  item                 String?   @db.VarChar(32767)
+  previsto             String?   @db.VarChar(32767)
   status_id            Int?
-  numero               String? @db.VarChar(32767)
-  nome                 String? @db.VarChar(32767)
+  numero               String?   @db.VarChar(32767)
+  nome                 String?   @db.VarChar(32767)
   polo_id              Int?
   local_id             Int?
-  descricao            String? @db.VarChar(32767)
-  justificativa        String? @db.VarChar(32767)
-  valor_previsto_2022  String? @db.VarChar(32767)
-  valor_previsto_2023  String? @db.VarChar(32767)
-  valor_total_previsto String? @db.VarChar(32767)
-  solicitante_id       String? @db.VarChar(45)
+  descricao            String?   @db.VarChar(32767)
+  justificativa        String?   @db.VarChar(32767)
+  valor_previsto_2022  String?   @db.VarChar(32767)
+  valor_previsto_2023  String?   @db.VarChar(32767)
+  valor_total_previsto String?   @db.VarChar(32767)
+  solicitante_id       String?   @db.VarChar(45)
   classificacao_id     Int?
   divisao_id           Int?
-  pipefy               String? @db.VarChar(32767)
+  pipefy               String?   @db.VarChar(32767)
   gate_id              Int?
   tipo_id              Int?
   demanda_id           Int?
   prioridade_id        Int?
   complexidade_id      Int?
-  responsavel          String? @db.VarChar(32767)
-  cordenador           String? @db.VarChar(32767)
+  responsavel          String?   @db.VarChar(32767)
+  cordenador           String?   @db.VarChar(32767)
+  InicioPrevisto       DateTime? @db.Date
+  FimPrevisto          DateTime? @db.Date
+  Comentarios          String?   @db.VarChar(32767)
 
   @@ignore
+}
+
+model Intervencoes {
+  id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
+  spt             String?   @db.VarChar(50)
+  poco            String?   @db.VarChar(50)
+  camp            String?   @db.VarChar(100)
+  sequencia       String?   @db.VarChar(100)
+  inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
+  projeto         String?   @db.VarChar(200)
+  observacoes     String?   @db.VarChar(32767)
+
+  @@map("tb_intervencoes")
 }
 
 enum atividade {
