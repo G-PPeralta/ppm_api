@@ -25,6 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
 import { CampanhaModule } from './campanha/campanha.module';
+import { IntervencoesModule } from './intervencoes/intervencoes.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { CampanhaModule } from './campanha/campanha.module';
     DetalhamentoModule,
     CoordenadorModule,
     CampanhaModule,
+    IntervencoesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
