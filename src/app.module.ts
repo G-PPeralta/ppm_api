@@ -26,10 +26,10 @@ import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
 import { CampanhaModule } from './campanha/campanha.module';
 import { IntervencoesModule } from './intervencoes/intervencoes.module';
-import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha.module';
 import { PrismaModule } from 'services/prisma/prisma.module';
 import { TarefaModule } from './tarefa/tarefa.module';
 import { SondaModule } from './sonda/sonda.module';
+import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
 
 @Module({
   imports: [
@@ -58,10 +58,10 @@ import { SondaModule } from './sonda/sonda.module';
     CoordenadorModule,
     CampanhaModule,
     IntervencoesModule,
-    AtividadeCampanhaModule,
     PrismaModule,
     TarefaModule,
     SondaModule,
+    AtividadesIntervencoesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

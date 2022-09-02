@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
-import { Responsavel } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
+import { ResponsavelEntity } from './entities/responsavel.entity';
 
 @Injectable()
 export class ResponsavelService {
   constructor(private prisma: PrismaService) {}
 
-  async create(responsavel: Responsavel) {
+  async create(responsavel: ResponsavelEntity) {
     return await this.prisma.responsavel.create({
       data: responsavel,
     });
@@ -28,7 +28,7 @@ export class ResponsavelService {
     // `);
     const responsavel = await this.prisma.responsavel.findFirst({
       where: {
-        nomeResponsavel: nome,
+        nome,
       },
     });
     return responsavel;
