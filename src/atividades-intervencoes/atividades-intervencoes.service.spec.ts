@@ -4,6 +4,7 @@ import { TarefaModule } from '../tarefa/tarefa.module';
 import { PrismaModule } from '../services/prisma/prisma.module';
 import { AtividadesIntervencoesService } from './atividades-intervencoes.service';
 import { AtividadeIntervencaoRepository } from './repository/atividades-invervencoes.repository';
+import { AreaAtuacaoModule } from '../area-atuacao/area-atuacao.module';
 
 describe('AtividadesIntervencoesService', () => {
   let service: AtividadesIntervencoesService;
@@ -14,7 +15,12 @@ describe('AtividadesIntervencoesService', () => {
         AtividadesIntervencoesService,
         AtividadeIntervencaoRepository,
       ],
-      imports: [PrismaModule, ResponsavelModule, TarefaModule],
+      imports: [
+        PrismaModule,
+        ResponsavelModule,
+        TarefaModule,
+        AreaAtuacaoModule,
+      ],
     }).compile();
 
     service = module.get<AtividadesIntervencoesService>(

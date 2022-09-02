@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AreaAtuacaoRepository } from '../repository/area-atuacao.repository';
 import {
   ValidatorConstraintInterface,
   ValidationArguments,
@@ -6,18 +7,15 @@ import {
   registerDecorator,
   ValidationOptions,
 } from 'class-validator';
-import { PrismaService } from 'services/prisma/prisma.service';
 
 @ValidatorConstraint({ name: 'AreaAtuacaoExists', async: true })
 @Injectable()
 export class AreaAtuacaoExistsRule implements ValidatorConstraintInterface {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repo: AreaAtuacaoRepository) {}
 
   async validate(value: number) {
     try {
-      await this.prisma.areaAtuacao.findFirstOrThrow({
-        where: { id: value },
-      });
+      await this.repo.getOneOrFail(value);
     } catch (e) {
       return false;
     }

@@ -2,7 +2,7 @@ import { ResponsavelExists } from '../../responsavel/validators/existis-responsa
 import { IsNotEmpty } from 'class-validator';
 import { AtividadesPretendentes } from './atividades-precedentes.dto';
 import { TarefaExists } from '../../tarefa/validators/existis-tarefa.validator';
-// import { AreaAtuacaoExists } from 'atividades-intervencoes/validators/exists-area-atuacao.validator';
+import { AreaAtuacaoExists } from '../../area-atuacao/validators/exists-area-atuacao.validator';
 
 export class CreateAtividadesIntervencoeDto {
   prioridade: boolean;
@@ -17,7 +17,7 @@ export class CreateAtividadesIntervencoeDto {
   tarefaId: number;
 
   @IsNotEmpty()
-  // @AreaAtuacaoExists()
+  @AreaAtuacaoExists()
   areaAtuacaoId: number;
 
   atividadesPrecedentes: AtividadesPretendentes[];

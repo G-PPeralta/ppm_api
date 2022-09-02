@@ -10,14 +10,11 @@ export class AtividadesIntervencoesService {
   async create(
     _createAtividadesIntervencoeDto: CreateAtividadesIntervencoeDto,
   ) {
-    const dataAtividade: AtividadesIntervencaoEntity = {
-      ..._createAtividadesIntervencoeDto,
-      id: null,
-    };
-
-    return dataAtividade;
-    // await this.repo.save(dataAtividade);
-    return 'This action adds a new atividadesIntervencoe';
+    try {
+      return await this.repo.save(_createAtividadesIntervencoeDto);
+    } catch (e) {
+      return 'erro ao sentar salvar atividades intervencao.';
+    }
   }
 
   findAll() {

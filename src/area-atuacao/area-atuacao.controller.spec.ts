@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AreaAtuacaoController } from './area-atuacao.controller';
 import { AreaAtuacaoService } from './area-atuacao.service';
 import { PrismaModule } from '../services/prisma/prisma.module';
+import { AreaAtuacaoRepository } from './repository/area-atuacao.repository';
 
 describe('AreaAtuacaoController', () => {
   let controller: AreaAtuacaoController;
@@ -9,7 +10,7 @@ describe('AreaAtuacaoController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AreaAtuacaoController],
-      providers: [AreaAtuacaoService],
+      providers: [AreaAtuacaoService, AreaAtuacaoRepository],
       imports: [PrismaModule],
     }).compile();
 

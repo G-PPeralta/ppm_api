@@ -5,9 +5,10 @@ import { PrismaModule } from '../services/prisma/prisma.module';
 import { ResponsavelModule } from '../responsavel/responsavel.module';
 import { TarefaModule } from '../tarefa/tarefa.module';
 import { AtividadeIntervencaoRepository } from './repository/atividades-invervencoes.repository';
+import { AreaAtuacaoModule } from '../area-atuacao/area-atuacao.module';
 
 @Module({
-  imports: [PrismaModule, ResponsavelModule, TarefaModule],
+  imports: [PrismaModule, ResponsavelModule, TarefaModule, AreaAtuacaoModule],
   controllers: [AtividadesIntervencoesController],
   providers: [AtividadesIntervencoesService, AtividadeIntervencaoRepository],
   exports: [AtividadeIntervencaoRepository, AtividadeIntervencaoRepository],

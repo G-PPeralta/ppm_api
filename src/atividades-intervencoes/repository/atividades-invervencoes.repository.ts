@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateAtividadesIntervencoeDto } from 'atividades-intervencoes/dto/create-atividades-intervencao.dto';
 import { AtividadesIntervencaoEntity } from 'atividades-intervencoes/entities/atividades-intervencao.entity';
 import { PrismaService } from '../../services/prisma/prisma.service';
 
@@ -12,7 +13,7 @@ export class AtividadeIntervencaoRepository {
     });
   }
 
-  async save(atividade: AtividadesIntervencaoEntity) {
+  async save(atividade: CreateAtividadesIntervencoeDto) {
     return await this.prisma.atividadeIntervencao.create({ data: atividade });
   }
 }
