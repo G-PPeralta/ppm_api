@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAreaAtuacaoDto } from './dto/create-area-atuacao.dto';
 import { UpdateAreaAtuacaoDto } from './dto/update-area-atuacao.dto';
-import { PrismaService } from '../services/prisma/prisma.service';
+import { AreaAtuacaoRepository } from './repository/area-atuacao.repository';
 
 @Injectable()
 export class AreaAtuacaoService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repo: AreaAtuacaoRepository) {}
 
   create(createAreaAtuacaoDto: CreateAreaAtuacaoDto) {
-    const area = this.prisma.areaAtuacao.create({ data: createAreaAtuacaoDto });
-    return area;
+    try {
+      return this.repo.save(createAreaAtuacaoDto);
+    } catch (e) {
+      return 'Nâo foi possivel salvar area de atuação.';
+    }
   }
 
   findAll() {
-    const area = this.prisma.areaAtuacao.findMany();
+    const area = this.repo.getAll();
     return area;
   }
 

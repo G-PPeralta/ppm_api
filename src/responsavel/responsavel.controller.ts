@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   NotFoundException,
-  InternalServerErrorException,
   ConflictException,
 } from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
@@ -22,12 +21,10 @@ export class ResponsavelController {
   async create(@Body() createResponsavelDto: CreateResponsavelDto) {
     const responsavel = createResponsavelDto.responsaveis.map(async (res) => {
       const responsavelAlreadyExists = await this.responsavelService.findByName(
-        res.nomeResponsavel,
+        res.nome,
       );
       if (responsavelAlreadyExists) {
-        throw new ConflictException(
-          `Responsável ${res.nomeResponsavel} já cadastrado`,
-        );
+        throw new ConflictException(`Responsável ${res.nome} já cadastrado`);
       }
       return await this.responsavelService.create(res);
     });

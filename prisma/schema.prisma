@@ -263,8 +263,8 @@ model AreaAtuacao {
 }
 
 model Responsavel {
-  responsavel_id  Int     @id(map: "tb_responsaveis_pk") @default(autoincrement())
-  nomeResponsavel String? @map("nome_responsavel") @db.VarChar(255)
+  id   Int     @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
+  nome String? @map("nome_responsavel") @db.VarChar(255)
 
   atividades AtividadeIntervencao[]
 
@@ -405,18 +405,17 @@ model PrecedentesAtividade {
 }
 
 model AtividadeIntervencao {
-  id               Int       @id @default(autoincrement())
-  naoInciarAntes   DateTime? @db.Date
-  naoTerminarAntes DateTime? @db.Date
-  prioridade       Boolean?  @db.Boolean
-  obs              String    @db.VarChar(191)
+  id Int @id @default(autoincrement())
+
+  prioridade Boolean? @db.Boolean
+  obs        String   @db.VarChar(191)
 
   responsavelId Int @map("responsavel_id")
   tarefaId      Int @map("tarefa_id")
   areaAtuacaoId Int @map("area_atuacao_id")
 
   tarefa      Tarefa?      @relation(fields: [tarefaId], references: [id])
-  responsavel Responsavel? @relation(fields: [responsavelId], references: [responsavel_id])
+  responsavel Responsavel? @relation(fields: [responsavelId], references: [id])
   area        AreaAtuacao? @relation(fields: [areaAtuacaoId], references: [id])
 
   precedentes PrecedentesAtividade[] @relation("Precedente")

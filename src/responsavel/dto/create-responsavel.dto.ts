@@ -1,7 +1,4 @@
-export class Responsavel {
-  nomeResponsavel: string;
-}
-
+import { ResponsavelEntity } from '../entities/responsavel.entity';
 export class CreateResponsavelDto {
-  responsaveis: Responsavel[];
+  responsaveis: ResponsavelEntity[];
 }
