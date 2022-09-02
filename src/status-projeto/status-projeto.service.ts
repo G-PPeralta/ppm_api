@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateStatusProjetoDto } from './dto/create-status-projeto.dto';
 import { UpdateStatusProjetoDto } from './dto/update-status-projeto.dto';
 
 @Injectable()
 export class StatusProjetoService {
+  constructor(private prisma: PrismaService) {}
+
   async create(createStatusProjetoDto: CreateStatusProjetoDto) {
-    return await prismaClient.statusProjeto.create({
+    return await this.prisma.statusProjeto.create({
       data: createStatusProjetoDto,
     });
   }
 
   async findAll() {
-    return await prismaClient.statusProjeto.findMany();
+    return await this.prisma.statusProjeto.findMany();
   }
 
   findOne(id: number) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import {
   TotalOrcamentoDto,
@@ -15,14 +15,15 @@ import {
 
 @Injectable()
 export class DashboardService {
+  constructor(private prisma: PrismaService) {}
   static errors = {
     totalOrcamento: {
       badRequestError: 'Query string param polo_id_param is not a number',
     },
   };
   async getTotalProjetosSGrafico() {
-    const retornoQuery: QueryTotalProjetosDto[] =
-      await prismaClient.$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
+    const retornoQuery: QueryTotalProjetosDto[] = await this.prisma
+      .$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
     const projetosPorStatus = retornoQuery.map(({ id, status, qtd }) => ({
       id,
       status,
@@ -56,18 +57,18 @@ export class DashboardService {
   }
 
   async getAreasDemandadas() {
-    const retornoQuery: QueryAreasDemandadasDto =
-      await prismaClient.$queryRaw(Prisma.sql`
+    const retornoQuery: QueryAreasDemandadasDto = await this.prisma
+      .$queryRaw(Prisma.sql`
       SELECT * FROM v_dash_areas_demandadas
     `);
     return retornoQuery;
   }
 
   async getTotalOrcamentoPrevisto(poloId?: number) {
-    const retornoQuery: TotalOrcamentoDto[] =
-      await prismaClient.$queryRaw`select * from f_orcado_realizado_polo_id(${Prisma.sql`${
-        poloId ? poloId : null
-      }`})`;
+    const retornoQuery: TotalOrcamentoDto[] = await this.prisma
+      .$queryRaw`select * from f_orcado_realizado_polo_id(${Prisma.sql`${
+      poloId ? poloId : null
+    }`})`;
 
     const tranformTotalInNumber: TransformNumberDto[] = retornoQuery.map(
       ({ total, tipo_valor }) => ({
@@ -80,7 +81,7 @@ export class DashboardService {
   }
 
   async getInfoProjetos() {
-    const retornoQuery = await prismaClient.projeto.findMany({
+    const retornoQuery = await this.prisma.projeto.findMany({
       select: {
         id: true,
         nomeProjeto: true,

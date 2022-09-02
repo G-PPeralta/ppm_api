@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
 import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
 
 @Injectable()
 export class SolicitanteService {
+  constructor(private prisma: PrismaService) {}
+
   async create(createSolicitanteDto: CreateSolicitanteDto) {
-    await prismaClient.solicitanteProjeto.create({
+    await this.prisma.solicitanteProjeto.create({
       data: createSolicitanteDto,
     });
   }
 
-  findAll() {
-    const solicitante = prismaClient.solicitanteProjeto.findMany();
+  async findAll() {
+    const solicitante = await this.prisma.solicitanteProjeto.findMany();
     if (!solicitante) throw new Error('Falha na listagem de solicitantes');
     return solicitante;
   }

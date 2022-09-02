@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateDivisaoDto } from './dto/create-divisao.dto';
 import { UpdateDivisaoDto } from './dto/update-divisao.dto';
 
 @Injectable()
 export class DivisaoService {
+  constructor(private prisma: PrismaService) {}
   async create(createDivisaoDto: CreateDivisaoDto) {
-    await prismaClient.divisaoProjeto.create({ data: createDivisaoDto });
+    await this.prisma.divisaoProjeto.create({ data: createDivisaoDto });
   }
 
   findAll() {
-    const divisoes = prismaClient.divisaoProjeto.findMany();
+    const divisoes = this.prisma.divisaoProjeto.findMany();
     if (!divisoes) throw new Error('Falha na listagem de divisões');
     return divisoes;
   }

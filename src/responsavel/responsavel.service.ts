@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { Responsavel } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
 
 @Injectable()
 export class ResponsavelService {
+  constructor(private prisma: PrismaService) {}
+
   async create(responsavel: Responsavel) {
-    return await prismaClient.responsavel.create({
+    return await this.prisma.responsavel.create({
       data: responsavel,
     });
   }
 
   async findAll() {
-    const responsaveis = await prismaClient.$queryRaw(
+    const responsaveis = await this.prisma.$queryRaw(
       Prisma.sql`select * from dev.tb_responsaveis tr;`,
     );
     if (!responsaveis) throw new Error('Falha na listagem de projetos');
@@ -24,7 +26,7 @@ export class ResponsavelService {
     // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
     // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
     // `);
-    const responsavel = await prismaClient.responsavel.findFirst({
+    const responsavel = await this.prisma.responsavel.findFirst({
       where: {
         nomeResponsavel: nome,
       },

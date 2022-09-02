@@ -27,6 +27,7 @@ import { CoordenadorModule } from './coordenador/coordenador.module';
 import { CampanhaModule } from './campanha/campanha.module';
 import { IntervencoesModule } from './intervencoes/intervencoes.module';
 import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha.module';
+import { PrismaModule } from 'services/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha
     CampanhaModule,
     IntervencoesModule,
     AtividadeCampanhaModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

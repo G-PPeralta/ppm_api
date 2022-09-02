@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateComplexidadeDto } from './dto/create-complexidade.dto';
 import { UpdateComplexidadeDto } from './dto/update-complexidade.dto';
 
 @Injectable()
 export class ComplexidadeService {
+  constructor(private prisma: PrismaService) {}
   create(createComplexidadeDto: CreateComplexidadeDto) {
     return 'This action adds a new complexidade';
   }
 
   async findAll() {
-    return await prismaClient.complexidade.findMany();
+    return await this.prisma.complexidade.findMany();
   }
 
   findOne(id: number) {

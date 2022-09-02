@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 
 @Injectable()
 export class RolesService {
@@ -9,7 +9,9 @@ export class RolesService {
    * Colocar os respectivos valores nas rotas informadas para cada;
    */
 
+  constructor(private prisma: PrismaService) {}
+
   findAll() {
-    return prismaClient.role.findMany();
+    return this.prisma.role.findMany();
   }
 }
