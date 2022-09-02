@@ -166,7 +166,6 @@ model Projeto {
   tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
   desafiosProjetos             DesafiosProjetos[]
-  rl_tb_responsaveis_projetos  Responsavel_Projeto[]          @relation("rl_tb_responsaveis_projetosTotb_projetos")
 
   @@map("tb_projetos")
 }
@@ -252,27 +251,22 @@ model rl_tb_atividades_tb_projetos {
   tb_status_atividade   StatusAtividade @relation("rl_tb_atividades_tb_projetosTotb_status_atividade", fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model tb_areas_atuacoes {
+model AreaAtuacao {
   id       Int      @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
   tipo     String?  @db.VarChar(255)
   deletado Boolean? @default(false)
-}
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model Responsavel_Projeto {
-  projeto_id      Int
-  responsavel_id  Int
-  tb_projetos     Projeto     @relation("rl_tb_responsaveis_projetosTotb_projetos", fields: [projeto_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tb_responsaveis Responsavel @relation("rl_tb_responsaveis_projetosTotb_responsaveis", fields: [responsavel_id], references: [responsavel_id], onDelete: NoAction, onUpdate: NoAction)
+  atividades Atividades []
 
-  @@id([projeto_id, responsavel_id])
-  @@map("rl_tb_responsaveis_projetos")
+  @@map("tb_areas_atuacoes")
+  
 }
 
 model Responsavel {
-  responsavel_id              Int                   @id(map: "tb_responsaveis_pk") @default(autoincrement())
-  nomeResponsavel             String?               @map("nome_responsavel") @db.VarChar(255)
-  rl_tb_responsaveis_projetos Responsavel_Projeto[] @relation("rl_tb_responsaveis_projetosTotb_responsaveis")
+  responsavel_id  Int     @id(map: "tb_responsaveis_pk") @default(autoincrement())
+  nomeResponsavel String? @map("nome_responsavel") @db.VarChar(255)
+
+  atividades Atividades[]
 
   @@map("tb_responsaveis")
 }
@@ -381,6 +375,49 @@ model Intervencoes {
   observacoes     String?   @db.VarChar(32767)
 
   @@map("tb_intervencoes")
+}
+
+model Tarefa {
+  id     Int    @id @default(autoincrement())
+  tarefa String @db.VarChar(100)
+
+  atividades Atividades[]
+
+  @@map("tb_tarefas")
+}
+
+model PrecedentesAtividades {
+
+  atividadeAtualId Int @map("atividade_atual_id")
+  atividatePrecedenteId Int  @map("atividate_precedente_id")
+  
+  atividadeAtual Atividades @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
+  atividadePrecedente Atividades  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+
+  @@id([atividadeAtualId, atividatePrecedenteId])
+
+}
+
+model Atividades {
+  id     Int    @id @default(autoincrement())
+  naoInciarAntes  DateTime? @db.Date
+  naoTerminarAntes DateTime? @db.Date
+  prioridade Boolean? @db.Boolean
+  obs String @db.VarChar(191)
+
+  responsavel_id Int
+  tarefa_id Int
+  area_atuacao_id Int
+
+  tarefa Tarefa? @relation(fields: [tarefa_id], references: [id])
+  responsavel Responsavel?  @relation(fields: [responsavel_id], references: [responsavel_id])
+  area AreaAtuacao? @relation(fields: [area_atuacao_id], references: [id])
+  
+  precedentes PrecedentesAtividades[] @relation("Precedente")
+  sequentes PrecedentesAtividades[] @relation("sequente")
+
+
+  @@map("tb_atividades_campanhas")
 }
 
 enum atividade {
