@@ -9,7 +9,7 @@ export class IntervencoesService {
 
   async create(createIntervencoeDto: CreateIntervencaoDto) {
     try {
-      await this.prisma.intervencoes.create({
+      await this.prisma.intervencao.create({
         data: createIntervencoeDto,
       });
       return 'This action adds a new intervencoe';

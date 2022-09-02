@@ -5,7 +5,7 @@ export class AtividadeCampanha {
   prioridade: boolean;
   obs: string;
 
-  responsavel_id: number;
-  tarefa_id: number;
-  area_atuacao_id: number;
+  responsavelId: number;
+  tarefaId: number;
+  areaAtuacaoId: number;
 }
