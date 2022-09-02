@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 // import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
 // import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
 @Injectable()
 export class DetalhamentoService {
+  constructor(private prisma: PrismaService) {}
   // create(createDetalhamentoDto: CreateDetalhamentoDto) {
   //   return 'This action adds a new detalhamento';
   // }
@@ -15,7 +16,7 @@ export class DetalhamentoService {
   // }
 
   async findOne(id: number) {
-    const projeto = await prismaClient.$queryRaw(Prisma.sql`
+    const projeto = await this.prisma.$queryRaw(Prisma.sql`
     select
 	    nome_projeto,
 	    data_inicio,
@@ -46,7 +47,7 @@ export class DetalhamentoService {
 
   async findOneOrcamento(id: number) {
     const notFound = { valorTotalPrevisto: 0 };
-    const orcamento = await prismaClient.projeto.findFirst({
+    const orcamento = await this.prisma.projeto.findFirst({
       where: { id },
       select: { valorTotalPrevisto: true },
     });
@@ -56,7 +57,7 @@ export class DetalhamentoService {
 
   async findOneRealizado(id: number) {
     const notFound = { valor: 0 };
-    const projeto = await prismaClient.tb_valores_projeto.findFirst({
+    const projeto = await this.prisma.tb_valores_projeto.findFirst({
       where: { id, tipo_valor_id: 2 },
       select: { valor: true },
     });
@@ -69,7 +70,7 @@ export class DetalhamentoService {
   async findOneNaoPrevisto(id: number) {
     let naoPrevisto = 0;
     const realizado = await this.findOneRealizado(id);
-    const previsto = await prismaClient.tb_valores_projeto.findFirst({
+    const previsto = await this.prisma.tb_valores_projeto.findFirst({
       where: { id, tipo_valor_id: 1 },
       select: { valor: true },
     });

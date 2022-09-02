@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreatePoloDto } from './dto/create-polo.dto';
 import { UpdatePoloDto } from './dto/update-polo.dto';
 
 @Injectable()
 export class PoloService {
+  constructor(private prisma: PrismaService) {}
   async create(createPoloDto: CreatePoloDto) {
-    await prismaClient.polo.create({ data: createPoloDto });
+    await this.prisma.polo.create({ data: createPoloDto });
   }
 
   findAll() {
-    const polos = prismaClient.polo.findMany();
+    const polos = this.prisma.polo.findMany();
     if (!polos) throw new Error('Falha na listagem de polos');
     return polos;
   }

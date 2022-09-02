@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { prismaClient } from 'index.prisma';
-import { ganttFormatter } from 'utils/gantt/gantConverter';
+import { PrismaService } from '../services/prisma/prisma.service';
+import { ganttFormatter } from '../utils/gantt/gantConverter';
 import { CreateGanttDto, GanttPayload } from './dto/create-gantt.dto';
 
 @Injectable()
 export class GanttService {
+  constructor(private prisma: PrismaService) {}
   create(createGanttDto: CreateGanttDto) {
     return 'This action adds a new gantt';
   }
 
   async findAll() {
-    const gantt: GanttPayload[] = await prismaClient.$queryRaw(Prisma.sql`
+    const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
       SELECT * FROM v_gantt_temp
     `);
     const ganttFormatted = ganttFormatter(gantt);

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { AuthService } from 'auth/auth.service';
-import { LoginDto } from 'user/dto/login.dto';
-import { UserMapper } from 'utils/mapper/userMapper';
+import { AuthService } from './auth/auth.service';
+import { LoginDto } from './user/dto/login.dto';
+import { UserMapper } from './utils/mapper/userMapper';
 import { AppService } from './app.service';
 
 @Controller()

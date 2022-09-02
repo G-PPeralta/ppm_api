@@ -2,15 +2,13 @@ import { LoginDto } from './../user/dto/login.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { Encrypt64 } from 'utils/security/encrypt.security';
+import { Encrypt64 } from '../utils/security/encrypt.security';
+import { UserMapper } from '../utils/mapper/userMapper';
 
 import * as jwt from 'jsonwebtoken';
 import { join } from 'path';
 
 import * as fs from 'fs';
-import { User } from '@prisma/client';
-import { UserMapper } from 'utils/mapper/userMapper';
-import { UserWithRole } from 'user/dto/user-with-role.dto';
 
 @Injectable()
 export class AuthService {

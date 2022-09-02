@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AtividadeCampanhaService } from './atividade-campanha.service';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { UpdateAtividadeCampanhaDto } from './dto/update-atividade-campanha.dto';
 
 @Controller('atividade-campanha')
 export class AtividadeCampanhaController {
-  constructor(private readonly atividadeCampanhaService: AtividadeCampanhaService) {}
+  constructor(
+    private readonly atividadeCampanhaService: AtividadeCampanhaService,
+  ) {}
 
   @Post()
   create(@Body() createAtividadeCampanhaDto: CreateAtividadeCampanhaDto) {
@@ -23,8 +33,14 @@ export class AtividadeCampanhaController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAtividadeCampanhaDto: UpdateAtividadeCampanhaDto) {
-    return this.atividadeCampanhaService.update(+id, updateAtividadeCampanhaDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateAtividadeCampanhaDto: UpdateAtividadeCampanhaDto,
+  ) {
+    return this.atividadeCampanhaService.update(
+      +id,
+      updateAtividadeCampanhaDto,
+    );
   }
 
   @Delete(':id')

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { prismaClient } from 'index.prisma';
 import { PrismaService } from '../services/prisma/prisma.service';
-import { CampanhaDto, SondasDto } from './dto/campanha.dto';
+import { CampanhaDto } from './dto/campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
@@ -15,7 +14,7 @@ export class CampanhaService {
   }
 
   async findAll() {
-    const spts: CampanhaDto[] = await prismaClient.$queryRaw(Prisma.sql`
+    const spts: CampanhaDto[] = await this.prisma.$queryRaw(Prisma.sql`
     select
     distinct tc.spt,
     tc2.poco ,
@@ -30,7 +29,7 @@ export class CampanhaService {
     const sondasArr: string[] = Array.from(sondas);
     const result: any[] = sondasArr.map(async (s) => ({
       sonda: s,
-      pocos: await prismaClient.campanhas.findMany({
+      pocos: await this.prisma.campanhas.findMany({
         select: { poco: true, inicio_planejado: true },
         distinct: ['poco'],
         where: { spt: s },

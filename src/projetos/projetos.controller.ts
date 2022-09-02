@@ -14,7 +14,7 @@ import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
 // import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
 // import { prismaClient } from 'index.prisma';
-import { ResponsavelService } from 'responsavel/responsavel.service';
+import { ResponsavelService } from '../responsavel/responsavel.service';
 
 @Controller('projetos')
 export class ProjetosController {
