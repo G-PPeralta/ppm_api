@@ -1,27 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { prismaClient } from 'index.prisma';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateSondaDto } from './dto/create-sonda.dto';
 import { UpdateSondaDto } from './dto/update-sonda.dto';
 
 @Injectable()
 export class SondaService {
+  constructor(private prisma: PrismaService) {}
   create(createSondaDto: CreateSondaDto) {
-    const spt = prismaClient.sonda.create({ data: createSondaDto });
+    const spt = this.prisma.sonda.create({ data: createSondaDto });
     return spt;
   }
 
   findAll() {
-    const spt = prismaClient.sonda.findMany();
+    const spt = this.prisma.sonda.findMany();
     return spt;
   }
 
   findOne(id: number) {
-    const spt = prismaClient.sonda.findUnique({ where: { id } });
+    const spt = this.prisma.sonda.findUnique({ where: { id } });
     return spt;
   }
 
   update(id: number, updateSondaDto: UpdateSondaDto) {
-    return prismaClient.sonda.update({
+    return this.prisma.sonda.update({
       where: { id: id },
       data: { nome: updateSondaDto.nome },
     });
