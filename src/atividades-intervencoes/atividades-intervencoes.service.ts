@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AtividadeIntervencao } from '@prisma/client';
-import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
 import { UpdateAtividadesIntervencoeDto } from './dto/update-atividades-intervencao.dto';
 import { AtividadesIntervencaoEntity } from './entities/atividades-intervencao.entity';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ResponsavelEntity } from 'responsavel/entities/responsavel.entity';
-import { PrismaService } from 'services/prisma/prisma.service';
+import { ResponsavelEntity } from '../entities/responsavel.entity';
+import { PrismaService } from '../../services/prisma/prisma.service';
 
 @Injectable()
 export class ResponsavelRepository {

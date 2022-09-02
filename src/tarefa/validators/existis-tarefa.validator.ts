@@ -6,7 +6,7 @@ import {
   registerDecorator,
   ValidationOptions,
 } from 'class-validator';
-import { TarefaRepository } from 'tarefa/repository/tarefa.repository';
+import { TarefaRepository } from '../repository/tarefa.repository';
 
 @ValidatorConstraint({ name: 'TarefaExists', async: true })
 @Injectable()

@@ -1,15 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ResponsavelModule } from 'responsavel/responsavel.module';
-import { TarefaModule } from 'tarefa/tarefa.module';
+import { ResponsavelModule } from '../responsavel/responsavel.module';
+import { TarefaModule } from '../tarefa/tarefa.module';
 import { PrismaModule } from '../services/prisma/prisma.module';
 import { AtividadesIntervencoesService } from './atividades-intervencoes.service';
+import { AtividadeIntervencaoRepository } from './repository/atividades-invervencoes.repository';
 
 describe('AtividadesIntervencoesService', () => {
   let service: AtividadesIntervencoesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AtividadesIntervencoesService],
+      providers: [
+        AtividadesIntervencoesService,
+        AtividadeIntervencaoRepository,
+      ],
       imports: [PrismaModule, ResponsavelModule, TarefaModule],
     }).compile();
 

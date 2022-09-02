@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AtividadesIntervencaoEntity } from 'atividades-intervencoes/entities/atividades-intervencao.entity';
-import { PrismaService } from 'services/prisma/prisma.service';
+import { PrismaService } from '../../services/prisma/prisma.service';
 
 @Injectable()
 export class AtividadeIntervencaoRepository {
