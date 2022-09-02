@@ -371,11 +371,9 @@ model Intervencao {
   camp            String?   @db.VarChar(100)
   sequencia       String?   @db.VarChar(100)
   inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
-  projeto         String?   @db.VarChar(200)
   observacoes     String?   @db.VarChar(32767)
 
   tipoProjetoId Int @map("intervencoes_tipo_id")
-
   tipoProjeto ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
 
 
@@ -412,19 +410,18 @@ model AtividadeIntervencao {
   prioridade       Boolean?  @db.Boolean
   obs              String    @db.VarChar(191)
 
-  responsavel_id  Int
-  tarefa_id       Int
-  area_atuacao_id Int
+  responsavelId  Int @map("responsavel_id")
+  tarefaId       Int @map("tarefa_id")
+  areaAtuacaoId Int @map("area_atuacao_id")
 
-  tarefa      Tarefa?      @relation(fields: [tarefa_id], references: [id])
-  responsavel Responsavel? @relation(fields: [responsavel_id], references: [responsavel_id])
-  area        AreaAtuacao? @relation(fields: [area_atuacao_id], references: [id])
+  tarefa      Tarefa?      @relation(fields: [tarefaId], references: [id])
+  responsavel Responsavel? @relation(fields: [responsavelId], references: [responsavel_id])
+  area        AreaAtuacao? @relation(fields: [areaAtuacaoId], references: [id])
 
   precedentes PrecedentesAtividade[] @relation("Precedente")
   sequentes   PrecedentesAtividade[] @relation("sequente")
-  projetos    ProjetoIntervencao[]
 
-  ProjetoAtividades ProjetoAtividades[]
+  projetos ProjetoAtividades[]
   @@map("tb_intervencoes_atividades")
 }
 
@@ -446,14 +443,8 @@ model ProjetoIntervencao {
   nome String @db.VarChar(100)
   obs  String @db.VarChar(100)
 
-  atividades ProjetoAtividades[]
-
-
-
-  AtividadeIntervencao   AtividadeIntervencao? @relation(fields: [atividadeIntervencaoId], references: [id])
-  atividadeIntervencaoId Int?
-
-  posts Intervencao[]
+  atividades   ProjetoAtividades[]
+  intervencoes Intervencao[]
 
   @@map("tb_intervencoes_tipo")
 }
