@@ -26,6 +26,7 @@ import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
 import { CampanhaModule } from './campanha/campanha.module';
 import { IntervencoesModule } from './intervencoes/intervencoes.module';
+import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { IntervencoesModule } from './intervencoes/intervencoes.module';
     CoordenadorModule,
     CampanhaModule,
     IntervencoesModule,
+    AtividadeCampanhaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
