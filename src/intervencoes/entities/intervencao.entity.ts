@@ -6,4 +6,5 @@ export class Intervencao {
   inicioPlanejado: Date;
   projeto: string;
   observacoes: string;
+  tipoProjeto: number;
 }

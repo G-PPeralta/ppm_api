@@ -7,14 +7,14 @@ import { UpdateAtividadeCampanhaDto } from './dto/update-atividade-campanha.dto'
 export class AtividadeCampanhaService {
   constructor(private prisma: PrismaService) {}
   create(_createAtividadeCampanhaDto: CreateAtividadeCampanhaDto) {
-    this.prisma.atividadesCampanha.create({
+    this.prisma.atividadeIntervencao.create({
       data: _createAtividadeCampanhaDto,
     });
     return 'This action adds a new atividadeCampanha';
   }
 
   findAll() {
-    return this.prisma.atividadesCampanha.findMany();
+    return this.prisma.atividadeIntervencao.findMany();
   }
 
   findOne(id: number) {
