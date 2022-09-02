@@ -256,7 +256,7 @@ model AreaAtuacao {
   tipo     String?  @db.VarChar(255)
   deletado Boolean? @default(false)
 
-  atividades AtividadesCampanha []
+  atividades AtividadeIntervencao []
 
   @@map("tb_areas_atuacoes")
   
@@ -266,7 +266,7 @@ model Responsavel {
   responsavel_id  Int     @id(map: "tb_responsaveis_pk") @default(autoincrement())
   nomeResponsavel String? @map("nome_responsavel") @db.VarChar(255)
 
-  atividades AtividadesCampanha[]
+  atividades AtividadeIntervencao[]
 
   @@map("tb_responsaveis")
 }
@@ -381,7 +381,7 @@ model Tarefa {
   id     Int    @id @default(autoincrement())
   tarefa String @db.VarChar(100)
 
-  atividades AtividadesCampanha[]
+  atividades AtividadeIntervencao[]
 
   @@map("tb_tarefas")
 }
@@ -391,14 +391,16 @@ model PrecedentesAtividade {
   atividadeAtualId Int @map("atividade_atual_id")
   atividatePrecedenteId Int  @map("atividate_precedente_id")
   
-  atividadeAtual AtividadesCampanha @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
-  atividadePrecedente AtividadesCampanha  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+  atividadeAtual AtividadeIntervencao @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
+  atividadePrecedente AtividadeIntervencao  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
 
+   @@map("tb_atividades_precedentes")
+
 }
 
-model AtividadesCampanha {
+model AtividadeIntervencao {
   id     Int    @id @default(autoincrement())
   naoInciarAntes  DateTime? @db.Date
   naoTerminarAntes DateTime? @db.Date
@@ -417,7 +419,7 @@ model AtividadesCampanha {
   sequentes PrecedentesAtividade[] @relation("sequente")
 
 
-  @@map("tb_atividades_campanhas")
+  @@map("tb_atividades_intervencoes")
 }
 
 enum atividade {
