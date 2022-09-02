@@ -256,10 +256,10 @@ model AreaAtuacao {
   tipo     String?  @db.VarChar(255)
   deletado Boolean? @default(false)
 
-  atividades AtividadeIntervencao []
+  atividades AtividadeIntervencao[]
+
 
   @@map("tb_areas_atuacoes")
-  
 }
 
 model Responsavel {
@@ -364,7 +364,7 @@ model tb2_projetos2 {
   @@ignore
 }
 
-model Intervencoes {
+model Intervencao {
   id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
   spt             String?   @db.VarChar(50)
   poco            String?   @db.VarChar(50)
@@ -373,6 +373,11 @@ model Intervencoes {
   inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
   projeto         String?   @db.VarChar(200)
   observacoes     String?   @db.VarChar(32767)
+
+  tipoProjetoId Int @map("intervencoes_tipo_id")
+
+  tipoProjeto ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
+
 
   @@map("tb_intervencoes")
 }
@@ -383,43 +388,74 @@ model Tarefa {
 
   atividades AtividadeIntervencao[]
 
-  @@map("tb_tarefas")
+  @@map("tb_intervencoes_tarefas")
 }
 
 model PrecedentesAtividade {
 
-  atividadeAtualId Int @map("atividade_atual_id")
-  atividatePrecedenteId Int  @map("atividate_precedente_id")
-  
-  atividadeAtual AtividadeIntervencao @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
-  atividadePrecedente AtividadeIntervencao  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+  atividadeAtualId      Int @map("atividade_atual_id")
+  atividatePrecedenteId Int @map("atividate_precedente_id")
+
+  atividadeAtual      AtividadeIntervencao @relation(name: "sequente", fields: [atividadeAtualId], references: [id])
+  atividadePrecedente AtividadeIntervencao @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+
+
 
   @@id([atividadeAtualId, atividatePrecedenteId])
-
-   @@map("tb_atividades_precedentes")
-
+  @@map("tb_intervencoes_atividades_precedentes")
 }
 
 model AtividadeIntervencao {
-  id     Int    @id @default(autoincrement())
-  naoInciarAntes  DateTime? @db.Date
+  id               Int       @id @default(autoincrement())
+  naoInciarAntes   DateTime? @db.Date
   naoTerminarAntes DateTime? @db.Date
-  prioridade Boolean? @db.Boolean
-  obs String @db.VarChar(191)
+  prioridade       Boolean?  @db.Boolean
+  obs              String    @db.VarChar(191)
 
-  responsavel_id Int
-  tarefa_id Int
+  responsavel_id  Int
+  tarefa_id       Int
   area_atuacao_id Int
 
-  tarefa Tarefa? @relation(fields: [tarefa_id], references: [id])
-  responsavel Responsavel?  @relation(fields: [responsavel_id], references: [responsavel_id])
-  area AreaAtuacao? @relation(fields: [area_atuacao_id], references: [id])
-  
+  tarefa      Tarefa?      @relation(fields: [tarefa_id], references: [id])
+  responsavel Responsavel? @relation(fields: [responsavel_id], references: [responsavel_id])
+  area        AreaAtuacao? @relation(fields: [area_atuacao_id], references: [id])
+
   precedentes PrecedentesAtividade[] @relation("Precedente")
-  sequentes PrecedentesAtividade[] @relation("sequente")
+  sequentes   PrecedentesAtividade[] @relation("sequente")
+  projetos    ProjetoIntervencao[]
+
+  ProjetoAtividades ProjetoAtividades[]
+  @@map("tb_intervencoes_atividades")
+}
+
+model ProjetoAtividades {
+
+  projetoId   Int @map("projeto_id")
+  atividadeId Int @map("atividade_id")
 
 
-  @@map("tb_atividades_intervencoes")
+  projeto   ProjetoIntervencao   @relation(fields: [projetoId], references: [id])
+  atividade AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
+
+  @@id([projetoId, atividadeId])
+  @@map("tb_intervencoes_tipo_atividades")
+}
+
+model ProjetoIntervencao {
+  id   Int    @id @default(autoincrement())
+  nome String @db.VarChar(100)
+  obs  String @db.VarChar(100)
+
+  atividades ProjetoAtividades[]
+
+
+
+  AtividadeIntervencao   AtividadeIntervencao? @relation(fields: [atividadeIntervencaoId], references: [id])
+  atividadeIntervencaoId Int?
+
+  posts Intervencao[]
+
+  @@map("tb_intervencoes_tipo")
 }
 
 enum atividade {
