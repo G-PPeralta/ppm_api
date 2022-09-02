@@ -256,7 +256,7 @@ model AreaAtuacao {
   tipo     String?  @db.VarChar(255)
   deletado Boolean? @default(false)
 
-  atividades Atividades []
+  atividades AtividadesCampanha []
 
   @@map("tb_areas_atuacoes")
   
@@ -266,7 +266,7 @@ model Responsavel {
   responsavel_id  Int     @id(map: "tb_responsaveis_pk") @default(autoincrement())
   nomeResponsavel String? @map("nome_responsavel") @db.VarChar(255)
 
-  atividades Atividades[]
+  atividades AtividadesCampanha[]
 
   @@map("tb_responsaveis")
 }
@@ -381,24 +381,24 @@ model Tarefa {
   id     Int    @id @default(autoincrement())
   tarefa String @db.VarChar(100)
 
-  atividades Atividades[]
+  atividades AtividadesCampanha[]
 
   @@map("tb_tarefas")
 }
 
-model PrecedentesAtividades {
+model PrecedentesAtividade {
 
   atividadeAtualId Int @map("atividade_atual_id")
   atividatePrecedenteId Int  @map("atividate_precedente_id")
   
-  atividadeAtual Atividades @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
-  atividadePrecedente Atividades  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+  atividadeAtual AtividadesCampanha @relation(name: "sequente",fields: [atividadeAtualId], references: [id])
+  atividadePrecedente AtividadesCampanha  @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
 
 }
 
-model Atividades {
+model AtividadesCampanha {
   id     Int    @id @default(autoincrement())
   naoInciarAntes  DateTime? @db.Date
   naoTerminarAntes DateTime? @db.Date
@@ -413,8 +413,8 @@ model Atividades {
   responsavel Responsavel?  @relation(fields: [responsavel_id], references: [responsavel_id])
   area AreaAtuacao? @relation(fields: [area_atuacao_id], references: [id])
   
-  precedentes PrecedentesAtividades[] @relation("Precedente")
-  sequentes PrecedentesAtividades[] @relation("sequente")
+  precedentes PrecedentesAtividade[] @relation("Precedente")
+  sequentes PrecedentesAtividade[] @relation("sequente")
 
 
   @@map("tb_atividades_campanhas")
