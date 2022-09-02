@@ -30,6 +30,7 @@ import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha
 import { PrismaModule } from 'services/prisma/prisma.module';
 import { TarefaModule } from './tarefa/tarefa.module';
 import { SondaModule } from './sonda/sonda.module';
+import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { SondaModule } from './sonda/sonda.module';
     PrismaModule,
     TarefaModule,
     SondaModule,
+    AreaAtuacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
