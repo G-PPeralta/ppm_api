@@ -373,8 +373,8 @@ model Intervencao {
   inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
   observacoes     String?   @db.VarChar(32767)
 
-  tipoProjetoId Int @map("intervencoes_tipo_id")
-  tipoProjeto ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
+  tipoProjetoId Int                @map("intervencoes_tipo_id")
+  tipoProjeto   ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
 
 
   @@map("tb_intervencoes")
@@ -393,6 +393,7 @@ model PrecedentesAtividade {
 
   atividadeAtualId      Int @map("atividade_atual_id")
   atividatePrecedenteId Int @map("atividate_precedente_id")
+  orderm                Int
 
   atividadeAtual      AtividadeIntervencao @relation(name: "sequente", fields: [atividadeAtualId], references: [id])
   atividadePrecedente AtividadeIntervencao @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
@@ -410,8 +411,8 @@ model AtividadeIntervencao {
   prioridade       Boolean?  @db.Boolean
   obs              String    @db.VarChar(191)
 
-  responsavelId  Int @map("responsavel_id")
-  tarefaId       Int @map("tarefa_id")
+  responsavelId Int @map("responsavel_id")
+  tarefaId      Int @map("tarefa_id")
   areaAtuacaoId Int @map("area_atuacao_id")
 
   tarefa      Tarefa?      @relation(fields: [tarefaId], references: [id])
@@ -430,6 +431,7 @@ model ProjetoAtividades {
   projetoId   Int @map("projeto_id")
   atividadeId Int @map("atividade_id")
 
+  ordem Int
 
   projeto   ProjetoIntervencao   @relation(fields: [projetoId], references: [id])
   atividade AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
