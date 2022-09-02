@@ -366,7 +366,7 @@ model tb2_projetos2 {
 
 model Intervencao {
   id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
-  spt             String?   @db.VarChar(50)
+  sptId           Int       @map("spt_id")
   poco            String?   @db.VarChar(50)
   camp            String?   @db.VarChar(100)
   sequencia       String?   @db.VarChar(100)
@@ -375,7 +375,7 @@ model Intervencao {
 
   tipoProjetoId Int                @map("intervencoes_tipo_id")
   tipoProjeto   ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
-
+  spt           Sonda              @relation(fields: [sptId], references: [id])
 
   @@map("tb_intervencoes")
 }
@@ -448,7 +448,16 @@ model ProjetoIntervencao {
   atividades   ProjetoAtividades[]
   intervencoes Intervencao[]
 
-  @@map("tb_intervencoes_tipo")
+}
+
+model Sonda {
+
+  id   Int    @id @default(autoincrement())
+  nome String @db.VarChar(100)
+
+  Intervencao Intervencao[]
+
+  @@map("tb_intervencoes_spt")
 }
 
 enum atividade {
