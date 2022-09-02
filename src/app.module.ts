@@ -28,6 +28,8 @@ import { CampanhaModule } from './campanha/campanha.module';
 import { IntervencoesModule } from './intervencoes/intervencoes.module';
 import { AtividadeCampanhaModule } from './atividade-campanha/atividade-campanha.module';
 import { PrismaModule } from 'services/prisma/prisma.module';
+import { TarefaModule } from './tarefa/tarefa.module';
+import { SondaModule } from './sonda/sonda.module';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { PrismaModule } from 'services/prisma/prisma.module';
     IntervencoesModule,
     AtividadeCampanhaModule,
     PrismaModule,
+    TarefaModule,
+    SondaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
