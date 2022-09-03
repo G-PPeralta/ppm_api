@@ -14,6 +14,7 @@ export class AtividadesIntervencoesService {
   ) {
     try {
       const atividade: SaveAtividadesIntervencoeDto = {
+        nome: _createAtividadesIntervencoeDto.nome,
         areaAtuacaoId: _createAtividadesIntervencoeDto.areaAtuacaoId,
         prioridade: _createAtividadesIntervencoeDto.prioridade,
         obs: _createAtividadesIntervencoeDto.obs,
@@ -31,8 +32,10 @@ export class AtividadesIntervencoesService {
     }
   }
 
-  findAll() {
-    return `This action returns all atividadesIntervencoes`;
+  async findAll() {
+    const atividadesList = await this.repo.atividadesist();
+
+    return atividadesList;
   }
 
   findOne(id: number) {

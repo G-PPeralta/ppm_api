@@ -406,6 +406,8 @@ model PrecedentesAtividade {
 model AtividadeIntervencao {
   id Int @id @default(autoincrement())
 
+  nome String @db.VarChar(100)
+
   prioridade Boolean? @db.Boolean
   obs        String   @db.VarChar(191)
 
