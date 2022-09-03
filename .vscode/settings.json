@@ -20,5 +20,9 @@
     "titleBar.inactiveForeground": "#e7e7e799",
     "commandCenter.border": "#e7e7e799"
   },
-  "peacock.remoteColor": "#215732"
+  "peacock.remoteColor": "#215732",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": ["javascript"]
 }

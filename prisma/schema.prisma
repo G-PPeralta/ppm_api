@@ -390,13 +390,12 @@ model Tarefa {
 }
 
 model PrecedentesAtividade {
-
   atividadeAtualId      Int @map("atividade_atual_id")
   atividatePrecedenteId Int @map("atividate_precedente_id")
-  orderm                Int
+  ordem                 Int
 
-  atividadeAtual      AtividadeIntervencao @relation(name: "sequente", fields: [atividadeAtualId], references: [id])
-  atividadePrecedente AtividadeIntervencao @relation(name: "Precedente", fields: [atividatePrecedenteId], references: [id])
+  atividadeAtual      AtividadeIntervencao @relation(name: "Precedente", fields: [atividadeAtualId], references: [id])
+  atividadePrecedente AtividadeIntervencao @relation(name: "sequente", fields: [atividatePrecedenteId], references: [id])
 
 
 

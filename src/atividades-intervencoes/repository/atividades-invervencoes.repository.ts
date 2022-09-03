@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAtividadesIntervencoeDto } from 'atividades-intervencoes/dto/create-atividades-intervencao.dto';
+import { SaveAtividadesIntervencoeDto } from 'atividades-intervencoes/dto/save-atividades-intervencoes-dto';
 import { AtividadesIntervencaoEntity } from 'atividades-intervencoes/entities/atividades-intervencao.entity';
 import { PrismaService } from '../../services/prisma/prisma.service';
 
@@ -13,7 +13,7 @@ export class AtividadeIntervencaoRepository {
     });
   }
 
-  async save(atividade: CreateAtividadesIntervencoeDto) {
+  async save(atividade: SaveAtividadesIntervencoeDto) {
     return await this.prisma.atividadeIntervencao.create({ data: atividade });
   }
 }
