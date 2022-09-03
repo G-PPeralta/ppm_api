@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { AtividadesPretendentes } from './dto/atividades-precedentes.dto';
 import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
+import { SaveAtividadesIntervencoeDto } from './dto/save-atividades-intervencoes-dto';
+import { SaveAtividadesPrecedentesDto } from './dto/save-atividades-precedentes.dto';
 import { UpdateAtividadesIntervencoeDto } from './dto/update-atividades-intervencao.dto';
-import { AtividadesIntervencaoEntity } from './entities/atividades-intervencao.entity';
 import { AtividadeIntervencaoRepository } from './repository/atividades-invervencoes.repository';
 
 @Injectable()
@@ -11,7 +13,19 @@ export class AtividadesIntervencoesService {
     _createAtividadesIntervencoeDto: CreateAtividadesIntervencoeDto,
   ) {
     try {
-      return await this.repo.save(_createAtividadesIntervencoeDto);
+      const atividade: SaveAtividadesIntervencoeDto = {
+        areaAtuacaoId: _createAtividadesIntervencoeDto.areaAtuacaoId,
+        prioridade: _createAtividadesIntervencoeDto.prioridade,
+        obs: _createAtividadesIntervencoeDto.obs,
+        responsavelId: _createAtividadesIntervencoeDto.responsavelId,
+        tarefaId: _createAtividadesIntervencoeDto.tarefaId,
+        ...this.gerarAtividadesPrecentesPayload(
+          _createAtividadesIntervencoeDto.atividadesPrecedentes,
+        ),
+      };
+
+      await this.repo.save(atividade);
+      return 'Atividades Intervencoes salvo com sucesso';
     } catch (e) {
       return 'erro ao sentar salvar atividades intervencao.';
     }
@@ -34,5 +48,30 @@ export class AtividadesIntervencoesService {
 
   remove(id: number) {
     return `This action removes a #${id} atividadesIntervencoe`;
+  }
+
+  private gerarAtividadesPrecentesPayload(d: AtividadesPretendentes[]) {
+    if (d !== null) {
+      const payLoad: SaveAtividadesPrecedentesDto = {
+        precedentes: {
+          create: [],
+        },
+      };
+      for (const f in d) {
+        const r = {
+          ordem: d[f].ordem,
+          atividadePrecedente: {
+            connect: {
+              id: d[f].atividaeId,
+            },
+          },
+        };
+        payLoad.precedentes.create.push(r);
+      }
+
+      return payLoad;
+    } else {
+      return null;
+    }
   }
 }
