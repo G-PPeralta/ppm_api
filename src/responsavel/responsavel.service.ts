@@ -15,9 +15,7 @@ export class ResponsavelService {
   }
 
   async findAll() {
-    const responsaveis = await this.prisma.$queryRaw(
-      Prisma.sql`select * from dev.tb_responsaveis tr;`,
-    );
+    const responsaveis = await this.prisma.responsavel.findMany();
     if (!responsaveis) throw new Error('Falha na listagem de projetos');
     return responsaveis;
   }
