@@ -31,6 +31,7 @@ import { TarefaModule } from './tarefa/tarefa.module';
 import { SondaModule } from './sonda/sonda.module';
 import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
 import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
+import { IntervencoesTipoModule } from './intervencoes-tipo/intervencoes-tipo.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
     SondaModule,
     AtividadesIntervencoesModule,
     AreaAtuacaoModule,
+    IntervencoesTipoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
