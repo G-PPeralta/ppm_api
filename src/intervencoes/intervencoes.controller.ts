@@ -1,7 +1,9 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { IntervencoesService } from './intervencoes.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('intervencoes')
 export class IntervencoesController {
   constructor(private readonly intervencoesService: IntervencoesService) {}

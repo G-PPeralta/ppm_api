@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PrioridadeService } from './prioridade.service';
 import { CreatePrioridadeDto } from './dto/create-prioridade.dto';
 import { UpdatePrioridadeDto } from './dto/update-prioridade.dto';
-
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('prioridade')
 export class PrioridadeController {
   constructor(private readonly prioridadeService: PrioridadeService) {}

@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AtividadesIntervencoesService } from './atividades-intervencoes.service';
 import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
 import { UpdateAtividadesIntervencoeDto } from './dto/update-atividades-intervencao.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('atividades-intervencoes')
 export class AtividadesIntervencoesController {
   constructor(

@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { PoloService } from './polo.service';
 import { CreatePoloDto } from './dto/create-polo.dto';
 import { UpdatePoloDto } from './dto/update-polo.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('polo')
 export class PoloController {
   constructor(private readonly poloService: PoloService) {}

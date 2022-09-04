@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AreaAtuacaoService } from './area-atuacao.service';
 import { CreateAreaAtuacaoDto } from './dto/create-area-atuacao.dto';
 import { UpdateAreaAtuacaoDto } from './dto/update-area-atuacao.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('area-atuacao')
 export class AreaAtuacaoController {
   constructor(private readonly areaAtuacaoService: AreaAtuacaoService) {}

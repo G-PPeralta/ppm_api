@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DemandaService } from './demanda.service';
 import { CreateDemandaDto } from './dto/create-demanda.dto';
 import { UpdateDemandaDto } from './dto/update-demanda.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('demanda')
 export class DemandaController {
   constructor(private readonly demandaService: DemandaService) {}
