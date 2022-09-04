@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ClassificacaoService } from './classificacao.service';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
 import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('classificacao')
 export class ClassificacaoController {
   constructor(private readonly classificacaoService: ClassificacaoService) {}

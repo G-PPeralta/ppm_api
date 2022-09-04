@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { TipoProjetoService } from './tipo-projeto.service';
 import { CreateTipoProjetoDto } from './dto/create-tipo-projeto.dto';
 import { UpdateTipoProjetoDto } from './dto/update-tipo-projeto.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tipo-projeto')
 export class TipoProjetoController {
   constructor(private readonly tipoProjetoService: TipoProjetoService) {}

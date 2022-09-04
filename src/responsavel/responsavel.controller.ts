@@ -8,11 +8,14 @@ import {
   Delete,
   NotFoundException,
   ConflictException,
+  UseGuards,
 } from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('responsavel')
 export class ResponsavelController {
   constructor(private readonly responsavelService: ResponsavelService) {}

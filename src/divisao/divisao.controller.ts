@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DivisaoService } from './divisao.service';
 import { CreateDivisaoDto } from './dto/create-divisao.dto';
 import { UpdateDivisaoDto } from './dto/update-divisao.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('divisao')
 export class DivisaoController {
   constructor(private readonly divisaoService: DivisaoService) {}
