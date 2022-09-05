@@ -33,6 +33,7 @@ import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades
 import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 import { IntervencoesTipoModule } from './intervencoes-tipo/intervencoes-tipo.module';
 import { PocoModule } from './poco/poco.module';
+import { CamposModule } from './campos/campos.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { PocoModule } from './poco/poco.module';
     AreaAtuacaoModule,
     IntervencoesTipoModule,
     PocoModule,
+    CamposModule,
   ],
   controllers: [AppController],
   providers: [AppService],
