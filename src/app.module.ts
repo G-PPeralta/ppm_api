@@ -32,6 +32,7 @@ import { SondaModule } from './sonda/sonda.module';
 import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
 import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 import { IntervencoesTipoModule } from './intervencoes-tipo/intervencoes-tipo.module';
+import { PocoModule } from './poco/poco.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { IntervencoesTipoModule } from './intervencoes-tipo/intervencoes-tipo.mo
     AtividadesIntervencoesModule,
     AreaAtuacaoModule,
     IntervencoesTipoModule,
+    PocoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

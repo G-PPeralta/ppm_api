@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { TipoResponsavelService } from './tipo-responsavel.service';
 import { CreateTipoResponsavelDto } from './dto/create-tipo-responsavel.dto';
 import { UpdateTipoResponsavelDto } from './dto/update-tipo-responsavel.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tipo-responsavel')
 export class TipoResponsavelController {
   constructor(

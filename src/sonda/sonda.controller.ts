@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { SondaService } from './sonda.service';
 import { CreateSondaDto } from './dto/create-sonda.dto';
 import { UpdateSondaDto } from './dto/update-sonda.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('sonda')
 export class SondaController {
   constructor(private readonly sondaService: SondaService) {}
