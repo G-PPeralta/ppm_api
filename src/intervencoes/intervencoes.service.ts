@@ -1,29 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
+import { IntervencaoRepository } from './repositories/intervencoes.repository';
 // import { UpdateIntervencoeDto } from './dto/update-intervencao.dto';
 
 @Injectable()
 export class IntervencoesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repo: IntervencaoRepository) {}
 
   async create(createIntervencoeDto: CreateIntervencaoDto) {
     try {
-      await this.prisma.intervencao.create({
-        data: createIntervencoeDto,
-      });
-      return 'This action adds a new intervencoe';
+      await this.repo.save(createIntervencoeDto);
+      return 'Nova intervencao foi criadoa com sucesso!';
     } catch (e) {
-      console.error(e);
-      return e;
+      return 'Não  foi possivel salvar ';
     }
   }
 
-  /*findAll() {
-    return `This action returns all intervencoes`;
+  findAll() {
+    return this.repo.intervencoesList();
   }
 
-  findOne(id: number) {
+  /*findOne(id: number) {
     return `This action returns a #${id} intervencoe`;
   }
 

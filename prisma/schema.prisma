@@ -363,15 +363,17 @@ model tb2_projetos2 {
 
 model Intervencao {
   id              Int             @id(map: "tb_intervencoes_pk") @default(autoincrement())
-  poco            String?         @db.VarChar(50)
+  pocoId          Int             @map("intervencoes_pocos_id")
   camp            String?         @db.VarChar(100)
   sequencia       String?         @db.VarChar(100)
   inicioPlanejado DateTime?       @map("inicio_planejado") @db.Date
   observacoes     String?         @db.VarChar(32767)
   tipoProjetoId   Int             @map("intervencoes_tipo_id")
   sptId           Int             @map("spt_id")
+  
   tipoProjeto     IntervencaoTipo @relation(fields: [tipoProjetoId], references: [id])
   spt             Sonda           @relation(fields: [sptId], references: [id])
+  poco            Poco            @relation(fields: [pocoId], references: [id])
 
   @@map("tb_intervencoes")
 }
@@ -444,10 +446,11 @@ model Sonda {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Poco {
-  id          Int           @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   poco String @db.VarChar
 
   @@map("tb_intervencoes_pocos")
+  Intervencao Intervencao[]
 }
 
 enum atividade {

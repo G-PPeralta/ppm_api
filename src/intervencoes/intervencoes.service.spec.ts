@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PocoModule } from '../poco/poco.module';
+import { SondaModule } from '../sonda/sonda.module';
 import { PrismaModule } from '../services/prisma/prisma.module';
 import { IntervencoesService } from './intervencoes.service';
+import { IntervencaoRepository } from './repositories/intervencoes.repository';
+import { IntervencoesModule } from './intervencoes.module';
 
 describe('IntervencoesService', () => {
   let service: IntervencoesService;
@@ -8,7 +12,7 @@ describe('IntervencoesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [IntervencoesService],
-      imports: [PrismaModule],
+      imports: [PrismaModule, SondaModule, PocoModule, IntervencoesModule],
     }).compile();
 
     service = module.get<IntervencoesService>(IntervencoesService);

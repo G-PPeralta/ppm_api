@@ -1,10 +1,12 @@
-export class Intervencao {
-  spt: string;
-  poco: string;
-  campo?: string;
-  sequencia?: string;
+import { Intervencao } from '@prisma/client';
+
+export class IntervencaoEntity implements Intervencao {
+  id: number;
+  pocoId: number;
+  camp: string;
+  sequencia: string;
   inicioPlanejado: Date;
-  projeto: string;
   observacoes: string;
-  tipoProjeto: number;
+  tipoProjetoId: number;
+  sptId: number;
 }
