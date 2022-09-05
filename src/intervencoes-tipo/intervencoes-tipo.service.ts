@@ -14,15 +14,15 @@ export class IntervencoesTipoService {
 
   async create(_createIntervencoesTipoDto: CreateIntervencoesTipoDto) {
     try {
-      const atividade: SaveIntervencaoTipoDto = {
+      const atividadeData: SaveIntervencaoTipoDto = {
         nome: _createIntervencoesTipoDto.nome,
         obs: _createIntervencoesTipoDto.obs,
-        ...this.gerarAtividadesPrecentesPayload(
+        ...this.gerarAtividadesIntevencoesPayload(
           _createIntervencoesTipoDto.atividades,
         ),
       };
-
-      await this.repo.save(atividade);
+      console.log(atividadeData);
+      //await this.repo.save(atividadeData);
       return 'Atividades Intervencoes salvo com sucesso';
     } catch (e) {
       console.error(e);
@@ -46,7 +46,9 @@ export class IntervencoesTipoService {
     return `This action removes a #${id} intervencoesTipo`;
   }
 
-  private gerarAtividadesPrecentesPayload(d: CreateAtividade[]) {
+  private gerarAtividadesIntevencoesPayload(
+    d: CreateAtividade[],
+  ): SaveAtividadesDto {
     if (d !== null) {
       const payLoad: SaveAtividadesDto = {
         atividades: {
