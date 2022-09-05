@@ -21,5 +21,7 @@ export class CreateAtividadesIntervencoeDto {
   areaAtuacaoId: number;
 
   atividadesPrecedentes: AtividadesPretendentes[];
-  nome: any;
+
+  @IsNotEmpty()
+  nome: string;
 }

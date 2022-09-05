@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { IntervencoesService } from './intervencoes.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -13,12 +13,12 @@ export class IntervencoesController {
     return this.intervencoesService.create(createIntervencoeDto);
   }
 
-  /*@Get()
+  @Get()
   findAll() {
     return this.intervencoesService.findAll();
   }
 
-  @Get(':id')
+  /*@Get(':id')
   findOne(@Param('id') id: string) {
     return this.intervencoesService.findOne(+id);
   }
