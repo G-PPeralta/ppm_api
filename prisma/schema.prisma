@@ -252,20 +252,17 @@ model rl_tb_atividades_tb_projetos {
 }
 
 model AreaAtuacao {
-  id       Int      @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
-  tipo     String?  @db.VarChar(255)
-  deletado Boolean? @default(false)
-
+  id         Int                    @id(map: "tb_tipos_usuario_pkey") @default(autoincrement())
+  tipo       String?                @db.VarChar(255)
+  deletado   Boolean?               @default(false)
   atividades AtividadeIntervencao[]
-
 
   @@map("tb_areas_atuacoes")
 }
 
 model Responsavel {
-  id   Int     @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
-  nome String? @map("nome_responsavel") @db.VarChar(255)
-
+  id         Int                    @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
+  nome       String?                @map("nome_responsavel") @db.VarChar(255)
   atividades AtividadeIntervencao[]
 
   @@map("tb_responsaveis")
@@ -365,101 +362,92 @@ model tb2_projetos2 {
 }
 
 model Intervencao {
-  id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
-  sptId           Int       @map("spt_id")
-  poco            String?   @db.VarChar(50)
-  camp            String?   @db.VarChar(100)
-  sequencia       String?   @db.VarChar(100)
-  inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
-  observacoes     String?   @db.VarChar(32767)
-
-  tipoProjetoId Int                @map("intervencoes_tipo_id")
-  tipoProjeto   IntervencaoTipo @relation(fields: [tipoProjetoId], references: [id])
-  spt           Sonda              @relation(fields: [sptId], references: [id])
+  id              Int             @id(map: "tb_intervencoes_pk") @default(autoincrement())
+  poco            String?         @db.VarChar(50)
+  camp            String?         @db.VarChar(100)
+  sequencia       String?         @db.VarChar(100)
+  inicioPlanejado DateTime?       @map("inicio_planejado") @db.Date
+  observacoes     String?         @db.VarChar(32767)
+  tipoProjetoId   Int             @map("intervencoes_tipo_id")
+  sptId           Int             @map("spt_id")
+  tipoProjeto     IntervencaoTipo @relation(fields: [tipoProjetoId], references: [id])
+  spt             Sonda           @relation(fields: [sptId], references: [id])
 
   @@map("tb_intervencoes")
 }
 
 model Tarefa {
-  id     Int    @id @default(autoincrement())
-  tarefa String @db.VarChar(100)
-
+  id         Int                    @id @default(autoincrement())
+  tarefa     String                 @db.VarChar(100)
   atividades AtividadeIntervencao[]
 
   @@map("tb_intervencoes_tarefas")
 }
 
 model PrecedentesAtividade {
-  atividadeAtualId      Int @map("atividade_atual_id")
-  atividatePrecedenteId Int @map("atividate_precedente_id")
+  atividadeAtualId      Int                  @map("atividade_atual_id")
+  atividatePrecedenteId Int                  @map("atividate_precedente_id")
   ordem                 Int
-
-  atividadeAtual      AtividadeIntervencao @relation(name: "Precedente", fields: [atividadeAtualId], references: [id])
-  atividadePrecedente AtividadeIntervencao @relation(name: "sequente", fields: [atividatePrecedenteId], references: [id])
-
-
+  atividadeAtual        AtividadeIntervencao @relation("Precedente", fields: [atividadeAtualId], references: [id])
+  atividadePrecedente   AtividadeIntervencao @relation("sequente", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
   @@map("tb_intervencoes_atividades_precedentes")
 }
 
 model AtividadeIntervencao {
-  id Int @id @default(autoincrement())
+  id            Int                    @id @default(autoincrement())
+  nome          String                 @db.VarChar(100)
+  prioridade    Boolean?
+  obs           String                 @db.VarChar(191)
+  responsavelId Int                    @map("responsavel_id")
+  tarefaId      Int                    @map("tarefa_id")
+  areaAtuacaoId Int                    @map("area_atuacao_id")
+  area          AreaAtuacao            @relation(fields: [areaAtuacaoId], references: [id])
+  responsavel   Responsavel            @relation(fields: [responsavelId], references: [id])
+  tarefa        Tarefa                 @relation(fields: [tarefaId], references: [id])
+  precedentes   PrecedentesAtividade[] @relation("Precedente")
+  sequentes     PrecedentesAtividade[] @relation("sequente")
+  projetos      ProjetoAtividades[]
 
-  nome String @db.VarChar(100)
-
-  prioridade Boolean? @db.Boolean
-  obs        String   @db.VarChar(191)
-
-  responsavelId Int @map("responsavel_id")
-  tarefaId      Int @map("tarefa_id")
-  areaAtuacaoId Int @map("area_atuacao_id")
-
-  tarefa      Tarefa?      @relation(fields: [tarefaId], references: [id])
-  responsavel Responsavel? @relation(fields: [responsavelId], references: [id])
-  area        AreaAtuacao? @relation(fields: [areaAtuacaoId], references: [id])
-
-  precedentes PrecedentesAtividade[] @relation("Precedente")
-  sequentes   PrecedentesAtividade[] @relation("sequente")
-
-  projetos ProjetoAtividades[]
   @@map("tb_intervencoes_atividades")
 }
 
 model ProjetoAtividades {
-
-  projetoId   Int @map("projeto_id")
-  atividadeId Int @map("atividade_id")
-
-  ordem Int
-
-  projeto   IntervencaoTipo   @relation(fields: [projetoId], references: [id])
-  atividade AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
+  projetoId   Int                  @map("projeto_id")
+  atividadeId Int                  @map("atividade_id")
+  ordem       Int
+  atividade   AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
+  projeto     IntervencaoTipo      @relation(fields: [projetoId], references: [id])
 
   @@id([projetoId, atividadeId])
   @@map("tb_intervencoes_tipo_atividades")
 }
 
 model IntervencaoTipo {
-  id   Int    @id @default(autoincrement())
-  nome String @db.VarChar(100)
-  obs  String @db.VarChar(100)
-
-  atividades   ProjetoAtividades[]
+  id           Int                 @id @default(autoincrement())
+  nome         String              @db.VarChar(100)
+  obs          String              @db.VarChar(100)
   intervencoes Intervencao[]
-
+  atividades   ProjetoAtividades[]
 
   @@map("tb_intervencoes_tipo")
 }
 
 model Sonda {
-
-  id   Int    @id @default(autoincrement())
-  nome String @db.VarChar(100)
-
+  id          Int           @id @default(autoincrement())
+  nome        String        @db.VarChar(100)
   Intervencao Intervencao[]
 
   @@map("tb_intervencoes_spt")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Poco {
+  id          Int           @id @default(autoincrement())
+  poco String @db.VarChar
+
+  @@map("tb_intervencoes_pocos")
 }
 
 enum atividade {
