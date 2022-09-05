@@ -374,7 +374,7 @@ model Intervencao {
   observacoes     String?   @db.VarChar(32767)
 
   tipoProjetoId Int                @map("intervencoes_tipo_id")
-  tipoProjeto   ProjetoIntervencao @relation(fields: [tipoProjetoId], references: [id])
+  tipoProjeto   IntervencaoTipo @relation(fields: [tipoProjetoId], references: [id])
   spt           Sonda              @relation(fields: [sptId], references: [id])
 
   @@map("tb_intervencoes")
@@ -433,14 +433,14 @@ model ProjetoAtividades {
 
   ordem Int
 
-  projeto   ProjetoIntervencao   @relation(fields: [projetoId], references: [id])
+  projeto   IntervencaoTipo   @relation(fields: [projetoId], references: [id])
   atividade AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
 
   @@id([projetoId, atividadeId])
   @@map("tb_intervencoes_tipo_atividades")
 }
 
-model ProjetoIntervencao {
+model IntervencaoTipo {
   id   Int    @id @default(autoincrement())
   nome String @db.VarChar(100)
   obs  String @db.VarChar(100)
@@ -448,6 +448,8 @@ model ProjetoIntervencao {
   atividades   ProjetoAtividades[]
   intervencoes Intervencao[]
 
+
+  @@map("tb_intervencoes_tipo")
 }
 
 model Sonda {
