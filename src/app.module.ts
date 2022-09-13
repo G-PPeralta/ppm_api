@@ -31,7 +31,6 @@ import { TarefaModule } from './tarefa/tarefa.module';
 import { SondaModule } from './sonda/sonda.module';
 import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
 import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
-import { IntervencoesTipoModule } from './intervencoes-tipo/intervencoes-tipo.module';
 import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
 
@@ -67,7 +66,6 @@ import { CamposModule } from './campos/campos.module';
     SondaModule,
     AtividadesIntervencoesModule,
     AreaAtuacaoModule,
-    IntervencoesTipoModule,
     PocoModule,
     CamposModule,
   ],

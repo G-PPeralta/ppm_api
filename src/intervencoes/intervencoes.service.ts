@@ -9,7 +9,7 @@ export class IntervencoesService {
 
   async create(createIntervencoeDto: CreateIntervencaoDto) {
     try {
-      await this.repo.save(createIntervencoeDto);
+      // await this.repo.save(createIntervencoeDto);
       return 'Nova intervencao foi criadoa com sucesso!';
     } catch (e) {
       return 'Não  foi possivel salvar ';
