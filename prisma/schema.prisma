@@ -363,22 +363,21 @@ model tb2_projetos2 {
 }
 
 model Intervencao {
-  id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
-  inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
-  fimPlanejado    DateTime? @map("fim_planejado") @db.Date
-  observacoes     String?   @db.VarChar(32767)
-  tipoProjetoId   Int       @map("intervencoes_tipo_id")
-  sptId           Int       @map("spt_id")
-  pocoId          Int       @map("intervencoes_pocos_id")
-  campoId         Int       @map("intervencoes_campos_id")
-
-  campo       Campo                  @relation(fields: [campoId], references: [id])
-  poco        Poco                   @relation(fields: [pocoId], references: [id])
-  tipoProjeto IntervencaoProjetoTipo @relation(fields: [tipoProjetoId], references: [id])
-  spt         Sonda                  @relation(fields: [sptId], references: [id])
+  id                                 Int                           @id(map: "tb_intervencoes_pk") @default(autoincrement())
+  inicioPlanejado                    DateTime?                     @map("inicio_planejado") @db.Date
+  fimPlanejado                       DateTime?                     @map("fim_planejado") @db.Date
+  observacoes                        String?                       @db.VarChar(32767)
+  tipoProjetoId                      Int                           @map("intervencoes_tipo_id")
+  sptId                              Int                           @map("spt_id")
+  pocoId                             Int                           @map("intervencoes_pocos_id")
+  campoId                            Int                           @map("intervencoes_campos_id")
+  campo                              Campo                         @relation(fields: [campoId], references: [id])
+  poco                               Poco                          @relation(fields: [pocoId], references: [id])
+  tipoProjeto                        IntervencaoProjetoTipo        @relation(fields: [tipoProjetoId], references: [id])
+  spt                                Sonda                         @relation(fields: [sptId], references: [id])
+  tb_intervencoes_atividades_relacao AtividadeIntervencaoRelacao[] @relation("tb_intervencoesTotb_intervencoes_atividades_relacao")
 
   @@map("tb_intervencoes")
-  AtividadeIntervencaoRelacao AtividadeIntervencaoRelacao[]
 }
 
 model Tarefa {
@@ -390,66 +389,58 @@ model Tarefa {
 }
 
 model AtividadeIntervencao {
-  id            Int    @id @default(autoincrement())
-  obs           String @db.VarChar(191)
-  tarefaId      Int    @map("tarefa_id")
-  areaAtuacaoId Int    @map("area_atuacao_id")
-  dias          Int
-
-  area     AreaAtuacao         @relation(fields: [areaAtuacaoId], references: [id])
-  tarefa   Tarefa              @relation(fields: [tarefaId], references: [id])
-  projetos ProjetoAtividades[]
+  id                                     Int                           @id @default(autoincrement())
+  obs                                    String                        @db.VarChar(191)
+  tarefaId                               Int                           @map("tarefa_id")
+  areaAtuacaoId                          Int                           @map("area_atuacao_id")
+  dias                                   Int
+  area                                   AreaAtuacao                   @relation(fields: [areaAtuacaoId], references: [id])
+  tarefa                                 Tarefa                        @relation(fields: [tarefaId], references: [id])
+  tb_intervencoes_atividades_precedentes PrecedentesAtividade[]        @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes")
+  tb_intervencoes_atividades_relacao     AtividadeIntervencaoRelacao[] @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_relacao")
+  projetos                               ProjetoAtividades[]
 
   @@map("tb_intervencoes_atividades")
-  AtividadeIntervencaoRelacao AtividadeIntervencaoRelacao[]
-  PrecedentesAtividade        PrecedentesAtividade[]
 }
 
 model AtividadeIntervencaoRelacao {
-  atividadeId   Int @map("intervencoes_atividades_id")
-  intervencaoId Int @map("intervencoes_id")
-  responsavelId Int
-  ordem         Int
-
-  atividade   AtividadeIntervencao @relation(fields: [atividadeId], references: [id])
-  intervencao Intervencao          @relation(fields: [intervencaoId], references: [id])
-
-  inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
-  fimPlanejado    DateTime? @map("fim_planejado") @db.Date
+  atividadeId                Int                  @map("intervencoes_atividades_id")
+  intervencaoId              Int                  @map("intervencoes_id")
+  responsavelId              Int
+  ordem                      Int
+  inicioPlanejado            DateTime?            @map("inicio_planejado") @db.Date
+  fimPlanejado               DateTime?            @map("fim_planejado") @db.Date
+  tb_intervencoes_atividades AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_relacao", fields: [atividadeId], references: [id])
+  tb_intervencoes            Intervencao          @relation("tb_intervencoesTotb_intervencoes_atividades_relacao", fields: [intervencaoId], references: [id])
 
   @@id([atividadeId, intervencaoId])
   @@map("tb_intervencoes_atividades_relacao")
 }
 
 model PrecedentesAtividade {
-  atividadeAtualId      Int @map("atividade_atual_id")
-  atividatePrecedenteId Int @map("atividate_precedente_id")
-  ordem                 Int
-
-  atividadeAtual      ProjetoAtividades    @relation(fields: [atividadeAtualId], references: [id])
-  atividadePrecedente AtividadeIntervencao @relation(fields: [atividatePrecedenteId], references: [id])
+  atividadeAtualId           Int                  @map("atividade_atual_id")
+  atividatePrecedenteId      Int                  @map("atividate_precedente_id")
+  ordem                      Int
+  atividadeAtual             ProjetoAtividades    @relation(fields: [atividadeAtualId], references: [id])
+  tb_intervencoes_atividades AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
   @@map("tb_intervencoes_atividades_precedentes")
 }
 
 model ProjetoAtividades {
-  id            Int @id @default(autoincrement())
-  projetoId     Int @map("projeto_id")
-  atividadeId   Int @map("atividade_id")
-  responsavelId Int @map("responsavel_id")
+  id            Int                    @id @default(autoincrement())
+  projetoId     Int                    @map("projeto_id")
+  atividadeId   Int                    @map("atividade_id")
+  ordem         Int
+  responsavelId Int                    @map("responsavel_id")
+  atividade     AtividadeIntervencao   @relation(fields: [atividadeId], references: [id])
+  projeto       IntervencaoProjetoTipo @relation(fields: [projetoId], references: [id])
+  responsavel   Responsavel            @relation(fields: [responsavelId], references: [id])
+  precedentes   PrecedentesAtividade[]
 
-  ordem Int
-
-  responsavel Responsavel @relation(fields: [responsavelId], references: [id])
-
-  atividade   AtividadeIntervencao   @relation(fields: [atividadeId], references: [id])
-  projeto     IntervencaoProjetoTipo @relation(fields: [projetoId], references: [id])
-  precedentes PrecedentesAtividade[]
-
-
-  @@index([responsavelId, atividadeId], name: "ativide_project_id")
-  @@index([responsavelId], name: "responsavel_id_fk")
+  @@index([responsavelId, atividadeId], map: "ativide_project_id")
+  @@index([responsavelId], map: "responsavel_id_fk")
   @@map("tb_intervencoes_tipo_atividades")
 }
 
@@ -494,4 +485,3 @@ enum atividade {
   ENTREGA
   ACAO
 }
-
