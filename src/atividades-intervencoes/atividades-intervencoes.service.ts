@@ -16,9 +16,7 @@ export class AtividadesIntervencoesService {
       const atividade: SaveAtividadesIntervencoeDto = {
         nome: _createAtividadesIntervencoeDto.nome,
         areaAtuacaoId: _createAtividadesIntervencoeDto.areaAtuacaoId,
-        prioridade: _createAtividadesIntervencoeDto.prioridade,
         obs: _createAtividadesIntervencoeDto.obs,
-        responsavelId: _createAtividadesIntervencoeDto.responsavelId,
         tarefaId: _createAtividadesIntervencoeDto.tarefaId,
         ...this.gerarAtividadesPrecentesPayload(
           _createAtividadesIntervencoeDto.atividadesPrecedentes,
