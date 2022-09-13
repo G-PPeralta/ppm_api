@@ -39,7 +39,7 @@ export class AtividadesIntervencoesController {
     return this.atividadesIntervencoesService.findOne(+id);
   }
 
-  @Patch(':id')
+  /* @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateAtividadesIntervencoeDto: UpdateAtividadesIntervencoeDto,
@@ -53,5 +53,5 @@ export class AtividadesIntervencoesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.atividadesIntervencoesService.remove(+id);
-  }
+  } */
 }
