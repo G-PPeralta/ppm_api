@@ -14,12 +14,12 @@ export class AtividadeIntervencaoRepository {
   }
 
   async save(atividade: SaveAtividadesIntervencoeDto) {
-    return await this.prisma.atividadeIntervencao.create({ data: atividade });
+    // return await this.prisma.atividadeIntervencao.create({ data: atividade });
   }
 
   async atividadesist() {
     return await this.prisma.atividadeIntervencao.findMany({
-      select: { id: true, nome: true },
+      select: { id: true },
     });
   }
 }

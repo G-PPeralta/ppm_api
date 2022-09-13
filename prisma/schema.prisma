@@ -365,6 +365,7 @@ model tb2_projetos2 {
 model Intervencao {
   id              Int       @id(map: "tb_intervencoes_pk") @default(autoincrement())
   inicioPlanejado DateTime? @map("inicio_planejado") @db.Date
+  fimPlanejado    DateTime? @map("fim_planejado") @db.Date
   observacoes     String?   @db.VarChar(32767)
   tipoProjetoId   Int       @map("intervencoes_tipo_id")
   sptId           Int       @map("spt_id")
@@ -390,7 +391,6 @@ model Tarefa {
 
 model AtividadeIntervencao {
   id            Int    @id @default(autoincrement())
-  nome          String @db.VarChar(100)
   obs           String @db.VarChar(191)
   tarefaId      Int    @map("tarefa_id")
   areaAtuacaoId Int    @map("area_atuacao_id")

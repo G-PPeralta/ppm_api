@@ -1,6 +1,6 @@
 // import { ResponsavelExists } from '../../responsavel/validators/existis-responsavel.validators';
 import { IsNotEmpty } from 'class-validator';
-import { AtividadesPretendentes } from './atividades-precedentes.dto';
+import { AtividadesPrecedentes } from './atividades-precedentes.dto';
 import { TarefaExists } from '../../tarefa/validators/existis-tarefa.validator';
 import { AreaAtuacaoExists } from '../../area-atuacao/validators/exists-area-atuacao.validator';
 
@@ -20,8 +20,5 @@ export class CreateAtividadesIntervencoeDto {
   @AreaAtuacaoExists()
   areaAtuacaoId: number;
 
-  atividadesPrecedentes: AtividadesPretendentes[];
-
-  @IsNotEmpty()
-  nome: string;
+  atividadesPrecedentes: AtividadesPrecedentes[];
 }

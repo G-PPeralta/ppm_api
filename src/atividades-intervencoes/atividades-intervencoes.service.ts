@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AtividadesPretendentes } from './dto/atividades-precedentes.dto';
+import { AtividadesPrecedentes } from './dto/atividades-precedentes.dto';
 import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
 import { SaveAtividadesIntervencoeDto } from './dto/save-atividades-intervencoes-dto';
 import { SaveAtividadesPrecedentesDto } from './dto/save-atividades-precedentes.dto';
@@ -14,7 +14,6 @@ export class AtividadesIntervencoesService {
   ) {
     try {
       const atividade: SaveAtividadesIntervencoeDto = {
-        nome: _createAtividadesIntervencoeDto.nome,
         areaAtuacaoId: _createAtividadesIntervencoeDto.areaAtuacaoId,
         obs: _createAtividadesIntervencoeDto.obs,
         tarefaId: _createAtividadesIntervencoeDto.tarefaId,
@@ -51,7 +50,7 @@ export class AtividadesIntervencoesService {
     return `This action removes a #${id} atividadesIntervencoe`;
   }
 
-  private gerarAtividadesPrecentesPayload(d: AtividadesPretendentes[]) {
+  private gerarAtividadesPrecentesPayload(d: AtividadesPrecedentes[]) {
     if (d !== null) {
       const payLoad: SaveAtividadesPrecedentesDto = {
         precedentes: {
