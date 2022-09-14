@@ -8,6 +8,7 @@ export class CreateIntervencaoDto {
   observacoes: string;
 
   tipoProjetoId: number;
+  campoId: number;
 
   @SondaExists()
   sptId: number;

@@ -4,4 +4,5 @@ export class SaveIntervencaoDto {
   tipoProjetoId: number;
   sptId: number;
   pocoId: number;
+  campoId: number;
 }

@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
-import { SaveAtividadesIntervencoeDto } from './dto/save-atividades-intervencoes-dto';
-import { SaveAtividadesPrecedentesDto } from './dto/save-atividades-precedentes.dto';
-import { UpdateAtividadesIntervencoeDto } from './dto/update-atividades-intervencao.dto';
 import { AtividadeIntervencaoRepository } from './repository/atividades-invervencoes.repository';
 
 @Injectable()
@@ -22,7 +19,7 @@ export class AtividadesIntervencoesService {
   async findAll() {
     const atividadesList = await this.repo.atividadesist();
     return atividadesList.map((atividade) => {
-      return { ...atividade, nome: atividade.tarefa.tarefa };
+      return { ...atividade, tarefa: atividade.tarefa.tarefa };
     });
   }
 
