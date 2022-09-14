@@ -21,18 +21,17 @@ export class CoordenadorController {
 
   @Post()
   async create(@Body() createCoordenadorDto: CreateCoordenadorDto) {
-    const coordenador = createCoordenadorDto.coordenadores.map(async (coo) => {
-      const coordenadorAlreadyExists = await this.coordenadorService.findByName(
-        coo.coordenadorNome,
+    const coordenadorAlreadyExists = await this.coordenadorService.findByName(
+      createCoordenadorDto.coordenadorNome,
+    );
+    if (coordenadorAlreadyExists) {
+      throw new ConflictException(
+        `Coordenador ${createCoordenadorDto.coordenadorNome} já cadastrado`,
       );
-      if (coordenadorAlreadyExists) {
-        throw new ConflictException(
-          `Coordenador ${coo.coordenadorNome} já cadastrado`,
-        );
-      }
-      return await this.coordenadorService.create(coo);
-    });
-    return await Promise.all(coordenador);
+    }
+    const coordenador = this.coordenadorService.create(createCoordenadorDto);
+
+    return coordenador;
   }
 
   @Get()
