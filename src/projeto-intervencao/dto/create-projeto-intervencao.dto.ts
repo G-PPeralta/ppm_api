@@ -11,7 +11,7 @@ export class Atividades {
 
 export class CreateProjetoIntervencaoDto {
   nome: string;
-  obs: string;
+  comentarios: string;
   atividades: Atividades[];
 }
 

@@ -17,7 +17,7 @@ export class ProjetoIntervencaoService {
 
   create(_createProjetoIntervencaoDto: CreateProjetoIntervencaoDto) {
     const projetoIntervencaoData = {
-      obs: _createProjetoIntervencaoDto.obs,
+      obs: _createProjetoIntervencaoDto.comentarios,
       nome: _createProjetoIntervencaoDto.nome,
       ...this.gerarAtividadesPayload(_createProjetoIntervencaoDto.atividades),
     }; /// as SaveProjetoIntervencaoDTO
