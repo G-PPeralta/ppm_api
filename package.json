@@ -20,7 +20,7 @@
     "prebuild": "rimraf dist",
     "build": "yarn prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "yarn prisma generate && node dist/main",
+    "start": "yarn prisma generate && node dist/src",
     "dev": "yarn prisma generate && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
