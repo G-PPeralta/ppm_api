@@ -1,8 +1,12 @@
-import { AtividadesPrecedentes } from 'atividades-intervencoes/dto/atividades-precedentes.dto';
+import { AtividadeIntervencaoExists } from '../../atividades-intervencoes/validators/exitis-atividades-intervencoes.validator';
+import { IsNotEmpty } from 'class-validator';
 
-class Atividades {
-  atividade: string;
-  precedentes: AtividadesPrecedentes[];
+export class Atividades {
+  @AtividadeIntervencaoExists()
+  atividadeId: number;
+
+  ordem: number;
+  precedentes: number[];
 }
 
 export class CreateProjetoIntervencaoDto {

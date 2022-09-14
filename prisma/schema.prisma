@@ -264,7 +264,6 @@ model AreaAtuacao {
 model Responsavel {
   id       Int                 @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
   nome     String?             @map("nome_responsavel") @db.VarChar(255)
-  projetos ProjetoAtividades[]
 
   @@map("tb_responsaveis")
 }
@@ -420,9 +419,8 @@ model AtividadeIntervencaoRelacao {
 model PrecedentesAtividade {
   atividadeAtualId           Int                  @map("atividade_atual_id")
   atividatePrecedenteId      Int                  @map("atividate_precedente_id")
-  ordem                      Int
   atividadeAtual             ProjetoAtividades    @relation(fields: [atividadeAtualId], references: [id])
-  tb_intervencoes_atividades AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes", fields: [atividatePrecedenteId], references: [id])
+  atividade AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
   @@map("tb_intervencoes_atividades_precedentes")
@@ -433,14 +431,11 @@ model ProjetoAtividades {
   projetoId     Int                    @map("projeto_id")
   atividadeId   Int                    @map("atividade_id")
   ordem         Int
-  responsavelId Int                    @map("responsavel_id")
   atividade     AtividadeIntervencao   @relation(fields: [atividadeId], references: [id])
   projeto       IntervencaoProjetoTipo @relation(fields: [projetoId], references: [id])
-  responsavel   Responsavel            @relation(fields: [responsavelId], references: [id])
   precedentes   PrecedentesAtividade[]
 
-  @@index([responsavelId, atividadeId], map: "ativide_project_id")
-  @@index([responsavelId], map: "responsavel_id_fk")
+  @@index([projetoId, atividadeId], map: "ativide_project_id")
   @@map("tb_intervencoes_tipo_atividades")
 }
 
