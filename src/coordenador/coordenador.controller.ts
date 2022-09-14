@@ -7,14 +7,14 @@ import {
   Param,
   Delete,
   ConflictException,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CoordenadorService } from './coordenador.service';
 import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('coordenador')
 export class CoordenadorController {
   constructor(private readonly coordenadorService: CoordenadorService) {}
