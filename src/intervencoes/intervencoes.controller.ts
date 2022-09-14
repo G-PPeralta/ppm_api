@@ -3,7 +3,7 @@ import { IntervencoesService } from './intervencoes.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('intervencoes')
 export class IntervencoesController {
   constructor(private readonly intervencoesService: IntervencoesService) {}
