@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
-import { Coordenador } from './dto/create-coordenador.dto';
+import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 
 @Injectable()
 export class CoordenadorService {
   constructor(private prisma: PrismaService) {}
-  async create(coordenador: Coordenador) {
+  async create(coordenador: CreateCoordenadorDto) {
     return await this.prisma.coordenador.create({
       data: coordenador,
     });

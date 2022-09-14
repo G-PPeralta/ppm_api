@@ -1,7 +1,7 @@
-export class Coordenador {
+export class CreateCoordenadorDto {
   coordenadorNome: string;
 }
 
-export class CreateCoordenadorDto {
-  coordenadores: Coordenador[];
-}
+// export class CreateCoordenadorDto {
+//   coordenadores: Coordenador[];
+// }

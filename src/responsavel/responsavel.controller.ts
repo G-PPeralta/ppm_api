@@ -22,16 +22,31 @@ export class ResponsavelController {
 
   @Post()
   async create(@Body() createResponsavelDto: CreateResponsavelDto) {
-    const responsavel = createResponsavelDto.responsaveis.map(async (res) => {
-      const responsavelAlreadyExists = await this.responsavelService.findByName(
-        res.nome,
+    // const responsavel = createResponsavelDto.responsaveis.map(async (res) => {
+    //   const responsavelAlreadyExists = await this.responsavelService.findByName(
+    //     res.nome,
+    //   );
+    //   if (responsavelAlreadyExists) {
+    //     throw new ConflictException(`Responsável ${res.nome} já cadastrado`);
+    //   }
+    //   return await this.responsavelService.create(res);
+    // });
+
+    const responsavelAlreadyExists = await this.responsavelService.findByName(
+      createResponsavelDto.nome,
+    );
+
+    if (responsavelAlreadyExists) {
+      throw new ConflictException(
+        `Responsável ${createResponsavelDto.nome} já cadastrado`,
       );
-      if (responsavelAlreadyExists) {
-        throw new ConflictException(`Responsável ${res.nome} já cadastrado`);
-      }
-      return await this.responsavelService.create(res);
-    });
-    return await Promise.all(responsavel);
+    }
+
+    const responsavel = await this.responsavelService.create(
+      createResponsavelDto,
+    );
+
+    return responsavel;
   }
 
   @Get()
