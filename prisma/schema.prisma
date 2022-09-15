@@ -154,19 +154,35 @@ model Projeto {
   responsavel_id               Int?
   coordenador_id               Int?
   elemento_pep                 String?                        @db.VarChar
+
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
+
   complexidade                 Complexidade?                  @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
+
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
+
   divisaoProjeto               DivisaoProjeto?                @relation(fields: [divisaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_divisão_projetos1")
+
   gate                         Gate?                          @relation(fields: [gateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_gates1")
+
   local                        Local                          @relation(fields: [localId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_locais1")
+
   polo                         Polo                           @relation(fields: [poloId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_polos1")
+
   prioridadeProjeto            PrioridadeProjeto?             @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
+
   solicitanteProjeto           SolicitanteProjeto?            @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
+
   statusProjeto                StatusProjeto                  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
+
   tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
+
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
   desafiosProjetos             DesafiosProjetos[]
+
+  coordenador  Coordenador?    @relation(fields: [coordenador_id], references: [id_coordenador], onDelete: NoAction, onUpdate: NoAction)
+
+  responsavel  Responsavel?    @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("tb_projetos")
 }
@@ -265,6 +281,8 @@ model Responsavel {
   id       Int                 @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
   nome     String?             @map("nome_responsavel") @db.VarChar(255)
 
+  projetos  Projeto   []
+
   @@map("tb_responsaveis")
 }
 
@@ -290,6 +308,8 @@ model tb_valores_projeto {
 model Coordenador {
   id_coordenador  Int    @id @default(autoincrement())
   coordenadorNome String @map("coordenador_nome") @db.VarChar(255)
+
+  projetos  Projeto   []
 
   @@map("tb_coordenadores")
 }
