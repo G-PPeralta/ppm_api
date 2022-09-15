@@ -148,7 +148,7 @@ model Projeto {
   dataInicioReal               DateTime?                      @map("dataInicio_real") @db.Date
   dataFimReal                  DateTime?                      @map("dataFim_real") @db.Date
   comentarios                  String?                        @db.VarChar(255)
-  deletado                     Boolean                        @default(false)
+  deletado                     Boolean?                       @default(false)
   item                         Int?
   numero                       Int?
   responsavel_id               Int?
