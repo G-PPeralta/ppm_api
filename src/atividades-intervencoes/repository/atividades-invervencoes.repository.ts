@@ -19,7 +19,7 @@ export class AtividadeIntervencaoRepository {
 
   async atividadesist() {
     return await this.prisma.atividadeIntervencao.findMany({
-      select: { id: true, tarefa: true },
+      select: { id: true, tarefa: true, dias: true },
     });
   }
 }
