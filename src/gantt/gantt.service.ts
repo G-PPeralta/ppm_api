@@ -20,6 +20,33 @@ export class GanttService {
     return ganttFormatted;
   }
 
+  async findAllGant() {
+    const projetos = await this.prisma.projeto.findMany({
+      select: { nomeProjeto: true, rl_tb_atividades_tb_projetos: true },
+    });
+    const projetosResult = await projetos.map(async (data) => {
+      const atividades = [];
+      if (data.rl_tb_atividades_tb_projetos != null) {
+        for (const item in data.rl_tb_atividades_tb_projetos) {
+          const atividadeReturn = await this.prisma.atividade.findFirst({
+            where: { id: data.rl_tb_atividades_tb_projetos[item].atividade_id },
+          });
+          const atividade = {
+            id: atividadeReturn.id,
+            nome: atividadeReturn.nomeAtividade,
+          };
+          atividades.push(atividade);
+        }
+      }
+
+      return {
+        nome: data.nomeProjeto,
+        atividades,
+      };
+    });
+    return Promise.all(projetosResult);
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} gantt`;
   }
