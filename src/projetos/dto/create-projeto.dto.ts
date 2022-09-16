@@ -12,7 +12,7 @@ export class CreateProjetoDto {
   divisaoId: number;
   gateId?: number;
   tipoProjetoId: number;
-  demandaId?: number;
+  // demandaId?: number;
   statusId: number;
   prioridadeId: number;
   complexidadeId: number;
@@ -21,8 +21,8 @@ export class CreateProjetoDto {
   comentarios?: string;
   deletado: boolean;
   item: number;
-  numero: number;
-  responsavelId?: number[];
-  coordenadorId?: number[];
+  // numero: number;
+  responsavel_id?: number;
+  coordenador_id?: number;
   elemento_pep: string;
 }
