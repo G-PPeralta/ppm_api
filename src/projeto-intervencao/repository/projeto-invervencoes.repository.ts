@@ -17,6 +17,14 @@ export class ProjetoIntervencaoRepository {
     return await this.prisma.intervencaoProjetoTipo.create({ data: atividade });
   }
 
+  async findOne(id: number) {
+    return await this.prisma.intervencaoProjetoTipo.findFirst({
+      where: {
+        id: id,
+      },
+    });
+  }
+
   async projetoList() {
     return await this.prisma.intervencaoProjetoTipo.findMany({
       select: {

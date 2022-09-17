@@ -385,12 +385,13 @@ model Intervencao {
   id                                 Int                           @id(map: "tb_intervencoes_pk") @default(autoincrement())
   inicioPlanejado                    DateTime?                     @map("inicio_planejado") @db.Date
   fimPlanejado                       DateTime?                     @map("fim_planejado") @db.Date
+  nome                               String?                       @db.VarChar(255)
   observacoes                        String?                       @db.VarChar(32767)
   tipoProjetoId                      Int                           @map("intervencoes_tipo_id")
   sptId                              Int                           @map("spt_id")
   pocoId                             Int                           @map("intervencoes_pocos_id")
-  campoId                            Int                           @map("intervencoes_campos_id")
-  campo                              Campo                         @relation(fields: [campoId], references: [id])
+  campoId                            Int?                          @map("intervencoes_campos_id")
+  campo                              Campo?                        @relation(fields: [campoId], references: [id])
   poco                               Poco                          @relation(fields: [pocoId], references: [id])
   tipoProjeto                        IntervencaoProjetoTipo        @relation(fields: [tipoProjetoId], references: [id])
   spt                                Sonda                         @relation(fields: [sptId], references: [id])

@@ -35,6 +35,7 @@ import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
 import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-intervencao.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
+import { EstatisticasIntervencoesModule } from './estatisticas-intervencoes/estatisticas-intervencoes.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { FornecedoresModule } from './fornecedores/fornecedores.module';
     CamposModule,
     ProjetoIntervencaoModule,
     FornecedoresModule,
+    EstatisticasIntervencoesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
