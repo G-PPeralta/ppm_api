@@ -11,11 +11,13 @@ export class CampanhaService {
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
     const id = await this.prisma.$queryRawUnsafe(`
-      insert into dev.tb_campanha (nom_campanha, dsc_comentario) 
+      insert into dev.tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
       values 
       (
           '${createCampanhaDto.nom_campanha}',
-          '${createCampanhaDto.dsc_comentario}'
+          '${createCampanhaDto.dsc_comentario}',
+          '${createCampanhaDto.nom_usu_create}',
+          now()
       ) returning id
     `);
     return id;
@@ -26,16 +28,16 @@ export class CampanhaService {
     const fim = new Date(createCampanhaDto.dat_fim_plan);
 
     const id = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha)
+    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha, nom_usu_create, dat_usu_create)
     values
         (
             ${createCampanhaDto.id_pai}, '${
       createCampanhaDto.nom_atividade
-    }', ${
-      createCampanhaDto.pct_real
-    }, '${ini.toISOString()}', '${fim.toISOString()}', ${
+    }', ${createCampanhaDto.pct_real}, ${
+      ini == null ? null : "'" + ini.toISOString() + "'"
+    }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, ${
       createCampanhaDto.id_campanha
-    }
+    }, '${createCampanhaDto.nom_usu_create}', now()
         );
     `);
     return id;
@@ -63,6 +65,7 @@ right join dev.tb_campanha b
     on a.id_campanha = b.id
 where a.id_pai = 0 or a.id_pai is null
 and b.dat_usu_erase is null
+order by id_campanha asc, inicioPlanejado asc
 ;
     `);
     const tratamento: any = [];
