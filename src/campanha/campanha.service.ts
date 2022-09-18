@@ -31,14 +31,14 @@ export class CampanhaService {
     const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
 
     const id = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create)
+    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
     values (${createAtividadeCampanhaDto.id_pai}, ${
       createAtividadeCampanhaDto.nom_atividade
     }, ${createAtividadeCampanhaDto.pct_real}, ${
       ini == null ? null : "'" + ini.toISOString() + "'"
     }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, '${
       createAtividadeCampanhaDto.nom_usu_create
-    }', now()) returning id
+    }', now(), ${createAtividadeCampanhaDto.id_campanha}) returning id
     `);
 
     await this.prisma.$queryRawUnsafe(`

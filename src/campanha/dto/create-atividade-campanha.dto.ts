@@ -6,4 +6,5 @@ export class CreateAtividadeCampanhaDto {
   dat_fim_plan: Date;
   nom_usu_create: string;
   dsc_comentario: string;
+  id_campanha: number;
 }
