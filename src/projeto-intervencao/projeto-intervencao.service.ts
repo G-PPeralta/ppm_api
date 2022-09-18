@@ -31,7 +31,7 @@ export class ProjetoIntervencaoService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} projetoIntervencao`;
+    return this.repo.findOne(id);
   }
 
   update(id: number, updateProjetoIntervencaoDto: UpdateProjetoIntervencaoDto) {
