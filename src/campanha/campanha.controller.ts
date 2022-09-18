@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CampanhaService } from './campanha.service';
+import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CampanhaFilhoDto } from './dto/create-filho.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
@@ -27,6 +28,13 @@ export class CampanhaController {
   @Post('/filho')
   createFilho(@Body() createCampanhaDto: CampanhaFilhoDto) {
     return this.campanhaService.createFilho(createCampanhaDto);
+  }
+
+  @Post('/atividade')
+  createAtividade(
+    @Body() createAtividadeCampanhaDto: CreateAtividadeCampanhaDto,
+  ) {
+    return this.campanhaService.createAtividade(createAtividadeCampanhaDto);
   }
 
   @Get()

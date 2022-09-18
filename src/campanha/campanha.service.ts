@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaDto } from './dto/campanha.dto';
+import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CampanhaFilhoDto } from './dto/create-filho.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
@@ -20,6 +21,31 @@ export class CampanhaService {
           now()
       ) returning id
     `);
+    return id;
+  }
+
+  async createAtividade(
+    createAtividadeCampanhaDto: CreateAtividadeCampanhaDto,
+  ) {
+    const ini = new Date(createAtividadeCampanhaDto.dat_ini_plan);
+    const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
+
+    const id = await this.prisma.$queryRawUnsafe(`
+    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create)
+    values (${createAtividadeCampanhaDto.id_pai}, ${
+      createAtividadeCampanhaDto.nom_atividade
+    }, ${createAtividadeCampanhaDto.pct_real}, ${
+      ini == null ? null : "'" + ini.toISOString() + "'"
+    }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, '${
+      createAtividadeCampanhaDto.nom_usu_create
+    }', now()) returning id
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+      insert into dev.tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
+      values (${id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
+    `);
+
     return id;
   }
 
