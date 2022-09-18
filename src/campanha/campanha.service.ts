@@ -30,11 +30,11 @@ export class CampanhaService {
     const ini = new Date(createAtividadeCampanhaDto.dat_ini_plan);
     const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
 
-    const id = await this.prisma.$queryRawUnsafe(`
+    const retorno = await this.prisma.$queryRawUnsafe(`
     insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
-    values (${createAtividadeCampanhaDto.id_pai}, ${
+    values (${createAtividadeCampanhaDto.id_pai}, '${
       createAtividadeCampanhaDto.nom_atividade
-    }, ${createAtividadeCampanhaDto.pct_real}, ${
+    }', ${createAtividadeCampanhaDto.pct_real}, ${
       ini == null ? null : "'" + ini.toISOString() + "'"
     }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, '${
       createAtividadeCampanhaDto.nom_usu_create
@@ -43,10 +43,10 @@ export class CampanhaService {
 
     await this.prisma.$queryRawUnsafe(`
       insert into dev.tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
-      values (${id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
+      values (${retorno[0].id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
     `);
 
-    return id;
+    return retorno;
   }
 
   async createFilho(createCampanhaDto: CampanhaFilhoDto) {

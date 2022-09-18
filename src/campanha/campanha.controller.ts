@@ -30,7 +30,7 @@ export class CampanhaController {
     return this.campanhaService.createFilho(createCampanhaDto);
   }
 
-  @Post('/atividade')
+  @Post('/filho/atividade')
   createAtividade(
     @Body() createAtividadeCampanhaDto: CreateAtividadeCampanhaDto,
   ) {
