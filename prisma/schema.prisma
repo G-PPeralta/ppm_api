@@ -574,7 +574,7 @@ model CapAtvCategoria {
 
 model TbCampanha{
   id Int @id @default(autoincrement())
-  nom_campanha String @db.VarChar(255)
+  nom_campanha String @unique @db.VarChar(255)
   id_sonda Int?
   dsc_comentario String @db.VarChar(32767)
   nom_usu_create String? @db.VarChar(255)

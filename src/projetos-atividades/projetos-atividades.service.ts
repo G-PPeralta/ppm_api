@@ -11,7 +11,20 @@ export class ProjetosAtividadesService {
   }
 
   async findAll() {
-    return null;
+    return await this.prisma.$queryRawUnsafe(`
+    select 
+    *,
+    round(dev.fn_atv_calc_pct_plan(
+        dev.fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
+        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
+        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / dev.fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
+    )*100,1) as pct_plan
+from dev.tb_projetos a
+left join dev.tb_projetos_atividade b 
+    on a.id = b.id_projeto 
+where 
+    b.id_pai = 0 or b.id_pai is null;
+    `);
   }
 
   async findOne(id: number) {
@@ -23,11 +36,15 @@ export class ProjetosAtividadesService {
     select CAST(count(*) AS INT) as qt from dev.tb_projetos_atividades where id = ${id} and dat_ini_real is null;
     `);
     if (existe) {
-      await this.prisma.$queryRawUnsafe(`
+      const idPai = await this.prisma.$queryRawUnsafe(`
         UPDATE dev.tb_projetos_atividades SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
       }
-      where id = ${id}`);
+      where id = ${id} returning id_pai`);
+
+      await this.prisma.$queryRawUnsafe(`
+      call dev.sp_cron_atv_update_datas_pcts_pais(${idPai});
+      `);
     }
   }
 

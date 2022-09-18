@@ -8,11 +8,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateProjetosAtividadeDto } from 'projetos-atividades/dto/create-projetos-atividades.dto';
+import { ProjetosAtividadesLicoesAprendidasService } from './projetos-atividades-licoes-aprendidas.service';
 
 @Controller('projetos-atividades-licoes-aprendidas')
 export class ProjetosAtividadesLicoesAprendidasController {
   constructor(
-    private readonly projetosAtividadesLicoesAprendidasService: ProjetosAtividadesLicoesAprendidasController,
+    private readonly projetosAtividadesLicoesAprendidasService: ProjetosAtividadesLicoesAprendidasService,
   ) {}
 
   @Post()
@@ -29,7 +30,7 @@ export class ProjetosAtividadesLicoesAprendidasController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.projetosAtividadesLicoesAprendidasService.findOne(id);
+    return this.projetosAtividadesLicoesAprendidasService.findOne(+id);
   }
 
   @Patch(':id/:campo/:valor')
@@ -39,7 +40,7 @@ export class ProjetosAtividadesLicoesAprendidasController {
     @Param('valor') valor: string,
   ) {
     return this.projetosAtividadesLicoesAprendidasService.update(
-      id,
+      +id,
       campo,
       valor,
     );
@@ -47,6 +48,6 @@ export class ProjetosAtividadesLicoesAprendidasController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.projetosAtividadesLicoesAprendidasService.remove(id);
+    return this.projetosAtividadesLicoesAprendidasService.remove(+id);
   }
 }
