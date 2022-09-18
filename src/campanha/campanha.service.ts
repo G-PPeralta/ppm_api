@@ -78,13 +78,13 @@ order by id_campanha asc, inicioPlanejado asc
 
       const data = {
         sonda: element.sonda,
+        id_campanha: element.id_campanha,
         pocos: [],
       };
 
       let existe = false;
 
       tratamento.forEach((inner) => {
-        Logger.log(inner.sonda === element.sonda);
         if (inner.sonda === element.sonda) {
           existe = true;
         }
