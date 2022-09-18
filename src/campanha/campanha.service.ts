@@ -65,8 +65,7 @@ where a.id_pai = 0 or a.id_pai is null
 and b.dat_usu_erase is null
 ;
     `);
-    const tratamento: any = {};
-    tratamento.sonda = {};
+    const tratamento: any = [];
     retorno.forEach((element) => {
       if (element.pct_real < element.pct_plan) {
         element.comp_pct = 0;
@@ -74,16 +73,44 @@ and b.dat_usu_erase is null
         element.comp_pct = 1;
       }
 
-      if (!tratamento.sonda[element.sonda]) {
-        const vetor: any[] = [];
+      const data = {
+        sonda: element.sonda,
+        pocos: [],
+      };
 
-        vetor.push(element);
-        tratamento.sonda[element.sonda] = vetor;
+      let existe = false;
+
+      tratamento.forEach((inner) => {
+        Logger.log(inner.sonda === element.sonda);
+        if (inner.sonda === element.sonda) {
+          existe = true;
+        }
+      });
+
+      if (existe) {
+        tratamento.forEach((inner) => {
+          if (inner.sonda === element.sonda) {
+            const atual = inner.pocos;
+            atual.push(element);
+            inner.pocos = atual;
+          }
+        });
       } else {
-        const vetor = tratamento.sonda[element.sonda];
-        vetor.push(element);
-        tratamento.sonda[element.sonda] = vetor;
+        data.pocos.push(element);
+        tratamento.push(data);
       }
+      /*
+      if () {
+        const vetor: any[] = [];
+        Logger.log('IF ' + tratamento[element.sonda]);
+        vetor.push(element);
+        tratamento[element.sonda] = vetor;
+      } else {
+        const vetor = tratamento[element.sonda];
+        Logger.log('ELSE ' + tratamento[element.sonda]);
+        vetor.push(element);
+        tratamento[element.sonda] = vetor;
+      }*/
     });
 
     return tratamento;
