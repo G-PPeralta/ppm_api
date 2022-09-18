@@ -460,6 +460,58 @@ model ProjetoAtividades {
   @@map("tb_intervencoes_tipo_atividades")
 }
 
+model ProjetosAtividades {
+  id Int @id @default(autoincrement())
+  id_pai Int
+  ordem Int?
+  nom_atividade String? @db.VarChar(255)
+  pct_real Float?
+  dat_ini_plan DateTime? @db.Timestamp()
+  dat_fim_plan DateTime? @db.Timestamp()
+  dat_ini_real DateTime? @db.Timestamp()
+  dat_fim_real DateTime? @db.Timestamp()
+  dat_ini_base DateTime? @db.Timestamp()
+  dat_fim_base DateTime? @db.Timestamp()
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+  nom_usu_edit String? @db.VarChar(255)
+  dat_usu_edit DateTime? @db.Timestamp()
+  nom_usu_erase String? @db.VarChar(255)
+  dat_usu_erase DateTime? @db.Timestamp()
+  id_projeto Int?
+
+  @@map("tb_projetos_atividades")
+}
+
+model ProjetosAtividadesRecursos {
+  id Int @id @default(autoincrement())
+  id_atividade Int?
+  nom_recurso String? @db.VarChar(255)
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+  @@map("tb_projetos_atv_recursos")
+}
+
+model ProjetosAtividadedsNotas{
+  id Int @id @default(autoincrement())
+  id_atividade Int?
+  txt_nota String? @db.VarChar(255)
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+  @@map("tb_projetos_atv_notas")
+}
+
+model ProjetosAtividadesLicoesAprendidas {
+  id Int @id @default(autoincrement())
+  id_atividade Int?
+  id_categoria Int?
+  txt_licao_aprendida String? @db.VarChar(32767)
+  txt_acao String? @db.VarChar(255)
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+  @@map("tb_projetos_atv_licoes_aprendidas")
+}
+
 model CampAtvCampanha {
   id          Int                     @id @default(autoincrement())
   id_pai      Int                     
