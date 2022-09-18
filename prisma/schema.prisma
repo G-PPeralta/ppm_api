@@ -314,31 +314,31 @@ model Coordenador {
   @@map("tb_coordenadores")
 }
 
-model Campanhas {
-  id                  Int       @id(map: "tb_campanhas_pk") @default(autoincrement())
-  responsavel         String?   @db.VarChar(60)
-  area                String?   @db.VarChar(25)
-  spt                 String?   @db.VarChar(15)
-  poco                String?   @db.VarChar(15)
-  tarefa              String?   @db.VarChar(100)
-  old_id              Int?
-  fase                String?   @db.VarChar(15)
-  porcentagem         Int?
-  status              String?   @db.VarChar(20)
-  campanha            String?   @db.Char(2)
-  ordem               Int?
-  sucessores_diretos  Int?
-  inicio_planejado    DateTime? @db.Date
-  fim_planejado       DateTime? @db.Date
-  duracao_real        Int?
-  inicio_real         DateTime? @db.Date
-  fim_real            DateTime? @db.Date
-  duracao_planejada   Int?
-  precedentes_diretos String?   @db.VarChar(55)
-  atualizacao_cip     DateTime? @db.Date
-
-  @@map("tb_campanhas")
-}
+///model Campanhas {
+///  id                  Int       @id(map: "tb_campanhas_pk") @default(autoincrement())
+///  responsavel         String?   @db.VarChar(60)
+///  area                String?   @db.VarChar(25)
+///  spt                 String?   @db.VarChar(15)
+///  poco                String?   @db.VarChar(15)
+///  tarefa              String?   @db.VarChar(100)
+///  old_id              Int?
+///  fase                String?   @db.VarChar(15)
+  ///porcentagem         Int?
+  ///status              String?   @db.VarChar(20)
+  ///campanha            String?   @db.Char(2)
+  ///ordem               Int?
+  ///sucessores_diretos  Int?
+  ///inicio_planejado    DateTime? @db.Date
+  ///fim_planejado       DateTime? @db.Date
+  ///duracao_real        Int?
+  ///inicio_real         DateTime? @db.Date
+  ///fim_real            DateTime? @db.Date
+  ///duracao_planejada   Int?
+  ///precedentes_diretos String?   @db.VarChar(55)
+  ///atualizacao_cip     DateTime? @db.Date
+///
+//  @@map("tb_campanhas")
+//}
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model tb_pocos_sondas {
@@ -458,6 +458,92 @@ model ProjetoAtividades {
 
   @@index([projetoId, atividadeId], map: "ativide_project_id")
   @@map("tb_intervencoes_tipo_atividades")
+}
+
+model CampAtvCampanha {
+  id          Int                     @id @default(autoincrement())
+  id_pai      Int                     
+  ordem       Int?
+  nom_atividade String?                @db.VarChar(255)
+  pct_real  Float?                     
+  dat_ini_plan DateTime?               @db.Timestamp()
+  dat_fim_plan DateTime?               @db.Timestamp()
+  dat_ini_real DateTime?               @db.Timestamp() 
+  dat_fim_real DateTime?               @db.Timestamp()
+  dat_ini_base DateTime?               @db.Timestamp()
+  dat_fim_base DateTime?               @db.Timestamp()
+  nom_usu_create String?               @db.VarChar(255)
+  dat_usu_create DateTime?             @db.Timestamp()
+  nom_usu_edit String?                 @db.VarChar(255)
+  dat_usu_edit DateTime?              @db.Timestamp()
+  nom_usu_erase String?                @db.VarChar(255)
+  dat_usu_erase DateTime?              @db.Timestamp()
+  id_campanha Int?
+
+  @@map("tb_camp_atv_campanha")
+}
+
+model CampAtvNotas {
+  id        Int                     @id @default(autoincrement())
+  id_atividade Int?
+  txt_nota  String?                  @db.VarChar(255)
+  nom_usu_create String?             @db.VarChar(255)
+  dat_usu_create DateTime?           @db.Date()
+
+  @@map("tb_camp_atv_notas")
+}
+
+model CampAtvRecursos {
+  id        Int                   @id @default(autoincrement())
+  id_atividade Int?
+  nom_recurso String?              @db.VarChar(255)
+  nom_usu_create String?           @db.VarChar(255)
+  dat_usu_create DateTime?         @db.Timestamp()
+
+  @@map("tb_capm_atv_recursos")
+}
+
+model CapAtvLicoesAprendidas {
+  id Int @id @default(autoincrement())
+  id_atividade Int? 
+  id_categoria Int?
+  txt_licao_aprendida String?  @db.VarChar(32767)
+  txt_acao String? @db.VarChar(255)
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+
+  @@map("tb_camp_atv_licoes_aprendidas")
+}
+
+model CapAtvCategoria {
+  id Int @id @default(autoincrement())
+  nom_categ String @db.VarChar(255)
+}
+
+model TbCampanha{
+  id Int @id @default(autoincrement())
+  nom_campanha String @db.VarChar(255)
+  id_sonda Int?
+  dsc_comentario String @db.VarChar(32767)
+  nom_usu_create String? @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp()
+  nom_usu_edit String? @db.VarChar(255)
+  dat_usu_edit DateTime? @db.Timestamp()
+  nom_usu_erase String? @db.VarChar(255)
+  dat_usu_erase DateTime? @db.Timestamp()
+
+  @@map("tb_campanha")
+}
+
+model Fornecedor {
+  id          Int    @id @default(autoincrement())
+  fornecedor  String
+  orcamento   Int
+  realizado   Int
+  responsavel String
+  descricao   String
+
+  @@map("tb_projetos_fornecedor_temp")
 }
 
 model IntervencaoProjetoTipo {

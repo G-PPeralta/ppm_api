@@ -49,13 +49,25 @@ export class IntervencaoRepository {
   }
 
   async intervencoesList() {
-    return await this.prisma.intervencao.findMany({
-      include: {
+    const intervencao = await this.prisma.intervencao.findMany({
+      select: {
+        id: true,
+        nome: true,
+        inicioPlanejado: true,
+        fimPlanejado: true,
+        observacoes: true,
+        tipoProjeto: true,
         poco: true,
         spt: true,
-        tb_intervencoes_atividades_relacao: true,
+        tb_intervencoes_atividades_relacao: {
+          select: {
+            atividadeId: true,
+            responsavelId: true,
+          },
+        },
       },
     });
+    return intervencao;
   }
 
   async findOneByAtividade(id: number) {

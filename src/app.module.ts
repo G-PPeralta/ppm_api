@@ -35,7 +35,9 @@ import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
 import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-intervencao.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
-import { EstatisticasIntervencoesModule } from './estatisticas-intervencoes/estatisticas-intervencoes.module';
+import { LicoesAprendidasModule } from './licoes-aprendidas/licoes-aprendidas.module';
+import { AtividadesRecursosModule } from './atividades-recursos/atividades-recursos.module';
+import { AtividadesNotasModule } from './atividades-notas/atividades-notas.module';
 
 @Module({
   imports: [
@@ -73,7 +75,9 @@ import { EstatisticasIntervencoesModule } from './estatisticas-intervencoes/esta
     CamposModule,
     ProjetoIntervencaoModule,
     FornecedoresModule,
-    EstatisticasIntervencoesModule,
+    LicoesAprendidasModule,
+    AtividadesRecursosModule,
+    AtividadesNotasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
