@@ -145,6 +145,47 @@ order by id_campanha asc, inicioPlanejado asc
     return tratamento;
   }
 
+  async findAtividades(id: number) {
+    let retorno: any[] = [];
+    retorno = await this.prisma.$queryRawUnsafe(`
+    --- relacionar as atividades relacionados aos poços
+    select 
+    a.id as id_poco,
+    nom_campanha as sonda,
+    nom_atividade as atividade,
+    round(dev.fn_atv_calc_pct_plan(
+        dev.fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
+        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
+        case 
+	    when (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) < 0) then 0 
+	    when (dev.fn_atv_calc_hrs_totais(id_pai) < 0) then 0
+        else dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / dev.fn_atv_calc_hrs_totais(id_pai)
+        end-- valor ponderado
+    )*100, 1) as pct_plan,
+    pct_real as pct_real,
+    dat_ini_plan  as inicioPlanejado,
+    dat_fim_plan as finalPlanejado,
+    DATE_PART('day', dat_fim_plan) - date_part('day', dat_ini_plan) as qtdDias
+from dev.tb_camp_atv_campanha a
+right join dev.tb_campanha b 
+    on a.id_campanha = b.id
+where a.id_campanha  = ${id}
+and a.dat_usu_erase is null
+and a.dat_ini_plan is not null
+order by dat_ini_plan asc
+    `);
+
+    retorno.forEach((element) => {
+      if (element.pct_real < element.pct_plan) {
+        element.comp_pct = 0;
+      } else {
+        element.comp_pct = 1;
+      }
+    });
+
+    return retorno;
+  }
+
   async findOne(id: number) {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
