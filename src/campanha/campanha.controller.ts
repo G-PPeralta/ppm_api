@@ -47,6 +47,11 @@ export class CampanhaController {
     return this.campanhaService.findOne(+id);
   }
 
+  @Get('/atividades/:id')
+  findAtividades(@Param('id') id: string) {
+    return this.campanhaService.findAtividades(+id);
+  }
+
   @Patch(':id/:campo/:valor')
   update(
     @Param('id') id: string,
