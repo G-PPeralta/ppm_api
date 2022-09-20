@@ -22,11 +22,11 @@ export class ProjetosAtividadesNotasService {
 
   async update(id: number, campo: string, valor: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from dev.tb_projetos_atv_notas where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_projetos_atv_notas where id = ${id} and dat_ini_real is null;
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
-        UPDATE dev.tb_projetos_atv_notas SET ${campo} = ${
+        UPDATE tb_projetos_atv_notas SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
       }
       where id = ${id}`);
@@ -35,7 +35,7 @@ export class ProjetosAtividadesNotasService {
 
   async remove(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-        delete dev.tb_projetos_atv_notas where id = ${id}
+        delete tb_projetos_atv_notas where id = ${id}
     `);
   }
 }
