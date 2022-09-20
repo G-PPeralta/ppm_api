@@ -19,13 +19,19 @@ export class RankingsOpcoesService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-        SELECT * FROM tb_ranking_opcoes
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    dev.tb_ranking tr
+    inner join dev.tb_ranking_opcoes tro 
+    on tro.id_ranking = tr.id 
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-        SELECT * FROM tb_ranking_opcoes WHERE id = ${id}
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    dev.tb_ranking tr
+    inner join dev.tb_ranking_opcoes tro 
+    on tro.id_ranking = tr.id WHERE tro.id_ranking = ${id}
     `);
   }
 
