@@ -31,6 +31,15 @@ export class GanttController {
     }
   }
 
+  @Get('/gant')
+  async findAllGant() {
+    try {
+      return this.ganttService.findAllGant();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ganttService.findOne(+id);
