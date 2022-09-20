@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateProjetosAtividadeDto } from 'projetos-atividades/dto/create-projetos-atividades.dto';
+import { CreateProjetosAtividadesLicoesAprendidasDto } from './dto/projetos-atividades-licoes-aprendidas.dto';
 import { ProjetosAtividadesLicoesAprendidasService } from './projetos-atividades-licoes-aprendidas.service';
 
 @Controller('projetos-atividades-licoes-aprendidas')
@@ -17,7 +17,10 @@ export class ProjetosAtividadesLicoesAprendidasController {
   ) {}
 
   @Post()
-  create(@Body() createProjetosAtividadeDto: CreateProjetosAtividadeDto) {
+  create(
+    @Body()
+    createProjetosAtividadeDto: CreateProjetosAtividadesLicoesAprendidasDto,
+  ) {
     return this.projetosAtividadesLicoesAprendidasService.create(
       createProjetosAtividadeDto,
     );

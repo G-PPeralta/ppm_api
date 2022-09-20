@@ -12,7 +12,7 @@ export class CampanhaService {
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
     const id = await this.prisma.$queryRawUnsafe(`
-      insert into dev.tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
+      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
       values 
       (
           '${createCampanhaDto.nom_campanha}',
@@ -31,7 +31,7 @@ export class CampanhaService {
     const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
 
     const retorno = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
+    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
     values (${createAtividadeCampanhaDto.id_pai}, '${
       createAtividadeCampanhaDto.nom_atividade
     }', ${createAtividadeCampanhaDto.pct_real}, ${
@@ -42,7 +42,7 @@ export class CampanhaService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
-      insert into dev.tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
+      insert into tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
       values (${retorno[0].id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
     `);
 
@@ -54,7 +54,7 @@ export class CampanhaService {
     const fim = new Date(createCampanhaDto.dat_fim_plan);
 
     const id = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha, nom_usu_create, dat_usu_create)
+    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha, nom_usu_create, dat_usu_create)
     values
         (
             ${createCampanhaDto.id_pai}, '${
@@ -78,16 +78,16 @@ select
     a.id as id_poco,
     nom_campanha as sonda,
     nom_atividade as poco,
-    dev.fn_atv_menor_data(a.id) as inicioPlanejado,
-    dev.fn_atv_maior_data(a.id) as finalPlanejado,
-    round(dev.fn_atv_calc_pct_plan(
-        dev.fn_atv_calcular_hrs(dev.fn_atv_menor_data(a.id)), -- horas executadas
-        dev.fn_hrs_uteis_totais_atv(dev.fn_atv_menor_data(a.id), dev.fn_atv_maior_data(a.id)),  -- horas totais
-        dev.fn_hrs_uteis_totais_atv(dev.fn_atv_menor_data(a.id), dev.fn_atv_maior_data(a.id)) / dev.fn_atv_calc_hrs_totais(a.id) -- valor ponderado
+    fn_atv_menor_data(a.id) as inicioPlanejado,
+    fn_atv_maior_data(a.id) as finalPlanejado,
+    round(fn_atv_calc_pct_plan(
+        fn_atv_calcular_hrs(fn_atv_menor_data(a.id)), -- horas executadas
+        fn_hrs_uteis_totais_atv(fn_atv_menor_data(a.id), fn_atv_maior_data(a.id)),  -- horas totais
+        fn_hrs_uteis_totais_atv(fn_atv_menor_data(a.id), fn_atv_maior_data(a.id)) / fn_atv_calc_hrs_totais(a.id) -- valor ponderado
     )*100,1) as pct_plan,
-    round(dev.fn_atv_calc_pct_real(a.id),1) as pct_real
-from dev.tb_camp_atv_campanha a
-right join dev.tb_campanha b 
+    round(fn_atv_calc_pct_real(a.id),1) as pct_real
+from tb_camp_atv_campanha a
+right join tb_campanha b 
     on a.id_campanha = b.id
 where a.id_pai = 0 or a.id_pai is null
 and b.dat_usu_erase is null
@@ -141,17 +141,17 @@ select
     a.id as id_poco,
     nom_campanha as sonda,
     nom_atividade as atividade,
-    round(dev.fn_atv_calc_pct_plan(
-        dev.fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
-        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
-        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / dev.fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
+    round(fn_atv_calc_pct_plan(
+        fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
+        fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
+        fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
     )*100,1) as pct_plan,
     pct_real as pct_real,
     dat_ini_plan  as inicioPlanejado,
     dat_fim_plan as finalPlanejado,
     DATE_PART('day', dat_fim_plan) - date_part('day', dat_ini_plan) as qtdDias
-from dev.tb_camp_atv_campanha a
-right join dev.tb_campanha b 
+from tb_camp_atv_campanha a
+right join tb_campanha b 
     on a.id_campanha = b.id
 where a.id_pai = ${id}
 and a.dat_usu_erase is null
@@ -171,11 +171,11 @@ order by dat_ini_plan asc;
 
   async update(id: number, campo: string, valor: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from dev.tb_camp_atv_campanha where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_camp_atv_campanha where id = ${id} and dat_ini_real is null;
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
-        UPDATE dev.tb_camp_atv_campanha SET ${campo} = ${
+        UPDATE tb_camp_atv_campanha SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
       }
       where id = ${id}`);
@@ -184,7 +184,7 @@ order by dat_ini_plan asc;
 
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-    update dev.tb_camp_atv_campanha 
+    update tb_camp_atv_campanha 
     set
         dat_usu_erase = now(),
         nom_usu_erase = '${user}'

@@ -42,6 +42,9 @@ import { ProjetosAtividadesModule } from './projetos-atividades/projetos-ativida
 import { ProjetosAtividadesRecursosModule } from './projetos-atividades-recursos/projetos-atividades-recursos.module';
 import { ProjetosAtividadesNotasModule } from './projetos-atividades-notas/projetos-atividades-notas.module';
 import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-licoes-aprendidas/projetos-atividades-licoes-aprendidas.module';
+import { RankingsModule } from './rankings/rankings.module';
+import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
+import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
 
 @Module({
   imports: [
@@ -86,6 +89,9 @@ import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-
     ProjetosAtividadesRecursosModule,
     ProjetosAtividadesNotasModule,
     ProjetosAtividadesLicoesAprendidasModule,
+    RankingsModule,
+    RankingsOpcoesModule,
+    ProjetosRankingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
