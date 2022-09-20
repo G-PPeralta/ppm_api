@@ -11,6 +11,10 @@ import { AreaAtuacaoModule } from '../area-atuacao/area-atuacao.module';
   imports: [PrismaModule, ResponsavelModule, TarefaModule, AreaAtuacaoModule],
   controllers: [AtividadesIntervencoesController],
   providers: [AtividadesIntervencoesService, AtividadeIntervencaoRepository],
-  exports: [AtividadeIntervencaoRepository, AtividadeIntervencaoRepository],
+  exports: [
+    AtividadeIntervencaoRepository,
+    AtividadeIntervencaoRepository,
+    AtividadesIntervencoesService,
+  ],
 })
 export class AtividadesIntervencoesModule {}

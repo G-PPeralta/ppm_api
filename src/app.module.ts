@@ -34,6 +34,14 @@ import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
 import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-intervencao.module';
+import { FornecedoresModule } from './fornecedores/fornecedores.module';
+import { LicoesAprendidasModule } from './licoes-aprendidas/licoes-aprendidas.module';
+import { AtividadesRecursosModule } from './atividades-recursos/atividades-recursos.module';
+import { AtividadesNotasModule } from './atividades-notas/atividades-notas.module';
+import { ProjetosAtividadesModule } from './projetos-atividades/projetos-atividades.module';
+import { ProjetosAtividadesRecursosModule } from './projetos-atividades-recursos/projetos-atividades-recursos.module';
+import { ProjetosAtividadesNotasModule } from './projetos-atividades-notas/projetos-atividades-notas.module';
+import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-licoes-aprendidas/projetos-atividades-licoes-aprendidas.module';
 
 @Module({
   imports: [
@@ -70,6 +78,14 @@ import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-interven
     PocoModule,
     CamposModule,
     ProjetoIntervencaoModule,
+    FornecedoresModule,
+    LicoesAprendidasModule,
+    AtividadesRecursosModule,
+    AtividadesNotasModule,
+    ProjetosAtividadesModule,
+    ProjetosAtividadesRecursosModule,
+    ProjetosAtividadesNotasModule,
+    ProjetosAtividadesLicoesAprendidasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

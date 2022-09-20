@@ -8,5 +8,6 @@ import { ProjetoIntervencaoRepository } from './repository/projeto-invervencoes.
   imports: [PrismaModule],
   controllers: [ProjetoIntervencaoController],
   providers: [ProjetoIntervencaoService, ProjetoIntervencaoRepository],
+  exports: [ProjetoIntervencaoService],
 })
 export class ProjetoIntervencaoModule {}
