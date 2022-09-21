@@ -45,6 +45,7 @@ import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-
 import { RankingsModule } from './rankings/rankings.module';
 import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
 import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
+import { AreasModule } from './areas/areas.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.modul
     RankingsModule,
     RankingsOpcoesModule,
     ProjetosRankingModule,
+    AreasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -32,7 +32,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async update(id: number, campo: string, valor: string, user: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from tb_projetos_atv_licoes_aprendidas where id = ${id} and dat_usu_erase is null;
+    select CAST(count(*) AS INT) as qt from tb_projetos_atv_licoes_aprendidas where id = ${id} and dat_usu_exc is null;
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
