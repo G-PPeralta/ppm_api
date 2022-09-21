@@ -12,7 +12,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
     const id = this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_projetos_atv_licoes_aprendidas (id_projeto, id_categoria, txt_licao_aprendida, txt_acao, nom_usu_create, dat_usu_create)
       values (${createProjetosAtividadesLicoesAprendidasDto.id_projeto}, ${createProjetosAtividadesLicoesAprendidasDto.id_categoria}, '${createProjetosAtividadesLicoesAprendidasDto.txt_licao_aprendida}', '${createProjetosAtividadesLicoesAprendidasDto.txt_acao}', '${createProjetosAtividadesLicoesAprendidasDto.nom_usu_create}', now())
-      returning id
+      returning id_projeto
       `);
 
     return id;
@@ -26,7 +26,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async findOne(id: number) {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas where id = ${id}
+      select * from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id}
     `);
   }
 

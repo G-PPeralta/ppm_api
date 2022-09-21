@@ -18,7 +18,12 @@ export class ProjetosRankingController {
     return this.projetosRankingService.findAll();
   }
 
-  @Get(':id')
+  @Get('projetos')
+  findProjetos() {
+    return this.projetosRankingService.findProjetos();
+  }
+
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.projetosRankingService.findOne(+id);
   }
