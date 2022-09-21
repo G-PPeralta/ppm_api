@@ -42,6 +42,11 @@ export class CampanhaService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
+    insert into tb_camp_atv_recursos (id_atividade, nom_recurso, nom_usu_create, dat_usu_create, id_area)
+    values (${retorno}, '${createAtividadeCampanhaDto.nom_recurso}', '${createAtividadeCampanhaDto.nom_usu_create}', now(), ${createAtividadeCampanhaDto.id_area})
+  `);
+
+    await this.prisma.$queryRawUnsafe(`
       insert into tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
       values (${retorno[0].id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
     `);
