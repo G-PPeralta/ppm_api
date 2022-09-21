@@ -7,4 +7,6 @@ export class CreateAtividadeCampanhaDto {
   nom_usu_create: string;
   dsc_comentario: string;
   id_campanha: number;
+  nom_recurso: string;
+  id_area;
 }
