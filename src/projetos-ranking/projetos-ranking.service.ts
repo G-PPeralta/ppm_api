@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosRankingDto } from './dto/create-projetos-ranking.dto';
 
@@ -18,12 +18,22 @@ export class ProjetosRankingService {
   }
 
   async findAll() {
-    return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    let retorno: any[] = [];
+    retorno = await this.prisma.$queryRawUnsafe(`
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id as opcao_id from 
     tb_ranking tr
     inner join tb_ranking_opcoes tro 
     on tro.id_ranking = tr.id 
     `);
+
+    const tratamento = {};
+
+    for (const { nom_ranking, id, nom_opcao, opcao_id } of retorno) {
+      if (!tratamento[nom_ranking]) tratamento[nom_ranking] = [];
+      tratamento[nom_ranking].push({ id, nom_opcao, opcao_id });
+    }
+
+    return tratamento;
   }
 
   async findOne(id: number) {
@@ -35,6 +45,24 @@ export class ProjetosRankingService {
     inner join tb_projetos_ranking tpr 
     on tpr.id_opcao = tro.num_opcao  and tpr.id_ranking  = tr.id
     where tpr.id_projeto = ${id}
+    `);
+  }
+
+  async findProjetos() {
+    return await this.prisma.$queryRawUnsafe(`
+    select * 
+from dev.tb_projetos a
+left join (
+        select tp.id as id_projeto, sum(tro.num_nota) as num_ranking
+        from dev.tb_projetos tp 
+        inner join dev.tb_projetos_ranking tpr 
+            on tp.id = tpr.id_projeto 
+        inner join dev.tb_ranking_opcoes tro 
+            on  tpr.id_opcao = tro.id 
+        group by tp.id
+    ) b
+    on a.id = b.id_projeto
+order by b.num_ranking;
     `);
   }
 
