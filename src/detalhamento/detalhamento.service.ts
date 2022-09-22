@@ -28,16 +28,16 @@ export class DetalhamentoService {
 	    tr.nome_responsavel,
 	    tc.coordenador_nome 
     from
-	    dev.tb_projetos tp
-    left join dev.tb_polos tp2 on
+	    tb_projetos tp
+    left join tb_polos tp2 on
 	    tp.polo_id = tp2.id
-    left join dev.tb_locais tl on
+    left join tb_locais tl on
 	    tp.local_id = tl.id
-    left join dev.tb_demandas td on
+    left join tb_demandas td on
 	    tp.demanda_id = td.id
-    left join dev.tb_responsaveis tr on
+    left join tb_responsaveis tr on
 	    tp.responsavel_id = tr.responsavel_id
-    left join dev.tb_coordenadores tc on
+    left join tb_coordenadores tc on
 	    tp.coordenador_id = tc.id_coordenador 
     where tp.id = ${id};
     `);
