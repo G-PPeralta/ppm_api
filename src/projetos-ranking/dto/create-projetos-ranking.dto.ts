@@ -13,7 +13,7 @@ export class CreateProjetosRankingDto {
     id_ranking: number;
   };
   prioridade: {
-    opcao_ranking: number;
+    opcao_id: number;
     id_ranking: number;
   };
   complexidade: {
