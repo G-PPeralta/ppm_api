@@ -90,14 +90,14 @@ and a.id = ${id};
   }
 
   async update(id: number, updateProjetoDto: UpdateProjetoDto) {
-    await this.prismaClient.projeto.update({
+    const projeto = await this.prismaClient.projeto.update({
       where: {
         id,
       },
       data: updateProjetoDto,
     });
 
-    return `This action updates a #${id} projeto`;
+    return projeto;
   }
 
   remove(id: number) {
