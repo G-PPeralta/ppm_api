@@ -22,6 +22,31 @@ import { ComplexidadeModule } from './complexidade/complexidade.module';
 import { ResponsavelModule } from './responsavel/responsavel.module';
 import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DetalhamentoModule } from './detalhamento/detalhamento.module';
+import { CoordenadorModule } from './coordenador/coordenador.module';
+import { CampanhaModule } from './campanha/campanha.module';
+import { IntervencoesModule } from './intervencoes/intervencoes.module';
+import { PrismaModule } from 'services/prisma/prisma.module';
+import { TarefaModule } from './tarefa/tarefa.module';
+import { SondaModule } from './sonda/sonda.module';
+import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
+import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
+import { PocoModule } from './poco/poco.module';
+import { CamposModule } from './campos/campos.module';
+import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-intervencao.module';
+import { FornecedoresModule } from './fornecedores/fornecedores.module';
+import { LicoesAprendidasModule } from './licoes-aprendidas/licoes-aprendidas.module';
+import { AtividadesRecursosModule } from './atividades-recursos/atividades-recursos.module';
+import { AtividadesNotasModule } from './atividades-notas/atividades-notas.module';
+import { ProjetosAtividadesModule } from './projetos-atividades/projetos-atividades.module';
+import { ProjetosAtividadesRecursosModule } from './projetos-atividades-recursos/projetos-atividades-recursos.module';
+import { ProjetosAtividadesNotasModule } from './projetos-atividades-notas/projetos-atividades-notas.module';
+import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-licoes-aprendidas/projetos-atividades-licoes-aprendidas.module';
+import { RankingsModule } from './rankings/rankings.module';
+import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
+import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
+import { AreasModule } from './areas/areas.module';
+import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
 
 @Module({
   imports: [
@@ -46,6 +71,31 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ResponsavelModule,
     TipoResponsavelModule,
     DashboardModule,
+    DetalhamentoModule,
+    CoordenadorModule,
+    CampanhaModule,
+    IntervencoesModule,
+    PrismaModule,
+    TarefaModule,
+    SondaModule,
+    AtividadesIntervencoesModule,
+    AreaAtuacaoModule,
+    PocoModule,
+    CamposModule,
+    ProjetoIntervencaoModule,
+    FornecedoresModule,
+    LicoesAprendidasModule,
+    AtividadesRecursosModule,
+    AtividadesNotasModule,
+    ProjetosAtividadesModule,
+    ProjetosAtividadesRecursosModule,
+    ProjetosAtividadesNotasModule,
+    ProjetosAtividadesLicoesAprendidasModule,
+    RankingsModule,
+    RankingsOpcoesModule,
+    ProjetosRankingModule,
+    AreasModule,
+    OperacaoIntervencaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

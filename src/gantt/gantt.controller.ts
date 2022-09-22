@@ -6,10 +6,13 @@ import {
   Param,
   Delete,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { GanttService } from './gantt.service';
 import { CreateGanttDto } from './dto/create-gantt.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('gantt')
 export class GanttController {
   constructor(private readonly ganttService: GanttService) {}
@@ -23,6 +26,15 @@ export class GanttController {
   async findAll() {
     try {
       return this.ganttService.findAll();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Get('/gant')
+  async findAllGant() {
+    try {
+      return this.ganttService.findAllGant();
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }

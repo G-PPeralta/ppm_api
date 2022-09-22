@@ -13,8 +13,8 @@ import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
 // import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
-import { prismaClient } from 'index.prisma';
-import { ResponsavelService } from 'responsavel/responsavel.service';
+// import { prismaClient } from 'index.prisma';
+import { ResponsavelService } from '../responsavel/responsavel.service';
 
 @Controller('projetos')
 export class ProjetosController {
@@ -23,31 +23,26 @@ export class ProjetosController {
     private readonly responsavelService: ResponsavelService,
   ) {}
 
+  @Get('/prazos/find')
+  async findAllProjetosPrazos() {
+    return this.projetosService.findAllProjetosPrazos();
+  }
+
+  @Get('/prazos/find/:id')
+  async findProjetosPrazos(@Param('id') id: string) {
+    return this.projetosService.findProjetosPrazos(+id);
+  }
+
+  @Get('/percentuais/:id')
+  async findProjetosPercentuais(@Param('id') id: string) {
+    return this.projetosService.findProjetosPercentuais(+id);
+  }
+
   @Post('/registro')
   async create(@Body() payload: CreateProjetoDto) {
     try {
-      if (!payload.responsaveis) {
-        return await this.projetosService.create(payload);
-      }
-
-      const responsaveis = payload.responsaveis;
-      delete payload.responsaveis;
-
       const novoProjeto = await this.projetosService.create(payload);
-
-      responsaveis.map(async (responsavel) => {
-        const novoResponsavel = await this.responsavelService.create(
-          responsavel,
-        );
-        await prismaClient.responsavel_Projeto.create({
-          data: {
-            projeto_id: novoProjeto.id,
-            responsavel_id: novoResponsavel.id,
-          },
-        });
-      });
-
-      return { message: 'Projeto cadastrado com responsável' };
+      return novoProjeto;
     } catch (error: any) {
       throw new InternalServerErrorException(error.message);
     }
@@ -84,7 +79,12 @@ export class ProjetosController {
 
   @Get('/:id')
   findOne(@Param('id') id: string) {
-    return this.projetosService.findOne(+id);
+    try {
+      const project = this.projetosService.findOne(+id);
+      return project;
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Patch(':id')

@@ -1,4 +1,4 @@
+// import { ResponsavelEntity } from '../entities/responsavel.entity';
 export class CreateResponsavelDto {
-  nome_responsavel: string;
-  responsavel_tipo_id: number;
+  nome: string;
 }

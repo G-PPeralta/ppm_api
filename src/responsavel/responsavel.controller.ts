@@ -7,18 +7,46 @@ import {
   Param,
   Delete,
   NotFoundException,
+  ConflictException,
+  // UseGuards,
 } from '@nestjs/common';
 import { ResponsavelService } from './responsavel.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
 import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+// @UseGuards(JwtAuthGuard)
 @Controller('responsavel')
 export class ResponsavelController {
   constructor(private readonly responsavelService: ResponsavelService) {}
 
   @Post()
-  create(@Body() createResponsavelDto: CreateResponsavelDto) {
-    return this.responsavelService.create(createResponsavelDto);
+  async create(@Body() createResponsavelDto: CreateResponsavelDto) {
+    // const responsavel = createResponsavelDto.responsaveis.map(async (res) => {
+    //   const responsavelAlreadyExists = await this.responsavelService.findByName(
+    //     res.nome,
+    //   );
+    //   if (responsavelAlreadyExists) {
+    //     throw new ConflictException(`Responsável ${res.nome} já cadastrado`);
+    //   }
+    //   return await this.responsavelService.create(res);
+    // });
+
+    const responsavelAlreadyExists = await this.responsavelService.findByName(
+      createResponsavelDto.nome,
+    );
+
+    if (responsavelAlreadyExists) {
+      throw new ConflictException(
+        `Responsável ${createResponsavelDto.nome} já cadastrado`,
+      );
+    }
+
+    const responsavel = await this.responsavelService.create(
+      createResponsavelDto,
+    );
+
+    return responsavel;
   }
 
   @Get()

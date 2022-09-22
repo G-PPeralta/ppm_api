@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { prismaClient } from 'index.prisma';
-import { Encrypt64 } from 'utils/security/encrypt.security';
+import { Encrypt64 } from '../utils/security/encrypt.security';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { validate } from 'class-validator';
 import { Prisma } from '@prisma/client';
 import { UserWithRole } from './dto/user-with-role.dto';
+import { PrismaService } from '../services/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
+  constructor(private prisma: PrismaService) {}
+
   static errors = {
     emailExists: 'Email already exists',
     noRoleHere: 'No includes role_id here',
@@ -29,22 +31,22 @@ export class UserService {
       throw new Error(error.message);
     });
 
-    return await prismaClient.user.create({ data: createUserDto });
+    return await this.prisma.user.create({ data: createUserDto });
   }
 
   async findAll() {
-    const users = await prismaClient.$queryRaw`select * from v_users_with_role`;
+    const users = await this.prisma.$queryRaw`select * from v_users_with_role`;
     return users;
   }
 
   async findOne(id: number) {
-    const users =
-      await prismaClient.$queryRaw`select * from v_users_with_role where id = ${id}`;
+    const users = await this.prisma
+      .$queryRaw`select * from v_users_with_role where id = ${id}`;
     return users;
   }
 
   async update(id: number, updateUser: UpdateUserDto) {
-    const findUser = await prismaClient.user.findUnique({ where: { id: id } });
+    const findUser = await this.prisma.user.findUnique({ where: { id: id } });
     if (!findUser) throw Error(UserService.errors.userNotFound);
 
     const ifExistPassword = Boolean(updateUser.senha);
@@ -56,7 +58,7 @@ export class UserService {
 
     const newUser = { ...findUser, ...updateUser };
 
-    const user = await prismaClient.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: newUser,
     });
@@ -73,7 +75,7 @@ export class UserService {
   ): Promise<boolean> {
     const novaSenha = this.encryptPassword(senha);
 
-    const user = await prismaClient.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: {
         email,
         senha: novaSenha,
@@ -83,7 +85,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string) {
-    const result: UserWithRole[] = await prismaClient.$queryRaw(
+    const result: UserWithRole[] = await this.prisma.$queryRaw(
       Prisma.sql`select * from v_users_to_auth WHERE email = ${email}`,
     );
 
@@ -91,6 +93,6 @@ export class UserService {
   }
 
   async findUsersProfilePending() {
-    return await prismaClient.$queryRaw`select * from v_users_pending`;
+    return await this.prisma.$queryRaw`select * from v_users_pending`;
   }
 }

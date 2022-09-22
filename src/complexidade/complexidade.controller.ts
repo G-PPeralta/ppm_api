@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ComplexidadeService } from './complexidade.service';
 import { CreateComplexidadeDto } from './dto/create-complexidade.dto';
 import { UpdateComplexidadeDto } from './dto/update-complexidade.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('complexidade')
 export class ComplexidadeController {
   constructor(private readonly complexidadeService: ComplexidadeService) {}

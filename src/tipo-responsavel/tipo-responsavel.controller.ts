@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { TipoResponsavelService } from './tipo-responsavel.service';
 import { CreateTipoResponsavelDto } from './dto/create-tipo-responsavel.dto';
 import { UpdateTipoResponsavelDto } from './dto/update-tipo-responsavel.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tipo-responsavel')
 export class TipoResponsavelController {
   constructor(
@@ -22,10 +25,10 @@ export class TipoResponsavelController {
     return this.tipoResponsavelService.create(createTipoResponsavelDto);
   }
 
-  @Get()
-  findAll() {
-    return this.tipoResponsavelService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.tipoResponsavelService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

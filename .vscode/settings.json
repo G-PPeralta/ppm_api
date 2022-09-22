@@ -17,7 +17,12 @@
     "titleBar.activeBackground": "#215732",
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveBackground": "#21573299",
-    "titleBar.inactiveForeground": "#e7e7e799"
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "commandCenter.border": "#e7e7e799"
   },
-  "peacock.remoteColor": "#215732"
+  "peacock.remoteColor": "#215732",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": ["javascript"]
 }
