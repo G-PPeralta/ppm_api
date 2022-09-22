@@ -154,35 +154,21 @@ model Projeto {
   responsavel_id               Int?
   coordenador_id               Int?
   elemento_pep                 String?                        @db.VarChar
-
   classificacaoProjeto         ClassificacaoProjeto?          @relation(fields: [classificacaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_classificacao_projetos1")
-
   complexidade                 Complexidade?                  @relation(fields: [complexidadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_complexidade1")
-
+  coordenador                  Coordenador?                   @relation(fields: [coordenador_id], references: [id_coordenador], onDelete: NoAction, onUpdate: NoAction)
   demanda                      Demanda?                       @relation(fields: [demandaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_demandas1")
-
   divisaoProjeto               DivisaoProjeto?                @relation(fields: [divisaoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_divisão_projetos1")
-
   gate                         Gate?                          @relation(fields: [gateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_gates1")
-
   local                        Local                          @relation(fields: [localId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_locais1")
-
   polo                         Polo                           @relation(fields: [poloId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_polos1")
-
   prioridadeProjeto            PrioridadeProjeto?             @relation(fields: [prioridadeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_prioridade_projeto1")
-
+  responsavel                  Responsavel?                   @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   solicitanteProjeto           SolicitanteProjeto?            @relation(fields: [solicitanteId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_departamentos1")
-
   statusProjeto                StatusProjeto                  @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_status_projeto1")
-
   tipoProjeto                  TipoProjeto                    @relation(fields: [tipoProjetoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tb_projetos_tb_tipos_projeto1")
-
   rl_tb_atividades_tb_projetos rl_tb_atividades_tb_projetos[] @relation("rl_tb_atividades_tb_projetosTotb_projetos")
   desafiosProjetos             DesafiosProjetos[]
-
-  coordenador  Coordenador?    @relation(fields: [coordenador_id], references: [id_coordenador], onDelete: NoAction, onUpdate: NoAction)
-
-  responsavel  Responsavel?    @relation(fields: [responsavel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("tb_projetos")
 }
@@ -278,10 +264,9 @@ model AreaAtuacao {
 }
 
 model Responsavel {
-  id       Int                 @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
-  nome     String?             @map("nome_responsavel") @db.VarChar(255)
-
-  projetos  Projeto   []
+  id       Int       @id(map: "tb_responsaveis_pk") @default(autoincrement()) @map("responsavel_id")
+  nome     String?   @map("nome_responsavel") @db.VarChar(255)
+  projetos Projeto[]
 
   @@map("tb_responsaveis")
 }
@@ -306,39 +291,12 @@ model tb_valores_projeto {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Coordenador {
-  id_coordenador  Int    @id @default(autoincrement())
-  coordenadorNome String @map("coordenador_nome") @db.VarChar(255)
-
-  projetos  Projeto   []
+  id_coordenador  Int       @id @default(autoincrement())
+  coordenadorNome String    @map("coordenador_nome") @db.VarChar(255)
+  projetos        Projeto[]
 
   @@map("tb_coordenadores")
 }
-
-///model Campanhas {
-///  id                  Int       @id(map: "tb_campanhas_pk") @default(autoincrement())
-///  responsavel         String?   @db.VarChar(60)
-///  area                String?   @db.VarChar(25)
-///  spt                 String?   @db.VarChar(15)
-///  poco                String?   @db.VarChar(15)
-///  tarefa              String?   @db.VarChar(100)
-///  old_id              Int?
-///  fase                String?   @db.VarChar(15)
-  ///porcentagem         Int?
-  ///status              String?   @db.VarChar(20)
-  ///campanha            String?   @db.Char(2)
-  ///ordem               Int?
-  ///sucessores_diretos  Int?
-  ///inicio_planejado    DateTime? @db.Date
-  ///fim_planejado       DateTime? @db.Date
-  ///duracao_real        Int?
-  ///inicio_real         DateTime? @db.Date
-  ///fim_real            DateTime? @db.Date
-  ///duracao_planejada   Int?
-  ///precedentes_diretos String?   @db.VarChar(55)
-  ///atualizacao_cip     DateTime? @db.Date
-///
-//  @@map("tb_campanhas")
-//}
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model tb_pocos_sondas {
@@ -438,151 +396,126 @@ model AtividadeIntervencaoRelacao {
 }
 
 model PrecedentesAtividade {
-  atividadeAtualId           Int                  @map("atividade_atual_id")
-  atividatePrecedenteId      Int                  @map("atividate_precedente_id")
-  atividadeAtual             ProjetoAtividades    @relation(fields: [atividadeAtualId], references: [id])
-  atividade AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes", fields: [atividatePrecedenteId], references: [id])
+  atividadeAtualId      Int                  @map("atividade_atual_id")
+  atividatePrecedenteId Int                  @map("atividate_precedente_id")
+  atividadeAtual        ProjetoAtividades    @relation(fields: [atividadeAtualId], references: [id])
+  atividade             AtividadeIntervencao @relation("tb_intervencoes_atividadesTotb_intervencoes_atividades_precedentes", fields: [atividatePrecedenteId], references: [id])
 
   @@id([atividadeAtualId, atividatePrecedenteId])
   @@map("tb_intervencoes_atividades_precedentes")
 }
 
 model ProjetoAtividades {
-  id            Int                    @id @default(autoincrement())
-  projetoId     Int                    @map("projeto_id")
-  atividadeId   Int                    @map("atividade_id")
-  ordem         Int
-  atividade     AtividadeIntervencao   @relation(fields: [atividadeId], references: [id])
-  projeto       IntervencaoProjetoTipo @relation(fields: [projetoId], references: [id])
-  precedentes   PrecedentesAtividade[]
+  id          Int                    @id @default(autoincrement())
+  projetoId   Int                    @map("projeto_id")
+  atividadeId Int                    @map("atividade_id")
+  ordem       Int
+  atividade   AtividadeIntervencao   @relation(fields: [atividadeId], references: [id])
+  projeto     IntervencaoProjetoTipo @relation(fields: [projetoId], references: [id])
+  precedentes PrecedentesAtividade[]
 
   @@index([projetoId, atividadeId], map: "ativide_project_id")
   @@map("tb_intervencoes_tipo_atividades")
 }
 
-model ProjetosAtividades {
-  id Int @id @default(autoincrement())
-  id_pai Int
-  ordem Int?
-  nom_atividade String? @db.VarChar(255)
-  pct_real Float?
-  dat_ini_plan DateTime? @db.Timestamp()
-  dat_fim_plan DateTime? @db.Timestamp()
-  dat_ini_real DateTime? @db.Timestamp()
-  dat_fim_real DateTime? @db.Timestamp()
-  dat_ini_base DateTime? @db.Timestamp()
-  dat_fim_base DateTime? @db.Timestamp()
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
-  nom_usu_edit String? @db.VarChar(255)
-  dat_usu_edit DateTime? @db.Timestamp()
-  nom_usu_erase String? @db.VarChar(255)
-  dat_usu_erase DateTime? @db.Timestamp()
-  id_projeto Int?
-
-  @@map("tb_projetos_atividades")
-}
-
 model ProjetosAtividadesRecursos {
-  id Int @id @default(autoincrement())
-  id_atividade Int?
-  nom_recurso String? @db.VarChar(255)
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int?
+  nom_recurso    String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+
   @@map("tb_projetos_atv_recursos")
 }
 
-model ProjetosAtividadedsNotas{
-  id Int @id @default(autoincrement())
-  id_atividade Int?
-  txt_nota String? @db.VarChar(255)
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
+model ProjetosAtividadedsNotas {
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int?
+  txt_nota       String?   @db.VarChar(255)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Date
+
   @@map("tb_projetos_atv_notas")
 }
 
 model ProjetosAtividadesLicoesAprendidas {
-  id Int @id @default(autoincrement())
-  id_atividade Int?
-  id_categoria Int?
-  txt_licao_aprendida String? @db.VarChar(32767)
-  txt_acao String? @db.VarChar(255)
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
+  id                  Int       @id @default(autoincrement())
+  id_atividade        Int?
+  id_categoria        Int?
+  txt_licao_aprendida String?   @db.VarChar(32767)
+  txt_acao            String?   @db.VarChar(255)
+  nom_usu_create      String?   @db.VarChar(255)
+  dat_usu_create      DateTime? @db.Timestamp(6)
+
   @@map("tb_projetos_atv_licoes_aprendidas")
 }
 
 model CampAtvCampanha {
-  id          Int                     @id @default(autoincrement())
-  id_pai      Int                     
-  ordem       Int?
-  nom_atividade String?                @db.VarChar(255)
-  pct_real  Float?                     
-  dat_ini_plan DateTime?               @db.Timestamp()
-  dat_fim_plan DateTime?               @db.Timestamp()
-  dat_ini_real DateTime?               @db.Timestamp() 
-  dat_fim_real DateTime?               @db.Timestamp()
-  dat_ini_base DateTime?               @db.Timestamp()
-  dat_fim_base DateTime?               @db.Timestamp()
-  nom_usu_create String?               @db.VarChar(255)
-  dat_usu_create DateTime?             @db.Timestamp()
-  nom_usu_edit String?                 @db.VarChar(255)
-  dat_usu_edit DateTime?              @db.Timestamp()
-  nom_usu_erase String?                @db.VarChar(255)
-  dat_usu_erase DateTime?              @db.Timestamp()
-  id_campanha Int?
+  id             Int       @id @default(autoincrement())
+  id_pai         Int
+  ordem          Int?
+  nom_atividade  String?   @db.VarChar(255)
+  pct_real       Float?
+  dat_ini_plan   DateTime? @db.Timestamp(6)
+  dat_fim_plan   DateTime? @db.Timestamp(6)
+  dat_ini_real   DateTime? @db.Timestamp(6)
+  dat_fim_real   DateTime? @db.Timestamp(6)
+  dat_ini_base   DateTime? @db.Timestamp(6)
+  dat_fim_base   DateTime? @db.Timestamp(6)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar(255)
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar(255)
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+  id_campanha    Int?
 
   @@map("tb_camp_atv_campanha")
 }
 
 model CampAtvNotas {
-  id        Int                     @id @default(autoincrement())
-  id_atividade Int?
-  txt_nota  String?                  @db.VarChar(255)
-  nom_usu_create String?             @db.VarChar(255)
-  dat_usu_create DateTime?           @db.Date()
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int?
+  txt_nota       String?   @db.VarChar(255)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Date
 
   @@map("tb_camp_atv_notas")
 }
 
 model CampAtvRecursos {
-  id        Int                   @id @default(autoincrement())
-  id_atividade Int?
-  nom_recurso String?              @db.VarChar(255)
-  nom_usu_create String?           @db.VarChar(255)
-  dat_usu_create DateTime?         @db.Timestamp()
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int?
+  nom_recurso    String?   @db.VarChar(255)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp(6)
 
   @@map("tb_capm_atv_recursos")
 }
 
 model CapAtvLicoesAprendidas {
-  id Int @id @default(autoincrement())
-  id_atividade Int? 
-  id_categoria Int?
-  txt_licao_aprendida String?  @db.VarChar(32767)
-  txt_acao String? @db.VarChar(255)
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
+  id                  Int       @id @default(autoincrement())
+  id_atividade        Int?
+  id_categoria        Int?
+  txt_licao_aprendida String?   @db.VarChar(32767)
+  txt_acao            String?   @db.VarChar(255)
+  nom_usu_create      String?   @db.VarChar(255)
+  dat_usu_create      DateTime? @db.Timestamp(6)
 
   @@map("tb_camp_atv_licoes_aprendidas")
 }
 
-model CapAtvCategoria {
-  id Int @id @default(autoincrement())
-  nom_categ String @db.VarChar(255)
-}
-
-model TbCampanha{
-  id Int @id @default(autoincrement())
-  nom_campanha String @unique @db.VarChar(255)
-  id_sonda Int?
-  dsc_comentario String @db.VarChar(32767)
-  nom_usu_create String? @db.VarChar(255)
-  dat_usu_create DateTime? @db.Timestamp()
-  nom_usu_edit String? @db.VarChar(255)
-  dat_usu_edit DateTime? @db.Timestamp()
-  nom_usu_erase String? @db.VarChar(255)
-  dat_usu_erase DateTime? @db.Timestamp()
+model TbCampanha {
+  id             Int       @id @default(autoincrement())
+  nom_campanha   String    @db.VarChar(255)
+  id_sonda       Int?
+  dsc_comentario String    @db.VarChar(32767)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar(255)
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar(255)
+  dat_usu_erase  DateTime? @db.Timestamp(6)
 
   @@map("tb_campanha")
 }
@@ -633,6 +566,54 @@ model Campo {
   Intervencoes Intervencao[]
 
   @@map("tb_intervencoes_campos")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model existe {
+  count BigInt?
+
+  @@map("_existe")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_atv_recursos {
+  id             Int?
+  id_atividade   Int?
+  nom_recurso    String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_categoria {
+  id            Int     @default(autoincrement())
+  nom_categoria String? @db.VarChar
+
+  @@ignore
+}
+
+model tb_projetos_atividade {
+  id             Int       @id @default(autoincrement())
+  id_pai         Int
+  ordem          Int?
+  nom_atividade  String?   @db.VarChar(255)
+  pct_real       Float?
+  dat_ini_plan   DateTime? @db.Timestamp(6)
+  dat_fim_plan   DateTime? @db.Timestamp(6)
+  dat_ini_real   DateTime? @db.Timestamp(6)
+  dat_fim_real   DateTime? @db.Timestamp(6)
+  dat_ini_base   DateTime? @db.Timestamp(6)
+  dat_fim_base   DateTime? @db.Timestamp(6)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar(255)
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar(255)
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+  id_projeto     Int?
 }
 
 enum atividade {
