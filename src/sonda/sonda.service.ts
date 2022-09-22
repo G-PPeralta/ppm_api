@@ -12,8 +12,11 @@ export class SondaService {
   }
 
   findAll() {
-    const spt = this.prisma.sonda.findMany();
-    return spt;
+    return this.prisma.$queryRawUnsafe(`
+    SELECT id, nom_sonda
+FROM dev.tb_sondas
+where dat_usu_erase is null;
+    `);
   }
 
   findOne(id: number) {

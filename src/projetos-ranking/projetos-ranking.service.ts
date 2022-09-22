@@ -50,19 +50,21 @@ export class ProjetosRankingService {
 
   async findProjetos() {
     return await this.prisma.$queryRawUnsafe(`
-    select * 
-from dev.tb_projetos a
+    select a.*, case when num_ranking is null then 0 else num_ranking end as num_ranking 
+from tb_projetos a
 left join (
         select tp.id as id_projeto, sum(tro.num_nota) as num_ranking
-        from dev.tb_projetos tp 
-        inner join dev.tb_projetos_ranking tpr 
+        from tb_projetos tp 
+        inner join tb_projetos_ranking tpr 
             on tp.id = tpr.id_projeto 
-        inner join dev.tb_ranking_opcoes tro 
+        inner join tb_ranking_opcoes tro 
             on  tpr.id_opcao = tro.id 
         group by tp.id
     ) b
     on a.id = b.id_projeto
-order by b.num_ranking;
+where 
+    a.tipo_projeto_id in (1,2,4)
+order by b.num_ranking asc;
     `);
   }
 
