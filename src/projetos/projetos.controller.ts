@@ -23,37 +23,20 @@ export class ProjetosController {
     private readonly responsavelService: ResponsavelService,
   ) {}
 
-  // @Post('/registro')
-  // async create(@Body() payload: CreateProjetoDto) {
-  //   try {
-  //     if (!payload.responsaveis) {
-  //       return await this.projetosService.create(payload);
-  //     }
+  @Get('/prazos/find')
+  async findAllProjetosPrazos() {
+    return this.projetosService.findAllProjetosPrazos();
+  }
 
-  //     const responsaveis = payload.responsaveis;
-  //     delete payload.responsaveis;
+  @Get('/prazos/find/:id')
+  async findProjetosPrazos(@Param('id') id: string) {
+    return this.projetosService.findProjetosPrazos(+id);
+  }
 
-  //     const novoProjeto = await this.projetosService.create(payload);
-
-  //     await Promise.all(
-  //       responsaveis.map(async (responsavel) => {
-  //         const novoResponsavel = await this.responsavelService.create(
-  //           responsavel,
-  //         );
-  //         await prismaClient.responsavel_Projeto.create({
-  //           data: {
-  //             projeto_id: novoProjeto.id,
-  //             responsavel_id: novoResponsavel.id,
-  //           },
-  //         });
-  //       }),
-  //     );
-
-  //     return { message: 'Projeto cadastrado com responsável' };
-  //   } catch (error: any) {
-  //     throw new InternalServerErrorException(error.message);
-  //   }
-  // }
+  @Get('/percentuais/:id')
+  async findProjetosPercentuais(@Param('id') id: string) {
+    return this.projetosService.findProjetosPercentuais(+id);
+  }
 
   @Post('/registro')
   async create(@Body() payload: CreateProjetoDto) {
