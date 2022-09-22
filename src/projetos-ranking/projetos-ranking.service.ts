@@ -34,7 +34,7 @@ export class ProjetosRankingService {
     await this.prepareInsert(
       createProjetosRankingDto,
       createProjetosRankingDto.prioridade.id_ranking,
-      createProjetosRankingDto.prioridade.opcao_ranking,
+      createProjetosRankingDto.prioridade.opcao_id,
     );
 
     await this.prepareInsert(
@@ -67,7 +67,9 @@ export class ProjetosRankingService {
   ) {
     await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_projetos_ranking (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
-      VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, '${dsc_comentario}', '${nom_usu_create}', now())
+      VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, ${
+      dsc_comentario === null ? null : "'" + dsc_comentario + "'"
+    }, '${nom_usu_create}', now())
     `);
   }
 
