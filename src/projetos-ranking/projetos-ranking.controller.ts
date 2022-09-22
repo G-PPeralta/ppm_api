@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateProjetosRankingDto } from './dto/create-projetos-ranking.dto';
 import { ProjetosRankingService } from './projetos-ranking.service';
 
@@ -9,7 +17,7 @@ export class ProjetosRankingController {
   ) {}
 
   @Post()
-  create(createProjetosRankingDto: CreateProjetosRankingDto) {
+  create(@Body() createProjetosRankingDto: CreateProjetosRankingDto) {
     return this.projetosRankingService.create(createProjetosRankingDto);
   }
 
