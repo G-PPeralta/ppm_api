@@ -7,14 +7,68 @@ export class ProjetosRankingService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjetosRankingDto: CreateProjetosRankingDto) {
-    const id = await this.prisma.$queryRawUnsafe(`
-    INSERT INTO dev.tb_projetos_ranking
-    (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
-    VALUES(${createProjetosRankingDto.id_projeto}, ${createProjetosRankingDto.id_ranking}, ${createProjetosRankingDto.id_opcao}, '${createProjetosRankingDto.dsc_comentario}', '${createProjetosRankingDto.nom_usu_create}', NOW());
-    returning id_projeto
-    `);
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.beneficio.id_ranking,
+      createProjetosRankingDto.beneficio.opcao_id,
+    );
 
-    return id;
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.complexidade.id_ranking,
+      createProjetosRankingDto.complexidade.opcao_id,
+    );
+
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.estrategia.id_ranking,
+      createProjetosRankingDto.estrategia.opcao_id,
+    );
+
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.operacao.id_ranking,
+      createProjetosRankingDto.operacao.opcao_id,
+    );
+
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.prioridade.id_ranking,
+      createProjetosRankingDto.prioridade.opcao_ranking,
+    );
+
+    await this.prepareInsert(
+      createProjetosRankingDto,
+      createProjetosRankingDto.regulatorio.id_ranking,
+      createProjetosRankingDto.regulatorio.opcao_id,
+    );
+  }
+
+  async prepareInsert(
+    createProjetosRankingDto: CreateProjetosRankingDto,
+    id_ranking,
+    id_opcao,
+  ) {
+    await this.insertQuery(
+      createProjetosRankingDto.id_projeto,
+      id_ranking,
+      id_opcao,
+      createProjetosRankingDto.dsc_comentario,
+      createProjetosRankingDto.nom_usu_create,
+    );
+  }
+
+  async insertQuery(
+    id_projeto,
+    id_ranking,
+    id_opcao,
+    dsc_comentario,
+    nom_usu_create,
+  ) {
+    await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_ranking (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
+      VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, '${dsc_comentario}', '${nom_usu_create}', now())
+    `);
   }
 
   async findAll() {
