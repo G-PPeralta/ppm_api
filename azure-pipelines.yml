@@ -37,11 +37,10 @@ steps:
     TargetFolder: 'dist'
 
 - task: Yarn@3
-  displayName: Yarn Install --prod
+  displayName: Yarn Install Dist
   inputs:
     projectDirectory: 'dist'
     arguments: 'install'
-    productionMode: true
   env:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
