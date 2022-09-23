@@ -25,7 +25,7 @@ steps:
 - task: Yarn@3
   displayName: Yarn Build
   inputs:
-    arguments: build
+    arguments: 'build'
   env:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
@@ -40,7 +40,7 @@ steps:
   displayName: Yarn Build
   inputs:
     projectDirectory: dist
-    arguments: build --ignore-scripts
+    arguments: 'build --ignore-scripts'
   env:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
