@@ -23,10 +23,6 @@ steps:
   inputs:
     arguments: install
 - task: Yarn@3
-  displayName: 'Prisma Generate '
-  inputs:
-    arguments: prisma generate
-- task: Yarn@3
   displayName: Yarn Build
   inputs:
     arguments: 'build'
@@ -49,6 +45,12 @@ steps:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
     SECRET_KEY: $(SECRET_KEY)
+
+- task: Yarn@3
+  displayName: 'Prisma Generate '
+  inputs:
+    projectDirectory: 'dist'
+    arguments: prisma generate
 
 - task: ArchiveFiles@2
   inputs:
