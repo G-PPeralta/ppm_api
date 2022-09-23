@@ -40,7 +40,7 @@ steps:
   displayName: Yarn Install Dist
   inputs:
     projectDirectory: 'dist'
-    arguments: 'install'
+    arguments: 'install --ignore-scripts'
   env:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
