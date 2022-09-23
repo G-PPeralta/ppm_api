@@ -12,26 +12,26 @@ export class BudgetsService {
 
   async findAll() {
     const pais: any[] = await this.prisma.$queryRawUnsafe(`select 
-      inner_query.id_pai as id_pai,
-      (
-      select nom_atividade from dev.tb_camp_atv_campanha
-      where id = inner_query.id_pai and id_pai = 0
-      ) as nome_pai,
-      sum(planejado.vlr_planejado) as soma_planejado_filhos,
-      sum(realizado.vlr_realizado) as soma_realizado_filhos,
-      ROUND(((sum(realizado.vlr_realizado)/ sum(planejado.vlr_planejado))* 100), 0) as gap
-      from dev.tb_projetos_atividade_custo_plan planejado
-      inner join dev.tb_projetos_atividade_custo_real realizado
-      on (realizado.id_atividade = planejado.id_atividade)
-      inner join dev.tb_camp_atv_campanha atividades
-      on (atividades.id = planejado.id_atividade)
-      inner join (
-          select id_pai, id, nom_atividade from dev.tb_camp_atv_campanha
-      ) inner_query
-      on inner_query.id = atividades.id 
-      where atividades.id in (110, 117, 108)
-        group by 
-        inner_query.id_pai  
+    inner_query.id_pai as id_pai,
+    (
+    select nom_atividade from dev.tb_camp_atv_campanha
+    where id = inner_query.id_pai and id_pai = 0
+    ) as nome_pai,
+    inner_query.id_campanha,
+    sum(planejado.vlr_planejado) as soma_planejado_filhos,
+    sum(realizado.vlr_realizado) as soma_realizado_filhos,
+    ROUND(((sum(realizado.vlr_realizado)/ sum(planejado.vlr_planejado))* 100), 0) as gap
+    from dev.tb_projetos_atividade_custo_plan planejado
+    inner join dev.tb_projetos_atividade_custo_real realizado
+    on (realizado.id_atividade = planejado.id_atividade)
+    inner join dev.tb_camp_atv_campanha atividades
+    on (atividades.id = planejado.id_atividade)
+    inner join (
+        select id_pai, id, nom_atividade, id_campanha from dev.tb_camp_atv_campanha
+    ) inner_query
+    on inner_query.id = atividades.id 
+    group by 
+      inner_query.id_pai, inner_query.id_campanha 
     `);
 
     const result = pais.map(async (pai, Pkey) => {
@@ -50,14 +50,14 @@ export class BudgetsService {
         on (realizado.id_atividade = planejado.id_atividade)
         inner join dev.tb_camp_atv_campanha atividades
         on (atividades.id = planejado.id_atividade)
-       
-     `); // where atividades.id_pai = ${pai.id_pai}
+        where atividades.id_pai = ${pai.id_pai}
+     `);
 
       return {
         id: pai.id_pai,
         item: `${++Pkey}`,
         projeto: {
-          id: pai.id_pai,
+          id: pai.id_campanha,
           nome: pai.nome_pai,
         },
         planejado: +pai.soma_planejado_filhos,
