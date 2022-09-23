@@ -17,18 +17,23 @@ export class EstatisticasService {
     0.00 as custo,
     atividades.dat_ini_plan as inicio_planejado,
     atividades.dat_fim_plan as fim_planejado,
-    dev.fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
-    case when dev.fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
+    fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
+    case when fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
     atividades.dat_ini_real as inicio_real,
     atividades.dat_fim_real as fim_real,
+      round(fn_atv_calc_pct_plan(
+        fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
+        fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
+        fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais(poco.id) -- valor ponderado
+    )*100,1) as pct_plan,
     '' as nome_responsavel
     from
-    dev.tb_campanha campanha
-    inner join dev.tb_camp_atv_campanha poco
+    tb_campanha campanha
+    inner join tb_camp_atv_campanha poco
     on (campanha.id = poco.id_campanha and poco.id_pai = 0 and poco.dat_usu_erase is null
     and campanha.dat_usu_erase is null
     )
-    inner join dev.tb_camp_atv_campanha atividades
+    inner join tb_camp_atv_campanha atividades
     on (atividades.id_pai = poco.id and atividades.id_pai != 0 and atividades.dat_usu_erase is null)
     group by campanha.nom_campanha, 
     poco.nom_atividade, poco.id, atividades.nom_atividade,
@@ -53,6 +58,7 @@ export class EstatisticasService {
       inicio_real,
       fim_real,
       nome_responsavel,
+      pct_plan,
     } of retorno) {
       if (!tratamento[sonda]) tratamento[sonda] = {};
       if (!tratamento[sonda][poco]) tratamento[sonda][poco] = [];
@@ -68,6 +74,7 @@ export class EstatisticasService {
         inicio_real,
         fim_real,
         nome_responsavel,
+        pct_plan,
       });
     }
     return tratamento;
