@@ -26,6 +26,10 @@ steps:
   displayName: Yarn Build
   inputs:
     arguments: build
+  env:
+    DATABASE_URL: $(DATABASE_URL)
+    PORT: $(PORT)
+    SECRET_KEY: $(SECRET_KEY)
 
 - task: CopyFiles@2
   inputs:
@@ -36,7 +40,11 @@ steps:
   displayName: Yarn Build
   inputs:
     projectDirectory: dist
-    arguments: build
+    arguments: build --ignore-scripts
+  env:
+    DATABASE_URL: $(DATABASE_URL)
+    PORT: $(PORT)
+    SECRET_KEY: $(SECRET_KEY)
 
 - task: ArchiveFiles@2
   inputs:
