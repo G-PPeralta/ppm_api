@@ -1,0 +1,53 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- staging
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  fetchDepth: 1
+- task: NodeTool@0
+  displayName: Use Node 14.x
+  inputs:
+    versionSpec: 14.x
+- task: YarnInstaller@3
+  displayName: Use Yarn 1.x
+- task: Yarn@3
+  displayName: 'Yarn Install '
+  inputs:
+    arguments: install
+- task: Yarn@3
+  displayName: Yarn Build
+  inputs:
+    arguments: build
+
+- task: CopyFiles@2
+  inputs:
+    Contents: 'package*.json'
+    TargetFolder: 'dist'
+
+- task: Yarn@3
+  displayName: Yarn Build
+  inputs:
+    projectDirectory: dist
+    arguments: build
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'dist'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: 'dist.zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'dist.zip'
+    ArtifactName: 'NestAPI'
+    publishLocation: 'Container'
