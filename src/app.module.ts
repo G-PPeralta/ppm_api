@@ -48,6 +48,7 @@ import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.modul
 import { AreasModule } from './areas/areas.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
+import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-inter
     AreasModule,
     CategoriasModule,
     OperacaoIntervencaoModule,
+    BudgetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
