@@ -37,10 +37,11 @@ steps:
     TargetFolder: 'dist'
 
 - task: Yarn@3
-  displayName: Yarn Build
+  displayName: Yarn Install --prod
   inputs:
-    projectDirectory: dist
-    arguments: 'build --ignore-scripts'
+    projectDirectory: 'dist'
+    arguments: 'install'
+    productionMode: true
   env:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
