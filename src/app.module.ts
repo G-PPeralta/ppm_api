@@ -47,6 +47,7 @@ import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
 import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
 import { AreasModule } from './areas/areas.module';
 import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
+import { EstatisticasModule } from './estatisticas/estatisticas.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-inter
     ProjetosRankingModule,
     AreasModule,
     OperacaoIntervencaoModule,
+    EstatisticasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
