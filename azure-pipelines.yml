@@ -23,6 +23,10 @@ steps:
   inputs:
     arguments: install
 - task: Yarn@3
+  displayName: 'Prisma Generate '
+  inputs:
+    arguments: prisma generate
+- task: Yarn@3
   displayName: Yarn Build
   inputs:
     arguments: 'build'
