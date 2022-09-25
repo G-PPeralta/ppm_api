@@ -3,7 +3,7 @@ import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaDto } from './dto/campanha.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
-import { CampanhaFilhoDto } from './dto/create-filho.dto';
+import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
@@ -54,49 +54,51 @@ export class CampanhaService {
     return retorno;
   }
 
-  async createFilho(createCampanhaDto: CampanhaFilhoDto) {
-    const ini = new Date(createCampanhaDto.dat_ini_plan);
-    const fim = new Date(createCampanhaDto.dat_fim_plan);
+  async createFilho(createCampanhaDto: CreateCampanhaFilhoDto) {
+    const data = new Date(createCampanhaDto.dat_ini_prev);
 
-    const id = await this.prisma.$queryRawUnsafe(`
-    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha, nom_usu_create, dat_usu_create)
-    values
-        (
-            ${createCampanhaDto.id_pai}, '${
-      createCampanhaDto.nom_atividade
-    }', ${createCampanhaDto.pct_real}, ${
-      ini == null ? null : "'" + ini.toISOString() + "'"
-    }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, ${
+    const id_pai = await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+      VALUES (0, ${createCampanhaDto.poco_id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
-    }, '${createCampanhaDto.nom_usu_create}', now()
-        );
+    }, '${data.toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
+      RETURNING ID
     `);
-    return id;
+
+    createCampanhaDto.atividades.forEach(async (atv) => {
+      data.setDate(data.getDate() + atv.qtde_dias);
+
+      await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan)
+        VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${data.toISOString()}')
+      `);
+    });
   }
 
   async findAll() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar pocos ou intervencoes e campanhas
-select 
-    b.id as id_campanha,
-    a.id as id_poco,
-    nom_campanha as sonda,
-    nom_atividade as poco,
-    fn_atv_menor_data(a.id) as inicioPlanejado,
-    fn_atv_maior_data(a.id) as finalPlanejado,
+    select pai.id_campanha as id_campanha,
+    pai.id as id_projeto,
+    pai.poco_id as id_poco,
+    campanha.nom_campanha as sonda,
+    poco.nom_poco as poco,
+    pai.dat_ini_plan as inicioPlanejado,
+    fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
-        fn_atv_calcular_hrs(fn_atv_menor_data(a.id)), -- horas executadas
-        fn_hrs_uteis_totais_atv(fn_atv_menor_data(a.id), fn_atv_maior_data(a.id)),  -- horas totais
-        fn_hrs_uteis_totais_atv(fn_atv_menor_data(a.id), fn_atv_maior_data(a.id)) / fn_atv_calc_hrs_totais(a.id) -- valor ponderado
-    )*100,1) as pct_plan,
-    round(fn_atv_calc_pct_real(a.id),1) as pct_real
-from tb_camp_atv_campanha a
-right join tb_campanha b 
-    on a.id_campanha = b.id
-where a.id_pai = 0 or a.id_pai is null
-and b.dat_usu_erase is null
-order by id_campanha asc, inicioPlanejado asc
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) as pct_plan,
+    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real
+    from 
+    tb_camp_atv_campanha pai
+    right join
+    tb_campanha campanha on campanha.id = pai.id_campanha 
+    inner join 
+    tb_pocos poco on poco.id = pai.poco_id 
+    where pai.id_pai = 0 and pai.dat_usu_erase is null
 ;
     `);
     const tratamento: any = [];
@@ -142,25 +144,26 @@ order by id_campanha asc, inicioPlanejado asc
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
-select 
-    a.id as id_poco,
-    nom_campanha as sonda,
-    nom_atividade as atividade,
-    round(fn_atv_calc_pct_plan(
-        fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
-        fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
-        fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
-    )*100,1) as pct_plan,
-    pct_real as pct_real,
-    dat_ini_plan  as inicioPlanejado,
-    dat_fim_plan as finalPlanejado,
-    DATE_PART('day', dat_fim_plan) - date_part('day', dat_ini_plan) as qtdDias
-from tb_camp_atv_campanha a
-right join tb_campanha b 
-    on a.id_campanha = b.id
-where a.id_pai = ${id}
-and a.dat_usu_erase is null
-order by dat_ini_plan asc;
+    select 
+    filho.tarefa_id as id_atividade,
+    coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as total,
+    tag.nom_tag as nom_atividade,
+    responsaveis.nome_responsavel as nom_responsavel,
+    area_atuacao.tipo as nom_area,
+    pai.id as id_projeto
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    inner join tb_camp_atv tarefa
+    on tarefa.id = filho.tarefa_id 
+    inner join tb_camp_atv_tag tag
+    on tag.id_atividade = tarefa.id
+    inner join tb_responsaveis responsaveis
+    on responsaveis.responsavel_id = tarefa.responsavel_id
+    inner join tb_areas_atuacoes area_atuacao
+    on area_atuacao.id = tarefa.area_atuacao
+    where pai.id_pai = 0
+    and pai.poco_id = ${id};
     `);
 
     retorno.forEach((element) => {

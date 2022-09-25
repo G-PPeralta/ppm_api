@@ -1,10 +1,14 @@
-export class CampanhaFilhoDto {
-  id_pai: number;
-  nom_atividade: string;
-  pct_real: number;
-  dat_ini_plan: Date;
-  dat_fim_plan: Date;
-  id_campanha: number;
+export class CreateCampanhaFilhoDto {
   nom_usu_create: string;
-  dsc_comentario: string;
+  poco_id: number;
+  campo_id: number;
+  id_campanha: number;
+  dat_ini_prev: Date;
+  atividades: Atividades[];
+  comentarios: string;
+}
+
+export class Atividades {
+  tarefa_id: number;
+  qtde_dias: number;
 }

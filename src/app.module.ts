@@ -50,6 +50,8 @@ import { CategoriasModule } from './categorias/categorias.module';
 import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { EstatisticasModule } from './estatisticas/estatisticas.module';
+import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
+import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
 
 @Module({
   imports: [
@@ -102,6 +104,8 @@ import { EstatisticasModule } from './estatisticas/estatisticas.module';
     OperacaoIntervencaoModule,
     BudgetsModule,
     EstatisticasModule,
+    CampanhaProjetoTipoModule,
+    NovaAtividadeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
