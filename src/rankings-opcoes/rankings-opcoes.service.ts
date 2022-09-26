@@ -21,7 +21,7 @@ export class RankingsOpcoesService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id, tro.num_nota  from 
     dev.tb_ranking tr
     inner join dev.tb_ranking_opcoes tro 
     on tro.id_ranking = tr.id 
@@ -30,7 +30,7 @@ export class RankingsOpcoesService {
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id, tro.num_nota  from 
     dev.tb_ranking tr
     inner join dev.tb_ranking_opcoes tro 
     on tro.id_ranking = tr.id WHERE tro.id_ranking = ${id}
