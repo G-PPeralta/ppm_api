@@ -45,6 +45,13 @@ export class DetalhamentoService {
     return projeto;
   }
 
+  async findOneProgresso() {
+    const percentual = await this.prisma.$queryRawUnsafe(`
+    SELECT dev.fn_cron_calc_pct_real(0)
+  `);
+    return percentual;
+  }
+
   async findOneOrcamento(id: number) {
     const notFound = { valorTotalPrevisto: 0 };
     const orcamento = await this.prisma.projeto.findFirst({

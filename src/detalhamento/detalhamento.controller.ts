@@ -29,6 +29,13 @@ export class DetalhamentoController {
   //   return this.detalhamentoService.findAll();
   // }
 
+  @Get('/progresso')
+  async findOneProgresso() {
+    const percentual = this.detalhamentoService.findOneProgresso();
+    // console.log(percentual);
+    return percentual;
+  }
+
   @Get(':id')
   findOne(@Param('id') id: number) {
     try {
