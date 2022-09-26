@@ -12,13 +12,17 @@ export class NovaAtividadeService {
     VALUES (${createAtividade.id_origem}, '${createAtividade.nom_atividade}', ${
       createAtividade.responsavel_id
     }, ${createAtividade.area_atuacao}, ${
-      createAtividade.nao_iniciar_antes_de.data === null
+      createAtividade.nao_iniciar_antes_de.checked === false
         ? null
-        : "'" + createAtividade.nao_iniciar_antes_de.data.toISOString() + "'"
+        : "'" +
+          new Date(createAtividade.nao_iniciar_antes_de.data).toISOString() +
+          "'"
     }, ${
-      createAtividade.nao_terminar_depois_de.data === null
+      createAtividade.nao_terminar_depois_de.checked === false
         ? null
-        : "'" + createAtividade.nao_terminar_depois_de.data.toISOString() + "'"
+        : "'" +
+          new Date(createAtividade.nao_terminar_depois_de.data).toISOString() +
+          "'"
     }, ${createAtividade.o_mais_breve_possivel})
 `);
   }
