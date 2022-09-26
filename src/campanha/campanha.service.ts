@@ -90,7 +90,7 @@ export class CampanhaService {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar pocos ou intervencoes e campanhas
-    select pai.id_campanha as id_campanha,
+    select campanha.id id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
@@ -107,9 +107,9 @@ export class CampanhaService {
     tb_camp_atv_campanha pai
     right join
     tb_campanha campanha on campanha.id = pai.id_campanha 
-    inner join 
+    left join 
     tb_intervencoes_pocos poco on poco.id = pai.poco_id 
-    where pai.id_pai = 0 and pai.dat_usu_erase is null
+    --where pai.id_pai = 0 and pai.dat_usu_erase is null
     order by pai.dat_ini_plan asc
 ;
     `);
@@ -185,7 +185,9 @@ export class CampanhaService {
     inner join tb_campanha campanha
     on campanha.id = pai.id_campanha 
     where pai.id_pai = 0
-    and pai.id = ${id};
+    and pai.id = ${id}
+    order by filho.dat_ini_plan asc
+    ;
     `);
 
     retorno.forEach((element) => {
