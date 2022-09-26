@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateRankingOpcoesDto } from './dto/create-ranking-opcoes.dto';
 import { RankingsOpcoesService } from './rankings-opcoes.service';
 
@@ -7,7 +15,7 @@ export class RankingsOpcoesController {
   constructor(private readonly rankingOpcoesService: RankingsOpcoesService) {}
 
   @Post()
-  create(createRankingOpcoesDto: CreateRankingOpcoesDto) {
+  create(@Body() createRankingOpcoesDto: CreateRankingOpcoesDto) {
     return this.rankingOpcoesService.create(createRankingOpcoesDto);
   }
 
