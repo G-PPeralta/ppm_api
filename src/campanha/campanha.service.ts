@@ -155,11 +155,20 @@ export class CampanhaService {
     --- relacionar as atividades relacionados aos poços
     select 
     filho.tarefa_id as id_atividade,
-    coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as total,
-    tarefa.nom_atividade,
+    filho.dat_ini_plan as inicioplanejado,
+    filho.dat_fim_plan as finalplanejado,
+    coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
+    tarefa.nom_atividade as atividade,
     responsaveis.nome_responsavel as nom_responsavel,
     area_atuacao.tipo as nom_area,
-    pai.id as id_projeto
+    campanha.nom_campanha as sonda,
+    round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) as pct_plan,
+    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real,
+    pai.id as id_poco
     from tb_camp_atv_campanha pai
     inner join tb_camp_atv_campanha filho
     on filho.id_pai = pai.id 
@@ -169,6 +178,8 @@ export class CampanhaService {
     on responsaveis.responsavel_id = tarefa.responsavel_id
     inner join tb_areas_atuacoes area_atuacao
     on area_atuacao.id = tarefa.area_atuacao
+    inner join tb_campanha campanha
+    on campanha.id = pai.id_campanha 
     where pai.id_pai = 0
     and pai.id = ${id};
     `);
