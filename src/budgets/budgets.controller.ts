@@ -25,6 +25,11 @@ export class BudgetsController {
     return this.budgetsService.findAll();
   }
 
+  @Get('/detail')
+  findDetailAll() {
+    return this.budgetsService.findAllDetail();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.budgetsService.findOne(+id);
