@@ -89,7 +89,7 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar pocos ou intervencoes e campanhas
     select pai.id_campanha as id_campanha,
-    pai.id as id_projeto,
+    pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
     poco.poco as poco,
@@ -156,7 +156,7 @@ export class CampanhaService {
     select 
     filho.tarefa_id as id_atividade,
     coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as total,
-    tag.nom_tag as nom_atividade,
+    tarefa.nom_atividade,
     responsaveis.nome_responsavel as nom_responsavel,
     area_atuacao.tipo as nom_area,
     pai.id as id_projeto
@@ -165,14 +165,12 @@ export class CampanhaService {
     on filho.id_pai = pai.id 
     inner join tb_camp_atv tarefa
     on tarefa.id = filho.tarefa_id 
-    inner join tb_camp_atv_tag tag
-    on tag.id_atividade = tarefa.id
     inner join tb_responsaveis responsaveis
     on responsaveis.responsavel_id = tarefa.responsavel_id
     inner join tb_areas_atuacoes area_atuacao
     on area_atuacao.id = tarefa.area_atuacao
     where pai.id_pai = 0
-    and pai.poco_id = ${id};
+    and pai.id = ${id};
     `);
 
     retorno.forEach((element) => {
