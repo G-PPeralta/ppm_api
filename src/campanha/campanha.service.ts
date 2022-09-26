@@ -154,7 +154,7 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
     select 
-    filho.id as id_filho,
+	filho.id as id_filho,
     filho.tarefa_id as id_atividade,
     filho.dat_ini_plan as inicioplanejado,
     filho.dat_fim_plan as finalplanejado,
@@ -168,7 +168,7 @@ export class CampanhaService {
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
         )*100,1) as pct_plan,
-    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real,
+    COALESCE(filho.pct_real, 0) as pct_real,
     pai.id as id_poco
     from tb_camp_atv_campanha pai
     inner join tb_camp_atv_campanha filho
