@@ -1,10 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
-import { CampanhaDto } from './dto/campanha.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
-import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
 export class CampanhaService {
@@ -73,6 +71,12 @@ export class CampanhaService {
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${data.toISOString()}')
       `);
     });
+  }
+
+  async findCampanha() {
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_campanha
+    `);
   }
 
   async findAll() {

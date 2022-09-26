@@ -42,7 +42,12 @@ export class CampanhaController {
     return this.campanhaService.findAll();
   }
 
-  @Get(':id')
+  @Get('find')
+  findCampanhas() {
+    return this.campanhaService.findCampanha();
+  }
+
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.campanhaService.findOne(+id);
   }

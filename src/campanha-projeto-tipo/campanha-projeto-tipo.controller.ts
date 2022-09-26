@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CampanhaProjetoTipoService } from './campanha-projeto-tipo.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
@@ -7,7 +7,7 @@ export class CampanhaProjetoTipoController {
   constructor(private readonly service: CampanhaProjetoTipoService) {}
 
   @Post()
-  create(createCampanhaProjetoTipo: CreateCampanhaProjetoTipo) {
+  create(@Body() createCampanhaProjetoTipo: CreateCampanhaProjetoTipo) {
     return this.service.create(createCampanhaProjetoTipo);
   }
 

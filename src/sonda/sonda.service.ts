@@ -6,15 +6,18 @@ import { UpdateSondaDto } from './dto/update-sonda.dto';
 @Injectable()
 export class SondaService {
   constructor(private prisma: PrismaService) {}
-  create(createSondaDto: CreateSondaDto) {
-    const spt = this.prisma.sonda.create({ data: createSondaDto });
-    return spt;
+  async create(createSondaDto: CreateSondaDto) {
+    return await this.prisma.$queryRawUnsafe(`
+    INSERT INTO tb_sondas (nom_sonda, nom_usu_create, dat_usu_create)
+    VALUES ('${createSondaDto.nome}', '${createSondaDto.nom_usu_create}', now())
+    RETURNING id
+    `);
   }
 
   findAll() {
     return this.prisma.$queryRawUnsafe(`
     SELECT id, nom_sonda
-FROM dev.tb_sondas
+FROM tb_sondas
 where dat_usu_erase is null;
     `);
   }

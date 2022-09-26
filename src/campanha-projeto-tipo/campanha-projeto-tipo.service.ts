@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
@@ -21,7 +21,7 @@ export class CampanhaProjetoTipoService {
 
       await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_camp_atv_tag (id_atividade, nom_tag)
-        VALUES (${id_atividade}, '${atv.atividade_id_origem}')
+        VALUES (${id_atividade[0].id}, '${atv.atividade_id_origem}')
       `);
 
       //TODO: validar precedentes
