@@ -86,6 +86,15 @@ export class CampanhaService {
     `);
   }
 
+  async findDatas(id: number) {
+    return await this.prisma
+      .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    where pai.id_campanha = ${id} and pai.id_pai = 0`);
+  }
+
   async findAll() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
