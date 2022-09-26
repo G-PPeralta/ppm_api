@@ -110,6 +110,7 @@ export class CampanhaService {
     inner join 
     tb_intervencoes_pocos poco on poco.id = pai.poco_id 
     where pai.id_pai = 0 and pai.dat_usu_erase is null
+    order by pai.dat_ini_plan asc
 ;
     `);
     const tratamento: any = [];
