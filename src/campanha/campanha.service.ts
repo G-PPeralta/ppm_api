@@ -70,10 +70,12 @@ export class CampanhaService {
       data.setDate(data.getDate() + atv.qtde_dias);
 
       await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan)
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id)
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         oldDate,
-      ).toISOString()}', '${new Date(data).toISOString()}')
+      ).toISOString()}', '${new Date(data).toISOString()}', ${atv.area_id}, ${
+        atv.responsavel_id
+      })
       `);
     });
   }
@@ -176,9 +178,9 @@ export class CampanhaService {
     inner join tb_camp_atv tarefa
     on tarefa.id = filho.tarefa_id 
     inner join tb_responsaveis responsaveis
-    on responsaveis.responsavel_id = tarefa.responsavel_id
+    on responsaveis.responsavel_id = filho.responsavel_id
     inner join tb_areas_atuacoes area_atuacao
-    on area_atuacao.id = tarefa.area_atuacao
+    on area_atuacao.id = filho.area_id
     inner join tb_campanha campanha
     on campanha.id = pai.id_campanha 
     where pai.id_pai = 0
