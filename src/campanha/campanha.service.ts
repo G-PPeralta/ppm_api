@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
@@ -59,16 +59,21 @@ export class CampanhaService {
       INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
       VALUES (0, ${createCampanhaDto.poco_id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
-    }, '${data.toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
+    }, '${new Date(data).toISOString()}', '${
+      createCampanhaDto.nom_usu_create
+    }', NOW())
       RETURNING ID
     `);
 
     createCampanhaDto.atividades.forEach(async (atv) => {
+      const oldDate = new Date(data);
       data.setDate(data.getDate() + atv.qtde_dias);
 
       await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan)
-        VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${data.toISOString()}')
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan)
+        VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
+        oldDate,
+      ).toISOString()}', '${new Date(data).toISOString()}')
       `);
     });
   }
@@ -87,7 +92,7 @@ export class CampanhaService {
     pai.id as id_projeto,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
-    poco.nom_poco as poco,
+    poco.poco as poco,
     pai.dat_ini_plan as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
@@ -101,7 +106,7 @@ export class CampanhaService {
     right join
     tb_campanha campanha on campanha.id = pai.id_campanha 
     inner join 
-    tb_pocos poco on poco.id = pai.poco_id 
+    tb_intervencoes_pocos poco on poco.id = pai.poco_id 
     where pai.id_pai = 0 and pai.dat_usu_erase is null
 ;
     `);
