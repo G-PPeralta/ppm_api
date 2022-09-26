@@ -154,6 +154,7 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
     select 
+    filho.id as id_filho,
     filho.tarefa_id as id_atividade,
     filho.dat_ini_plan as inicioplanejado,
     filho.dat_fim_plan as finalplanejado,
