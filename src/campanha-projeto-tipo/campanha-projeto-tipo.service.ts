@@ -59,32 +59,6 @@ export class CampanhaProjetoTipoService {
     where projeto_tipo.id = ${id}
     `);
 
-    const tratamento = {};
-
-    for (const {
-      nom_projeto_tipo,
-      projeto_tipo_id,
-      id_atividade,
-      qtde_dias,
-      nome_atividade,
-      id_area,
-      nome_area,
-      id_tarefa,
-      nom_tarefa,
-    } of retorno) {
-      if (!tratamento[nom_projeto_tipo]) tratamento[nom_projeto_tipo] = [];
-      tratamento[nom_projeto_tipo].push({
-        projeto_tipo_id,
-        id_atividade,
-        qtde_dias,
-        nome_atividade,
-        id_area,
-        nome_area,
-        id_tarefa,
-        nom_tarefa,
-      });
-    }
-
-    return tratamento;
+    return retorno;
   }
 }
