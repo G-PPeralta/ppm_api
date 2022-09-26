@@ -10,7 +10,9 @@ export class RankingsOpcoesService {
     const id = await this.prisma.$queryRawUnsafe(`
     INSERT INTO tb_ranking_opcoes
     (id_ranking, num_opcao, nom_opcao, num_nota, nom_usu_create, dat_usu_create)
-    VALUES(${createRankingOpcoes.id_ranking}, ${createRankingOpcoes.nom_opcao}, '${createRankingOpcoes.nom_opcao}', ${createRankingOpcoes.num_nota}, '${createRankingOpcoes.nom_usu_create}', NOW());
+    VALUES(${createRankingOpcoes.id_ranking}, 
+    (SELECT COUNT(NUM_OPCAO) + 1 FROM tb_ranking_opcoes WHERE id_ranking = ${createRankingOpcoes.id_ranking})  
+    , '${createRankingOpcoes.nom_opcao}', ${createRankingOpcoes.num_nota}, '${createRankingOpcoes.nom_usu_create}', NOW())
     returning id
     `);
 
