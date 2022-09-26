@@ -29,7 +29,7 @@ export class RankingsOpcoesController {
     return this.rankingOpcoesService.findOne(+id);
   }
 
-  @Patch(':id/:campo/:valor:/:user')
+  @Patch(':id/:campo/:valor/:user')
   update(
     @Param('id') id: string,
     @Param('campo') campo: string,

@@ -39,7 +39,7 @@ export class RankingsOpcoesService {
 
   async update(id: number, campo: string, valor: string, user: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from tb_ranking_opcoes where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_ranking_opcoes where id = ${id};
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
