@@ -8,9 +8,9 @@ export class RankingsService {
 
   async create(createRanking: CreateRankingDto) {
     const id = await this.prisma.$queryRawUnsafe(`
-    INSERT INTO dev.tb_ranking
+    INSERT INTO tb_ranking
     (id_area_responsavel, nom_ranking, num_peso, nom_usu_create, dat_usu_create)
-    VALUES(${createRanking.id_area_responsavel}, '${createRanking.nom_ranking}', ${createRanking.num_peso}, '${createRanking.nom_usu_create}', now());
+    VALUES(${createRanking.id_area_responsavel}, '${createRanking.nom_ranking}', ${createRanking.num_peso}, '${createRanking.nom_usu_create}', now())
     returning id
     `);
 
