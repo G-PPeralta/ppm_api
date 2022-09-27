@@ -177,7 +177,11 @@ export class CampanhaService {
         )*100,1)) `;
           break;
         case 4:
-          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 0 `;
+          where += ` round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) = 0 `;
           break;
         default:
           break;
