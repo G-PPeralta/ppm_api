@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
+import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
@@ -95,7 +96,110 @@ export class CampanhaService {
     where pai.id_campanha = ${id} and pai.id_pai = 0`);
   }
 
-  async findAll() {
+  async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
+    let where = ' WHERE 1 = 1 ';
+
+    if (campanhaFiltro.area_atuacao_id !== null) {
+      where += ` AND (select count(area_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.area_id = ${campanhaFiltro.area_atuacao_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.poco_id !== null) {
+      where += ` AND pai.poco_id = ${campanhaFiltro.poco_id} `;
+    }
+
+    if (campanhaFiltro.atividade_id !== null) {
+      where += ` AND (select count(tarefa_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.tarefa_id = ${campanhaFiltro.atividade_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.responsavel_id !== null) {
+      where += ` AND (select count(responsavel_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.responsavel_id = ${campanhaFiltro.responsavel_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.data_inicio !== null) {
+      where += ` AND pai.dat_ini_plan >= '${new Date(
+        campanhaFiltro.data_inicio,
+      ).toISOString()}' `;
+    }
+
+    if (campanhaFiltro.data_fim !== null) {
+      where += ` AND fn_atv_maior_data(pai.id) <= '${new Date(
+        campanhaFiltro.data_fim,
+      ).toISOString()}' `;
+    }
+
+    if (campanhaFiltro.sonda_id !== null) {
+      where += ` AND pai.id_campanha = ${campanhaFiltro.sonda_id} `;
+    }
+
+    if (campanhaFiltro.status !== null) {
+      switch (campanhaFiltro.status) {
+        case 1:
+          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 100
+           AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) `;
+          break;
+        case 2:
+          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) > 0
+          AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < 100
+          AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) `;
+          break;
+        case 3:
+          where += ` 
+          AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) `;
+          break;
+        case 4:
+          where += `
+            AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           <
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) `;
+          break;
+        case 5:
+          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 0 `;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return where;
+  }
+
+  async findAll(campanhaFiltro: CampanhaFiltro) {
+    const where = await this.montaFiltros(campanhaFiltro);
+
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar pocos ou intervencoes e campanhas
@@ -117,8 +221,8 @@ export class CampanhaService {
     right join
     tb_campanha campanha on campanha.id = pai.id_campanha 
     left join 
-    tb_intervencoes_pocos poco on poco.id = pai.poco_id 
-    --where pai.id_pai = 0 and pai.dat_usu_erase is null
+    tb_intervencoes_pocos poco on poco.id = pai.poco_id
+    ${where}
     order by pai.dat_ini_plan asc
 ;
     `);

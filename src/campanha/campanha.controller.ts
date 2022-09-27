@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CampanhaService } from './campanha.service';
+import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
@@ -20,7 +21,7 @@ import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 export class CampanhaController {
   constructor(private readonly campanhaService: CampanhaService) {}
 
-  @Post()
+  @Post('/pai')
   createPai(@Body() createCampanhaDto: CreateCampanhaDto) {
     return this.campanhaService.createPai(createCampanhaDto);
   }
@@ -37,9 +38,9 @@ export class CampanhaController {
     return this.campanhaService.createAtividade(createAtividadeCampanhaDto);
   }
 
-  @Get()
-  findAll() {
-    return this.campanhaService.findAll();
+  @Post()
+  findAll(@Body() campanhaFiltro: CampanhaFiltro) {
+    return this.campanhaService.findAll(campanhaFiltro);
   }
 
   @Get('find')
