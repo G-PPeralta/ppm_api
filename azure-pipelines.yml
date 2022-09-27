@@ -30,7 +30,6 @@ steps:
 - task: Yarn@3
   displayName: 'Prisma Generate '
   inputs:
-    projectDirectory: 'dist'
     arguments: prisma generate
 - task: Yarn@3
   displayName: Yarn Build
@@ -40,12 +39,14 @@ steps:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
     SECRET_KEY: $(SECRET_KEY)
-
 - task: CopyFiles@2
   inputs:
     Contents: 'package*.json'
     TargetFolder: 'dist'
-
+- task: CopyFiles@2
+  inputs:
+    Contents: 'node_modules'
+    TargetFolder: 'dist'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'dist'
