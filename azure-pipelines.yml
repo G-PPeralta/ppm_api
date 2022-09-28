@@ -21,7 +21,6 @@ steps:
 - task: Yarn@3
   displayName: Yarn Install Dist
   inputs:
-    projectDirectory: 'dist'
     arguments: 'install --ignore-scripts'
   env:
     DATABASE_URL: $(DATABASE_URL)
@@ -45,7 +44,7 @@ steps:
     TargetFolder: 'dist'
 - task: CopyFiles@2
   inputs:
-    Contents: 'node_modules'
+    Contents: '**\node_modules\**'
     TargetFolder: 'dist'
 - task: ArchiveFiles@2
   inputs:
