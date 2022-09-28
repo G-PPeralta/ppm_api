@@ -34,7 +34,7 @@ export class TarefasService {
     from dev.tb_tarefas tarefas
     inner join dev.tb_projetos_atividade atividades
     on atividades.id = tarefas.atividade_relacionada
-    where tarefas.atividade_relacionada = ${id}
+    where tarefas.id = ${id}
     `);
   }
 
