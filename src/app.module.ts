@@ -52,6 +52,7 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { EstatisticasModule } from './estatisticas/estatisticas.module';
 import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
 import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
+import { TarefasModule } from './tarefas/tarefas.module';
 
 @Module({
   imports: [
@@ -106,6 +107,7 @@ import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
     EstatisticasModule,
     CampanhaProjetoTipoModule,
     NovaAtividadeModule,
+    TarefasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
