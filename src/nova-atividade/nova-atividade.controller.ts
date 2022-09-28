@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateAtividade } from './dto/create-atividade.dto';
 import { NovaAtividadeService } from './nova-atividade.service';
 
@@ -14,5 +14,13 @@ export class NovaAtividadeController {
   @Post()
   create(@Body() createAtividade: CreateAtividade) {
     return this.novaAtividadeService.create(createAtividade);
+  }
+
+  @Post('vincular/:id')
+  createEVincular(
+    @Param('id') id: string,
+    @Body() createAtividade: CreateAtividade,
+  ) {
+    return null;
   }
 }
