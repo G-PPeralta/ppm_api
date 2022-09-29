@@ -24,12 +24,12 @@ export class CampanhaProjetoTipoService {
         VALUES (${id_atividade[0].id}, '${atv.atividade_id_origem}')
       `);
 
-      //TODO: validar precedentes
-      /*
-      atv.precedentes.forEach((prc) => {
-        //cadastrar precedentes
+      atv.precedentes.forEach(async (prc) => {
+        await this.prisma.$queryRawUnsafe(`
+          INSERT INTO tb_camp_projetos_atv_precedentes (id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo)
+          VALUES (${id_atividade[0].id}, ${prc.id}, ${id_projeto_tipo[0].id})
+        `);
       });
-      */
     });
   }
 
