@@ -39,12 +39,10 @@ export class CampanhaProjetoTipoService {
     `);
   }
 
-  async findRelacaoByProjeto(id: number) {
-    let retorno: any[] = [];
-    retorno = await this.prisma.$queryRawUnsafe(`
-    select projeto_tipo.nom_projeto_tipo, projeto_tipo.id as projeto_tipo_id, atividades.id as id_atividade,
-    atividades.qtde_dias, tag.nom_tag as nome_atividade, areas_atuacoes.id as id_area, areas_atuacoes.tipo as nome_area,
-    tarefa.id as id_tarefa, tarefa.nom_atividade as nom_tarefa, responsaveis.responsavel_id, responsaveis.nome_responsavel 
+  async findPrecedentes(id: number, id_atividade: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    select
+precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  as nome
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
     on atividades.id_camp_projeto_tipo = projeto_tipo.id
@@ -55,10 +53,52 @@ export class CampanhaProjetoTipoService {
     inner join tb_camp_atv tarefa
     on tarefa.id = atividades.id_tarefa
     inner join tb_responsaveis responsaveis
-    on responsaveis.responsavel_id  = tarefa.responsavel_id 
+    on responsaveis.responsavel_id  = tarefa.responsavel_id
+    left join tb_camp_projetos_atv_precedentes precedentes
+    on (precedentes.id_camp_projetos_atv = atividades.id and precedentes.id_camp_projeto_tipo = atividades.id_camp_projeto_tipo)
+    left join tb_camp_atv atv_precedente
+    on (atv_precedente.id = precedentes.id_precedente)
+    where projeto_tipo.id = ${id} and atividades.id = ${id_atividade}
+    and precedentes.id_precedente is not null
+    `);
+  }
+
+  async findRelacaoByProjeto(id: number) {
+    let retorno: any[] = [];
+    retorno = await this.prisma.$queryRawUnsafe(`
+    select projeto_tipo.nom_projeto_tipo, projeto_tipo.id as projeto_tipo_id, atividades.id as id_atividade,
+    atividades.qtde_dias, tag.nom_tag as nome_atividade, areas_atuacoes.id as id_area, areas_atuacoes.tipo as nome_area,
+    tarefa.id as id_tarefa, tarefa.nom_atividade as nom_tarefa, responsaveis.responsavel_id, responsaveis.nome_responsavel
+    from tb_camp_projeto_tipo projeto_tipo
+    inner join tb_camp_projetos_atv atividades
+    on atividades.id_camp_projeto_tipo = projeto_tipo.id
+    inner join tb_camp_atv_tag tag
+    on tag.id_atividade = atividades.id
+    inner join tb_areas_atuacoes areas_atuacoes
+    on areas_atuacoes.id = atividades.id_area
+    inner join tb_camp_atv tarefa
+    on tarefa.id = atividades.id_tarefa
+    inner join tb_responsaveis responsaveis
+    on responsaveis.responsavel_id  = tarefa.responsavel_id
     where projeto_tipo.id = ${id}
     `);
 
-    return retorno;
+    const retornar = async () => {
+      const tratamento: any = [];
+      for (const e of retorno) {
+        const prec = await this.findPrecedentes(
+          e.projeto_tipo_id,
+          e.id_atividade,
+        );
+        const data = {
+          ...e,
+          precedentes: prec,
+        };
+        tratamento.push(data);
+      }
+      return tratamento;
+    };
+
+    return await retornar();
   }
 }
