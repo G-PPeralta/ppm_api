@@ -12,7 +12,7 @@ export class TarefasService {
         VALUES ('${createTarefa.nome_tarefa}', '${new Date(
       createTarefa.data_tarefa,
     ).toISOString()}', ${createTarefa.atividade_relacionada}, '${
-      createTarefa.descricao
+      createTarefa.descricao_tarefa
     }', '${createTarefa.nom_usu_create}', now())
         RETURNING id
     `);
