@@ -21,18 +21,18 @@ export class TarefasService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select tarefas.*, atividades.nom_atividade 
+    select tarefas.*, atividades.nome_atividade 
     from dev.tb_tarefas tarefas
-    inner join dev.tb_projetos_atividade atividades
+    inner join dev.tb_atividades atividades
     on atividades.id = tarefas.atividade_relacionada
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select tarefas.*, atividades.nom_atividade 
-    from dev.tb_tarefas tarefas
-    inner join dev.tb_projetos_atividade atividades
+    select tarefas.*, atividades.nome_atividade 
+    from tb_tarefas tarefas
+    inner join tb_atividades atividades
     on atividades.id = tarefas.atividade_relacionada
     where tarefas.id = ${id}
     `);
