@@ -43,13 +43,22 @@ export class NovaAtividadeService {
       dias += e.dias;
     });
 
-    const data = new Date();
     const lastDate = await this.campanhaService.findDatasPai(id_pai);
 
     const iniDate = new Date(lastDate[0].dat_ini_prox_intervencao);
     iniDate.setHours(9);
-    data.setDate(iniDate.getDate() + dias);
+    const data = new Date(iniDate);
+    data.setDate(data.getDate() + dias);
     data.setHours(18);
+
+    Logger.log(`
+    INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)
+    VALUES (${id_pai}, '${iniDate.toISOString()}', '${data.toISOString()}', '${
+      createAtividade.nom_usu_create
+    }', NOW(), ${retorno}, ${createAtividade.area_atuacao}, ${
+      createAtividade.responsavel_id
+    })
+  `);
 
     return await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)
