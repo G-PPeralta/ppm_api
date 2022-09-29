@@ -7,6 +7,6 @@ import { PrismaModule } from 'services/prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [CampanhaController],
   providers: [CampanhaService],
-  exports: [CampanhaModule],
+  exports: [CampanhaService],
 })
 export class CampanhaModule {}
