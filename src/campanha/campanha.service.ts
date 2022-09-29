@@ -96,6 +96,15 @@ export class CampanhaService {
     where pai.id_campanha = ${id} and pai.id_pai = 0`);
   }
 
+  async findDatasPai(id: number) {
+    return await this.prisma
+      .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    where pai.id = ${id} and pai.id_pai = 0`)[0]?.dat_ini_prox_intervencao;
+  }
+
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
     let where = ' WHERE 1 = 1 ';
 
