@@ -16,11 +16,16 @@ export class NovaAtividadeController {
     return this.novaAtividadeService.create(createAtividade);
   }
 
-  @Post('vincular/:id')
-  createEVincular(
+  @Post('intervencao/:id')
+  async vinculaIntervencao(
     @Param('id') id: string,
     @Body() createAtividade: CreateAtividade,
   ) {
-    return null;
+    const retorno = await this.novaAtividadeService.create(createAtividade);
+    return this.novaAtividadeService.vinculaIntervencao(
+      +id,
+      retorno[0].id,
+      createAtividade,
+    );
   }
 }

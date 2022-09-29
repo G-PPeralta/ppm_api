@@ -13,4 +13,10 @@ export class CreateAtividade {
     checked: boolean;
   };
   o_mais_breve_possivel: boolean;
+  precedentes: Atividades[];
+}
+
+export class Atividades {
+  atividadePrecedenteId: number;
+  dias: number;
 }

@@ -70,14 +70,22 @@ export class CampanhaService {
       const oldDate = new Date(data);
       data.setDate(data.getDate() + atv.qtde_dias);
 
-      await this.prisma.$queryRawUnsafe(`
+      const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id)
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         oldDate,
       ).toISOString()}', '${new Date(data).toISOString()}', ${atv.area_id}, ${
         atv.responsavel_id
       })
+      returning ID
       `);
+
+      atv.precedentes.forEach(async (p) => {
+        await this.prisma.$queryRawUnsafe(`
+          INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
+          VALUES (${id_atv[0].id}, ${p.id})
+        `);
+      });
     });
   }
 
@@ -94,6 +102,15 @@ export class CampanhaService {
     inner join tb_camp_atv_campanha filho
     on filho.id_pai = pai.id 
     where pai.id_campanha = ${id} and pai.id_pai = 0`);
+  }
+
+  async findDatasPai(id: number) {
+    return await this.prisma
+      .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    where pai.id = ${id} and pai.id_pai = 0`);
   }
 
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
@@ -304,11 +321,11 @@ export class CampanhaService {
     responsaveis.nome_responsavel as nom_responsavel,
     area_atuacao.tipo as nom_area,
     campanha.nom_campanha as sonda,
-    round(fn_atv_calc_pct_plan(
-            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
-            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
-            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
-        )*100,1) as pct_plan,
+    floor(fn_atv_calc_pct_plan(
+      fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+  ))*100 as pct_plan,
     COALESCE(filho.pct_real, 0) as pct_real,
     pai.id as id_poco
     from tb_camp_atv_campanha pai
