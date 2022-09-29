@@ -51,23 +51,22 @@ export class NovaAtividadeService {
     data.setDate(data.getDate() + dias);
     data.setHours(18);
 
-    Logger.log(`
-    INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)
-    VALUES (${id_pai}, '${iniDate.toISOString()}', '${data.toISOString()}', '${
-      createAtividade.nom_usu_create
-    }', NOW(), ${retorno}, ${createAtividade.area_atuacao}, ${
-      createAtividade.responsavel_id
-    })
-  `);
-
-    return await this.prisma.$queryRawUnsafe(`
+    const id_atv = await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)
       VALUES (${id_pai}, '${iniDate.toISOString()}', '${data.toISOString()}', '${
       createAtividade.nom_usu_create
     }', NOW(), ${retorno}, ${createAtividade.area_atuacao}, ${
       createAtividade.responsavel_id
     })
+    RETURNING id
     `);
+
+    createAtividade.precedentes.forEach(async (p) => {
+      await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
+        VALUES (${id_atv[0].id}, ${p.atividadePrecedenteId})
+      `);
+    });
   }
 
   async findTarefas() {

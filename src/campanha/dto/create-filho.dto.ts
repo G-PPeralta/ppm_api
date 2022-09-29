@@ -13,4 +13,11 @@ export class Atividades {
   qtde_dias: number;
   responsavel_id: number;
   area_id: number;
+  precedentes: Precedentes[];
+}
+
+export class Precedentes {
+  id: number;
+  nome: string;
+  checked: boolean;
 }
