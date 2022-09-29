@@ -102,7 +102,7 @@ export class CampanhaService {
     from tb_camp_atv_campanha pai
     inner join tb_camp_atv_campanha filho
     on filho.id_pai = pai.id 
-    where pai.id = ${id} and pai.id_pai = 0`)[0]?.dat_ini_prox_intervencao;
+    where pai.id = ${id} and pai.id_pai = 0`);
   }
 
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {

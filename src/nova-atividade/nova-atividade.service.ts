@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CampanhaService } from 'campanha/campanha.service';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateAtividade } from './dto/create-atividade.dto';
@@ -44,12 +44,16 @@ export class NovaAtividadeService {
     });
 
     const data = new Date();
-    const lastDate = new Date(await this.campanhaService.findDatasPai(id_pai));
-    data.setDate(lastDate.getDate() + dias);
+    const lastDate = await this.campanhaService.findDatasPai(id_pai);
 
-    await this.prisma.$queryRawUnsafe(`
+    const iniDate = new Date(lastDate[0].dat_ini_prox_intervencao);
+    iniDate.setHours(9);
+    data.setDate(iniDate.getDate() + dias);
+    data.setHours(18);
+
+    return await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)
-      VALUES (${id_pai}, '${lastDate.toISOString()}', '${data.toISOString()}', '${
+      VALUES (${id_pai}, '${iniDate.toISOString()}', '${data.toISOString()}', '${
       createAtividade.nom_usu_create
     }', NOW(), ${retorno}, ${createAtividade.area_atuacao}, ${
       createAtividade.responsavel_id
