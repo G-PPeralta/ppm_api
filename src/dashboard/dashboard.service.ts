@@ -90,6 +90,78 @@ export class DashboardService {
         complexidade: true,
         responsavel: true,
         coordenador: true,
+        poloId: true,
+      },
+    });
+    const info = retornoQuery.map((query) => {
+      return {
+        id: query.id,
+        nome: query.nomeProjeto,
+        valorTotalPrevisto: query.valorTotalPrevisto,
+        prioridade: query.prioridadeProjeto
+          ? query.prioridadeProjeto.prioridade
+          : null,
+        complexidade: query.complexidade
+          ? query.complexidade.complexidade
+          : null,
+        responsavel: query.responsavel ? query.responsavel.nome : null,
+        coordenador: query.coordenador
+          ? query.coordenador.coordenadorNome
+          : null,
+        polo: query.poloId,
+      };
+    });
+    return info;
+  }
+
+  async getInfoProjetosAlagoas() {
+    const retornoQuery = await this.prisma.projeto.findMany({
+      select: {
+        id: true,
+        nomeProjeto: true,
+        valorTotalPrevisto: true,
+        prioridadeProjeto: true,
+        complexidade: true,
+        responsavel: true,
+        coordenador: true,
+      },
+      where: {
+        poloId: 1,
+      },
+    });
+    const info = retornoQuery.map((query) => {
+      return {
+        id: query.id,
+        nome: query.nomeProjeto,
+        valorTotalPrevisto: query.valorTotalPrevisto,
+        prioridade: query.prioridadeProjeto
+          ? query.prioridadeProjeto.prioridade
+          : null,
+        complexidade: query.complexidade
+          ? query.complexidade.complexidade
+          : null,
+        responsavel: query.responsavel ? query.responsavel.nome : null,
+        coordenador: query.coordenador
+          ? query.coordenador.coordenadorNome
+          : null,
+      };
+    });
+    return info;
+  }
+
+  async getInfoProjetosTucanoSul() {
+    const retornoQuery = await this.prisma.projeto.findMany({
+      select: {
+        id: true,
+        nomeProjeto: true,
+        valorTotalPrevisto: true,
+        prioridadeProjeto: true,
+        complexidade: true,
+        responsavel: true,
+        coordenador: true,
+      },
+      where: {
+        poloId: 2,
       },
     });
     const info = retornoQuery.map((query) => {

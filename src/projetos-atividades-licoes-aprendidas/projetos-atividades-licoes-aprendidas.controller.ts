@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateProjetosAtividadeDto } from 'projetos-atividades/dto/create-projetos-atividades.dto';
+import { CreateProjetosAtividadesLicoesAprendidasDto } from './dto/projetos-atividades-licoes-aprendidas.dto';
 import { ProjetosAtividadesLicoesAprendidasService } from './projetos-atividades-licoes-aprendidas.service';
 
 @Controller('projetos-atividades-licoes-aprendidas')
@@ -17,7 +17,10 @@ export class ProjetosAtividadesLicoesAprendidasController {
   ) {}
 
   @Post()
-  create(@Body() createProjetosAtividadeDto: CreateProjetosAtividadeDto) {
+  create(
+    @Body()
+    createProjetosAtividadeDto: CreateProjetosAtividadesLicoesAprendidasDto,
+  ) {
     return this.projetosAtividadesLicoesAprendidasService.create(
       createProjetosAtividadeDto,
     );
@@ -33,21 +36,23 @@ export class ProjetosAtividadesLicoesAprendidasController {
     return this.projetosAtividadesLicoesAprendidasService.findOne(+id);
   }
 
-  @Patch(':id/:campo/:valor')
+  @Patch(':id/:campo/:valor/:user')
   update(
     @Param('id') id: string,
     @Param('campo') campo: string,
     @Param('valor') valor: string,
+    @Param('user') user: string,
   ) {
     return this.projetosAtividadesLicoesAprendidasService.update(
       +id,
       campo,
       valor,
+      user,
     );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projetosAtividadesLicoesAprendidasService.remove(+id);
+  @Delete(':id/:user')
+  remove(@Param('id') id: string, @Param('user') user: string) {
+    return this.projetosAtividadesLicoesAprendidasService.remove(+id, user);
   }
 }

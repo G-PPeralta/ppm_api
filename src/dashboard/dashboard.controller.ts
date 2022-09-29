@@ -37,4 +37,14 @@ export class DashboardController {
   getInfoProjetos() {
     return this.dashboardService.getInfoProjetos();
   }
+
+  @Get('projetos-info-alagoas')
+  getInfoProjetosAlagoas() {
+    return this.dashboardService.getInfoProjetosAlagoas();
+  }
+
+  @Get('projetos-info-tucano')
+  getInfoProjetosTucanoSul() {
+    return this.dashboardService.getInfoProjetosTucanoSul();
+  }
 }

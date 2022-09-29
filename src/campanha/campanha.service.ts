@@ -1,10 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
-import { CampanhaDto } from './dto/campanha.dto';
+import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
-import { CampanhaFilhoDto } from './dto/create-filho.dto';
-import { UpdateCampanhaDto } from './dto/update-campanha.dto';
+import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
 
 @Injectable()
 export class CampanhaService {
@@ -12,7 +11,7 @@ export class CampanhaService {
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
     const id = await this.prisma.$queryRawUnsafe(`
-      insert into dev.tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
+      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
       values 
       (
           '${createCampanhaDto.nom_campanha}',
@@ -31,7 +30,7 @@ export class CampanhaService {
     const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
 
     const retorno = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
+    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
     values (${createAtividadeCampanhaDto.id_pai}, '${
       createAtividadeCampanhaDto.nom_atividade
     }', ${createAtividadeCampanhaDto.pct_real}, ${
@@ -42,56 +41,231 @@ export class CampanhaService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
-      insert into dev.tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
+      insert into tb_camp_atv_recursos (id_atividade, nom_recurso, nom_usu_create, dat_usu_create, id_area)
+      values (${retorno[0].id}, '${createAtividadeCampanhaDto.nom_recurso}', '${createAtividadeCampanhaDto.nom_usu_create}', now(), ${createAtividadeCampanhaDto.id_area})
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+      insert into tb_camp_atv_notas (id_atividade, txt_nota, nom_usu_create, dat_usu_create)
       values (${retorno[0].id}, '${createAtividadeCampanhaDto.dsc_comentario}', '${createAtividadeCampanhaDto.nom_usu_create}', now())
     `);
 
     return retorno;
   }
 
-  async createFilho(createCampanhaDto: CampanhaFilhoDto) {
-    const ini = new Date(createCampanhaDto.dat_ini_plan);
-    const fim = new Date(createCampanhaDto.dat_fim_plan);
+  async createFilho(createCampanhaDto: CreateCampanhaFilhoDto) {
+    const data = new Date(createCampanhaDto.dat_ini_prev);
 
-    const id = await this.prisma.$queryRawUnsafe(`
-    insert into dev.tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, id_campanha, nom_usu_create, dat_usu_create)
-    values
-        (
-            ${createCampanhaDto.id_pai}, '${
-      createCampanhaDto.nom_atividade
-    }', ${createCampanhaDto.pct_real}, ${
-      ini == null ? null : "'" + ini.toISOString() + "'"
-    }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, ${
+    const id_pai = await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+      VALUES (0, ${createCampanhaDto.poco_id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
-    }, '${createCampanhaDto.nom_usu_create}', now()
-        );
+    }, '${new Date(data).toISOString()}', '${
+      createCampanhaDto.nom_usu_create
+    }', NOW())
+      RETURNING ID
     `);
-    return id;
+
+    createCampanhaDto.atividades.forEach(async (atv) => {
+      const oldDate = new Date(data);
+      data.setDate(data.getDate() + atv.qtde_dias);
+
+      const id_atv = await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id)
+        VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
+        oldDate,
+      ).toISOString()}', '${new Date(data).toISOString()}', ${atv.area_id}, ${
+        atv.responsavel_id
+      })
+      returning ID
+      `);
+
+      atv.precedentes.forEach(async (p) => {
+        await this.prisma.$queryRawUnsafe(`
+          INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
+          VALUES (${id_atv[0].id}, ${p.id})
+        `);
+      });
+    });
   }
 
-  async findAll() {
+  async findCampanha() {
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_campanha
+    `);
+  }
+
+  async findDatas(id: number) {
+    return await this.prisma
+      .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    where pai.id_campanha = ${id} and pai.id_pai = 0`);
+  }
+
+  async findDatasPai(id: number) {
+    return await this.prisma
+      .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    where pai.id = ${id} and pai.id_pai = 0`);
+  }
+
+  async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
+    let where = ' WHERE 1 = 1 ';
+
+    if (campanhaFiltro.area_atuacao_id !== null) {
+      where += ` AND (select count(area_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.area_id = ${campanhaFiltro.area_atuacao_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.poco_id !== null) {
+      where += ` AND pai.poco_id = ${campanhaFiltro.poco_id} `;
+    }
+
+    if (campanhaFiltro.atividade_id !== null) {
+      where += ` AND (select count(tarefa_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.tarefa_id = ${campanhaFiltro.atividade_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.responsavel_id !== null) {
+      where += ` AND (select count(responsavel_id) FROM
+      tb_camp_atv_campanha filhos
+      WHERE filhos.id_pai = pai.id
+      AND filhos.responsavel_id = ${campanhaFiltro.responsavel_id}
+      ) > 0 `;
+    }
+
+    if (campanhaFiltro.data_inicio !== null) {
+      where += ` AND pai.dat_ini_plan >= '${new Date(
+        campanhaFiltro.data_inicio,
+      ).toISOString()}' `;
+    }
+
+    if (campanhaFiltro.data_fim !== null) {
+      where += ` AND fn_atv_maior_data(pai.id) <= '${new Date(
+        campanhaFiltro.data_fim,
+      ).toISOString()}' `;
+    }
+
+    if (campanhaFiltro.sonda_id !== null) {
+      where += ` AND pai.id_campanha = ${campanhaFiltro.sonda_id} `;
+    }
+
+    if (campanhaFiltro.status !== null) {
+      switch (campanhaFiltro.status) {
+        case 1:
+          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 100
+           AND (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1)) `;
+          break;
+        case 2:
+          where += ` AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) > 0
+          AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < 100
+          AND (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1)) `;
+          break;
+        case 3:
+          where += ` 
+          AND (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           <
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1)) `;
+          break;
+        case 4:
+          where += ` AND round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) = 0 AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 0 `;
+          break;
+        default:
+          where += `
+          AND NOT (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) = 100
+           AND (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           >
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1)))
+        AND NOT (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) > 0
+        AND COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < 100
+        AND (COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+         >
+         round(fn_atv_calc_pct_plan(
+          fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+          fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+          fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+      )*100,1)))
+      AND NOT ((COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0)
+           <
+           round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1)))
+        AND NOT (round(fn_atv_calc_pct_plan(
+          fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+          fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+          fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+      )*100,1) = 0)
+          `;
+          break;
+      }
+    }
+
+    return where;
+  }
+
+  async findAll(campanhaFiltro: CampanhaFiltro) {
+    const where = await this.montaFiltros(campanhaFiltro);
+
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar pocos ou intervencoes e campanhas
-select 
-    b.id as id_campanha,
-    a.id as id_poco,
-    nom_campanha as sonda,
-    nom_atividade as poco,
-    dev.fn_atv_menor_data(a.id) as inicioPlanejado,
-    dev.fn_atv_maior_data(a.id) as finalPlanejado,
-    round(dev.fn_atv_calc_pct_plan(
-        dev.fn_atv_calcular_hrs(dev.fn_atv_menor_data(a.id)), -- horas executadas
-        dev.fn_hrs_uteis_totais_atv(dev.fn_atv_menor_data(a.id), dev.fn_atv_maior_data(a.id)),  -- horas totais
-        dev.fn_hrs_uteis_totais_atv(dev.fn_atv_menor_data(a.id), dev.fn_atv_maior_data(a.id)) / dev.fn_atv_calc_hrs_totais(a.id) -- valor ponderado
-    )*100,1) as pct_plan,
-    round(dev.fn_atv_calc_pct_real(a.id),1) as pct_real
-from dev.tb_camp_atv_campanha a
-right join dev.tb_campanha b 
-    on a.id_campanha = b.id
-where a.id_pai = 0 or a.id_pai is null
-and b.dat_usu_erase is null
-order by id_campanha asc, inicioPlanejado asc
+    select campanha.id id_campanha,
+    pai.id as id,
+    pai.poco_id as id_poco,
+    campanha.nom_campanha as sonda,
+    poco.poco as poco,
+    pai.dat_ini_plan as inicioPlanejado,
+    fn_atv_maior_data(pai.id) as finalPlanejado,
+    round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+            fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+        )*100,1) as pct_plan,
+    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real
+    from 
+    tb_camp_atv_campanha pai
+    right join
+    tb_campanha campanha on campanha.id = pai.id_campanha 
+    left join 
+    tb_intervencoes_pocos poco on poco.id = pai.poco_id
+    ${where}
+    order by pai.dat_ini_plan asc
 ;
     `);
     const tratamento: any = [];
@@ -137,25 +311,38 @@ order by id_campanha asc, inicioPlanejado asc
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
-select 
-    a.id as id_poco,
-    nom_campanha as sonda,
-    nom_atividade as atividade,
-    round(dev.fn_atv_calc_pct_plan(
-        dev.fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
-        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
-        dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / dev.fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
-    )*100,1) as pct_plan,
-    pct_real as pct_real,
-    dat_ini_plan  as inicioPlanejado,
-    dat_fim_plan as finalPlanejado,
-    DATE_PART('day', dat_fim_plan) - date_part('day', dat_ini_plan) as qtdDias
-from dev.tb_camp_atv_campanha a
-right join dev.tb_campanha b 
-    on a.id_campanha = b.id
-where a.id_pai = ${id}
-and a.dat_usu_erase is null
-order by dat_ini_plan asc;
+    select 
+	filho.id as id_filho,
+    filho.tarefa_id as id_atividade,
+    filho.dat_ini_plan as inicioplanejado,
+    filho.dat_fim_plan as finalplanejado,
+    coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
+    tarefa.nom_atividade as atividade,
+    responsaveis.nome_responsavel as nom_responsavel,
+    area_atuacao.tipo as nom_area,
+    campanha.nom_campanha as sonda,
+    floor(fn_atv_calc_pct_plan(
+      fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+  ))*100 as pct_plan,
+    COALESCE(filho.pct_real, 0) as pct_real,
+    pai.id as id_poco
+    from tb_camp_atv_campanha pai
+    inner join tb_camp_atv_campanha filho
+    on filho.id_pai = pai.id 
+    inner join tb_camp_atv tarefa
+    on tarefa.id = filho.tarefa_id 
+    inner join tb_responsaveis responsaveis
+    on responsaveis.responsavel_id = filho.responsavel_id
+    inner join tb_areas_atuacoes area_atuacao
+    on area_atuacao.id = filho.area_id
+    inner join tb_campanha campanha
+    on campanha.id = pai.id_campanha 
+    where pai.id_pai = 0
+    and pai.id = ${id}
+    order by filho.dat_ini_plan asc
+    ;
     `);
 
     retorno.forEach((element) => {
@@ -171,11 +358,11 @@ order by dat_ini_plan asc;
 
   async update(id: number, campo: string, valor: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from dev.tb_camp_atv_campanha where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_camp_atv_campanha where id = ${id} and dat_ini_real is null;
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
-        UPDATE dev.tb_camp_atv_campanha SET ${campo} = ${
+        UPDATE tb_camp_atv_campanha SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
       }
       where id = ${id}`);
@@ -184,7 +371,7 @@ order by dat_ini_plan asc;
 
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-    update dev.tb_camp_atv_campanha 
+    update tb_camp_atv_campanha 
     set
         dat_usu_erase = now(),
         nom_usu_erase = '${user}'

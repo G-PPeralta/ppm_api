@@ -13,7 +13,7 @@ import { CreateSondaDto } from './dto/create-sonda.dto';
 import { UpdateSondaDto } from './dto/update-sonda.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 @Controller('sonda')
 export class SondaController {
   constructor(private readonly sondaService: SondaService) {}

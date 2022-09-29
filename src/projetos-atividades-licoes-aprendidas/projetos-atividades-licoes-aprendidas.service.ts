@@ -9,33 +9,43 @@ export class ProjetosAtividadesLicoesAprendidasService {
   async create(
     createProjetosAtividadesLicoesAprendidasDto: CreateProjetosAtividadesLicoesAprendidasDto,
   ) {
-    return null;
+    const id = this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atv_licoes_aprendidas (id_projeto, id_categoria, txt_licao_aprendida, txt_acao, nom_usu_create, dat_usu_create)
+      values (${createProjetosAtividadesLicoesAprendidasDto.id_projeto}, ${createProjetosAtividadesLicoesAprendidasDto.id_categoria}, '${createProjetosAtividadesLicoesAprendidasDto.txt_licao_aprendida}', '${createProjetosAtividadesLicoesAprendidasDto.txt_acao}', '${createProjetosAtividadesLicoesAprendidasDto.nom_usu_create}', now())
+      returning id_projeto
+      `);
+
+    return id;
   }
 
   async findAll() {
-    return null;
+    return this.prisma.$queryRawUnsafe(`
+      select * from tb_projetos_atv_licoes_aprendidas
+    `);
   }
 
   async findOne(id: number) {
-    return null;
+    return this.prisma.$queryRawUnsafe(`
+      select * from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id}
+    `);
   }
 
-  async update(id: number, campo: string, valor: string) {
+  async update(id: number, campo: string, valor: string, user: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from dev.tb_projetos_atv_licoes_aprendidas where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_projetos_atv_licoes_aprendidas where id = ${id} and dat_usu_exc is null;
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
-        UPDATE dev.tb_projetos_atv_licoes_aprendidas SET ${campo} = ${
+        UPDATE tb_projetos_atv_licoes_aprendidas SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
-      }
+      }, nom_usu_alt = '${user}', dat_usu_alt = now()
       where id = ${id}`);
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-        delete dev.tb_projetos_atv_licoes_aprendidas where id = ${id}
+        update tb_projetos_atv_licoes_aprendidas set dat_usu_exc = now(), nom_usu_exc = '${user}' where id = ${id}
     `);
   }
 }

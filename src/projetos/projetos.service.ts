@@ -19,6 +19,47 @@ export class ProjetosService {
     });
   }
 
+  async findAllProjetosPrazos() {
+    return this.prismaClient.$queryRawUnsafe(`
+    select 
+      *,
+      '' as nome_responsavel,
+      dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
+      case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
+      0.00 as vlr_custo
+  from dev.tb_projetos_atividade a
+  order by id_pai asc, dat_ini_plan asc;`);
+  }
+
+  async findProjetosPrazos(id: number) {
+    return this.prismaClient.$queryRawUnsafe(`    
+   select 
+      *,
+      '' as nome_responsavel,
+      dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
+      case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
+      0.00 as vlr_custo
+  from dev.tb_projetos_atividade a
+  where id_projeto = ${id}
+  order by id_pai asc, dat_ini_plan asc;
+    `);
+  }
+
+  async findProjetosPercentuais(id: number) {
+    return this.prismaClient.$queryRawUnsafe(`
+    select 
+    *,
+    round(dev.fn_cron_calc_pct_plan(b.id),1) as pct_plan,
+    round(dev.fn_cron_calc_pct_real(b.id),1) as pct_real
+from dev.tb_projetos a
+left join dev.tb_projetos_atividade b 
+    on a.id = b.id_projeto 
+where 
+    b.id_pai = 0 or b.id_pai is null
+and a.id = ${id};
+`);
+  }
+
   async findAll() {
     const projects = await this.prismaClient.projeto.findMany();
     if (!projects) throw new Error('Falha na listagem de projetos');
@@ -51,14 +92,14 @@ export class ProjetosService {
   }
 
   async update(id: number, updateProjetoDto: UpdateProjetoDto) {
-    await this.prismaClient.projeto.update({
+    const projeto = await this.prismaClient.projeto.update({
       where: {
         id,
       },
       data: updateProjetoDto,
     });
 
-    return `This action updates a #${id} projeto`;
+    return projeto;
   }
 
   remove(id: number) {

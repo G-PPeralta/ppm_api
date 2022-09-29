@@ -8,7 +8,7 @@ export class LicoesAprendidasService {
 
   async create(createLicoesAprendidasDto: CreateLicoesAprendidasDto) {
     const id = await this.prisma.$queryRawUnsafe(`
-    INSERT INTO dev.tb_camp_atv_licoes_aprendidas
+    INSERT INTO tb_camp_atv_licoes_aprendidas
     (id_atividade, id_categoria, txt_licao_aprendida, txt_acao, nom_usu_create, dat_usu_create)
     VALUES(${createLicoesAprendidasDto.id_atividade}, ${createLicoesAprendidasDto.id_categoria}, '${createLicoesAprendidasDto.txt_licao_aprendida}', '${createLicoesAprendidasDto.txt_acao}', '${createLicoesAprendidasDto.nom_usu_create}', now());
     returning id`);
@@ -18,23 +18,23 @@ export class LicoesAprendidasService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-      select * from dev.tb_camp_atv_licoes_aprendidas
+      select * from tb_camp_atv_licoes_aprendidas
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-      select * from dev.tb_camp_atv_licoes_aprendidas where id = ${id}
+      select * from tb_camp_atv_licoes_aprendidas where id = ${id}
     `);
   }
 
   async update(id: number, campo: string, valor: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from dev.tb_camp_atv_licoes_aprendidas where id = ${id};
+    select CAST(count(*) AS INT) as qt from tb_camp_atv_licoes_aprendidas where id = ${id};
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`
-        UPDATE dev.tb_camp_atv_licoes_aprendidas SET ${campo} = ${
+        UPDATE tb_camp_atv_licoes_aprendidas SET ${campo} = ${
         !isNaN(+valor) ? valor : "'" + valor + "'"
       }
       `);
@@ -43,7 +43,7 @@ export class LicoesAprendidasService {
 
   async remove(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    delete from dev.tb_camp_atv_licoes_aprendidas where id = ${id};
+    delete from tb_camp_atv_licoes_aprendidas where id = ${id};
     `);
   }
 }
