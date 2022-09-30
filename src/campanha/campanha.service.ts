@@ -89,6 +89,82 @@ export class CampanhaService {
     });
   }
 
+  async visaoPrecedentes() {
+    let retorno: any[] = [];
+    retorno = await this.prisma.$queryRawUnsafe(`
+    select
+    pai.id as pai_id,
+    filhos.id as filhos_id,
+      areas.tipo as area,
+      tarefas.nome_tarefa as atividade,
+      case when  COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < round(fn_atv_calc_pct_plan(
+                fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+                fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+                fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+            )*100,1) then 0 else 1 end as comp_pct,
+            filhos.dat_fim_plan as finalplanejado,
+            pai.poco_id as id_poco,
+        filhos.dat_ini_plan as inicioplanejado,
+        0 as qtddias,
+        campanha.nom_campanha as sonda,
+        tarefas.id as atividadeId,
+        round(fn_atv_calc_pct_plan(
+                fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
+                fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
+                fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
+            )*100,1) as pct_plan,
+        COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real
+        from tb_camp_atv_campanha filhos
+      inner join tb_camp_atv_campanha pai
+      on (pai.id_pai = 0 and filhos.id_pai = pai.id)
+        inner join
+        tb_campanha campanha on campanha.id = pai.id_campanha 
+        inner join 
+        tb_intervencoes_pocos poco on poco.id = pai.poco_id
+        inner join 
+        tb_areas_atuacoes areas on areas.id = filhos.area_id
+        inner join
+        tb_tarefas tarefas on tarefas.id = filhos.tarefa_id
+        order by pai.dat_ini_plan asc`);
+
+    const retornar = async () => {
+      const tratamento: any = [];
+      for (const e of retorno) {
+        const prec = await this.prisma.$queryRawUnsafe(`
+            select tarefa_id as precedente_id from
+            tb_camp_atv_campanha
+            where id_pai = ${e.filhos_id}
+            `);
+
+        const dados = {
+          area: e.area,
+          atividades: [],
+        };
+
+        const data = {
+          ...e,
+          precedentes: prec,
+        };
+
+        let existe = false;
+        tratamento.forEach((inner) => {
+          if (inner.area === e.area) {
+            existe = true;
+            inner.atividades.push(data);
+          }
+        });
+        if (!existe) {
+          dados.atividades.push(data);
+
+          tratamento.push(dados);
+        }
+      }
+      return tratamento;
+    };
+
+    return await retornar();
+  }
+
   async findCampanha() {
     return this.prisma.$queryRawUnsafe(`
       SELECT * FROM tb_campanha

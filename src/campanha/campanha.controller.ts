@@ -43,6 +43,11 @@ export class CampanhaController {
     return this.campanhaService.findAll(campanhaFiltro);
   }
 
+  @Get('precedentes')
+  visaoPrecedentes() {
+    return this.campanhaService.visaoPrecedentes();
+  }
+
   @Get('find')
   findCampanhas() {
     return this.campanhaService.findCampanha();
