@@ -620,3 +620,23 @@ enum atividade {
   ENTREGA
   ACAO
 }
+
+model AtividadeServico {
+  id           Int      @id @default(autoincrement())
+  atividade_id Int      @db.Integer
+  nome         String   @db.VarChar
+  data_hora    DateTime @db.Timestamp()
+  anotacoes    String?  @db.VarChar
+
+  @@map("tb_atividade_servicos")
+}
+
+model AtividadeFerramenta {
+  id           Int      @id @default(autoincrement())
+  atividade_id Int      @db.Integer
+  nome         String   @db.VarChar
+  data_hora    DateTime @db.Timestamp()
+  anotacoes    String?  @db.VarChar
+
+  @@map("tb_atividade_ferramentas")
+}
