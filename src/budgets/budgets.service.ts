@@ -1,13 +1,51 @@
 import { Injectable } from '@nestjs/common';
+import { validateOrReject } from 'class-validator';
 import { PrismaService } from 'services/prisma/prisma.service';
+import { BudgetReal } from './dto/creat-budget-real.dto';
+import { BudgetPlan } from './dto/create-budget-plan.dto';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
 export class BudgetsService {
   constructor(private prisma: PrismaService) {}
-  create(_createBudgetDto: CreateBudgetDto) {
-    return 'This action adds a new budget';
+  async updateBudgetPlan(_updateBudgetDto: BudgetPlan) {
+    const where = {
+      id_atividade: _updateBudgetDto.atividadeId,
+    };
+    const update = {
+      vlr_planejado: _updateBudgetDto.valor,
+    };
+
+    const create = {
+      ...update,
+      ...where,
+    };
+
+    return await this.prisma.atividadeCustoPlanejado.upsert({
+      where,
+      update,
+      create,
+    });
+  }
+
+  async createBudgetReal(_updateBudgetReal: BudgetReal) {
+    const budgetReal = {
+      id_fornecedor: _updateBudgetReal.fornecedor,
+      dat_lcto: _updateBudgetReal.data,
+      vlr_realizado: _updateBudgetReal.valor,
+      txt_observacao: _updateBudgetReal.textPedido,
+      num_pedido: _updateBudgetReal.pedido,
+      nom_usu_create: _updateBudgetReal.nom_usu_create,
+      atividade: {
+        connect: {
+          id: _updateBudgetReal.atividadeId,
+        },
+      },
+    };
+    return this.prisma.atividadeCustosRealizado.create({
+      data: budgetReal,
+    });
   }
 
   async findAll() {
