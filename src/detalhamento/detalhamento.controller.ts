@@ -6,15 +6,15 @@ import {
   // Body,
   // Patch,
   Param,
-  UseGuards,
+  // UseGuards,
   // Delete,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DetalhamentoService } from './detalhamento.service';
 // import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
 // import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('detalhamento')
 export class DetalhamentoController {
   constructor(private readonly detalhamentoService: DetalhamentoService) {}
@@ -28,6 +28,13 @@ export class DetalhamentoController {
   // findAll() {
   //   return this.detalhamentoService.findAll();
   // }
+
+  @Get('/progresso')
+  async findOneProgresso() {
+    const percentual = this.detalhamentoService.findOneProgresso();
+    // console.log(percentual);
+    return percentual;
+  }
 
   @Get(':id')
   findOne(@Param('id') id: number) {

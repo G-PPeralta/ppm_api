@@ -10,7 +10,9 @@ export class RankingsOpcoesService {
     const id = await this.prisma.$queryRawUnsafe(`
     INSERT INTO tb_ranking_opcoes
     (id_ranking, num_opcao, nom_opcao, num_nota, nom_usu_create, dat_usu_create)
-    VALUES(${createRankingOpcoes.id_ranking}, ${createRankingOpcoes.nom_opcao}, '${createRankingOpcoes.nom_opcao}', ${createRankingOpcoes.num_nota}, '${createRankingOpcoes.nom_usu_create}', NOW());
+    VALUES(${createRankingOpcoes.id_ranking}, 
+    (SELECT COUNT(NUM_OPCAO) + 1 FROM tb_ranking_opcoes WHERE id_ranking = ${createRankingOpcoes.id_ranking})  
+    , '${createRankingOpcoes.nom_opcao}', ${createRankingOpcoes.num_nota}, '${createRankingOpcoes.nom_usu_create}', NOW())
     returning id
     `);
 
@@ -19,7 +21,7 @@ export class RankingsOpcoesService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id, tro.num_nota  from 
     dev.tb_ranking tr
     inner join dev.tb_ranking_opcoes tro 
     on tro.id_ranking = tr.id 
@@ -28,7 +30,7 @@ export class RankingsOpcoesService {
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
+    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id, tro.num_nota  from 
     dev.tb_ranking tr
     inner join dev.tb_ranking_opcoes tro 
     on tro.id_ranking = tr.id WHERE tro.id_ranking = ${id}
@@ -37,7 +39,7 @@ export class RankingsOpcoesService {
 
   async update(id: number, campo: string, valor: string, user: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
-    select CAST(count(*) AS INT) as qt from tb_ranking_opcoes where id = ${id} and dat_ini_real is null;
+    select CAST(count(*) AS INT) as qt from tb_ranking_opcoes where id = ${id};
     `);
     if (existe) {
       await this.prisma.$queryRawUnsafe(`

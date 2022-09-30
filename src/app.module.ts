@@ -49,6 +49,13 @@ import { AreasModule } from './areas/areas.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
 import { BudgetsModule } from './budgets/budgets.module';
+import { EstatisticasModule } from './estatisticas/estatisticas.module';
+import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
+import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
+import { TarefasModule } from './tarefas/tarefas.module';
+import { AtividadeFerramentasModule } from './atividade-ferramentas/atividade-ferramentas.module';
+import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos.module';
+import { AtividadesProjetosModule } from './atividades-projetos/atividades-projetos.module';
 
 @Module({
   imports: [
@@ -100,6 +107,13 @@ import { BudgetsModule } from './budgets/budgets.module';
     CategoriasModule,
     OperacaoIntervencaoModule,
     BudgetsModule,
+    EstatisticasModule,
+    CampanhaProjetoTipoModule,
+    NovaAtividadeModule,
+    TarefasModule,
+    AtividadeFerramentasModule,
+    AtividadeServicosModule,
+    AtividadesProjetosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -23,6 +23,7 @@ export class ProjetosService {
     return this.prismaClient.$queryRawUnsafe(`
     select 
       *,
+      '' as nome_responsavel,
       dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
       case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
       0.00 as vlr_custo
@@ -34,6 +35,7 @@ export class ProjetosService {
     return this.prismaClient.$queryRawUnsafe(`    
    select 
       *,
+      '' as nome_responsavel,
       dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
       case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
       0.00 as vlr_custo
