@@ -53,6 +53,8 @@ import { EstatisticasModule } from './estatisticas/estatisticas.module';
 import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
 import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
 import { TarefasModule } from './tarefas/tarefas.module';
+import { AtividadeFerramentasModule } from './atividade-ferramentas/atividade-ferramentas.module';
+import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos.module';
 
 @Module({
   imports: [
@@ -108,6 +110,8 @@ import { TarefasModule } from './tarefas/tarefas.module';
     CampanhaProjetoTipoModule,
     NovaAtividadeModule,
     TarefasModule,
+    AtividadeFerramentasModule,
+    AtividadeServicosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
