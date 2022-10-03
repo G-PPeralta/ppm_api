@@ -421,7 +421,7 @@ export class CampanhaService {
     ;
     `);
 
-    retorno.forEach((element) => {
+    retorno.forEach(async (element) => {
       if (element.pct_real < element.pct_plan) {
         element.comp_pct = 0;
       } else {
@@ -429,7 +429,25 @@ export class CampanhaService {
       }
     });
 
-    return retorno;
+    const retornar = async () => {
+      const tratamento: any = [];
+      for (const e of retorno) {
+        const prec = await this.prisma.$queryRawUnsafe(`
+            select tarefa_id as precedente_id from
+            tb_camp_atv_campanha
+            where id_pai = ${e.id_filho}
+            `);
+
+        const data = {
+          ...e,
+          precedentesId: prec,
+        };
+        tratamento.push(data);
+      }
+      return tratamento;
+    };
+
+    return await retornar();
   }
 
   async update(id: number, campo: string, valor: string) {
