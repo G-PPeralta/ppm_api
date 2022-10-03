@@ -53,8 +53,11 @@ import { EstatisticasModule } from './estatisticas/estatisticas.module';
 import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
 import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
 import { TarefasModule } from './tarefas/tarefas.module';
+import { AtividadeFerramentasModule } from './atividade-ferramentas/atividade-ferramentas.module';
+import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos.module';
 import { AtividadesProjetosModule } from './atividades-projetos/atividades-projetos.module';
-import { NovaOperacaoModule } from './nova-operacao/nova-operacao.module';
+import { LookaheadModule } from './lookahead/lookahead.module';
+import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
 
 @Module({
   imports: [
@@ -110,8 +113,11 @@ import { NovaOperacaoModule } from './nova-operacao/nova-operacao.module';
     CampanhaProjetoTipoModule,
     NovaAtividadeModule,
     TarefasModule,
+    AtividadeFerramentasModule,
+    AtividadeServicosModule,
     AtividadesProjetosModule,
     NovaOperacaoModule,
+    LookaheadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

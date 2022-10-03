@@ -8,6 +8,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { BudgetsService } from './budgets.service';
+import { BudgetReal } from './dto/creat-budget-real.dto';
+import { BudgetPlan } from './dto/create-budget-plan.dto';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 
@@ -15,9 +17,14 @@ import { UpdateBudgetDto } from './dto/update-budget.dto';
 export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}
 
-  @Post()
-  create(@Body() createBudgetDto: CreateBudgetDto) {
-    return this.budgetsService.create(createBudgetDto);
+  @Post('/orcamento-previsto')
+  createPrevisto(@Body() updateBudgetPlan: BudgetPlan) {
+    return this.budgetsService.updateBudgetPlan(updateBudgetPlan);
+  }
+
+  @Post('/orcamento-real')
+  createReal(@Body() _updateBudgetReal: BudgetReal) {
+    return this.budgetsService.createBudgetReal(_updateBudgetReal);
   }
 
   @Get()
