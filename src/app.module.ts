@@ -57,6 +57,7 @@ import { AtividadeFerramentasModule } from './atividade-ferramentas/atividade-fe
 import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos.module';
 import { AtividadesProjetosModule } from './atividades-projetos/atividades-projetos.module';
 import { LookaheadModule } from './lookahead/lookahead.module';
+import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
 
 @Module({
   imports: [
@@ -115,6 +116,7 @@ import { LookaheadModule } from './lookahead/lookahead.module';
     AtividadeFerramentasModule,
     AtividadeServicosModule,
     AtividadesProjetosModule,
+    NovaOperacaoModule,
     LookaheadModule,
   ],
   controllers: [AppController],
