@@ -7,7 +7,27 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
-    return null;
+    createProjetosAtividadesDto.atividades.forEach(async (atv) => {
+      const dataFim = new Date(atv.data_inicio);
+      dataFim.setHours(dataFim.getHours() + atv.duracao);
+
+      const id_atv = await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividades (id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
+        VALUES (${createProjetosAtividadesDto.poco_id}, ${atv.operacao_id}, ${
+        atv.area_id
+      }, ${atv.responsavel_id}, '${new Date(
+        atv.data_inicio,
+      ).toISOString()}', '${dataFim.toISOString()}')
+      RETURNING ID
+      `);
+
+      atv.precedentes.forEach(async (p) => {
+        await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividades (id_pai, id_operacao)
+        VALUES (${id_atv[0].id}, ${p.id})
+      `);
+      });
+    });
   }
 
   async findAll() {
