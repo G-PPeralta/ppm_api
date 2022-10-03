@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CreateNovaOperacao } from './dto/create-nova-operacao.dto';
 import { NovaOperacaoService } from './nova-operacao.service';
 
@@ -7,7 +7,7 @@ export class NovaOperacaoController {
   constructor(private readonly novaOperacaoService: NovaOperacaoService) {}
 
   @Post()
-  create(createNovaOperacao: CreateNovaOperacao) {
+  create(@Body() createNovaOperacao: CreateNovaOperacao) {
     return this.novaOperacaoService.create(createNovaOperacao);
   }
 }
