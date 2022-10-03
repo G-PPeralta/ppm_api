@@ -12,7 +12,7 @@ export class ProjetosAtividadesService {
       dataFim.setHours(dataFim.getHours() + atv.duracao);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_projetos_atividades (id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
+        INSERT INTO tb_projetos_atividade (id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
         VALUES (${createProjetosAtividadesDto.poco_id}, ${atv.operacao_id}, ${
         atv.area_id
       }, ${atv.responsavel_id}, '${new Date(
@@ -23,7 +23,7 @@ export class ProjetosAtividadesService {
 
       atv.precedentes.forEach(async (p) => {
         await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_projetos_atividades (id_pai, id_operacao)
+        INSERT INTO tb_projetos_atividade (id_pai, id_operacao)
         VALUES (${id_atv[0].id}, ${p.id})
       `);
       });
