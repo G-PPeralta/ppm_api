@@ -5,8 +5,8 @@ import { EstatisticasService } from './estatisticas.service';
 export class EstatisticasController {
   constructor(private readonly estatisticasService: EstatisticasService) {}
 
-  @Get('campanha')
+  @Get('projetos')
   estatisticasCampanha() {
-    return this.estatisticasService.estatisticasCampanha();
+    return this.estatisticasService.estatisticasProjeto();
   }
 }
