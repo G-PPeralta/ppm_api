@@ -238,4 +238,15 @@ export class BudgetsService {
 
     return await Promise.all(result);
   }
+
+  async findAllProjects() {
+    const projetos = await this.prisma.tb_projetos_atividade.findMany({
+      select: { nom_atividade: true, id: true },
+      where: { id_pai: 0 },
+    });
+
+    return projetos.map((data) => {
+      return { nome: data.nom_atividade, id: data.id };
+    });
+  }
 }
