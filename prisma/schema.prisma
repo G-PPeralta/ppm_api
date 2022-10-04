@@ -455,31 +455,29 @@ model ProjetosAtividadesLicoesAprendidas {
 }
 
 model CampAtvCampanha {
-  id             Int                        @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   id_pai         Int
   ordem          Int?
-  nom_atividade  String?                    @db.VarChar(255)
+  nom_atividade  String?   @db.VarChar(255)
   pct_real       Float?
-  dat_ini_plan   DateTime?                  @db.Timestamp(6)
-  dat_fim_plan   DateTime?                  @db.Timestamp(6)
-  dat_ini_real   DateTime?                  @db.Timestamp(6)
-  dat_fim_real   DateTime?                  @db.Timestamp(6)
-  dat_ini_base   DateTime?                  @db.Timestamp(6)
-  dat_fim_base   DateTime?                  @db.Timestamp(6)
-  nom_usu_create String?                    @db.VarChar(255)
-  dat_usu_create DateTime?                  @db.Timestamp(6)
-  nom_usu_edit   String?                    @db.VarChar(255)
-  dat_usu_edit   DateTime?                  @db.Timestamp(6)
-  nom_usu_erase  String?                    @db.VarChar(255)
-  dat_usu_erase  DateTime?                  @db.Timestamp(6)
+  dat_ini_plan   DateTime? @db.Timestamp(6)
+  dat_fim_plan   DateTime? @db.Timestamp(6)
+  dat_ini_real   DateTime? @db.Timestamp(6)
+  dat_fim_real   DateTime? @db.Timestamp(6)
+  dat_ini_base   DateTime? @db.Timestamp(6)
+  dat_fim_base   DateTime? @db.Timestamp(6)
+  nom_usu_create String?   @db.VarChar(255)
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar(255)
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar(255)
+  dat_usu_erase  DateTime? @db.Timestamp(6)
   id_campanha    Int?
   poco_id        Int?
   campo_id       Int?
   tarefa_id      Int?
   area_id        Int?
   responsavel_id Int?
-  custoPlanejado AtividadeCustoPlanejado?
-  custoRealizado AtividadeCustosRealizado[]
 
   @@unique([id_pai, nom_atividade, id_campanha], map: "id_pai_campanha_nom_ativ")
   @@map("tb_camp_atv_campanha")
@@ -627,6 +625,10 @@ model tb_projetos_atividade {
   nom_usu_erase  String?   @db.VarChar(255)
   dat_usu_erase  DateTime? @db.Timestamp(6)
   id_projeto     Int?
+  id_operacao    Int?
+  id_area        Int?
+  id_responsavel Int?
+  profundidade   Decimal?  @db.Decimal
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
@@ -754,40 +756,37 @@ model tb_pocos {
 }
 
 model AtividadeCustoPlanejado {
-  id             Int             @id @default(autoincrement())
-  id_atividade   Int             @unique
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int       @unique
   id_fornecedor  Int?
-  vlr_planejado  Decimal         @db.Decimal
-  txt_observacao String?         @db.VarChar
-  nom_usu_create String?         @db.VarChar
-  dat_usu_create DateTime?       @db.Timestamp(6)
-  nom_usu_edit   String?         @db.VarChar
-  dat_usu_edit   DateTime?       @db.Timestamp(6)
-  nom_usu_erase  String?         @db.VarChar
-  dat_usu_erase  DateTime?       @db.Timestamp(6)
-  ativitade      CampAtvCampanha @relation(fields: [id_atividade], references: [id])
+  vlr_planejado  Decimal   @db.Decimal
+  txt_observacao String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
 
   @@map("tb_projetos_atividade_custo_plan")
 }
 
 model AtividadeCustosRealizado {
-  id             Int             @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   id_atividade   Int
   id_fornecedor  Int?
-  dat_lcto       DateTime        @db.Timestamp(6)
-  vlr_realizado  Decimal         @db.Decimal
-  txt_observacao String?         @db.VarChar
-  nom_usu_create String?         @db.VarChar
-  dat_usu_create DateTime?       @db.Timestamp(6)
-  nom_usu_edit   String?         @db.VarChar
-  dat_usu_edit   DateTime?       @db.Timestamp(6)
-  nom_usu_erase  String?         @db.VarChar
-  dat_usu_erase  DateTime?       @db.Timestamp(6)
+  dat_lcto       DateTime  @db.Timestamp(6)
+  vlr_realizado  Decimal   @db.Decimal
+  txt_observacao String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
   num_pedido     Int?
-  atividade      CampAtvCampanha @relation(fields: [id_atividade], references: [id])
 
   @@map("tb_projetos_atividade_custo_real")
-
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
@@ -877,27 +876,79 @@ model tb_usuarios_area {
   @@ignore
 }
 
-enum atividade {
-  ENTREGA
-  ACAO
-}
-
 model AtividadeServico {
-  id           Int      @id @default(autoincrement())
-  atividade_id Int      @db.Integer
-  nome         String   @db.VarChar
-  data_hora    DateTime @db.Timestamp()
-  anotacoes    String?  @db.VarChar
+  id           Int       @id @default(autoincrement())
+  atividade_id Int
+  nome         String    @db.VarChar(90)
+  data_hora    DateTime? @db.Timestamp(6)
+  anotacoes    String?   @db.VarChar(900)
 
   @@map("tb_atividade_servicos")
 }
 
 model AtividadeFerramenta {
-  id           Int      @id @default(autoincrement())
-  atividade_id Int      @db.Integer
-  nome         String   @db.VarChar
-  data_hora    DateTime @db.Timestamp()
-  anotacoes    String?  @db.VarChar
+  id           Int       @id @default(autoincrement())
+  atividade_id Int
+  nome         String    @db.VarChar(90)
+  data_hora    DateTime? @db.Timestamp(6)
+  anotacoes    String?   @db.VarChar(900)
 
   @@map("tb_atividade_ferramentas")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_projetos_atv_precedentes {
+  id_camp_projetos_atv Int?
+  id_precedente        Int?
+  id_camp_projeto_tipo Int?
+
+  @@unique([id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo], map: "tb_camp_projetos_atv_precedentes_un")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_operacao {
+  id                     Int       @default(autoincrement())
+  id_origem              String?   @unique @db.VarChar
+  nom_operacao           String?   @unique @db.VarChar
+  responsavel_id         Int?
+  area_id                Int?
+  nao_iniciar_antes_de   DateTime? @db.Timestamp(6)
+  nao_terminar_depois_de DateTime? @db.Timestamp(6)
+  o_mais_breve_possivel  Boolean?
+  nom_usu_create         String?   @db.VarChar
+  dat_usu_create         DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_poco {
+  id   Int     @default(autoincrement())
+  poco String? @unique @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_tarefas {
+  id                    Int       @default(autoincrement())
+  nome_tarefa           String?   @unique @db.VarChar
+  data_tarefa           DateTime? @db.Timestamp(6)
+  atividade_relacionada Int
+  descricao_tarefa      String?   @db.VarChar
+  status                Decimal?  @db.Decimal
+  nom_usu_create        String?   @db.VarChar
+  dat_usu_create        DateTime? @db.Timestamp(6)
+  nom_usu_edit          String?   @db.VarChar
+  dat_usu_edit          DateTime? @db.Timestamp(6)
+  nom_usu_erase         String?   @db.VarChar
+  dat_usu_erase         DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+enum atividade {
+  ENTREGA
+  ACAO
 }

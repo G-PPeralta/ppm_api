@@ -31,17 +31,13 @@ export class BudgetsService {
 
   async createBudgetReal(_updateBudgetReal: BudgetReal) {
     const budgetReal = {
-      id_fornecedor: _updateBudgetReal.fornecedor,
-      dat_lcto: _updateBudgetReal.data,
+      id_fornecedor: +_updateBudgetReal.fornecedor,
+      dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
       vlr_realizado: _updateBudgetReal.valor,
       txt_observacao: _updateBudgetReal.textPedido,
       num_pedido: _updateBudgetReal.pedido,
       nom_usu_create: _updateBudgetReal.nom_usu_create,
-      atividade: {
-        connect: {
-          id: _updateBudgetReal.atividadeId,
-        },
-      },
+      id_atividade: +_updateBudgetReal.atividadeId,
     };
     return this.prisma.atividadeCustosRealizado.create({
       data: budgetReal,
@@ -78,6 +74,7 @@ export class BudgetsService {
 
     const result = pais.map(async (pai, Pkey) => {
       const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+      poco.id as id_filho, 
       planejado.id as id_planejado,
       realizado.id as id_realizado,
       planejado.id_atividade as id_atividade,
@@ -102,6 +99,7 @@ export class BudgetsService {
       where
       sonda.id = ${pai.id_pai}
       group by 
+      poco.id,
       planejado.id,
       realizado.id,
       planejado.id_atividade,
@@ -162,50 +160,59 @@ export class BudgetsService {
   }
 
   async findAllDetail() {
-    const pais: any[] = await this.prisma.$queryRawUnsafe(`select 
-    atividades.id_pai as id_pai,
-    campanha.nom_campanha as nome_pai,
-    pai.id_campanha as id_campanha,
-    sum(planejado.vlr_planejado) as soma_planejado_filhos,
-    sum(realizado.vlr_realizado) as soma_realizado_filhos,
-    ROUND(((sum(realizado.vlr_realizado)/ sum(planejado.vlr_planejado))* 100), 0) as gap
-
-    from dev.tb_projetos_atividade_custo_plan planejado
-
-    inner join dev.tb_projetos_atividade_custo_real realizado
-    on (realizado.id_atividade = planejado.id_atividade)
-
-    inner join dev.tb_camp_atv_campanha atividades
-    on (atividades.id = planejado.id_atividade)
-    inner join dev.tb_camp_atv_campanha pai
-    on (pai.id_pai = 0 and pai.id = atividades.id_pai)
-    inner join dev.tb_campanha campanha
-    on (campanha.id = pai.id_campanha)
+    const pais: any[] = await this.prisma.$queryRawUnsafe(`
+    select
+    sonda.id as id_pai,
+    sonda.nom_atividade as nome_pai,
+    sonda.id as id_campanha,
+    max(coalesce(planejado.vlr_planejado, 0)) as soma_planejado_filhos,
+    coalesce(sum(realizado.vlr_realizado), 0) as soma_realizado_filhos,
+    round(
+    case when max(coalesce(planejado.vlr_planejado, 0)) = 0 then 0
+    when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
+    else (max(coalesce(planejado.vlr_planejado, 0))/coalesce(sum(realizado.vlr_realizado), 0)) * 100 end, 0)as gap
+    from tb_projetos_atividade sonda
+    inner join tb_projetos_atividade poco
+    on poco.id_pai = sonda.id
+    left join tb_projetos_atividade atividades
+    on atividades.id_pai = poco.id
+    left join tb_projetos_atividade_custo_plan planejado
+    on planejado.id_atividade = atividades.id
+    left join tb_projetos_atividade_custo_real realizado
+    on realizado.id_atividade = atividades.id
+    where 
+    sonda.id_pai = 0
     group by
-    pai.id_campanha,
-    campanha.nom_campanha,
-    atividades.id_pai
-    `);
+    sonda.id,
+    sonda.nom_atividade`);
 
     const result = pais.map(async (pai, Pkey) => {
       const filhos: any[] = await this.prisma
         .$queryRawUnsafe(`select planejado.id as id_planejado,
-        realizado.id as id_realizado,
+        --realizado.id as id_realizado,
         planejado.id_atividade as id_atividade,
-        tarefas.nom_atividade  as nom_atividade,
+        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
         planejado.vlr_planejado,
-        realizado.vlr_realizado,
-        ROUND(((realizado.vlr_realizado/planejado.vlr_planejado)* 100), 0) as gap,
-        planejado.txt_observacao as observacao_planejada,
-        realizado.txt_observacao as observacao_realizado
-        from dev.tb_projetos_atividade_custo_plan planejado
-        inner join dev.tb_projetos_atividade_custo_real realizado
+        sum(realizado.vlr_realizado) as vlr_realizado,
+        ROUND(((sum(realizado.vlr_realizado)/planejado.vlr_planejado)* 100), 0) as gap
+        from
+        tb_projetos_atividade_custo_plan planejado
+        inner join tb_projetos_atividade_custo_real realizado
         on (realizado.id_atividade = planejado.id_atividade)
-        inner join dev.tb_camp_atv_campanha atividades
+        inner join tb_projetos_atividade atividades
         on (atividades.id = planejado.id_atividade)
-        inner join dev.tb_camp_atv tarefas
-        on (tarefas.id = atividades.tarefa_id)
-        where atividades.id_pai = ${pai.id_pai}
+        left join tb_projetos_operacao operacao
+        on (operacao.id = atividades.id_operacao)
+        inner join tb_projetos_atividade poco
+        on poco.id = atividades.id_pai
+        inner join tb_projetos_atividade sonda
+        on sonda.id_pai = 0 and sonda.id = poco.id_pai
+        where
+        sonda.id =  ${pai.id_pai}
+        group by 
+        planejado.id,
+        planejado.id_atividade,
+        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
      `);
 
       return {
@@ -221,12 +228,12 @@ export class BudgetsService {
         descricao: pai.observacao_planejada + pai.dobservacao_realizado,
         filhos: filhos.map((filho, Fkey) => {
           return {
-            id: filho.id_filho,
             brt: `${Pkey}.${++Fkey}`,
             projeto: {
               id: filho.id_atividade,
               nome: filho.nom_atividade,
             },
+            id: filho.id_filho,
             planejado: +filho.vlr_planejado,
             realizado: +filho.vlr_realizado,
             gap: +filho.gap,
