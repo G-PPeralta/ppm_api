@@ -7,15 +7,35 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
+    const sonda = await this.prisma.$queryRawUnsafe(
+      `SELECT * FROM tb_projetos WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
+    );
+
+    const id_pai = await this.prisma.$queryRawUnsafe(
+      `INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
+      VALUES (0, '${sonda[0].nome_projeto}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
+      RETURNING id`,
+    );
+
+    const poco = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_poco WHERE id = ${createProjetosAtividadesDto.poco_id}
+    `);
+
+    const id_pai_poco = await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
+      VALUES (${id_pai[0]}, '${poco[0].poco}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
+      RETURNING id
+    `);
+
     createProjetosAtividadesDto.atividades.forEach(async (atv) => {
       const dataFim = new Date(atv.data_inicio);
       dataFim.setHours(dataFim.getHours() + atv.duracao);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
-        VALUES (${createProjetosAtividadesDto.poco_id}, ${atv.operacao_id}, ${
-        atv.area_id
-      }, ${atv.responsavel_id}, '${new Date(
+        VALUES (${id_pai_poco[0].id}, ${atv.operacao_id}, ${atv.area_id}, ${
+        atv.responsavel_id
+      }, '${new Date(
         atv.data_inicio,
       ).toISOString()}', '${dataFim.toISOString()}')
       RETURNING ID
