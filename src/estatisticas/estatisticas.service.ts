@@ -72,6 +72,7 @@ export class EstatisticasService {
         inicio_real: e.inicio_real,
         fim_real: e.fim_real,
         pct_plan: e.pct_plan,
+        pct_real: e.pct_real,
         nome_responsavel: e.nome_responsavel,
       };
 
