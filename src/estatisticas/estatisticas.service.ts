@@ -20,7 +20,7 @@ export class EstatisticasService {
     atividades.dat_ini_plan as inicio_planejado,
     atividades.dat_fim_plan as fim_planejado,
     fn_hrs_totais_cronograma_atvv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
-    case when fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
+    case when fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
     atividades.dat_ini_real as inicio_real,
     atividades.dat_fim_real as fim_real,
     round(fn_atv_calc_pct_plan(
