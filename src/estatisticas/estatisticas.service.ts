@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
+import { UpdateEstatistica } from './dto/update-estatistica.dto';
 
 @Injectable()
 export class EstatisticasService {
@@ -109,5 +110,27 @@ export class EstatisticasService {
     });
 
     return tratamento;
+  }
+
+  async updateProjetosEstatistica(updateEstatistica: UpdateEstatistica) {
+    await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade 
+      SET
+      dat_ini_plan = '${new Date(
+        updateEstatistica.inicio_planejado,
+      ).toISOString()}',
+      dat_fim_plan = '${new Date(
+        updateEstatistica.fim_planejado,
+      ).toISOString()}',
+      dat_ini_real = '${new Date(
+        updateEstatistica.inicio_realizado,
+      ).toISOString()}',
+      dat_fim_real = '${new Date(
+        updateEstatistica.fim_realizado,
+      ).toISOString()}',
+      pct_real = ${updateEstatistica.pct_real}
+      WHERE
+      id = ${updateEstatistica.id}
+    `);
   }
 }
