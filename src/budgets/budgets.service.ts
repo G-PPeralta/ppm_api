@@ -50,49 +50,62 @@ export class BudgetsService {
 
   async findAll() {
     const pais: any[] = await this.prisma.$queryRawUnsafe(`select 
-    atividades.id_pai as id_pai,
-    campanha.nom_campanha as nome_pai,
-    pai.id_campanha as id_campanha,
-    sum(planejado.vlr_planejado) as soma_planejado_filhos,
-    sum(realizado.vlr_realizado) as soma_realizado_filhos,
-    ROUND(((sum(realizado.vlr_realizado)/ sum(planejado.vlr_planejado))* 100), 0) as gap
-
-    from dev.tb_projetos_atividade_custo_plan planejado
-
-    inner join dev.tb_projetos_atividade_custo_real realizado
-    on (realizado.id_atividade = planejado.id_atividade)
-
-    inner join dev.tb_camp_atv_campanha atividades
-    on (atividades.id = planejado.id_atividade)
-    inner join dev.tb_camp_atv_campanha pai
-    on (pai.id_pai = 0 and pai.id = atividades.id_pai)
-    inner join dev.tb_campanha campanha
-    on (campanha.id = pai.id_campanha)
+    select 
+    sonda.id as id_pai,
+    sonda.nom_atividade as nome_pai,
+    sonda.id as id_campanha,
+    coalesce(sum(planejado.vlr_planejado), 0) as soma_planejado_filhos,
+    coalesce(sum(realizado.vlr_realizado), 0) as soma_realizado_filhos,
+    round(
+    case when coalesce(sum(planejado.vlr_planejado), 0) = 0 then 0
+    when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
+    else (coalesce(sum(planejado.vlr_planejado), 0)/coalesce(sum(realizado.vlr_realizado), 0)) * 100 end, 0)as gap
+    from tb_projetos_atividade sonda
+    inner join tb_projetos_atividade poco
+    on poco.id_pai = sonda.id
+    left join tb_projetos_atividade atividades
+    on atividades.id_pai = poco.id
+    left join tb_projetos_atividade_custo_plan planejado
+    on planejado.id_atividade = atividades.id
+    left join tb_projetos_atividade_custo_real realizado
+    on realizado.id_atividade = atividades.id
+    where 
+    sonda.id_pai = 0
     group by
-    pai.id_campanha,
-    campanha.nom_campanha,
-    atividades.id_pai
+    sonda.id
     `);
 
     const result = pais.map(async (pai, Pkey) => {
-      const filhos: any[] = await this.prisma
-        .$queryRawUnsafe(`select planejado.id as id_planejado,
+      const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+        planejado.id as id_planejado,
         realizado.id as id_realizado,
         planejado.id_atividade as id_atividade,
-        tarefas.nom_atividade  as nom_atividade,
+        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
         planejado.vlr_planejado,
         realizado.vlr_realizado,
         ROUND(((realizado.vlr_realizado/planejado.vlr_planejado)* 100), 0) as gap,
         planejado.txt_observacao as observacao_planejada,
         realizado.txt_observacao as observacao_realizado
-        from dev.tb_projetos_atividade_custo_plan planejado
-        inner join dev.tb_projetos_atividade_custo_real realizado
+        from
+        tb_projetos_atividade_custo_plan planejado
+        inner join tb_projetos_atividade_custo_real realizado
         on (realizado.id_atividade = planejado.id_atividade)
-        inner join dev.tb_camp_atv_campanha atividades
+        left join tb_projetos_atividade atividades
         on (atividades.id = planejado.id_atividade)
-        inner join dev.tb_camp_atv tarefas
-        on (tarefas.id = atividades.tarefa_id)
-        where atividades.id_pai = ${pai.id_pai}
+        left join tb_projetos_operacao operacao
+        on (operacao.id = atividades.id_operacao)
+        left join tb_projetos_atividade sonda
+        on sonda.id_pai = 0
+        left join tb_projetos_atividade poco
+        on poco.id = sonda.id_pai and poco.id = atividades.id_pai
+        where
+        sonda.id = ${pai.id_pai}
+        group by 
+        planejado.id,
+        realizado.id,
+        planejado.id_atividade,
+        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
+        
      `);
 
       return {
