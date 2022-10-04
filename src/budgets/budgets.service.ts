@@ -59,7 +59,7 @@ export class BudgetsService {
     round(
     case when max(coalesce(planejado.vlr_planejado, 0)) = 0 then 0
     when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
-    else (max(coalesce(planejado.vlr_planejado, 0))/coalesce(sum(realizado.vlr_realizado), 0)) * 100 end, 0)as gap
+    else (coalesce(sum(realizado.vlr_realizado), 0)/max(coalesce(planejado.vlr_planejado, 0))) * 100 end, 0)as gap
     from tb_projetos_atividade sonda
     inner join tb_projetos_atividade poco
     on poco.id_pai = sonda.id
