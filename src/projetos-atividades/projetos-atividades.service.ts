@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 
@@ -11,30 +11,36 @@ export class ProjetosAtividadesService {
       `SELECT * FROM tb_sondas WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
     );
 
-    const dados_sonda_projeto = await this.prisma.$queryRawUnsafe(`
+    const dados_sonda_projeto: any[] = await this.prisma.$queryRawUnsafe(`
     select tb_projetos.* from tb_sondas
     inner join tb_projetos
     on tb_projetos.nome_projeto = tb_sondas.nom_sonda
     and tb_sondas.id = ${createProjetosAtividadesDto.sonda_id}
     `);
 
-    const sonda_existe = await this.prisma.$queryRawUnsafe(
-      `SELECT count(1) as existe FROM tb_projetos_atividade WHERE id_projeto = ${dados_sonda_projeto[0].id} and id_pai = 0`,
-    );
+    let existe = false;
+    if (dados_sonda_projeto.length > 0) {
+      const sonda_existe = await this.prisma.$queryRawUnsafe(
+        `SELECT count(1) as existe FROM tb_projetos_atividade WHERE 
+        id_projeto = ${dados_sonda_projeto[0].id} and id_pai = 0`,
+      );
+      existe = sonda_existe[0].existe === 1;
+    }
 
     let id_projeto;
     let id_pai;
-    if (sonda_existe[0].existe === 0) {
+    if (!existe) {
       const ret = await this.prisma.$queryRawUnsafe(`
       INSERT INTO dev.tb_projetos
       (nome_projeto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, demanda_id, status_id, prioridade_id, complexidade_id, deletado, item, numero, responsavel_id, coordenador_id, elemento_pep)
-      VALUES('${sonda[0].nom_sonda}', 1, 14, 2, 3, 1, null, 2, null, 1, 1, 2, false, 0, null, null, null, null);
+      VALUES('${sonda[0].nom_sonda}', 1, 14, 2, 3, 1, null, 2, null, 1, 1, 2, false, 0, null, null, null, null)
+      RETURNING id
       `);
       id_projeto = ret[0].id;
 
       id_pai = await this.prisma.$queryRawUnsafe(
         `INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
-        VALUES (0, '${sonda[0].nome_projeto}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${id_projeto})
+        VALUES (0, '${sonda[0].nom_sonda}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${id_projeto})
         RETURNING id`,
       );
     } else {
@@ -74,12 +80,14 @@ export class ProjetosAtividadesService {
       `);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
+        INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create)
         VALUES ('${operacao[0].nom_operacao}', 0, ${id_projeto}, ${
         id_pai_poco[0].id
       }, ${atv.operacao_id}, ${atv.area_id}, ${atv.responsavel_id}, '${new Date(
         atv.data_inicio,
-      ).toISOString()}', '${dataFim.toISOString()}')
+      ).toISOString()}', '${dataFim.toISOString()}', '${
+        createProjetosAtividadesDto.nom_usu_create
+      }', NOW())
       RETURNING ID
       `);
 
