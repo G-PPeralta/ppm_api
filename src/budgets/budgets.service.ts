@@ -49,17 +49,17 @@ export class BudgetsService {
   }
 
   async findAll() {
-    const pais: any[] = await this.prisma.$queryRawUnsafe(`select 
-    select 
+    const pais: any[] = await this.prisma.$queryRawUnsafe(` 
+    select
     sonda.id as id_pai,
     sonda.nom_atividade as nome_pai,
     sonda.id as id_campanha,
-    coalesce(sum(planejado.vlr_planejado), 0) as soma_planejado_filhos,
+    max(coalesce(planejado.vlr_planejado, 0)) as soma_planejado_filhos,
     coalesce(sum(realizado.vlr_realizado), 0) as soma_realizado_filhos,
     round(
-    case when coalesce(sum(planejado.vlr_planejado), 0) = 0 then 0
+    case when max(coalesce(planejado.vlr_planejado, 0)) = 0 then 0
     when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
-    else (coalesce(sum(planejado.vlr_planejado), 0)/coalesce(sum(realizado.vlr_realizado), 0)) * 100 end, 0)as gap
+    else (max(coalesce(planejado.vlr_planejado, 0))/coalesce(sum(realizado.vlr_realizado), 0)) * 100 end, 0)as gap
     from tb_projetos_atividade sonda
     inner join tb_projetos_atividade poco
     on poco.id_pai = sonda.id
@@ -72,7 +72,8 @@ export class BudgetsService {
     where 
     sonda.id_pai = 0
     group by
-    sonda.id
+    sonda.id,
+    sonda.nom_atividade  
     `);
 
     const result = pais.map(async (pai, Pkey) => {
