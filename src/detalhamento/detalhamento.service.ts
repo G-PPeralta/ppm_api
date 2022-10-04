@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
+import { CpiSpi } from './dto/cpi-spi.dto';
+import { InfoFinanceiro } from './dto/financeiro-dto';
 // import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
 // import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
@@ -102,6 +104,147 @@ export class DetalhamentoService {
       }
     }
     return naoPrevistoPercentual;
+  }
+
+  // INFORMAÇÕES DO CARD FINANCEIRO
+
+  async findOneInfoFinanc(id: number) {
+    const query: InfoFinanceiro[] = await this.prisma.$queryRaw`
+      select
+    vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
+    vlr_realizado / vlr_planejado * 100 as pct_realizado,
+    vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
+    vlr_planejado,
+    vlr_realizado,
+    vlr_nao_prev,
+    vlr_remanescente
+from
+    (
+    select
+        case
+            when sum(vlr_nao_prev) <= 0 then 0.00001
+            else sum(vlr_nao_prev)
+        end as vlr_nao_prev,
+        case
+            when sum(vlr_nao_prev) = 0 then 0.00000001
+            else sum(vlr_nao_prev)*-1
+        end as vlr_remanescente,        
+        case
+            when sum(vlr_planejado) =0 then 0.00000001
+            else sum(vlr_planejado)
+        end as vlr_planejado,
+        case
+            when sum(vlr_realizado) =0 then 0.00000001
+            else sum(vlr_realizado)
+        end as vlr_realizado,
+        sum(vlr_planejado)
+    from
+        (
+        select
+            case
+                when sum(vlr_planejado) is null 
+                then 0
+                else sum(vlr_planejado)-1
+            end as vlr_nao_prev,
+            sum(vlr_planejado) as vlr_planejado,
+            0 as vlr_realizado
+        from
+            dev.tb_projetos_atividade_custo_plan a
+        inner join dev.tb_projetos_atividade b
+            on
+            a.id_atividade = b.id
+        inner join dev.tb_projetos c
+            on
+            b.id_projeto = c.id
+            where c.id = ${id}
+    union
+        select
+            case
+                when sum(vlr_realizado) is null 
+                then 0
+                else sum(vlr_realizado)
+            end as vlr_nao_prev,
+            0 as vlr_planejado,
+            sum(vlr_realizado) as vlr_realizado
+        from
+            dev.tb_projetos_atividade_custo_real a
+        inner join dev.tb_projetos_atividade b
+            on
+            a.id_atividade = b.id
+        inner join dev.tb_projetos c
+            on
+            b.id_projeto = c.id
+            where c.id = ${id}
+            --where c.tipo_projeto_id in (1,2)
+    ) as qr
+) as qr2;`;
+    return query.map((info) => ({
+      planejado: Number(info.vlr_planejado),
+      realizado: Number(info.vlr_realizado),
+      naoPrevisto: Number(info.vlr_nao_prev),
+      remanescente: Number(info.vlr_remanescente),
+      pctRealizado: Number(info.pct_realizado),
+      pctRemanescente: Number(info.pct_remanescente),
+      pctNaoPrevisto: Number(info.pct_nao_previsto),
+    }));
+  }
+
+  async findOneCpiSpi() {
+    const query: CpiSpi[] = await this.prisma.$queryRaw`
+      select
+	443 as id_projeto,
+	vlr_va / vlr_cr as vlr_cpi,
+	vlr_va / vlr_vp as vlr_spi
+from
+	(
+	select
+		(dev.fn_cron_calc_pct_plan_projeto(0,
+		443)/ 100) * sum(vlr_planejado) as vlr_vp,
+		(dev.fn_cron_calc_pct_real_projeto(0,
+		443)/ 100) * sum(vlr_planejado) as vlr_va,
+		sum(vlr_realizado) as vlr_cr
+	from
+		(
+		select
+			case
+				when sum(vlr_planejado) is null 
+                then 0
+				else sum(vlr_planejado)
+			end as vlr_planejado,
+			0 as vlr_realizado
+		from
+			dev.tb_projetos_atividade_custo_plan a
+		inner join dev.tb_projetos_atividade b
+            on
+			a.id_atividade = b.id
+		inner join dev.tb_projetos c
+            on
+			b.id_projeto = c.id
+			--where c.tipo_projeto_id in (1,2)
+	union
+		select
+			0 as vlr_planejado,
+			case
+				when sum(vlr_realizado) is null 
+                then 0
+				else sum(vlr_realizado)
+			end as vlr_realizado
+		from
+			dev.tb_projetos_atividade_custo_real a
+		inner join dev.tb_projetos_atividade b
+            on
+			a.id_atividade = b.id
+		inner join dev.tb_projetos c
+            on
+			b.id_projeto = c.id
+			--where c.tipo_projeto_id in (1,2)
+    ) as qr
+) as qr2;`;
+
+    return query.map((calc) => ({
+      cpi: Number(calc.vlr_cpi),
+      spi: Number(calc.vlr_spi),
+    }));
   }
 
   // async findOneRemanescente(id: number) {
