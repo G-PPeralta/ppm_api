@@ -80,14 +80,16 @@ export class ProjetosAtividadesService {
       `);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create)
+        INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real)
         VALUES ('${operacao[0].nom_operacao}', 0, ${id_projeto}, ${
         id_pai_poco[0].id
       }, ${atv.operacao_id}, ${atv.area_id}, ${atv.responsavel_id}, '${new Date(
         atv.data_inicio,
       ).toISOString()}', '${dataFim.toISOString()}', '${
         createProjetosAtividadesDto.nom_usu_create
-      }', NOW())
+      }', NOW(), '${new Date(
+        atv.data_inicio,
+      ).toISOString()}', '${dataFim.toISOString()}')
       RETURNING ID
       `);
 
