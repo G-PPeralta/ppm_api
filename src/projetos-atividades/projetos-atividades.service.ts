@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 
@@ -23,7 +23,7 @@ export class ProjetosAtividadesService {
 
     const id_pai_poco = await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
-      VALUES (${id_pai[0]}, '${poco[0].poco}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
+      VALUES (${id_pai[0].id}, '${poco[0].poco}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
       RETURNING id
     `);
 
