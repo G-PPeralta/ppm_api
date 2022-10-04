@@ -89,8 +89,12 @@ export class DashboardService {
         prioridadeProjeto: true,
         complexidade: true,
         responsavel: true,
+        dataInicio: true,
+        dataFim: true,
         coordenador: true,
         poloId: true,
+        descricao: true,
+        justificativa: true,
       },
     });
     const info = retornoQuery.map((query) => {
@@ -108,7 +112,11 @@ export class DashboardService {
         coordenador: query.coordenador
           ? query.coordenador.coordenadorNome
           : null,
+        dataInicio: query.dataInicio ? query.dataInicio : null,
+        dataFim: query.dataFim ? query.dataFim : null,
         polo: query.poloId,
+        descricao: query.descricao,
+        justificativa: query.justificativa,
       };
     });
     return info;
