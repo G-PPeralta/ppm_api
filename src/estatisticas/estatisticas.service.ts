@@ -5,48 +5,47 @@ import { PrismaService } from 'services/prisma/prisma.service';
 export class EstatisticasService {
   constructor(private prisma: PrismaService) {}
 
-  async estatisticasCampanha() {
+  async estatisticasProjeto() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    select 
-    campanha.id as id_sonda,
-campanha.nom_campanha as sonda,
-poco.poco as poco,
-pai.poco_id as id_poco,
-tarefas.nom_atividade as nome_atividade,
-filho.id as id_atividade, --verificar se é id da atividade ou da origem
-0.00 as custo,
-filho.dat_ini_plan as inicio_planejado,
-filho.dat_fim_plan as fim_planejado,
-fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan) as hrs_totais,
-case when fn_hrs_uteis_totais_atv(filho.dat_ini_real, filho.dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(filho.dat_ini_real, filho.dat_fim_real) end as hrs_reais,
-filho.dat_ini_real as inicio_real,
-filho.dat_fim_real as fim_real,
-round(fn_atv_calc_pct_plan(
-        fn_atv_calcular_hrs(filho.dat_ini_plan), -- horas executadas
-        fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan),  -- horas totais
-        fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
-    )*100,1) as pct_plan,
-    responsaveis.nome_responsavel  as nome_responsavel
-from
-tb_campanha campanha
-inner join tb_camp_atv_campanha pai
-on pai.id_campanha = campanha.id
-inner join 
-tb_intervencoes_pocos poco on poco.id = pai.poco_id
-inner join tb_camp_atv_campanha filho
-on filho.id_pai = pai.id
-inner join tb_camp_atv tarefas 
-on tarefas.id = filho.tarefa_id
-inner join tb_responsaveis responsaveis
-on responsaveis.responsavel_id = filho.responsavel_id
-where
-pai.id_pai = 0
-group by campanha.id, campanha.nom_campanha, poco.poco, pai.id,
-    tarefas.nom_atividade, pai.poco_id, tarefas.nom_atividade,
-    filho.id, filho.dat_ini_plan, filho.dat_fim_plan,
-    filho.dat_ini_plan, filho.dat_ini_real, responsaveis.nome_responsavel 
-    order by filho.id_pai asc, filho.dat_ini_plan asc
+    select
+    sonda.id as id_sonda,
+    sonda.nom_atividade as sonda,
+    pocos.nom_atividade as poco,
+    pocos.id as id_poco,
+    case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end as nome_atividade,
+    atividades.id as id_atividade, --verificar se é id da atividade ou da origem
+    0.00 as custo,
+    atividades.dat_ini_plan as inicio_planejado,
+    atividades.dat_fim_plan as fim_planejado,
+    fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
+    case when fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
+    atividades.dat_ini_real as inicio_real,
+    atividades.dat_fim_real as fim_real,
+    round(fn_atv_calc_pct_plan(
+            fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
+            fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
+            fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
+        )*100,1) as pct_plan,
+        responsaveis.nome_responsavel as nome_responsavel
+    from
+    tb_projetos_atividade sonda
+    inner join tb_projetos_atividade pocos
+    on pocos.id_pai = sonda.id
+    inner join tb_projetos_atividade atividades
+    on (atividades.id_pai = pocos.id)
+    left join tb_projetos_operacao tarefas
+    on (tarefas.id = atividades.id_operacao)
+    left join tb_responsaveis responsaveis
+    on responsaveis.responsavel_id = atividades.id_responsavel
+    where
+    sonda.id_pai = 0
+    group by 
+    sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
+    case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
+    atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
+    responsaveis.nome_responsavel
+    order by atividades.id_pai asc, atividades.dat_ini_plan asc
     `);
 
     const tratamento = [];

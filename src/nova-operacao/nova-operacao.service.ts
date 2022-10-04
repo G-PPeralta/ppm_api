@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateNovaOperacao } from './dto/create-nova-operacao.dto';
+import { CreatePoco } from './dto/create-poco.dto';
+import { CreateSonda } from './dto/create-sonda.dto';
 
 @Injectable()
 export class NovaOperacaoService {
@@ -23,6 +25,32 @@ export class NovaOperacaoService {
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
       SELECT * FROM tb_projetos_operacao
+    `);
+  }
+
+  async createPoco(createPoco: CreatePoco) {
+    await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_poco (poco)
+      VALUES ('${createPoco.poco}')
+    `);
+  }
+
+  async findPoco() {
+    return await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_poco
+    `);
+  }
+
+  async createSonda(createSonda: CreateSonda) {
+    await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos (nome_projeto, polo_id, local_id, tipo_projeto_id, status_id)
+      VALUES ('${createSonda.nome}', 1, 4, 3, 1)
+    `);
+  }
+
+  async findSonda() {
+    return await this.prisma.$queryRawUnsafe(`
+      SELECT id, nome_projeto as sonda FROM tb_projetos
     `);
   }
 }
