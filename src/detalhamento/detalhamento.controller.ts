@@ -36,6 +36,12 @@ export class DetalhamentoController {
     return percentual;
   }
 
+  @Get('/info-financeiro/:id')
+  async findOneInfoFinanc(@Param('id') id: number) {
+    const info = await this.detalhamentoService.findOneInfoFinanc(+id);
+    return info;
+  }
+
   @Get(':id')
   findOne(@Param('id') id: number) {
     try {
@@ -68,6 +74,12 @@ export class DetalhamentoController {
   async findOneNaoPrevistoPercentual(@Param('id') id: number) {
     const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
     return naoPrevisto;
+  }
+
+  @Get('/cpi-spi/:id')
+  async findOneCpiSpi() {
+    const cpiSpi = await this.detalhamentoService.findOneCpiSpi();
+    return cpiSpi;
   }
 
   // @Get('/remanescente/:id')
