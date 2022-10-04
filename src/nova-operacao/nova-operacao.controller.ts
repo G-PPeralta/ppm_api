@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CreateNovaOperacao } from './dto/create-nova-operacao.dto';
 import { NovaOperacaoService } from './nova-operacao.service';
 
@@ -9,5 +9,10 @@ export class NovaOperacaoController {
   @Post()
   create(@Body() createNovaOperacao: CreateNovaOperacao) {
     return this.novaOperacaoService.create(createNovaOperacao);
+  }
+
+  @Get()
+  findAll() {
+    return this.novaOperacaoService.findAll();
   }
 }
