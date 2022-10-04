@@ -93,12 +93,12 @@ export class ProjetosAtividadesService {
       RETURNING ID
       `);
 
-      atv.precedentes.forEach(async (p) => {
+      /*atv.precedentes.forEach(async (p) => {
         await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (id_pai, id_operacao)
         VALUES (${id_atv[0].id}, ${p.id})
       `);
-      });
+      });*/
     });
   }
 
