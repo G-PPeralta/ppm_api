@@ -28,6 +28,7 @@ export class EstatisticasService {
             fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
             fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
         )*100,1) as pct_plan,
+        coalesce(atividades.pct_real, 0) as pct_real,
         responsaveis.nome_responsavel as nome_responsavel
     from
     tb_projetos_atividade sonda
