@@ -29,7 +29,11 @@ export class EstatisticasService {
             fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
         )*100,1) as pct_plan,
         coalesce(atividades.pct_real, 0) as pct_real,
-        responsaveis.nome_responsavel as nome_responsavel
+        responsaveis.nome_responsavel as nome_responsavel,
+        0 as vlr_min,
+        0 as vlr_max,
+        0 as vlr_media,
+        0 as vlr_dp
     from
     tb_projetos_atividade sonda
     inner join tb_projetos_atividade pocos
@@ -74,6 +78,10 @@ export class EstatisticasService {
         pct_plan: e.pct_plan,
         pct_real: e.pct_real,
         nome_responsavel: e.nome_responsavel,
+        vlr_min: e.vlr_min,
+        vlr_max: e.vlr_max,
+        vlr_media: e.vlr_media,
+        vlr_dp: e.vlr_dp,
       };
 
       tratamento.forEach((t) => {
