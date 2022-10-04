@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 
@@ -7,15 +7,57 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
+    const sonda = await this.prisma.$queryRawUnsafe(
+      `SELECT * FROM tb_projetos WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
+    );
+
+    const sonda_existe = await this.prisma.$queryRawUnsafe(
+      `SELECT count(1) as existe FROM tb_projetos_atividade WHERE id_projeto = ${sonda[0].id} and id_pai = 0`,
+    );
+
+    let id_pai;
+    if (sonda_existe[0].existe === 0) {
+      id_pai = await this.prisma.$queryRawUnsafe(
+        `INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
+        VALUES (0, '${sonda[0].nome_projeto}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
+        RETURNING id`,
+      );
+    } else {
+      id_pai = await this.prisma.$queryRawUnsafe(`
+        SELECT id FROM tb_projetos_atividade WHERE id_projeto = ${sonda[0].id} and id_pai = 0
+      `);
+    }
+
+    const poco_existe = await this.prisma.$queryRawUnsafe(`
+      SELECT count(1) as existe FROM tb_projetos_atividade WHERE id_projeto = ${sonda[0].id} and id_pai = ${id_pai[0].id}
+    `);
+
+    const poco = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_poco WHERE id = ${createProjetosAtividadesDto.poco_id}
+    `);
+
+    let id_pai_poco;
+    if (poco_existe[0].existe === 1) {
+      id_pai_poco = await this.prisma.$queryRawUnsafe(`
+        SELECT id FROM tb_projetos_atividade where id_projeto = ${sonda[0].id} and id_pai = ${id_pai[0].id}
+      `);
+    } else {
+      id_pai_poco = await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atividade (id_pai, nom_atividade, pct_real, nom_usu_create, dat_usu_create, id_projeto)
+      VALUES (${id_pai[0].id}, '${poco[0].poco}', 0, '${createProjetosAtividadesDto.nom_usu_create}', NOW(), ${sonda[0].id})
+      RETURNING id
+    `);
+    }
+
     createProjetosAtividadesDto.atividades.forEach(async (atv) => {
       const dataFim = new Date(atv.data_inicio);
       dataFim.setHours(dataFim.getHours() + atv.duracao);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan)
-        VALUES (${createProjetosAtividadesDto.poco_id}, ${atv.operacao_id}, ${
-        atv.area_id
-      }, ${atv.responsavel_id}, '${new Date(
+        VALUES (${id_pai_poco[0].id}, ${atv.operacao_id}, ${atv.area_id}, ${
+        atv.responsavel_id
+      }, '${new Date(
         atv.data_inicio,
       ).toISOString()}', '${dataFim.toISOString()}')
       RETURNING ID

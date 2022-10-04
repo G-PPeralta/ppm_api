@@ -78,34 +78,34 @@ export class BudgetsService {
 
     const result = pais.map(async (pai, Pkey) => {
       const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
-        planejado.id as id_planejado,
-        realizado.id as id_realizado,
-        planejado.id_atividade as id_atividade,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
-        planejado.vlr_planejado,
-        realizado.vlr_realizado,
-        ROUND(((realizado.vlr_realizado/planejado.vlr_planejado)* 100), 0) as gap,
-        planejado.txt_observacao as observacao_planejada,
-        realizado.txt_observacao as observacao_realizado
-        from
-        tb_projetos_atividade_custo_plan planejado
-        inner join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = planejado.id_atividade)
-        left join tb_projetos_atividade atividades
-        on (atividades.id = planejado.id_atividade)
-        left join tb_projetos_operacao operacao
-        on (operacao.id = atividades.id_operacao)
-        left join tb_projetos_atividade sonda
-        on sonda.id_pai = 0
-        left join tb_projetos_atividade poco
-        on poco.id = sonda.id_pai and poco.id = atividades.id_pai
-        where
-        sonda.id = ${pai.id_pai}
-        group by 
-        planejado.id,
-        realizado.id,
-        planejado.id_atividade,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
+      planejado.id as id_planejado,
+      realizado.id as id_realizado,
+      planejado.id_atividade as id_atividade,
+      case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
+      planejado.vlr_planejado,
+      realizado.vlr_realizado,
+      ROUND(((realizado.vlr_realizado/planejado.vlr_planejado)* 100), 0) as gap,
+      planejado.txt_observacao as observacao_planejada,
+      realizado.txt_observacao as observacao_realizado
+      from
+      tb_projetos_atividade_custo_plan planejado
+      inner join tb_projetos_atividade_custo_real realizado
+      on (realizado.id_atividade = planejado.id_atividade)
+      inner join tb_projetos_atividade atividades
+      on (atividades.id = planejado.id_atividade)
+      left join tb_projetos_operacao operacao
+      on (operacao.id = atividades.id_operacao)
+      inner join tb_projetos_atividade poco
+      on poco.id = atividades.id_pai
+      inner join tb_projetos_atividade sonda
+      on sonda.id_pai = 0 and sonda.id = poco.id_pai
+      where
+      sonda.id = ${pai.id_pai}
+      group by 
+      planejado.id,
+      realizado.id,
+      planejado.id_atividade,
+      case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
         
      `);
 
