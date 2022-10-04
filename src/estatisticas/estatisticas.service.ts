@@ -126,7 +126,6 @@ export class EstatisticasService {
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade 
       SET
-      dat_ini_real = dat_ini_plan, dat_fim_real = dat_fim_plan,
       pct_real = ${updateEstatistica.pct_real}
       WHERE
       id = ${updateEstatistica.id}
