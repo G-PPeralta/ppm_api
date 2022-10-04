@@ -8,7 +8,7 @@ export class ProjetosAtividadesService {
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
     const sonda = await this.prisma.$queryRawUnsafe(
-      `SELECT * FROM tb_projetos WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
+      `SELECT * FROM tb_sondas WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
     );
 
     const sonda_existe = await this.prisma.$queryRawUnsafe(
@@ -33,7 +33,7 @@ export class ProjetosAtividadesService {
     `);
 
     const poco = await this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_projetos_poco WHERE id = ${createProjetosAtividadesDto.poco_id}
+      SELECT * FROM tb_intervencoes_pocos WHERE id = ${createProjetosAtividadesDto.poco_id}
     `);
 
     let id_pai_poco;
