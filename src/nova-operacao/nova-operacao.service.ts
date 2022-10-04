@@ -15,25 +15,7 @@ export class NovaOperacaoService {
       createNovaOperacao.nom_operacao
     }',
          ${createNovaOperacao.responsavel_id}, ${createNovaOperacao.area_id},
-         ${
-           createNovaOperacao.nao_iniciar_antes_de.checked
-             ? "'" +
-               new Date(
-                 createNovaOperacao.nao_iniciar_antes_de.data,
-               ).toISOString() +
-               "'"
-             : null
-         }, ${
-      createNovaOperacao.nao_terminar_depois_de.checked
-        ? "'" +
-          new Date(
-            createNovaOperacao.nao_terminar_depois_de.data,
-          ).toISOString() +
-          "'"
-        : null
-    }, ${createNovaOperacao.o_mais_breve_possivel}, '${
-      createNovaOperacao.nom_usu_create
-    }', NOW()
+         ${null}, ${null}, false, '${createNovaOperacao.nom_usu_create}', NOW()
          )
     `);
   }
