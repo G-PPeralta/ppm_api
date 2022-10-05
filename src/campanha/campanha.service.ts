@@ -11,7 +11,7 @@ export class CampanhaService {
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
     const ret = await this.prisma.$queryRawUnsafe(`
-    select a.id, nome_projeto as nom_sonda
+    select a.id, concat(a.id, ' - ', nome_projeto) as nom_sonda
     from tb_projetos a
     inner join tb_projetos_atividade b 
         on a.id = b.id_projeto 
