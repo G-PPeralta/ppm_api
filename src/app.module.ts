@@ -58,6 +58,7 @@ import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos
 import { AtividadesProjetosModule } from './atividades-projetos/atividades-projetos.module';
 import { LookaheadModule } from './lookahead/lookahead.module';
 import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
+import { ServicosSondaPocoModule } from './servicos-sonda-poco/servicos-sonda-poco.module';
 
 @Module({
   imports: [
@@ -118,6 +119,7 @@ import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
     AtividadesProjetosModule,
     NovaOperacaoModule,
     LookaheadModule,
+    ServicosSondaPocoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
