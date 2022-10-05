@@ -23,6 +23,11 @@ export class ProjetosController {
     private readonly responsavelService: ResponsavelService,
   ) {}
 
+  @Get('detalhados')
+  async getProjetosDetalhados() {
+    return await this.projetosService.getProjetosDetalhados();
+  }
+
   @Get('/prazos/find')
   async findAllProjetosPrazos() {
     return this.projetosService.findAllProjetosPrazos();

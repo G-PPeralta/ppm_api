@@ -7,6 +7,171 @@ import { UpdateProjetoDto } from './dto/update-projeto.dto';
 @Injectable()
 export class ProjetosService {
   constructor(private prismaClient: PrismaService) {}
+
+  async getProjetosDetalhados() {
+    const query = `
+      select 
+      id AS id_projeto,
+      case when coalesce(vlr_cr, 0) = 0 then 0 else vlr_va / vlr_cr end as vlr_cpi,
+      case when coalesce(vlr_vp, 0) = 0 then 0 else vlr_va / vlr_vp end as vlr_spi,
+      vlr_cr,
+      valor_total_previsto AS vlr_orcado,
+      0 AS vlr_realizado,
+      0 AS TCPI,
+      prioridade,
+      complexidade,
+      polo,
+      coordenador_nome AS coordenador,
+      nome_responsavel AS responsavel,
+      data_inicio,
+      data_fim,
+      0 AS pct,
+      descricao,
+      justificativa,
+      nome_projeto
+
+      from (
+      select 
+        id,
+        (dev.fn_cron_calc_pct_plan_projeto(0, id)/100) * sum(vlr_planejado) as vlr_vp, 
+        (dev.fn_cron_calc_pct_real_projeto(0, id)/100) * sum(vlr_planejado) as vlr_va,
+        sum(vlr_realizado) as vlr_cr,
+        valor_total_previsto,
+        prioridade,
+        complexidade,
+        polo,
+        coordenador_nome,
+        nome_responsavel,
+        data_inicio,
+        data_fim,
+        descricao,
+        justificativa,
+        nome_projeto
+        
+      from (
+        select 
+          c.id,
+          case when sum(vlr_planejado) is null 
+            then 0 
+            else sum(vlr_planejado)
+          end as vlr_planejado,
+          0 as vlr_realizado,
+          c.valor_total_previsto,
+          pri.prioridade,
+          cpx.classificacao AS complexidade,
+          pls.polo,
+          crd.coordenador_nome,
+          rsp.nome_responsavel,
+          c.data_inicio,
+          c.data_fim,
+          c.descricao,
+          c.justificativa,
+          c.nome_projeto
+
+
+        from dev.tb_projetos_atividade_custo_plan a
+        inner join dev.tb_projetos_atividade b
+          on a.id_atividade = b.id
+        inner join dev.tb_projetos c
+          on b.id_projeto = c.id
+        LEFT JOIN tb_prioridades_projetos pri
+          ON pri.id = c.prioridade_id
+        LEFT JOIN tb_classificacoes_projetos cpx
+          ON cpx.id = c.complexidade_id
+        LEFT JOIN tb_polos pls
+          ON pls.id = c.polo_id
+        LEFT JOIN tb_coordenadores crd
+          ON crd.id_coordenador = c.coordenador_id
+        LEFT JOIN tb_responsaveis rsp
+          ON rsp.responsavel_id = c.responsavel_id
+        
+          
+        GROUP BY
+          c.id,
+          c.valor_total_previsto,
+          pri.prioridade,
+          cpx.classificacao,
+          pls.polo,
+          crd.coordenador_nome,
+          rsp.nome_responsavel,
+          c.data_inicio,
+          c.data_fim,
+          c.descricao,
+          c.justificativa,
+          c.nome_projeto
+          
+        union
+        
+        select 
+          c.id,
+
+          0 as vlr_planejado,
+          case when sum(vlr_realizado) is null 
+            then 0 
+            else sum(vlr_realizado)
+          end as vlr_realizado,
+          c.valor_total_previsto,
+          pri.prioridade,
+          cpx.classificacao AS complexidade,
+          pls.polo,
+          crd.coordenador_nome,
+          rsp.nome_responsavel,
+          c.data_inicio,
+          c.data_fim,
+          c.descricao,
+          c.justificativa,
+          c.nome_projeto
+
+        from dev.tb_projetos_atividade_custo_real a
+        inner join dev.tb_projetos_atividade b
+          on a.id_atividade = b.id
+        inner join dev.tb_projetos c
+          on b.id_projeto = c.id
+        LEFT JOIN tb_prioridades_projetos pri
+          ON pri.id = c.prioridade_id
+        LEFT JOIN tb_classificacoes_projetos cpx
+          ON cpx.id = c.complexidade_id
+        LEFT JOIN tb_polos pls
+          ON pls.id = c.polo_id
+        LEFT JOIN tb_coordenadores crd
+          ON crd.id_coordenador = c.coordenador_id
+        LEFT JOIN tb_responsaveis rsp
+          ON rsp.responsavel_id = c.responsavel_id
+              
+        GROUP BY
+          c.id,
+          c.valor_total_previsto,
+          pri.prioridade,
+          cpx.classificacao,
+          pls.polo,
+          crd.coordenador_nome,
+          rsp.nome_responsavel,
+          c.data_inicio,
+          c.data_fim,
+          c.descricao,
+          c.justificativa,
+          c.nome_projeto
+
+      ) as qr
+      GROUP BY 
+        qr.id,
+        qr.valor_total_previsto,
+        qr.prioridade,
+        qr.complexidade,
+        qr.polo,
+        qr.coordenador_nome,
+        qr.nome_responsavel,
+        qr.data_inicio,
+        qr.data_fim,
+        qr.descricao,
+        qr.justificativa,
+        qr.nome_projeto
+      ) as qr2
+    `;
+
+    return await this.prismaClient.$queryRawUnsafe(query);
+  }
+
   async create(createProjetoDto: CreateProjetoDto) {
     return await this.prismaClient.projeto.create({
       data: {
