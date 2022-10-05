@@ -14,4 +14,9 @@ export class ServicosSondaPocoController {
   getPocos(@Param('id') id_projeto: string) {
     return this.service.findPocos(+id_projeto);
   }
+
+  @Get('datas/:id')
+  getIntervalo(@Param('id') id_poco: string) {
+    return this.service.findDatas(+id_poco);
+  }
 }
