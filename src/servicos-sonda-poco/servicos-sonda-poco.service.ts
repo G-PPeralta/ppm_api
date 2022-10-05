@@ -19,7 +19,13 @@ export class ServicosSondaPocoService {
   async findPocos(id_projeto: number) {
     return await this.prisma.$queryRawUnsafe(`
     select 
-    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco,
+    (select 
+            --case when min(dat_ini_plan) - INTERVAL '45 DAY' < now() then now() else min(dat_ini_plan) - INTERVAL '45 DAY' end as dat_ini_plan,
+        min(dat_ini_plan) as dat_ini_limite
+        from tb_projetos_atividade b
+        where     
+            id_pai = a.id) as dat_ini_limite
     from tb_projetos_atividade a  
     where 
         id_projeto = ${id_projeto}
@@ -43,8 +49,12 @@ export class ServicosSondaPocoService {
     dat_inicio: string,
     dat_minima_execucao: string,
   ) {
-    return await this.prisma.$queryRawUnsafe(`
-        select fn_validar_dat_limite_inicio_exec(${id_template}, '${dat_inicio}', '${dat_minima_execucao}') as cod_erro
+    const ret = await this.prisma.$queryRawUnsafe(`
+        select fn_validar_dat_limite_inicio_exec(${id_template}, '${dat_inicio}', ${
+      dat_minima_execucao === 'null' ? null : "'" + dat_minima_execucao + "'"
+    }) as cod_erro
     `);
+
+    return ret[0];
   }
 }
