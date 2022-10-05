@@ -24,7 +24,7 @@ export class ProjetosAtividadesService {
         `SELECT count(1) as existe FROM tb_projetos_atividade WHERE 
         id_projeto = ${dados_sonda_projeto[0].id} and id_pai = 0`,
       );
-      existe = sonda_existe[0].existe === 1;
+      existe = sonda_existe[0].existe > 0;
     }
 
     let id_projeto;
@@ -32,8 +32,8 @@ export class ProjetosAtividadesService {
     if (!existe) {
       const ret = await this.prisma.$queryRawUnsafe(`
       INSERT INTO dev.tb_projetos
-      (nome_projeto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, demanda_id, status_id, prioridade_id, complexidade_id, deletado, item, numero, responsavel_id, coordenador_id, elemento_pep)
-      VALUES('${sonda[0].nom_sonda}', 1, 14, 2, 3, 1, null, 2, null, 1, 1, 2, false, 0, null, null, null, null)
+      (nome_projeto, polo_id, local_id, tipo_projeto_id, status_id)
+      VALUES('${sonda[0].nom_sonda}', 1, 4, 3, 1)
       RETURNING id
       `);
       id_projeto = ret[0].id;
@@ -59,7 +59,7 @@ export class ProjetosAtividadesService {
     `);
 
     let id_pai_poco;
-    if (poco_existe[0].existe === 1) {
+    if (poco_existe[0].existe > 0) {
       id_pai_poco = await this.prisma.$queryRawUnsafe(`
         SELECT id FROM tb_projetos_atividade where id_projeto = ${id_projeto} and id_pai = ${id_pai[0].id}
       `);
