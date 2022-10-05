@@ -21,13 +21,11 @@ export class CampanhaService {
     and a.id = ${createCampanhaDto.id_projeto}
     `);
 
-    createCampanhaDto.nom_campanha = ret[0].nom_somda;
-
     const id = await this.prisma.$queryRawUnsafe(`
       insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, id_projeto, dat_usu_create) 
       values 
       (
-          '${createCampanhaDto.nom_campanha}',
+          '${ret[0].nom_sonda}',
           '${createCampanhaDto.dsc_comentario}',
           '${createCampanhaDto.nom_usu_create}',
           ${createCampanhaDto.id_projeto},
