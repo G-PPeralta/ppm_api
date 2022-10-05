@@ -10,13 +10,27 @@ export class CampanhaService {
   constructor(private prisma: PrismaService) {}
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
+    const ret = await this.prisma.$queryRawUnsafe(`
+    select a.id, nome_projeto as nom_sonda
+    from tb_projetos a
+    inner join tb_projetos_atividade b 
+        on a.id = b.id_projeto 
+    where 
+    b.id_pai = 0
+    and a.tipo_projeto_id = 3
+    and a.id = ${createCampanhaDto.id_projeto}
+    `);
+
+    createCampanhaDto.nom_campanha = ret[0].nom_somda;
+
     const id = await this.prisma.$queryRawUnsafe(`
-      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
+      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, id_projeto, dat_usu_create) 
       values 
       (
           '${createCampanhaDto.nom_campanha}',
           '${createCampanhaDto.dsc_comentario}',
           '${createCampanhaDto.nom_usu_create}',
+          ${createCampanhaDto.id_projeto},
           now()
       ) returning id
     `);
