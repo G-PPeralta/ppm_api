@@ -49,8 +49,10 @@ export class ServicosSondaPocoService {
     dat_inicio: string,
     dat_minima_execucao: string,
   ) {
-    return await this.prisma.$queryRawUnsafe(`
+    const ret = await this.prisma.$queryRawUnsafe(`
         select fn_validar_dat_limite_inicio_exec(${id_template}, '${dat_inicio}', '${dat_minima_execucao}') as cod_erro
-    `)[0];
+    `);
+
+    return ret[0];
   }
 }
