@@ -27,4 +27,24 @@ export class ServicosSondaPocoService {
     and id_pai <> 0;
     `);
   }
+
+  async findDatas(id_poco: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    select 
+        case when min(dat_ini_plan) - INTERVAL '45 DAY' < now() then now() else min(dat_ini_plan) - INTERVAL '45 DAY' end as dat_ini_plan
+    from tb_projetos_atividade a
+    where     
+    id_pai = ${id_poco};
+    `);
+  }
+
+  async verificaErrosCronograma(
+    id_template: number,
+    dat_inicio: string,
+    dat_minima_execucao: string,
+  ) {
+    return await this.prisma.$queryRawUnsafe(`
+        select fn_validar_dat_limite_inicio_exec(${id_template}, '${dat_inicio}', '${dat_minima_execucao}') as cod_erro
+    `);
+  }
 }
