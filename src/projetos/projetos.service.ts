@@ -12,12 +12,10 @@ export class ProjetosService {
     const query = `
       select 
       id AS id_projeto,
-      case when coalesce(vlr_cr, 0) = 0 then 0 else vlr_va / vlr_cr end as vlr_cpi,
-      case when coalesce(vlr_vp, 0) = 0 then 0 else vlr_va / vlr_vp end as vlr_spi,
+      trunc(case when coalesce(vlr_cr, 0) = 0 then 0 else vlr_va / vlr_cr end, 2) as vlr_cpi,
+      trunc(case when coalesce(vlr_vp, 0) = 0 then 0 else vlr_va / vlr_vp end, 2) as vlr_spi,
       vlr_cr,
       valor_total_previsto AS vlr_orcado,
-      0 AS vlr_realizado,
-      0 AS TCPI,
       prioridade,
       complexidade,
       polo,
