@@ -81,27 +81,6 @@ WHERE a.data_inicio >
 GROUP BY 1, 2;
     `);
 
-    // const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-
-    // const demandas = retornoQuery.map((project) => ({
-    //   data:
-    //     Number(project.dataInicio && project.dataInicio.getMonth()) <=
-    //       Number(currentMonth) &&
-    //     Number(project.dataInicio && project.dataInicio.getMonth()) >=
-    //       Number(currentMonth) - 4,
-    //   sms: retornoQuery.filter((project) => project.solicitanteId == 5).length,
-    //   regulatorio: retornoQuery.filter((project) => project.solicitanteId == 8)
-    //     .length,
-    //   operacao: retornoQuery.filter((project) => project.solicitanteId == 2)
-    //     .length,
-    //   outros: retornoQuery.filter(
-    //     (project) =>
-    //       project.solicitanteId !== 5 &&
-    //       project.solicitanteId !== 8 &&
-    //       project.solicitanteId !== 2,
-    //   ).length,
-    // }));
-
     const demandas = retornoQuery.map((deman) => ({
       month: Number(deman.data.split('-')[1]),
       sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
