@@ -55,7 +55,7 @@ export class ProjetosController {
   }
 
   @Get('relacoes/:id')
-  async relacoes(@Param(':id') id: string) {
+  async relacoes(@Param('id') id: string) {
     return this.projetosService.verificarRelacoes(+id);
   }
 
