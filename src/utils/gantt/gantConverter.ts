@@ -5,10 +5,9 @@ export function ganttFormatter(dataGantt: GanttPayload[]): Gantt {
 
   const macroAtividade = dataGantt
     .filter((dado) => !!dado.macroatividade_id)
-    .map(({ macroatividade_id, macroatividade_nome, macroatividade_item }) => ({
+    .map(({ macroatividade_id, macroatividade_nome }) => ({
       macroatividade_id,
       macroatividade_nome,
-      macroatividade_item,
     }));
 
   let macroAtividadeFormatada = macroAtividade.reduce((unique, o) => {
@@ -31,7 +30,6 @@ export function ganttFormatter(dataGantt: GanttPayload[]): Gantt {
       Object.assign(gantt, {
         macroatividade_id: gantt.microatividade_id,
         macroatividade_nome: gantt.nome_atividade,
-        macroatividade_item: gantt.item,
       }),
     );
 

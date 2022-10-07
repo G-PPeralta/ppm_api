@@ -13,7 +13,27 @@ export class GanttService {
 
   async findAll() {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
-      SELECT * FROM v_gantt_temp
+    select
+    projetos.nome_projeto,
+    microatividade.dat_ini_plan as data_inicio,
+    microatividade.dat_fim_plan as data_fim,
+    microatividade.id as microatividade_id,
+    microatividade.nom_atividade as nome_atividade,
+    macroatividade.id as macroatividade_id,
+    macroatividade.nom_atividade as macroatividade_nome,
+    date_part('day', age(microatividade.dat_fim_plan, microatividade.dat_ini_plan))  as duracao,
+    microatividade.pct_real as progresso
+    from
+    tb_projetos_atividade projetos_atividade
+    left join
+    tb_projetos projetos
+    on (projetos.id = projetos_atividade.id_projeto) and (coalesce(projetos_atividade.id_pai, 0) = 0)
+    left join
+    tb_projetos_atividade macroatividade
+    on macroatividade.id_pai = projetos_atividade.id
+    left join
+    tb_projetos_atividade microatividade
+    on microatividade.id_pai = macroatividade.id
     `);
     const ganttFormatted = ganttFormatter(gantt);
     if (!ganttFormatted) throw new Error('Falha na listagem de dados do gantt');
@@ -47,8 +67,34 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} gantt`;
+  async findOne(id: number) {
+    const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
+    select
+    projetos.nome_projeto,
+    microatividade.dat_ini_plan as data_inicio,
+    microatividade.dat_fim_plan as data_fim,
+    microatividade.id as microatividade_id,
+    microatividade.nom_atividade as nome_atividade,
+    macroatividade.id as macroatividade_id,
+    macroatividade.nom_atividade as macroatividade_nome,
+    date_part('day', age(microatividade.dat_fim_plan, microatividade.dat_ini_plan))  as duracao,
+    microatividade.pct_real as progresso
+    from
+    tb_projetos_atividade projetos_atividade
+    left join
+    tb_projetos projetos
+    on (projetos.id = projetos_atividade.id_projeto) and (coalesce(projetos_atividade.id_pai, 0) = 0)
+    left join
+    tb_projetos_atividade macroatividade
+    on macroatividade.id_pai = projetos_atividade.id
+    left join
+    tb_projetos_atividade microatividade
+    on microatividade.id_pai = macroatividade.id
+    where projetos.id = ${id}
+    `);
+    const ganttFormatted = ganttFormatter(gantt);
+    if (!ganttFormatted) throw new Error('Falha na listagem de dados do gantt');
+    return ganttFormatted;
   }
 
   // update(id: number, updateGanttDto: UpdateGanttDto) {
