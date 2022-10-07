@@ -262,17 +262,25 @@ and a.id = ${id};
   }
 
   async vincularAtividade(vincularAtividade: VincularAtividade) {
-    const projeto = await this.prismaClient.$queryRawUnsafe(`
+    const projeto: any[] = await this.prismaClient.$queryRawUnsafe(`
       SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
     `);
 
     const existe = await this.prismaClient.$queryRawUnsafe(`
-      SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${projeto[0].id} and (id_pai = 0 OR id_pai IS NULL)) OR id = ${vincularAtividade.relacao_id}  
+      SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${
+        projeto === null || projeto.length === 0 ? null : projeto[0].id
+      } and (id_pai = 0 OR id_pai IS NULL)) OR id = ${
+      vincularAtividade.relacao_id
+    }  
     `);
 
     if (existe[0].existe > 0) {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
-        SELECT * FROM tb_projetos_atividade WHERE id_projeto = ${projeto[0].id} and id = ${vincularAtividade.relacao_id}
+        SELECT * FROM tb_projetos_atividade WHERE (id_projeto = ${
+          projeto === null || projeto.length === 0 ? null : projeto[0].id
+        } and id = ${vincularAtividade.relacao_id}) OR id =  ${
+        vincularAtividade.relacao_id
+      }
       `);
 
       const dat_ini = new Date(vincularAtividade.dat_inicio_plan);
@@ -287,7 +295,7 @@ and a.id = ${id};
         vincularAtividade.nom_usu_create
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id
-      }`);
+      })`);
     } else {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (NOM_ATIVIDADE, PCT_REAL, ID_PROJETO, DAT_INI_PLAN, DAT_FIM_PLAN, NOM_USU_CREATE, DAT_USU_CREATE)
