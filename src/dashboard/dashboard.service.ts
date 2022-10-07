@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
+import { ProjetoDto } from './dto/projetos.dto';
 import { TotalNaoPrevistoDto } from './dto/total-nao-previsto.dto';
 import {
   TotalOrcamentoDto,
@@ -64,6 +65,58 @@ export class DashboardService {
       SELECT * FROM v_dash_areas_demandadas
     `);
     return retornoQuery;
+  }
+
+  async getSolicitantes() {
+    const retornoQuery: any = await this.prisma.$queryRaw(Prisma.sql`
+    SELECT 
+    b.solicitante as solicitante,
+    to_char(a.data_inicio, 'YYYY-MM') as data,
+    count(b.id) as quantia
+FROM tb_projetos a
+JOIN tb_solicitantes_projetos b ON a.solicitante_id = b.id
+WHERE a.data_inicio >
+   date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+   and date_trunc('month', a.data_inicio) <= date_trunc('month', CURRENT_DATE)
+GROUP BY 1, 2;
+    `);
+
+    // const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+
+    // const demandas = retornoQuery.map((project) => ({
+    //   data:
+    //     Number(project.dataInicio && project.dataInicio.getMonth()) <=
+    //       Number(currentMonth) &&
+    //     Number(project.dataInicio && project.dataInicio.getMonth()) >=
+    //       Number(currentMonth) - 4,
+    //   sms: retornoQuery.filter((project) => project.solicitanteId == 5).length,
+    //   regulatorio: retornoQuery.filter((project) => project.solicitanteId == 8)
+    //     .length,
+    //   operacao: retornoQuery.filter((project) => project.solicitanteId == 2)
+    //     .length,
+    //   outros: retornoQuery.filter(
+    //     (project) =>
+    //       project.solicitanteId !== 5 &&
+    //       project.solicitanteId !== 8 &&
+    //       project.solicitanteId !== 2,
+    //   ).length,
+    // }));
+
+    const demandas = retornoQuery.map((deman) => ({
+      month: Number(deman.data.split('-')[1]),
+      sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
+      regulatorio:
+        deman.solicitante == 'Regulatório' ? Number(deman.quantia) : 0,
+      operacao: deman.solicitante == 'Operação' ? Number(deman.quantia) : 0,
+      outros:
+        deman.solicitante !== 'Operação' &&
+        deman.solicitante !== 'SMS' &&
+        deman.solicitante !== 'Regulatório'
+          ? Number(deman.quantia)
+          : 0,
+    }));
+
+    return demandas;
   }
 
   // async getTotalOrcamentoPrevisto(poloId?: number) {
