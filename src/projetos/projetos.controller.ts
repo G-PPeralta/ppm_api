@@ -15,6 +15,7 @@ import { UpdateProjetoDto } from './dto/update-projeto.dto';
 // import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
 // import { prismaClient } from 'index.prisma';
 import { ResponsavelService } from '../responsavel/responsavel.service';
+import { VincularAtividade } from './dto/vincular-atividade.dto';
 
 @Controller('projetos')
 export class ProjetosController {
@@ -51,6 +52,16 @@ export class ProjetosController {
     } catch (error: any) {
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  @Get('relacoes/:id')
+  async relacoes(@Param(':id') id: string) {
+    return this.projetosService.verificarRelacoes(+id);
+  }
+
+  @Post('vincular')
+  async vincular(@Body() vincularAtividade: VincularAtividade) {
+    return this.projetosService.vincularAtividade(vincularAtividade);
   }
 
   @Get('listagem')

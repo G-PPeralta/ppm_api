@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
+import { VincularAtividade } from './dto/vincular-atividade.dto';
 
 @Injectable()
 export class ProjetosService {
@@ -244,5 +245,78 @@ and a.id = ${id};
     const count = await this.prismaClient.projeto.count();
     if (!count) throw new Error('Falha na contagem de projetos');
     return count;
+  }
+
+  async verificarRelacoes(id: number) {
+    return this.prismaClient.$queryRawUnsafe(`
+    select
+    coalesce(atividades.id, projetos.id) as id,
+    coalesce(atividades.nom_atividade, projetos.nome_projeto) as valor
+    from
+    tb_projetos_atividade atividades
+    left join tb_projetos projetos
+    on projetos.id = atividades.id_projeto
+    where
+    projetos.id = ${id}
+    `);
+  }
+
+  async vincularAtividade(vincularAtividade: VincularAtividade) {
+    const projeto = await this.prismaClient.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
+    `);
+
+    const existe = await this.prismaClient.$queryRawUnsafe(`
+      SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${projeto[0].id} and (id_pai = 0 OR id_pai IS NULL)) OR id = ${vincularAtividade.relacao_id}  
+    `);
+
+    if (existe[0].existe > 0) {
+      const id_ret = await this.prismaClient.$queryRawUnsafe(`
+        SELECT * FROM tb_projetos_atividade WHERE id_projeto = ${projeto[0].id} and id = ${vincularAtividade.relacao_id}
+      `);
+
+      const dat_ini = new Date(vincularAtividade.dat_inicio_plan);
+      const dat_fim = new Date(dat_ini);
+      dat_fim.setDate(dat_fim.getDate() + vincularAtividade.duracao_plan);
+
+      await this.prismaClient.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
+        VALUES (${id_ret[0].id}, '${
+        vincularAtividade.nom_atividade
+      }', 0, '${dat_ini.toISOString()}', '${dat_ini.toISOString()}', '${dat_fim.toISOString()}', '${dat_fim.toISOString()}', '${
+        vincularAtividade.nom_usu_create
+      }', NOW(), ${vincularAtividade.id_projeto}, ${
+        vincularAtividade.responsavel_id
+      }`);
+    } else {
+      const id_ret = await this.prismaClient.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividade (NOM_ATIVIDADE, PCT_REAL, ID_PROJETO, DAT_INI_PLAN, DAT_FIM_PLAN, NOM_USU_CREATE, DAT_USU_CREATE)
+        VALUES ('${projeto[0].nome_projeto}', 0, ${projeto[0].id}, ${
+        projeto[0].data_inicio === null
+          ? null
+          : "'" + new Date(projeto[0].data_inicio).toISOString() + "'"
+      }, ${
+        projeto[0].data_fim === null
+          ? null
+          : "'" + new Date(projeto[0].data_fim).toISOString() + "'"
+      }, '${vincularAtividade.nom_usu_create}', NOW() )
+        RETURNING ID;
+      `);
+
+      const dat_ini = new Date(vincularAtividade.dat_inicio_plan);
+      const dat_fim = new Date(dat_ini);
+      dat_fim.setDate(dat_fim.getDate() + vincularAtividade.duracao_plan);
+
+      await this.prismaClient.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
+        VALUES (${id_ret[0].id}, '${
+        vincularAtividade.nom_atividade
+      }', 0, '${dat_ini.toISOString()}', '${dat_ini.toISOString()}', '${dat_fim.toISOString()}', '${dat_fim.toISOString()}', '${
+        vincularAtividade.nom_usu_create
+      }', NOW(), ${vincularAtividade.id_projeto}, ${
+        vincularAtividade.responsavel_id
+      })
+      `);
+    }
   }
 }
