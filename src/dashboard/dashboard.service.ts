@@ -116,7 +116,20 @@ GROUP BY 1, 2;
           : 0,
     }));
 
-    return demandas;
+    const demandasCompletas = demandas.reduce((acc, curr) => {
+      const index = acc.findIndex((item) => item.month === curr.month);
+      if (index === -1) {
+        acc.push(curr);
+      } else {
+        acc[index].sms += curr.sms;
+        acc[index].regulatorio += curr.regulatorio;
+        acc[index].operacao += curr.operacao;
+        acc[index].outros += curr.outros;
+      }
+      return acc;
+    }, []);
+
+    return demandasCompletas;
   }
 
   // async getTotalOrcamentoPrevisto(poloId?: number) {
