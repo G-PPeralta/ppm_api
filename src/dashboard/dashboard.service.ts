@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
+import { ProjetoDto } from './dto/projetos.dto';
 import { TotalNaoPrevistoDto } from './dto/total-nao-previsto.dto';
 import {
   TotalOrcamentoDto,
@@ -64,6 +65,50 @@ export class DashboardService {
       SELECT * FROM v_dash_areas_demandadas
     `);
     return retornoQuery;
+  }
+
+  async getSolicitantes() {
+    const retornoQuery: any = await this.prisma.$queryRaw(Prisma.sql`
+    SELECT 
+    b.solicitante as solicitante,
+    to_char(a.data_inicio, 'YYYY-MM') as data,
+    count(b.id) as quantia
+FROM tb_projetos a
+JOIN tb_solicitantes_projetos b ON a.solicitante_id = b.id
+WHERE a.data_inicio >
+   date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+   and date_trunc('month', a.data_inicio) <= date_trunc('month', CURRENT_DATE)
+GROUP BY 1, 2;
+    `);
+
+    const demandas = retornoQuery.map((deman) => ({
+      month: Number(deman.data.split('-')[1]),
+      sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
+      regulatorio:
+        deman.solicitante == 'Regulatório' ? Number(deman.quantia) : 0,
+      operacao: deman.solicitante == 'Operação' ? Number(deman.quantia) : 0,
+      outros:
+        deman.solicitante !== 'Operação' &&
+        deman.solicitante !== 'SMS' &&
+        deman.solicitante !== 'Regulatório'
+          ? Number(deman.quantia)
+          : 0,
+    }));
+
+    const demandasCompletas = demandas.reduce((acc, curr) => {
+      const index = acc.findIndex((item) => item.month === curr.month);
+      if (index === -1) {
+        acc.push(curr);
+      } else {
+        acc[index].sms += curr.sms;
+        acc[index].regulatorio += curr.regulatorio;
+        acc[index].operacao += curr.operacao;
+        acc[index].outros += curr.outros;
+      }
+      return acc;
+    }, []);
+
+    return demandasCompletas;
   }
 
   // async getTotalOrcamentoPrevisto(poloId?: number) {

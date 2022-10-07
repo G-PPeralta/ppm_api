@@ -27,6 +27,8 @@ export class DetalhamentoService {
 	    polo,
 	    local,
 	    demanda,
+      descricao,
+      justificativa,
 	    tr.nome_responsavel,
 	    tc.coordenador_nome 
     from

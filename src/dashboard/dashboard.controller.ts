@@ -23,6 +23,11 @@ export class DashboardController {
     return this.dashboardService.getAreasDemandadas();
   }
 
+  @Get('solicitantes')
+  getSolicitantes() {
+    return this.dashboardService.getSolicitantes();
+  }
+
   // @Get('orcamento-total')
   // getTotalOrcamentoPrevisto(@Query('polo_id_param') polo_id_param?: string) {
   //   if (polo_id_param && isNaN(Number(polo_id_param)))
