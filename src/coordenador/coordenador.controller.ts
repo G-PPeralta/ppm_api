@@ -24,11 +24,11 @@ export class CoordenadorController {
     const coordenadorAlreadyExists = await this.coordenadorService.findByName(
       createCoordenadorDto.coordenadorNome,
     );
-    if (coordenadorAlreadyExists) {
-      throw new ConflictException(
-        `Coordenador ${createCoordenadorDto.coordenadorNome} já cadastrado`,
-      );
-    }
+    //if (coordenadorAlreadyExists) {
+    //  throw new ConflictException(
+    //    `Coordenador ${createCoordenadorDto.coordenadorNome} já cadastrado`,
+    //  );
+    //}
     const coordenador = this.coordenadorService.create(createCoordenadorDto);
 
     return coordenador;

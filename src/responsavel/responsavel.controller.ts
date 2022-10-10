@@ -36,11 +36,11 @@ export class ResponsavelController {
       createResponsavelDto.nome,
     );
 
-    if (responsavelAlreadyExists) {
-      throw new ConflictException(
-        `Responsável ${createResponsavelDto.nome} já cadastrado`,
-      );
-    }
+    //if (responsavelAlreadyExists) {
+    //  throw new ConflictException(
+    //    `Responsável ${createResponsavelDto.nome} já cadastrado`,
+    //  );
+    //}
 
     const responsavel = await this.responsavelService.create(
       createResponsavelDto,
