@@ -131,8 +131,13 @@ export class CampanhaService {
       on (pai.id_pai = 0 and filhos.id_pai = pai.id)
         inner join
         tb_campanha campanha on campanha.id = pai.id_campanha 
-        inner join 
-        tb_intervencoes_pocos poco on poco.id = pai.poco_id
+        left join 
+        (select 
+    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+    from tb_projetos_atividade a  
+    where 
+    id_operacao is null
+    and id_pai <> 0) poco on poco.id = pai.poco_id
         inner join 
         tb_areas_atuacoes areas on areas.id = filhos.area_id
         inner join
@@ -337,7 +342,7 @@ export class CampanhaService {
     pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
-    poco.poco as poco,
+    coalesce(poco.nom_poco, poco2.poco) as poco,
     pai.dat_ini_plan as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
@@ -351,7 +356,15 @@ export class CampanhaService {
     right join
     tb_campanha campanha on campanha.id = pai.id_campanha 
     left join 
-    tb_intervencoes_pocos poco on poco.id = pai.poco_id
+    (select 
+    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+    from tb_projetos_atividade a  
+    where 
+        
+    id_operacao is null
+    and id_pai <> 0) poco on poco.id = pai.poco_id
+    left join tb_intervencoes_pocos poco2
+    on poco2.id = pai.poco_id
     ${where}
     order by pai.dat_ini_plan asc
 ;

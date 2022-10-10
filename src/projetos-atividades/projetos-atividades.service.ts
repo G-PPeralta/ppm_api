@@ -7,7 +7,7 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
-    const sonda = await this.prisma.$queryRawUnsafe(
+    const sonda: any[] = await this.prisma.$queryRawUnsafe(
       `SELECT * FROM tb_sondas WHERE id = ${createProjetosAtividadesDto.sonda_id}`,
     );
 
@@ -22,7 +22,7 @@ export class ProjetosAtividadesService {
     if (dados_sonda_projeto.length > 0) {
       const sonda_existe = await this.prisma.$queryRawUnsafe(
         `SELECT count(1) as existe FROM tb_projetos_atividade WHERE 
-        id_projeto = ${dados_sonda_projeto[0].id} and id_pai = 0`,
+        id_projeto = ${dados_sonda_projeto[0].id} and (id_pai = 0 or id_pai is null)`,
       );
       existe = sonda_existe[0].existe > 0;
     }

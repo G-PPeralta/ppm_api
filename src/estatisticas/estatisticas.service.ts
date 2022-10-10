@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
-import { UpdateEstatistica } from './dto/update-estatistica.dto';
+import { EstatisticaDto } from './dto/update-estatistica.dto';
 
 @Injectable()
 export class EstatisticasService {
@@ -122,13 +122,57 @@ export class EstatisticasService {
     return tratamento;
   }
 
-  async updateProjetosEstatistica(updateEstatistica: UpdateEstatistica) {
+  async updateProjetosEstatistica(updateEstatistica: EstatisticaDto) {
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade 
       SET
-      pct_real = ${updateEstatistica.pct_real}
+      pct_real = ${updateEstatistica.pct_real},
+      dat_ini_plan = '${new Date(
+        updateEstatistica.inicio_planejado,
+      ).toISOString()}',
+      dat_fim_plan = '${new Date(
+        updateEstatistica.fim_planejado,
+      ).toISOString()}',
+      dat_ini_real = '${new Date(
+        updateEstatistica.inicio_realizado,
+      ).toISOString()}',
+      dat_fim_real = '${new Date(
+        updateEstatistica.fim_realizado,
+      ).toISOString()}',
+      id_area = ${updateEstatistica.id_area},
+      id_responsavel = ${updateEstatistica.id_responsavel}
       WHERE
-      id = ${updateEstatistica.id}
+      id = ${updateEstatistica.id_atividade}
+    `);
+  }
+
+  async vincularAtividade(createAtividade: EstatisticaDto) {
+    const atv: any[] = await this.prisma.$queryRawUnsafe(`
+      SELECT nom_operacao FROM tb_projetos_operacao
+      WHERE id = ${createAtividade.id_atividade}
+    `);
+
+    const projeto: any[] = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_atividade WHERE id = ${createAtividade.id_sonda}
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atividade
+      (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, dat_ini_real, dat_fim_real, id_projeto, id_operacao, id_area, id_responsavel)
+      VALUES
+      (${createAtividade.id_poco}, ${atv[0].nom_operacao}, ${
+      createAtividade.pct_real === null ? 0 : createAtividade.pct_real
+    }, '${new Date(
+      createAtividade.inicio_planejado,
+    ).toISOString()}', '${new Date(
+      createAtividade.fim_planejado,
+    ).toISOString()}', '${new Date(
+      createAtividade.inicio_realizado,
+    ).toISOString()}', '${new Date(
+      createAtividade.fim_realizado,
+    ).toISOString()}', ${projeto[0].id_projeto}, ${
+      createAtividade.id_atividade
+    }, ${createAtividade.id_area}, ${createAtividade.id_responsavel})
     `);
   }
 }
