@@ -127,7 +127,6 @@ export class EstatisticasService {
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade 
       SET
-      pct_real = ${updateEstatistica.pct_real},
       dat_ini_plan = '${new Date(
         updateEstatistica.inicio_planejado,
       ).toISOString()}',
@@ -139,9 +138,7 @@ export class EstatisticasService {
       ).toISOString()}',
       dat_fim_real = '${new Date(
         updateEstatistica.fim_realizado,
-      ).toISOString()}',
-      id_area = ${updateEstatistica.id_area},
-      id_responsavel = ${updateEstatistica.id_responsavel}
+      ).toISOString()}'
       WHERE
       id = ${updateEstatistica.id_atividade}
     `);
@@ -171,7 +168,7 @@ export class EstatisticasService {
       INSERT INTO tb_projetos_atividade
       (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, dat_ini_real, dat_fim_real, id_projeto, id_operacao, id_area, id_responsavel)
       VALUES
-      (${createAtividade.id_poco}, ${atv[0].nom_operacao}, 0, '${new Date(
+      (${createAtividade.id_poco}, '${atv[0].nom_operacao}', 0, '${new Date(
       createAtividade.inicio_planejado,
     ).toISOString()}', '${dataFimPlanejado.toISOString()}', '${new Date(
       createAtividade.inicio_realizado,
