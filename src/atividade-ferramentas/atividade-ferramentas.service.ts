@@ -20,8 +20,16 @@ export class AtividadeFerramentasService {
   };
 
   public findAll = async () => {
-    return await this.prisma.$queryRawUnsafe(
+    const ferramentas = await this.prisma.$queryRawUnsafe(
       'select * from tb_atividade_ferramentas',
     );
+    return ferramentas;
+  };
+
+  public findById = async (id: number) => {
+    const ferramentas = await this.prisma.$queryRawUnsafe(
+      `select * from tb_atividade_ferramentas where atividade_id = ${id}`,
+    );
+    return ferramentas;
   };
 }

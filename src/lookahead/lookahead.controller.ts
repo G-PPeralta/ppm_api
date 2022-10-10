@@ -14,4 +14,14 @@ export class LookaheadController {
   async GetAtividades(@Param('id') id: string) {
     return await this.lookaheadService.atividadesPorProjeto(id);
   }
+
+  @Get('/atividade/:id')
+  async GetAtividade(@Param('id') id: string) {
+    return await this.lookaheadService.atividade(id);
+  }
+
+  @Get('/ferramentas-servicos/:id')
+  async GetFerramentasServicos(@Param('id') id: string) {
+    return await this.lookaheadService.getFerramentaServico(id);
+  }
 }
