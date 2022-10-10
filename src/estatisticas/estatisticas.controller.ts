@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { CreateEstatisticaDto } from './dto/create-estatistica.dto';
 import { EstatisticaDto } from './dto/update-estatistica.dto';
 import { EstatisticasService } from './estatisticas.service';
 
@@ -19,7 +20,7 @@ export class EstatisticasController {
   }
 
   @Post('projetos')
-  vincularAtividade(@Body() vincularAtividade: EstatisticaDto) {
+  vincularAtividade(@Body() vincularAtividade: CreateEstatisticaDto) {
     return this.estatisticasService.vincularAtividade(vincularAtividade);
   }
 }
