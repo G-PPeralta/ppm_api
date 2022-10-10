@@ -23,14 +23,34 @@ export class DashboardController {
     return this.dashboardService.getAreasDemandadas();
   }
 
+  @Get('solicitantes')
+  getSolicitantes() {
+    return this.dashboardService.getSolicitantes();
+  }
+
+  // @Get('orcamento-total')
+  // getTotalOrcamentoPrevisto(@Query('polo_id_param') polo_id_param?: string) {
+  //   if (polo_id_param && isNaN(Number(polo_id_param)))
+  //     throw new BadRequestException(
+  //       DashboardService.errors.totalOrcamento.badRequestError,
+  //     );
+  //   const numberPoloId = polo_id_param ? Number(polo_id_param) : null;
+  //   return this.dashboardService.getTotalOrcamentoPrevisto(numberPoloId);
+  // }
+
   @Get('orcamento-total')
-  getTotalOrcamentoPrevisto(@Query('polo_id_param') polo_id_param?: string) {
-    if (polo_id_param && isNaN(Number(polo_id_param)))
-      throw new BadRequestException(
-        DashboardService.errors.totalOrcamento.badRequestError,
-      );
-    const numberPoloId = polo_id_param ? Number(polo_id_param) : null;
-    return this.dashboardService.getTotalOrcamentoPrevisto(numberPoloId);
+  getTotalOrcamentoPrevisto() {
+    return this.dashboardService.getTotalOrcamentoPrevisto();
+  }
+
+  @Get('realizado')
+  getTotalRealizado() {
+    return this.dashboardService.getTotalRealizado();
+  }
+
+  @Get('nao-previsto')
+  getTotalNaoPrevisto() {
+    return this.dashboardService.getTotalNaoPrevisto();
   }
 
   @Get('projetos-info')

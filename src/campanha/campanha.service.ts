@@ -10,13 +10,25 @@ export class CampanhaService {
   constructor(private prisma: PrismaService) {}
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
+    const ret = await this.prisma.$queryRawUnsafe(`
+    select a.id, concat(a.id, ' - ', nome_projeto) as nom_sonda
+    from tb_projetos a
+    inner join tb_projetos_atividade b 
+        on a.id = b.id_projeto 
+    where 
+    b.id_pai = 0
+    and a.tipo_projeto_id = 3
+    and a.id = ${createCampanhaDto.id_projeto}
+    `);
+
     const id = await this.prisma.$queryRawUnsafe(`
-      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, dat_usu_create) 
+      insert into tb_campanha (nom_campanha, dsc_comentario, nom_usu_create, id_projeto, dat_usu_create) 
       values 
       (
-          '${createCampanhaDto.nom_campanha}',
+          '${ret[0].nom_sonda}',
           '${createCampanhaDto.dsc_comentario}',
           '${createCampanhaDto.nom_usu_create}',
+          ${createCampanhaDto.id_projeto},
           now()
       ) returning id
     `);
@@ -119,8 +131,13 @@ export class CampanhaService {
       on (pai.id_pai = 0 and filhos.id_pai = pai.id)
         inner join
         tb_campanha campanha on campanha.id = pai.id_campanha 
-        inner join 
-        tb_intervencoes_pocos poco on poco.id = pai.poco_id
+        left join 
+        (select 
+    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+    from tb_projetos_atividade a  
+    where 
+    id_operacao is null
+    and id_pai <> 0) poco on poco.id = pai.poco_id
         inner join 
         tb_areas_atuacoes areas on areas.id = filhos.area_id
         inner join
@@ -325,7 +342,7 @@ export class CampanhaService {
     pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
-    poco.poco as poco,
+    coalesce(poco.nom_poco, poco2.poco) as poco,
     pai.dat_ini_plan as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
@@ -339,7 +356,15 @@ export class CampanhaService {
     right join
     tb_campanha campanha on campanha.id = pai.id_campanha 
     left join 
-    tb_intervencoes_pocos poco on poco.id = pai.poco_id
+    (select 
+    a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+    from tb_projetos_atividade a  
+    where 
+        
+    id_operacao is null
+    and id_pai <> 0) poco on poco.id = pai.poco_id
+    left join tb_intervencoes_pocos poco2
+    on poco2.id = pai.poco_id
     ${where}
     order by pai.dat_ini_plan asc
 ;
