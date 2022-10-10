@@ -254,7 +254,7 @@ and a.id = ${id};
     coalesce(atividades.nom_atividade, projetos.nome_projeto) as valor
     from
     tb_projetos_atividade atividades
-    left join tb_projetos projetos
+    right join tb_projetos projetos
     on projetos.id = atividades.id_projeto
     where
     projetos.id = ${id}
