@@ -20,6 +20,7 @@ export class ProjetosService {
     rsp.nome_responsavel  AS responsavel,
     vlr_orcado,
     vlr_cr,
+    tipo_projeto_id,
     a.data_inicio,
     a.data_fim,
    0 AS pct,
