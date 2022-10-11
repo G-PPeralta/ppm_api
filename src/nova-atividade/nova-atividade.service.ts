@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CampanhaService } from 'campanha/campanha.service';
 import { PrismaService } from 'services/prisma/prisma.service';
+import { addWorkDays } from 'utils/days/daysUtil';
 import { CreateAtividade } from './dto/create-atividade.dto';
 
 @Injectable()
@@ -46,10 +47,7 @@ export class NovaAtividadeService {
     const lastDate = await this.campanhaService.findDatasPai(id_pai);
 
     const iniDate = new Date(lastDate[0].dat_ini_prox_intervencao);
-    iniDate.setHours(9);
-    const data = new Date(iniDate);
-    data.setDate(data.getDate() + dias);
-    data.setHours(18);
+    const data = addWorkDays(new Date(iniDate), dias);
 
     const id_atv = await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, tarefa_id, area_id, responsavel_id)

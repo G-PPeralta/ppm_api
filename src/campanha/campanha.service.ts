@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
@@ -66,7 +67,7 @@ export class CampanhaService {
   }
 
   async createFilho(createCampanhaDto: CreateCampanhaFilhoDto) {
-    const data = new Date(createCampanhaDto.dat_ini_prev);
+    let data = new Date(createCampanhaDto.dat_ini_prev);
 
     const id_pai = await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
@@ -80,7 +81,7 @@ export class CampanhaService {
 
     createCampanhaDto.atividades.forEach(async (atv) => {
       const oldDate = new Date(data);
-      data.setDate(data.getDate() + atv.qtde_dias);
+      data = addWorkDays(data, atv.qtde_dias);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id)
