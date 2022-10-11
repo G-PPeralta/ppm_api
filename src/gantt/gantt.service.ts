@@ -92,6 +92,7 @@ export class GanttService {
     on microatividade.id_pai = macroatividade.id
     where projetos.id = ${id}
     `);
+    if (gantt.length <= 0) return null;
     const ganttFormatted = ganttFormatter(gantt);
     if (!ganttFormatted) throw new Error('Falha na listagem de dados do gantt');
     return ganttFormatted;
