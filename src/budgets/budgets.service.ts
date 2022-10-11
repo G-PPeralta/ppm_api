@@ -258,4 +258,14 @@ export class BudgetsService {
       return { nome: data.nom_atividade, id: data.id };
     });
   }
+
+  async getSondaNome(id) {
+    return await this.prisma.$queryRawUnsafe(
+      `select
+      nom_atividade
+    from tb_projetos_atividade where 
+    id = ${id}
+    `,
+    );
+  }
 }
