@@ -77,7 +77,7 @@ export class GanttService {
     microatividade.nom_atividade as nome_atividade,
     macroatividade.id as macroatividade_id,
     macroatividade.nom_atividade as macroatividade_nome,
-    date_part('day', age(microatividade.dat_fim_plan, microatividade.dat_ini_plan))  as duracao,
+    case when weekdays_sql(microatividade.dat_ini_plan::date, microatividade.dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(microatividade.dat_ini_plan::date, microatividade.dat_fim_plan::date)::int - 1 end as duracao,
     microatividade.pct_real as progresso
     from
     tb_projetos_atividade projetos_atividade
@@ -90,7 +90,7 @@ export class GanttService {
     left join
     tb_projetos_atividade microatividade
     on microatividade.id_pai = macroatividade.id
-    where projetos.id = ${id}
+    where projetos.id = ${id} order by 2,3
     `);
     if (gantt.length <= 0) return null;
     const ganttFormatted = ganttFormatter(gantt);
