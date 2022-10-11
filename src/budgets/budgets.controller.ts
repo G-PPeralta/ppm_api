@@ -32,14 +32,19 @@ export class BudgetsController {
     return this.budgetsService.findAll();
   }
 
-  @Get('/detail')
-  findDetailAll() {
-    return this.budgetsService.findAllDetail();
+  @Get('/detail/:id')
+  findDetailAll(@Param('id') id: string) {
+    return this.budgetsService.findAllDetail(+id);
   }
 
   @Get('/projects')
   projects() {
     return this.budgetsService.findAllProjects();
+  }
+
+  @Get('/poco/:id')
+  getNome(@Param('id') id: string) {
+    return this.budgetsService.getSondaNome(+id);
   }
 
   @Get(':id')

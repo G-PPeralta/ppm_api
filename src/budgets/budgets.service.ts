@@ -159,7 +159,7 @@ export class BudgetsService {
     return `This action removes a #${id} budget`;
   }
 
-  async findAllDetail() {
+  async findAllDetail(id: number) {
     const pais: any[] = await this.prisma.$queryRawUnsafe(`
     select
     sonda.id as id_pai,
@@ -182,6 +182,8 @@ export class BudgetsService {
     on realizado.id_atividade = atividades.id
     where 
     sonda.id_pai = 0
+    and 
+    sonda.id = '${id}'
     group by
     sonda.id,
     sonda.nom_atividade`);
@@ -255,5 +257,15 @@ export class BudgetsService {
     return projetos.map((data) => {
       return { nome: data.nom_atividade, id: data.id };
     });
+  }
+
+  async getSondaNome(id) {
+    return await this.prisma.$queryRawUnsafe(
+      `select
+      nom_atividade
+    from tb_projetos_atividade where 
+    id = ${id}
+    `,
+    );
   }
 }
