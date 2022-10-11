@@ -11,13 +11,32 @@ export class ProjetosService {
 
   async getProjetosDetalhados() {
     const query = `
-    select *,
+    select 
+	a.id,
+	a.nome_projeto,
+  a.valor_total_previsto,
+	vlr_cpi,
+	vlr_spi,
+	vlr_cr,
+	vlr_orcado,
+	prioridade,
+	complexidade_id,
+	complexidade,
+	polo_id,
+	polo,
+	coordenador,
+	coordenador_id,
+	coalesce(a.data_inicio, b.data_inicio) as data_inicio,
+	coalesce(a.data_fim, b.data_fim) as data_fim,
+	pct,
+	coalesce(a.descricao, b.descricao) as descricao,
+	coalesce(a.justificativa, b.justificativa) as justificativa,
     a.id as id_projeto_real,
-    case when vlr_cpi is null or vlr_cpi = 0 then
-      0
+    case when vlr_cpi is null then
+      1
     else vlr_cpi end  as vlr_cpi_corrigido,
-    case when vlr_spi is null or vlr_spi = 0 then
-      0
+    case when vlr_spi is null then
+      1
     else vlr_spi end  as vlr_spi_corrigido,
     case when ranking is null then 0 else ranking end as vlr_ranking
     from tb_projetos a
