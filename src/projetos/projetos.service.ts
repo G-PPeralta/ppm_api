@@ -12,6 +12,7 @@ export class ProjetosService {
   async getProjetosDetalhados() {
     const query = `
     SELECT *,
+	a.id as id_projeto_real,
     cpx.complexidade,
     pri.prioridade,
     pls.polo,
@@ -135,8 +136,7 @@ export class ProjetosService {
     on a.id = b.id_projeto
     where 
       a.tipo_projeto_id in (1,2,3)
-    order by b.id_projeto asc    
-
+    order by b.id_projeto asc  
     `;
 
     return await this.prismaClient.$queryRawUnsafe(query);
@@ -254,7 +254,7 @@ and a.id = ${id};
     coalesce(atividades.nom_atividade, projetos.nome_projeto) as valor
     from
     tb_projetos_atividade atividades
-    left join tb_projetos projetos
+    right join tb_projetos projetos
     on projetos.id = atividades.id_projeto
     where
     projetos.id = ${id}

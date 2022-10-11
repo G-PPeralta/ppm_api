@@ -129,8 +129,8 @@ GROUP BY 1, 2;
 
   async getTotalOrcamentoPrevisto() {
     const retornoQuery: TotalOrcamentoDto[] = await this.prisma
-      .$queryRaw`select max(valor_total_previsto) as vlr_orcamento_total
-      from dev.tb_projetos tp 
+      .$queryRaw`select coalesce(sum(valor_total_previsto), 0) as vlr_orcamento_total
+      from tb_projetos tp 
       where tipo_projeto_id in (1,2)`;
 
     return retornoQuery.map((orc) => ({

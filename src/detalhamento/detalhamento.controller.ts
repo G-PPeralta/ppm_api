@@ -77,8 +77,8 @@ export class DetalhamentoController {
   }
 
   @Get('/cpi-spi/:id')
-  async findOneCpiSpi() {
-    const cpiSpi = await this.detalhamentoService.findOneCpiSpi();
+  async findOneCpiSpi(@Param('id') id: number) {
+    const cpiSpi = await this.detalhamentoService.findOneCpiSpi(+id);
     return cpiSpi;
   }
 
