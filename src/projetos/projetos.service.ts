@@ -20,7 +20,6 @@ export class ProjetosService {
     rsp.nome_responsavel  AS responsavel,
     vlr_orcado,
     vlr_cr,
-    tipo_projeto_id,
     a.data_inicio,
     a.data_fim,
    0 AS pct,
@@ -136,7 +135,7 @@ export class ProjetosService {
     ) as b
     on a.id = b.id_projeto
     where 
-      a.tipo_projeto_id in (1,2,3)
+      a.tipo_projeto_id in (1,2)
     order by b.id_projeto asc  
     `;
 
