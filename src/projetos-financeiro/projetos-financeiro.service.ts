@@ -70,8 +70,7 @@ export class ProjetosFinanceiroService {
             prestadorDeServico: e.prestadordeservico,
             classeDoServico: e.classedoservico,
             dataPagamento: e.datapagamento,
-            previsto: e.previsto,
-            realizado: e.realizado,
+            valor: e.valor,
             descricaoDoServico: e.descricaodoservico,
           });
         }
