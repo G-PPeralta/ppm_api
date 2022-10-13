@@ -1,3 +1,4 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { validateOrReject } from 'class-validator';
 import { PrismaService } from 'services/prisma/prisma.service';
@@ -8,7 +9,10 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 
 @Injectable()
 export class BudgetsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly httpService: HttpService,
+  ) {}
   async updateBudgetPlan(_updateBudgetDto: BudgetPlan) {
     const where = {
       id_atividade: _updateBudgetDto.atividadeId,
@@ -289,20 +293,51 @@ export class BudgetsService {
     return query[0];
   }
 
-  async getTotalizacao(id) {
+  async getInicioAndFim(id) {
     const datas: { inicio: string; fim: string }[] = await this.prisma
       .$queryRawUnsafe(`
-    select
-     min(dat_ini_plan) as inicio,
-   	 max(dat_fim_plan) as fim
-    from tb_projetos_atividade 
-    where
-    id_pai = ${id}
+      select
+      min(dat_ini_plan) as inicio,
+        max(dat_fim_plan) as fim
+      from tb_projetos_atividade 
+      where
+      id_pai = ${id}
     `);
+    return datas[0];
+  }
 
+  async getTotalDiarioAcumulado(id) {
+    const custoTotalAcumulado: { total_realizado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(realizado .vlr_realizado) as total_realizado  
+  from tb_projetos_atividade_custo_real realizado
+  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
+  where 
+  atividade.id_pai  = ${id}
+  Group by dat_ini_plan, id_projeto
+  having  
+  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+
+    return custoTotalAcumulado[0].total_realizado;
+  }
+
+  async convertBRLtoUSD(valueReal: number) {
+    const data = await this.httpService.get(
+      `https://economia.awesomeapi.com.br/BRL-USD/${valueReal}?format=json`,
+    );
+
+    return data.subscribe;
+  }
+  async getTotalizacao(id) {
+    const totalDiarioAcumulado = await this.getTotalDiarioAcumulado(id);
     return {
-      inicio: datas[0].inicio,
-      fim: datas[0].fim,
+      ...(await this.getInicioAndFim(id)),
+      custoDiarioTotalBRL: +totalDiarioAcumulado,
+      custoDiarioTotalUSD: +this.convertBRLtoUSD(totalDiarioAcumulado),
+      custoTotalRealizadoBRL: 0,
+      custoTotalRealizadoUSD: 0,
+      custoTotalTotalPrevistoBRL: 0,
+      custoTotalTotalPrevistoUSD: 0,
     };
   }
 }
