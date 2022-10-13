@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { ganttFormatter } from '../utils/gantt/gantConverter';
 import { CreateGanttDto, GanttPayload } from './dto/create-gantt.dto';
+import { UpdateGanttDto } from './dto/update-gantt.dto';
 
 @Injectable()
 export class GanttService {
@@ -104,6 +105,17 @@ export class GanttService {
 
   remove(id: number) {
     return `This action removes a #${id} gantt`;
+  }
+
+  async updateGantt(updateGannt: UpdateGanttDto, id: number) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade
+      SET
+      dat_ini_plan = '${new Date(updateGannt.dat_ini).toISOString()}',
+      dat_fim_plan = '${new Date(updateGannt.dat_fim).toISOString()}',
+      pct_real = ${updateGannt.pct_real}
+      WHERE id = ${id}
+    `);
   }
 }
 
