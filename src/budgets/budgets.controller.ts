@@ -42,11 +42,6 @@ export class BudgetsController {
     return this.budgetsService.findAllProjects();
   }
 
-  @Get('/poco/:id')
-  getNome(@Param('id') id: string) {
-    return this.budgetsService.getSondaNome(+id);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.budgetsService.findOne(+id);

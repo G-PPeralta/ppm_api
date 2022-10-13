@@ -237,7 +237,11 @@ export class BudgetsService {
       };
     });
 
-    return await Promise.all(result);
+    const titulo = await this.getSondaNome(id);
+    const totalizacao = await this.getTotalizacao(id);
+    const list = await Promise.all(result);
+
+    return { totalizacao, list, titulo };
   }
 
   async findAllProjects() {
@@ -271,7 +275,7 @@ export class BudgetsService {
   }
 
   async getSondaNome(id) {
-    return await this.prisma.$queryRawUnsafe(
+    const query = await this.prisma.$queryRawUnsafe(
       `select
       poco.nom_atividade as poco_nome,
       sonda.nom_atividade as sonda_nome
@@ -281,5 +285,24 @@ export class BudgetsService {
     poco.id =  ${id}
     `,
     );
+
+    return query[0];
+  }
+
+  async getTotalizacao(id) {
+    const datas: { inicio: string; fim: string }[] = await this.prisma
+      .$queryRawUnsafe(`
+    select
+     min(dat_ini_plan) as inicio,
+   	 max(dat_fim_plan) as fim
+    from tb_projetos_atividade 
+    where
+    id_pai = ${id}
+    `);
+
+    return {
+      inicio: datas[0].inicio,
+      fim: datas[0].fim,
+    };
   }
 }
