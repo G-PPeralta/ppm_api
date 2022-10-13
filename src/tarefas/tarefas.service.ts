@@ -8,12 +8,14 @@ export class TarefasService {
 
   async create(createTarefa: CreateTarefas) {
     const id = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_tarefas (nome_tarefa, data_tarefa, atividade_relacionada, descricao_tarefa, responsavel, nom_usu_create, dat_usu_create)
+        INSERT INTO tb_tarefas (nome_tarefa, data_tarefa, atividade_relacionada, descricao_tarefa, responsavel, nom_usu_create, dat_usu_create, projeto_id)
         VALUES ('${createTarefa.nome_tarefa}', '${new Date(
       createTarefa.data_tarefa,
-    ).toISOString()}', ${createTarefa.atividade_relacionada}, '${
+    ).toISOString()}', '${createTarefa.atividade_relacionada}', '${
       createTarefa.descricao_tarefa
-    }', '${createTarefa.responsavel}', '${createTarefa.nom_usu_create}', now())
+    }', '${createTarefa.responsavel}', '${
+      createTarefa.nom_usu_create
+    }', now(), ${createTarefa.projeto_id})
         RETURNING id
     `);
     return id;
@@ -21,20 +23,19 @@ export class TarefasService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select tarefas.*, atividades.nome_atividade 
-    from dev.tb_tarefas tarefas
-    inner join dev.tb_atividades atividades
-    on atividades.id = tarefas.atividade_relacionada
+    select * from tb_tarefas tarefas
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select tarefas.*, atividades.nome_atividade 
-    from tb_tarefas tarefas
-    inner join tb_atividades atividades
-    on atividades.id = tarefas.atividade_relacionada
-    where tarefas.id = ${id}
+    select * from tb_tarefas where id = ${id}
+    `);
+  }
+
+  async findByProjeto(id: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    select * from tb_tarefas where projeto_id = ${id}
     `);
   }
 

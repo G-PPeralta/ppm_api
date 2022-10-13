@@ -16,6 +16,11 @@ export class TarefasController {
     return this.tarefasService.findOne(+id);
   }
 
+  @Get('/projeto/:id')
+  findByProjeto(@Param('id') id: string) {
+    return this.tarefasService.findByProjeto(+id);
+  }
+
   @Post()
   create(@Body() createTarefas: CreateTarefas) {
     return this.tarefasService.create(createTarefas);
