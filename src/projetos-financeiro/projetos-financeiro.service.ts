@@ -91,6 +91,6 @@ export class ProjetosFinanceiroService {
         tratamento.push(dados);
       }
     }
-    return tratamento;
+    return tratamento[0];
   }
 }
