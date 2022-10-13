@@ -36,7 +36,7 @@ export class ProjetosFinanceiroService {
     coalesce(centro_custo.id, 0) as idCusto,
     '' as prestadorDeServico,
     '' as classeDoServico,
-    coalesce(centro_custo.data, '') as dataPagamento,
+    centro_custo.data as dataPagamento,
     projetos.valor_total_previsto as previsto,
     coalesce(centro_custo.valor, 0) as realizado,
     coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico
