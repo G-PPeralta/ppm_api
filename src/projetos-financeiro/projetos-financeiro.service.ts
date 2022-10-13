@@ -37,8 +37,7 @@ export class ProjetosFinanceiroService {
     '' as prestadorDeServico,
     '' as classeDoServico,
     centro_custo.data as dataPagamento,
-    projetos.valor_total_previsto as previsto,
-    coalesce(centro_custo.valor, 0) as realizado,
+    coalesce(centro_custo.valor, 0) as valor,
     coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico
     from tb_projetos projetos
     left join tb_projetos_atividade atividade_pai
