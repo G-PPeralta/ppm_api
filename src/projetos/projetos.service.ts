@@ -333,6 +333,12 @@ and a.id = ${id};
     }  
     `);
 
+    const dat_ini = new Date(vincularAtividade.dat_inicio_plan);
+    const dat_fim = addWorkDays(
+      new Date(dat_ini),
+      vincularAtividade.duracao_plan,
+    );
+
     if (existe[0].existe > 0) {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
         SELECT * FROM tb_projetos_atividade WHERE (id_projeto = ${
@@ -341,12 +347,6 @@ and a.id = ${id};
         vincularAtividade.relacao_id
       }
       `);
-
-      const dat_ini = new Date(vincularAtividade.dat_inicio_plan);
-      const dat_fim = addWorkDays(
-        new Date(dat_ini),
-        vincularAtividade.duracao_plan,
-      );
 
       await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
