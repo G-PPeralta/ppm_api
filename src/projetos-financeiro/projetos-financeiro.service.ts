@@ -14,7 +14,7 @@ export class ProjetosFinanceiroService {
     '' as denominacaoDeObjeto,
     '' as textoDoPedido,
     coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
-    coalesce(projetos.valor_total_previsto, 0) as valorRealizado,
+    coalesce(sum(centro_custo.valor), 0) as totalRealizado,
     coalesce(to_char(centro_custo.data, 'MM'), '') as mes
     from tb_projetos projetos
     left join
@@ -22,6 +22,8 @@ export class ProjetosFinanceiroService {
     on centro_custo.projeto_id = projetos.id
     where
     projetos.tipo_projeto_id in (1, 2)
+    group by 
+    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto, centro_custo.data
     `);
   }
 
