@@ -8,12 +8,12 @@ export class TarefasService {
 
   async create(createTarefa: CreateTarefas) {
     const id = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_tarefas (nome_tarefa, data_tarefa, atividade_relacionada, descricao_tarefa, nom_usu_create, dat_usu_create)
+        INSERT INTO tb_tarefas (nome_tarefa, data_tarefa, atividade_relacionada, descricao_tarefa, responsavel, nom_usu_create, dat_usu_create)
         VALUES ('${createTarefa.nome_tarefa}', '${new Date(
       createTarefa.data_tarefa,
     ).toISOString()}', ${createTarefa.atividade_relacionada}, '${
       createTarefa.descricao_tarefa
-    }', '${createTarefa.nom_usu_create}', now())
+    }', '${createTarefa.responsavel}', '${createTarefa.nom_usu_create}', now())
         RETURNING id
     `);
     return id;

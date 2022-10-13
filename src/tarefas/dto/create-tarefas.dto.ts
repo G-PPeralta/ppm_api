@@ -4,4 +4,5 @@ export class CreateTarefas {
   atividade_relacionada: number;
   descricao_tarefa: string;
   nom_usu_create: string;
+  responsavel: string;
 }
