@@ -182,8 +182,6 @@ export class BudgetsService {
     on realizado.id_atividade = atividades.id
     where 
     sonda.id_pai = 0
-    and 
-    sonda.id = '${id}'
     group by
     sonda.id,
     sonda.nom_atividade`);
