@@ -15,8 +15,9 @@ export class AtividadesProjetosService {
     return this.prisma.atividade.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} atividadesProjeto`;
+  async findOne(id: number) {
+    return await this.prisma
+      .$queryRaw`select * from tb_projetos_atividade where id_projeto = ${id};`;
   }
 
   update(id: number, updateAtividadesProjetoDto: UpdateAtividadesProjetoDto) {
