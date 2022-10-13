@@ -33,13 +33,13 @@ export class ProjetosFinanceiroService {
     projetos.id as idProjeto,
     projetos.nome_projeto as nomeProjeto,
     coalesce(projetos.elemento_pep, '') as elementoPep,
-    centro_custo.id as idCusto,
+    coalesce(centro_custo.id, 0) as idCusto,
     '' as prestadorDeServico,
     '' as classeDoServico,
-    centro_custo.data as dataPagamento,
+    coalesce(centro_custo.data, '') as dataPagamento,
     projetos.valor_total_previsto as previsto,
-    centro_custo.valor as realizado,
-    centro_custo.descricao_do_servico as descricaoDoServico
+    coalesce(centro_custo.valor, 0) as realizado,
+    coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico
     from tb_projetos projetos
     left join tb_projetos_atividade atividade_pai
     on atividade_pai.id_projeto = projetos.id and atividade_pai.id_pai = 0
