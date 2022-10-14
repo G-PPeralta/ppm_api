@@ -34,8 +34,8 @@ export class ProjetosFinanceiroService {
     projetos.nome_projeto as nomeProjeto,
     coalesce(projetos.elemento_pep, '') as elementoPep,
     coalesce(centro_custo.id, 0) as idCusto,
-    '' as prestadorDeServico,
-    '' as classeDoServico,
+    coalesce(fornecedores.nomefornecedor, '') as prestadorDeServico,
+    coalesce(classe_servico.classe_servico, '') as classeDoServico,
     centro_custo.data as dataPagamento,
     coalesce(centro_custo.valor, 0) as valor,
     coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico,
@@ -49,6 +49,10 @@ export class ProjetosFinanceiroService {
     on atividades.id_pai = grupo_atividade.id
     left join tb_centro_custo centro_custo
     on centro_custo.projeto_id = projetos.id and centro_custo.dat_usu_erase is null
+    left join tb_classe_servico classe_servico
+    on classe_servico.id = centro_custo.classe_servico_id
+    left join tb_fornecedores fornecedores
+    on fornecedores.id = centro_custo.prestador_servico_id
     where
     projetos.tipo_projeto_id in (1, 2)
     and projetos.id = ${id}`);
