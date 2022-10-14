@@ -8,11 +8,16 @@ export class AtividadeServicosService {
 
   async create(dto: CreateAtividadeServicoDto) {
     const dataHora = new Date(dto.data_hora);
+
+    const _data = dataHora.toISOString().split('T')[0];
+    const _hora = dataHora.toLocaleTimeString();
+    const _dataHora = `${_data} ${_hora}`;
+
     const data: any[] = await this.prisma.$queryRawUnsafe(`
       insert into tb_atividade_servicos(atividade_id, nome, data_hora, anotacoes)
-      values (${dto.atividade_id}, '${
-      dto.nome
-    }', '${dataHora.toISOString()}', '${dto.anotacoes ? dto.anotacoes : ''}')
+      values (${dto.atividade_id}, '${dto.nome}', '${_dataHora}', '${
+      dto.anotacoes ? dto.anotacoes : ''
+    }')
       returning id
     `);
 

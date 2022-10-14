@@ -20,9 +20,15 @@ export class LookaheadService {
   }
 
   async atividadesPorProjeto(id: string) {
-    return await this.prisma.$queryRawUnsafe(`
+    if (id == '0') {
+      return await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_atividade
+    `);
+    } else {
+      return await this.prisma.$queryRawUnsafe(`
       SELECT * FROM tb_projetos_atividade WHERE id_projeto = ${+id}
     `);
+    }
   }
 
   async atividade(id: string) {
