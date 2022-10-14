@@ -1,5 +1,7 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { validateOrReject } from 'class-validator';
+import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
@@ -8,7 +10,10 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 
 @Injectable()
 export class BudgetsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly httpService: HttpService,
+  ) {}
   async updateBudgetPlan(_updateBudgetDto: BudgetPlan) {
     const where = {
       id_atividade: _updateBudgetDto.atividadeId,
@@ -181,8 +186,12 @@ export class BudgetsService {
       poco.id = ${id} and sonda.id_pai = 0
       group by poco.id, poco.nom_atividade, coalesce(planejado.txt_observacao, ''), coalesce(realizado.txt_observacao, '')`);
 
-    const result = pais.map(async (pai, Pkey) => {
-      const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+    const retornar = async () => {
+      const tratamento: any = [];
+      let pKey = 0;
+      for (const e of pais) {
+        let fKey = 0;
+        const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
         poco.id as id_filho, 
         planejado.id as id_planejado,
         realizado.id as id_realizado,
@@ -206,38 +215,57 @@ export class BudgetsService {
         left join tb_projetos_operacao operacao
         on (operacao.id = atividades.id_operacao)
         where
-        poco.id = ${pai.id_pai} and sonda.id_pai = 0
+        poco.id = ${e.id_pai} and sonda.id_pai = 0
      `);
 
-      return {
-        id: pai.id_pai,
-        brt: `${++Pkey}`,
-        projeto: {
-          id: pai.id_pai,
-          nome: pai.nome_pai,
-        },
-        planejado: +pai.vlr_planejado,
-        realizado: +pai.vlr_realizado,
-        gap: +pai.gap,
-        descricao: pai.observacao_planejada + pai.dobservacao_realizado,
-        filhos: filhos.map((filho, Fkey) => {
-          return {
-            brt: `${Pkey}.${++Fkey}`,
-            projeto: {
-              id: filho.id_atividade,
-              nome: filho.nom_atividade,
-            },
-            id: filho.id_filho,
-            planejado: +filho.vlr_planejado,
-            realizado: +filho.vlr_realizado,
-            gap: +filho.gap,
-            descricao: filho.observacao_planejada + filho.dobservacao_realizado,
-          };
-        }),
-      };
-    });
+        const dados = {
+          id: e.id_pai,
+          brt: `${++pKey}`,
+          projeto: {
+            id: e.id_pai,
+            nome: e.nome_pai,
+          },
+          planejado: +e.vlr_planejado,
+          realizado: +e.vlr_realizado,
+          gap: +e.gap,
+          descricao: e.observacao_planejada + e.observacao_realizado,
+          filhos: [],
+        };
 
-    return await Promise.all(result);
+        filhos.forEach((f) => {
+          dados.filhos.push({
+            brt: `${pKey}.${++fKey}`,
+            projeto: {
+              id: f.id_atividade,
+              nome: f.nom_atividade,
+            },
+            id: f.id_filho,
+            planejado: +f.vlr_planejado,
+            realizado: +f.vlr_realizado,
+            gap: +f.gap,
+            descricao: f.observacao_planejada + f.dobservacao_realizado,
+          });
+        });
+
+        let existe = false;
+        tratamento.forEach((inner) => {
+          if (inner.id === e.id_pai) {
+            existe = true;
+          }
+        });
+
+        if (!existe) {
+          tratamento.push(dados);
+        }
+      }
+      return tratamento;
+    };
+
+    const titulo = await this.getSondaNome(id);
+    const totalizacao = await this.getTotalizacao(id);
+    const list = await retornar();
+
+    return { totalizacao, list, titulo };
   }
 
   async findAllProjects() {
@@ -259,7 +287,8 @@ export class BudgetsService {
     sonda.id_pai = 0 and projetos.tipo_projeto_id = 3
     group by
     sonda.id,
-    sonda.nom_atividade`);
+    sonda.nom_atividade
+    order by nome `);
     /*const projetos = await this.prisma.tb_projetos_atividade.findMany({
       select: { nom_atividade: true, id: true },
       where: { id_pai: 0 },
@@ -271,7 +300,7 @@ export class BudgetsService {
   }
 
   async getSondaNome(id) {
-    return await this.prisma.$queryRawUnsafe(
+    const query = await this.prisma.$queryRawUnsafe(
       `select
       poco.nom_atividade as poco_nome,
       sonda.nom_atividade as sonda_nome
@@ -281,5 +310,104 @@ export class BudgetsService {
     poco.id =  ${id}
     `,
     );
+
+    return query[0];
+  }
+
+  async getInicioAndFim(id) {
+    const datas: { inicio: string; fim: string }[] = await this.prisma
+      .$queryRawUnsafe(`
+      select
+      min(dat_ini_plan) as inicio,
+        max(dat_fim_plan) as fim
+      from tb_projetos_atividade 
+      where
+      id_pai = ${id}
+    `);
+    return datas[0];
+  }
+
+  async getTotalDiarioAcumulado(id) {
+    const custoTotalAcumulado: { total_realizado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(realizado .vlr_realizado) as total_realizado  
+  from tb_projetos_atividade_custo_real realizado
+  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
+  where 
+  atividade.id_pai  = ${id}
+  Group by dat_ini_plan, id_projeto
+  having  
+  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+
+    return +custoTotalAcumulado[0].total_realizado;
+  }
+
+  async getTotalPlanejado(id) {
+    const custoPlanejado: { total_planjeado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(planejado.vlr_planejado) as total_planjeado  
+  from tb_projetos_atividade_custo_plan planejado
+  inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
+  where 
+  atividade.id_pai  = ${id}
+  Group by dat_ini_plan, id_projeto
+  having  
+  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+
+    return +custoPlanejado[0].total_planjeado;
+  }
+
+  async getTotalRealizdo(id) {
+    const custoRealizado: { total_realizado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(realizado.vlr_realizado) as total_realizado  
+  from tb_projetos_atividade_custo_real realizado
+  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
+  where 
+  atividade.id_pai  = ${id} `);
+    return +custoRealizado[0].total_realizado;
+  }
+
+  async convertBRLtoUSD(valueReal: number): Promise<number> {
+    const data = await firstValueFrom(
+      this.httpService
+        .get(`http://economia.awesomeapi.com.br/json/last/USD-BRL`)
+        .pipe(
+          map((response) => {
+            return response.data;
+          }),
+        ),
+    );
+    return +valueReal / +data['USDBRL']['bid'];
+  }
+  async getTotalizacao(id) {
+    const custoDiarioTotalBRL = await this.getTotalDiarioAcumulado(id);
+    const custoTotalRealizadoBRL = await this.getTotalRealizdo(id);
+    const custoTotalTotalPrevistoBRL = await this.getTotalPlanejado(id);
+
+    const custoDiarioTotalUSD = await this.convertBRLtoUSD(custoDiarioTotalBRL);
+    const custoTotalRealizadoUSD = await this.convertBRLtoUSD(
+      custoTotalRealizadoBRL,
+    );
+    const custoTotalTotalPrevistoUSD = await this.convertBRLtoUSD(
+      custoTotalTotalPrevistoBRL,
+    );
+
+    const totalBRL =
+      custoDiarioTotalBRL + custoTotalRealizadoBRL + custoTotalTotalPrevistoBRL;
+    const totalUSD =
+      custoDiarioTotalUSD + custoTotalRealizadoUSD + custoTotalTotalPrevistoUSD;
+
+    return {
+      ...(await this.getInicioAndFim(id)),
+      custoDiarioTotalBRL,
+      custoDiarioTotalUSD,
+      custoTotalRealizadoBRL,
+      custoTotalRealizadoUSD,
+      custoTotalTotalPrevistoBRL,
+      custoTotalTotalPrevistoUSD,
+      totalBRL,
+      totalUSD,
+    };
   }
 }

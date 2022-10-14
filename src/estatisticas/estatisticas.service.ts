@@ -138,7 +138,8 @@ export class EstatisticasService {
       ).toISOString()}',
       dat_fim_real = '${new Date(
         updateEstatistica.fim_realizado,
-      ).toISOString()}'
+      ).toISOString()}',
+      pct_real = ${updateEstatistica.pct_real}
       WHERE
       id = ${updateEstatistica.id_atividade}
     `);

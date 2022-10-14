@@ -143,7 +143,7 @@ where
 
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-    update tb_projetos_atividades 
+    update tb_projetos_atividade
     set
         dat_usu_erase = now(),
         nom_usu_erase = '${user}'

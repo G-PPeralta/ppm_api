@@ -59,6 +59,8 @@ import { AtividadesProjetosModule } from './atividades-projetos/atividades-proje
 import { LookaheadModule } from './lookahead/lookahead.module';
 import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
 import { ServicosSondaPocoModule } from './servicos-sonda-poco/servicos-sonda-poco.module';
+import { ProjetosFinanceiroModule } from './projetos-financeiro/projetos-financeiro.module';
+import { CentroCustoModule } from './centro-custo/centro-custo.module';
 
 @Module({
   imports: [
@@ -120,6 +122,8 @@ import { ServicosSondaPocoModule } from './servicos-sonda-poco/servicos-sonda-po
     NovaOperacaoModule,
     LookaheadModule,
     ServicosSondaPocoModule,
+    ProjetosFinanceiroModule,
+    CentroCustoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
