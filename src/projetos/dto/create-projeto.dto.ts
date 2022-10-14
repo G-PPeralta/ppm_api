@@ -25,4 +25,5 @@ export class CreateProjetoDto {
   responsavel_id?: number;
   coordenador_id?: number;
   elemento_pep: string;
+  nom_usu_create: string;
 }
