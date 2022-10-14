@@ -21,6 +21,6 @@ export class CentroCustoController {
     @Param('id_custo') id_custo: string,
     @Param('nome_usuario') nome_usuario: string,
   ) {
-    return this.service.delete(+id_custo, +nome_usuario);
+    return this.service.delete(+id_custo, nome_usuario);
   }
 }
