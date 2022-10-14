@@ -287,7 +287,8 @@ export class BudgetsService {
     sonda.id_pai = 0 and projetos.tipo_projeto_id = 3
     group by
     sonda.id,
-    sonda.nom_atividade`);
+    sonda.nom_atividade
+    order by nome `);
     /*const projetos = await this.prisma.tb_projetos_atividade.findMany({
       select: { nom_atividade: true, id: true },
       where: { id_pai: 0 },
