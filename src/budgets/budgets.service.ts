@@ -321,6 +321,21 @@ export class BudgetsService {
     return custoTotalAcumulado[0].total_realizado;
   }
 
+  async getTotalPlanejado(id) {
+    const custoPlanejado: { total_planjeado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(planejado.vlr_planejado) as total_planjeado  
+  from tb_projetos_atividade_custo_plan planejado
+  inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
+  where 
+  atividade.id_pai  = ${id}
+  Group by dat_ini_plan, id_projeto
+  having  
+  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+
+    return custoPlanejado[0].total_planjeado;
+  }
+
   async convertBRLtoUSD(valueReal: number) {
     const data = await this.httpService.get(
       `https://economia.awesomeapi.com.br/BRL-USD/${valueReal}?format=json`,
@@ -330,14 +345,15 @@ export class BudgetsService {
   }
   async getTotalizacao(id) {
     const totalDiarioAcumulado = await this.getTotalDiarioAcumulado(id);
+    const totalPlanejado = await this.getTotalPlanejado(id);
     return {
       ...(await this.getInicioAndFim(id)),
       custoDiarioTotalBRL: +totalDiarioAcumulado,
       custoDiarioTotalUSD: +this.convertBRLtoUSD(totalDiarioAcumulado),
       custoTotalRealizadoBRL: 0,
       custoTotalRealizadoUSD: 0,
-      custoTotalTotalPrevistoBRL: 0,
-      custoTotalTotalPrevistoUSD: 0,
+      custoTotalTotalPrevistoBRL: +totalPlanejado,
+      custoTotalTotalPrevistoUSD: +this.convertBRLtoUSD(totalPlanejado),
     };
   }
 }
