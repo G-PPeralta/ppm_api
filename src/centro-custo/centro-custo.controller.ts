@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { CentroCustoService } from './centro-custo.service';
 import { CreateCentroCustoDto } from './dto/create-centro-custo.dto';
 
@@ -14,5 +14,13 @@ export class CentroCustoController {
   @Patch(':id')
   update(@Body() update: CreateCentroCustoDto, @Param('id') id: string) {
     return this.service.update(update, +id);
+  }
+
+  @Delete(':id_custo/:nome_usuario')
+  delete(
+    @Param('id_custo') id_custo: string,
+    @Param('nome_usuario') nome_usuario: string,
+  ) {
+    return this.service.delete(+id_custo, +nome_usuario);
   }
 }

@@ -38,7 +38,8 @@ export class ProjetosFinanceiroService {
     '' as classeDoServico,
     centro_custo.data as dataPagamento,
     coalesce(centro_custo.valor, 0) as valor,
-    coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico
+    coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico,
+    centro_custo.pedido as pedido
     from tb_projetos projetos
     left join tb_projetos_atividade atividade_pai
     on atividade_pai.id_projeto = projetos.id and atividade_pai.id_pai = 0
@@ -47,7 +48,7 @@ export class ProjetosFinanceiroService {
     left join tb_projetos_atividade atividades
     on atividades.id_pai = grupo_atividade.id
     left join tb_centro_custo centro_custo
-    on centro_custo.projeto_id = projetos.id
+    on centro_custo.projeto_id = projetos.id and centro_custo.dat_usu_erase is null
     where
     projetos.tipo_projeto_id in (1, 2)
     and projetos.id = ${id}`);
@@ -72,6 +73,7 @@ export class ProjetosFinanceiroService {
             dataPagamento: e.datapagamento,
             valor: e.valor,
             descricaoDoServico: e.descricaodoservico,
+            pedido: e.pedido,
           });
         }
       });
@@ -83,6 +85,7 @@ export class ProjetosFinanceiroService {
           dataPagamento: e.datapagamento,
           valor: e.valor,
           descricaoDoServico: e.descricaodoservico,
+          pedido: e.pedido,
         });
 
         tratamento.push(dados);
