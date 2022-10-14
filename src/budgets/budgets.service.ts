@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { validateOrReject } from 'class-validator';
+import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
@@ -337,7 +338,7 @@ export class BudgetsService {
   having  
   atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
 
-    return custoTotalAcumulado[0].total_realizado;
+    return +custoTotalAcumulado[0].total_realizado;
   }
 
   async getTotalPlanejado(id) {
@@ -352,27 +353,60 @@ export class BudgetsService {
   having  
   atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
 
-    return custoPlanejado[0].total_planjeado;
+    return +custoPlanejado[0].total_planjeado;
   }
 
-  async convertBRLtoUSD(valueReal: number) {
-    const data = await this.httpService.get(
-      `https://economia.awesomeapi.com.br/BRL-USD/${valueReal}?format=json`,
-    );
+  async getTotalRealizdo(id) {
+    const custoRealizado: { total_realizado: number }[] = await this.prisma
+      .$queryRawUnsafe(`select 
+    sum(realizado.vlr_realizado) as total_realizado  
+  from tb_projetos_atividade_custo_real realizado
+  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
+  where 
+  atividade.id_pai  = ${id} `);
+    return +custoRealizado[0].total_realizado;
+  }
 
-    return data.subscribe;
+  async convertBRLtoUSD(valueReal: number): Promise<number> {
+    const data = await firstValueFrom(
+      this.httpService
+        .get(`http://economia.awesomeapi.com.br/json/last/USD-BRL`)
+        .pipe(
+          map((response) => {
+            return response.data;
+          }),
+        ),
+    );
+    return +valueReal / +data['USDBRL']['bid'];
   }
   async getTotalizacao(id) {
-    const totalDiarioAcumulado = await this.getTotalDiarioAcumulado(id);
-    const totalPlanejado = await this.getTotalPlanejado(id);
+    const custoDiarioTotalBRL = await this.getTotalDiarioAcumulado(id);
+    const custoTotalRealizadoBRL = await this.getTotalRealizdo(id);
+    const custoTotalTotalPrevistoBRL = await this.getTotalPlanejado(id);
+
+    const custoDiarioTotalUSD = await this.convertBRLtoUSD(custoDiarioTotalBRL);
+    const custoTotalRealizadoUSD = await this.convertBRLtoUSD(
+      custoTotalRealizadoBRL,
+    );
+    const custoTotalTotalPrevistoUSD = await this.convertBRLtoUSD(
+      custoTotalTotalPrevistoBRL,
+    );
+
+    const totalBRL =
+      custoDiarioTotalBRL + custoTotalRealizadoBRL + custoTotalTotalPrevistoBRL;
+    const totalUSD =
+      custoDiarioTotalUSD + custoTotalRealizadoUSD + custoTotalTotalPrevistoUSD;
+
     return {
       ...(await this.getInicioAndFim(id)),
-      custoDiarioTotalBRL: +totalDiarioAcumulado,
-      custoDiarioTotalUSD: +this.convertBRLtoUSD(totalDiarioAcumulado),
-      custoTotalRealizadoBRL: 0,
-      custoTotalRealizadoUSD: 0,
-      custoTotalTotalPrevistoBRL: +totalPlanejado,
-      custoTotalTotalPrevistoUSD: +this.convertBRLtoUSD(totalPlanejado),
+      custoDiarioTotalBRL,
+      custoDiarioTotalUSD,
+      custoTotalRealizadoBRL,
+      custoTotalRealizadoUSD,
+      custoTotalTotalPrevistoBRL,
+      custoTotalTotalPrevistoUSD,
+      totalBRL,
+      totalUSD,
     };
   }
 }
