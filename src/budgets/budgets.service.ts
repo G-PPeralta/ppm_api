@@ -339,7 +339,7 @@ export class BudgetsService {
   having  
   atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
 
-    return +custoTotalAcumulado[0].total_realizado;
+    return +custoTotalAcumulado[0]?.total_realizado;
   }
 
   async getTotalPlanejado(id) {
@@ -354,7 +354,7 @@ export class BudgetsService {
   having  
   atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
 
-    return +custoPlanejado[0].total_planjeado;
+    return +custoPlanejado[0]?.total_planjeado;
   }
 
   async getTotalRealizdo(id) {
@@ -365,7 +365,7 @@ export class BudgetsService {
   inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
   where 
   atividade.id_pai  = ${id} `);
-    return +custoRealizado[0].total_realizado;
+    return +custoRealizado[0]?.total_realizado;
   }
 
   async convertBRLtoUSD(valueReal: number): Promise<number> {
@@ -394,9 +394,13 @@ export class BudgetsService {
     );
 
     const totalBRL =
-      custoDiarioTotalBRL + custoTotalRealizadoBRL + custoTotalTotalPrevistoBRL;
+      (custoDiarioTotalBRL || 0) +
+      (custoTotalRealizadoBRL || 0) +
+      (custoTotalTotalPrevistoBRL || 0);
     const totalUSD =
-      custoDiarioTotalUSD + custoTotalRealizadoUSD + custoTotalTotalPrevistoUSD;
+      (custoDiarioTotalUSD || 0) +
+      (custoTotalRealizadoUSD || 0) +
+      (custoTotalTotalPrevistoUSD || 0);
 
     return {
       ...(await this.getInicioAndFim(id)),
