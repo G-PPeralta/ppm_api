@@ -185,8 +185,12 @@ export class BudgetsService {
       poco.id = ${id} and sonda.id_pai = 0
       group by poco.id, poco.nom_atividade, coalesce(planejado.txt_observacao, ''), coalesce(realizado.txt_observacao, '')`);
 
-    const result = pais.map(async (pai, Pkey) => {
-      const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+    const retornar = async () => {
+      const tratamento: any = [];
+      let pKey = 0;
+      for (const e of pais) {
+        let fKey = 0;
+        const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
         poco.id as id_filho, 
         planejado.id as id_planejado,
         realizado.id as id_realizado,
@@ -210,40 +214,55 @@ export class BudgetsService {
         left join tb_projetos_operacao operacao
         on (operacao.id = atividades.id_operacao)
         where
-        poco.id = ${pai.id_pai} and sonda.id_pai = 0
+        poco.id = ${e.id_pai} and sonda.id_pai = 0
      `);
 
-      return {
-        id: pai.id_pai,
-        brt: `${++Pkey}`,
-        projeto: {
-          id: pai.id_pai,
-          nome: pai.nome_pai,
-        },
-        planejado: +pai.vlr_planejado,
-        realizado: +pai.vlr_realizado,
-        gap: +pai.gap,
-        descricao: pai.observacao_planejada + pai.dobservacao_realizado,
-        filhos: filhos.map((filho, Fkey) => {
-          return {
-            brt: `${Pkey}.${++Fkey}`,
+        const dados = {
+          id: e.id_pai,
+          brt: `${++pKey}`,
+          projeto: {
+            id: e.id_pai,
+            nome: e.nome_pai,
+          },
+          planejado: +e.vlr_planejado,
+          realizado: +e.vlr_realizado,
+          gap: +e.gap,
+          descricao: e.observacao_planejada + e.observacao_realizado,
+          filhos: [],
+        };
+
+        filhos.forEach((f) => {
+          dados.filhos.push({
+            brt: `${pKey}.${++fKey}`,
             projeto: {
-              id: filho.id_atividade,
-              nome: filho.nom_atividade,
+              id: f.id_atividade,
+              nome: f.nom_atividade,
             },
-            id: filho.id_filho,
-            planejado: +filho.vlr_planejado,
-            realizado: +filho.vlr_realizado,
-            gap: +filho.gap,
-            descricao: filho.observacao_planejada + filho.dobservacao_realizado,
-          };
-        }),
-      };
-    });
+            id: f.id_filho,
+            planejado: +f.vlr_planejado,
+            realizado: +f.vlr_realizado,
+            gap: +f.gap,
+            descricao: f.observacao_planejada + f.dobservacao_realizado,
+          });
+        });
+
+        let existe = false;
+        tratamento.forEach((inner) => {
+          if (inner.id === e.id_pai) {
+            existe = true;
+          }
+        });
+
+        if (!existe) {
+          tratamento.push(dados);
+        }
+      }
+      return tratamento;
+    };
 
     const titulo = await this.getSondaNome(id);
     const totalizacao = await this.getTotalizacao(id);
-    const list = await Promise.all(result);
+    const list = await retornar();
 
     return { totalizacao, list, titulo };
   }
