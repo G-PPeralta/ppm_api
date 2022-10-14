@@ -35,4 +35,15 @@ export class CentroCustoService {
         id = ${id_custo}
     `);
   }
+
+  async delete(id_custo: number, nom_usu_erase: string) {
+    return this.prisma.$queryRawUnsafe(`
+      UPDATE tb_centro_custo
+      SET
+      dat_usu_erase = now(),
+      nom_usu_erase = '${nom_usu_erase}'
+      WHERE
+      id = ${id_custo}
+    `);
+  }
 }
