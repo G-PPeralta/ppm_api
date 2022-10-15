@@ -30,7 +30,11 @@ export class ServicosSondaPocoService {
       select  a.id, concat(a.id, ' - ', nom_atividade) as nom_poco,
           (select 
               --case when min(dat_ini_plan) - INTERVAL '45 DAY' < now() then now() else min(dat_ini_plan) - INTERVAL '45 DAY' end as dat_ini_plan,
-              min(dat_ini_plan) as dat_ini_limite
+              case when min(dat_ini_plan) is null then
+                  (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = a.id_projeto)
+              else
+                  min(dat_ini_plan)
+              end as dat_ini_limite
               from tb_projetos_atividade b
               where     
                   id_pai = a.id) as dat_ini_limite, 1 as ordem
@@ -47,7 +51,7 @@ export class ServicosSondaPocoService {
           where 
               nom_poco not in (select nom_atividade from tb_projetos_atividade where pct_real < 100)
       )as qr
-      order by ordem desc, dat_ini_limite asc
+      order by ordem desc, dat_ini_limite asc;
     `);
   }
 
