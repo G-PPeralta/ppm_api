@@ -17,7 +17,7 @@ export class CampanhaService {
       .trimEnd();
 
     const nom_projeto = createCampanhaDto.id_projeto
-      .substring(createCampanhaDto.id_projeto.indexOf('-'))
+      .substring(createCampanhaDto.id_projeto.indexOf('-') + 1)
       .trimStart()
       .trimEnd();
 
