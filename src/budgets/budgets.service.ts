@@ -194,7 +194,7 @@ export class BudgetsService {
         planejado.id as id_planejado,
         atividades.id as id_atividade,
         case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
-        coalesce(sum(planejado.vlr_planejado), 0) as vlr_planejado,
+        coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
         coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
         coalesce(ROUND(((sum(realizado.vlr_realizado)/sum(planejado.vlr_planejado))* 100), 0), 0) as gap
         from tb_projetos_atividade sonda
