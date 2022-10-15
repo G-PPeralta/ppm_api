@@ -343,14 +343,12 @@ export class BudgetsService {
   async getTotalPlanejado(id) {
     const custoPlanejado: { total_planjeado: number }[] = await this.prisma
       .$queryRawUnsafe(`select 
-    sum(planejado.vlr_planejado) as total_planjeado  
-  from tb_projetos_atividade_custo_plan planejado
-  inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
-  where 
-  atividade.id_pai  = ${id}
-  Group by dat_ini_plan, id_projeto
-  having  
-  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+      sum(planejado.vlr_planejado) as total_planjeado  
+    from tb_projetos_atividade_custo_plan planejado
+    inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
+    where 
+    atividade.id_pai  = ${id}
+    Group by    id_projeto`);
 
     return +custoPlanejado[0]?.total_planjeado;
   }
