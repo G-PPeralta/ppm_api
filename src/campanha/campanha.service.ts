@@ -42,6 +42,12 @@ export class CampanhaService {
     b.id_pai = 0
     and a.tipo_projeto_id = 3
     and a.id = ${id_projeto[0].id}
+    union
+      select
+      a.id, concat(a.id, ' - ', a.nom_atividade)
+      from
+      tb_projetos_atividade a
+      where a.id = ${id_projeto[0].id}
     `);
 
     const id = await this.prisma.$queryRawUnsafe(`
