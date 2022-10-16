@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -11,6 +11,28 @@ export class CampanhaService {
   constructor(private prisma: PrismaService) {}
 
   async createPai(createCampanhaDto: CreateCampanhaDto) {
+    const sonda_id_temp = createCampanhaDto.id_projeto
+      .split('-')[0]
+      .trimStart()
+      .trimEnd();
+
+    const nom_projeto = createCampanhaDto.id_projeto
+      .substring(createCampanhaDto.id_projeto.indexOf('-') + 1)
+      .trimStart()
+      .trimEnd();
+
+    if (Number(sonda_id_temp) === 0 && createCampanhaDto.nova_campanha) {
+      await this.prisma.$executeRawUnsafe(`
+        call dev.sp_in_criar_cronograma_sonda('${nom_projeto}');
+      `);
+    }
+
+    const id_projeto = await this.prisma.$queryRawUnsafe(`
+      SELECT id FROM tb_projetos_atividade
+      WHERE nom_atividade = '${nom_projeto}'
+      AND id_pai = 0
+    `);
+
     const ret = await this.prisma.$queryRawUnsafe(`
     select a.id, concat(a.id, ' - ', nome_projeto) as nom_sonda
     from tb_projetos a
@@ -19,7 +41,13 @@ export class CampanhaService {
     where 
     b.id_pai = 0
     and a.tipo_projeto_id = 3
-    and a.id = ${createCampanhaDto.id_projeto}
+    and a.id = ${id_projeto[0].id}
+    union
+      select
+      a.id, concat(a.id, ' - ', a.nom_atividade)
+      from
+      tb_projetos_atividade a
+      where a.id = ${id_projeto[0].id}
     `);
 
     const id = await this.prisma.$queryRawUnsafe(`
@@ -29,7 +57,7 @@ export class CampanhaService {
           '${ret[0].nom_sonda}',
           '${createCampanhaDto.dsc_comentario}',
           '${createCampanhaDto.nom_usu_create}',
-          ${createCampanhaDto.id_projeto},
+          ${id_projeto[0].id},
           now()
       ) returning id
     `);
@@ -69,9 +97,39 @@ export class CampanhaService {
   async createFilho(createCampanhaDto: CreateCampanhaFilhoDto) {
     let data = new Date(createCampanhaDto.dat_ini_prev);
 
+    const poco_id_temp = createCampanhaDto.poco_id
+      .split('-')[0]
+      .trimStart()
+      .trimEnd();
+
+    const nom_poco = createCampanhaDto.poco_id
+      .split('-')[1]
+      .trimStart()
+      .trimEnd();
+
+    const id_projeto = await this.prisma.$queryRawUnsafe(
+      `select id_projeto from tb_campanha where id = ${createCampanhaDto.id_campanha}`,
+    );
+
+    if (Number(poco_id_temp) === 0 && createCampanhaDto.nova_campanha) {
+      await this.prisma.$executeRawUnsafe(
+        `call sp_in_criar_cronograma_novo_poco_('${nom_poco}', ${
+          id_projeto[0].id_projeto
+        }, '${new Date(createCampanhaDto.data_limite).toISOString()}');`,
+      );
+    }
+
+    const poco_id = await this.prisma.$queryRawUnsafe(`
+      SELECT 
+      id
+      FROM tb_projetos_atividade
+      WHERE
+      id_projeto = ${id_projeto[0].id_projeto} and nom_atividade = '${nom_poco}'
+    `);
+
     const id_pai = await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
-      VALUES (0, ${createCampanhaDto.poco_id}, ${createCampanhaDto.campo_id}, ${
+      VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
     }, '${new Date(data).toISOString()}', '${
       createCampanhaDto.nom_usu_create

@@ -61,6 +61,7 @@ import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
 import { ServicosSondaPocoModule } from './servicos-sonda-poco/servicos-sonda-poco.module';
 import { ProjetosFinanceiroModule } from './projetos-financeiro/projetos-financeiro.module';
 import { CentroCustoModule } from './centro-custo/centro-custo.module';
+import { ClasseServicoModule } from './classe-servico/classe-servico.module';
 
 @Module({
   imports: [
@@ -124,6 +125,7 @@ import { CentroCustoModule } from './centro-custo/centro-custo.module';
     ServicosSondaPocoModule,
     ProjetosFinanceiroModule,
     CentroCustoModule,
+    ClasseServicoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
