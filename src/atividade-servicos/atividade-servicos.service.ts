@@ -7,15 +7,9 @@ export class AtividadeServicosService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateAtividadeServicoDto) {
-    const dataHora = new Date(dto.data_hora);
-
-    const _data = dataHora.toISOString().split('T')[0];
-    const _hora = dataHora.toLocaleTimeString();
-    const _dataHora = `${_data} ${_hora}`;
-
     const data: any[] = await this.prisma.$queryRawUnsafe(`
       insert into tb_atividade_servicos(atividade_id, nome, data_hora, anotacoes)
-      values (${dto.atividade_id}, '${dto.nome}', '${_dataHora}', '${
+      values (${dto.atividade_id}, '${dto.nome}', '${dto.data} ${dto.hora}', '${
       dto.anotacoes ? dto.anotacoes : ''
     }')
       returning id
