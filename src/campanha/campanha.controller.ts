@@ -63,6 +63,11 @@ export class CampanhaController {
     return this.campanhaService.findOne(+id);
   }
 
+  @Patch()
+  updatePayload(@Body() payload: UpdateCampanhaDto) {
+    return this.campanhaService.updatePayload(payload);
+  }
+
   @Patch(':id/:campo/:valor')
   update(
     @Param('id') id: string,
