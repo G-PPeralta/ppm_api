@@ -13,8 +13,16 @@ export class CoordenadorService {
   }
 
   async findAll() {
-    const coordenador = await this.prisma.coordenador.findMany();
-    return coordenador;
+    const retorno: any[] = await this.prisma.$queryRawUnsafe(`
+      select id_coordenador, coordenador_nome from tb_coordenadores
+    `);
+
+    return retorno.map((el) => {
+      return {
+        id: el.id_coordenador,
+        coordenadorNome: el.coordenador_nome,
+      };
+    });
   }
 
   async findByName(nome: string) {
