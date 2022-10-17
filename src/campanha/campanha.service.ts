@@ -414,7 +414,6 @@ export class CampanhaService {
 
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    --- relacionar pocos ou intervencoes e campanhas
     select campanha.id id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
@@ -427,7 +426,12 @@ export class CampanhaService {
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
         )*100,1) as pct_plan,
-    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real
+    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real,
+    case when (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pai.poco_id group by id_pai) < pai.dat_ini_plan then 
+        1
+    else 
+        0
+    end as ind_alerta
     from 
     tb_camp_atv_campanha pai
     right join
@@ -444,7 +448,6 @@ export class CampanhaService {
     on poco2.id = pai.poco_id
     ${where}
     order by pai.dat_ini_plan asc
-;
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {
