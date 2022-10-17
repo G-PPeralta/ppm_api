@@ -1,11 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { validateOrReject } from 'class-validator';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
-import { CreateBudgetDto } from './dto/create-budget.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
@@ -84,12 +82,10 @@ export class BudgetsService {
       select 
       poco.id as id_filho, 
       poco.nom_atividade as nome_poco,
-      sum(coalesce(planejado.vlr_planejado, 0)) as vlr_planejado,
+      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
       sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap,
-      coalesce(planejado.txt_observacao, '') as observacao_planejada,
-      coalesce(realizado.txt_observacao, '') as observacao_realizado
+      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
       from tb_projetos_atividade sonda
       inner join tb_projetos_atividade poco
       on poco.id_pai = sonda.id
@@ -104,8 +100,7 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       sonda.id = ${pai.id_pai} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, coalesce(planejado.txt_observacao, ''), coalesce(realizado.txt_observacao, '')
-        
+      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)        
      `);
       return {
         id: pai.id_pai,
@@ -164,7 +159,7 @@ export class BudgetsService {
     select 
       poco.id as id_pai, 
       poco.nom_atividade as nome_poco,
-      coalesce(sum(planejado.vlr_planejado), 0) as vlr_planejado,
+      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
       coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
       coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
@@ -182,7 +177,7 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       poco.id = ${id} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade`);
+      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)`);
 
     const retornar = async () => {
       const tratamento: any = [];
@@ -206,7 +201,7 @@ export class BudgetsService {
         tb_projetos_atividade_custo_plan planejado
         on planejado.id_atividade = atividades.id 
         left join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = planejado.id_atividade)
+        on (realizado.id_atividade = atividades.id)
         left join tb_projetos_operacao operacao
         on (operacao.id = atividades.id_operacao)
         where
