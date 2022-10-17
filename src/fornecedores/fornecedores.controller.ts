@@ -30,12 +30,9 @@ export class FornecedoresController {
     return this.fornecedoresService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateFornecedoreDto: UpdateFornecedoreDto,
-  ) {
-    return this.fornecedoresService.update(+id, updateFornecedoreDto);
+  @Patch()
+  update(@Body() updateFornecedoreDto: UpdateFornecedoreDto) {
+    return this.fornecedoresService.update(updateFornecedoreDto);
   }
 
   @Delete(':id')

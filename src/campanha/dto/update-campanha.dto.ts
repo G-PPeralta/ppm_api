@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateCampanhaDto } from './create-campanha.dto';
-
-export class UpdateCampanhaDto extends PartialType(CreateCampanhaDto) {}
+export class UpdateCampanhaDto {
+  atividadeId: number;
+  atividadeStatus: number;
+  nome: string;
+  responsavelId: number;
+  areaId: number;
+  observacoes: string;
+  inicioPlanejado: Date;
+  fimPlanejado: Date;
+  inicioReal: Date;
+  fimReal: Date;
+}
