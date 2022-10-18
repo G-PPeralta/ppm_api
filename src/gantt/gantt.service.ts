@@ -72,8 +72,10 @@ export class GanttService {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
     select
     projetos.nome_projeto,
-    microatividade.dat_ini_plan as data_inicio,
-    microatividade.dat_fim_plan as data_fim,
+    macroatividade.dat_ini_real,
+    macroatividade.dat_fim_real,
+    macroatividade.dat_ini_plan,
+    macroatividade.dat_fim_plan,
     microatividade.id as microatividade_id,
     microatividade.nom_atividade as nome_atividade,
     macroatividade.id as macroatividade_id,
