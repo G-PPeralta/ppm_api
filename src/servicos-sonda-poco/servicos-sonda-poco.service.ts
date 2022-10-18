@@ -31,7 +31,11 @@ export class ServicosSondaPocoService {
           (select 
               --case when min(dat_ini_plan) - INTERVAL '45 DAY' < now() then now() else min(dat_ini_plan) - INTERVAL '45 DAY' end as dat_ini_plan,
               case when min(dat_ini_plan) is null then
-                  (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = a.id_projeto)
+                  case when (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = a.id_projeto) is null then
+                      now() + interval '15 day'
+                  else
+                      (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = a.id_projeto)
+                  end
               else
                   min(dat_ini_plan)
               end as dat_ini_limite
@@ -45,7 +49,11 @@ export class ServicosSondaPocoService {
           and id_pai <> 0
       union 
           select 0 as id, concat(0, ' - ', nom_poco) as nom_poco, 
-          (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = 457 ) as dat_ini_limite, 
+          case when (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = ${id_projeto}) is null then
+              now() + interval '15 day'
+          else
+              (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = ${id_projeto})
+          end as dat_ini_limite, 
           0 as ordem
           from tb_pocos
           where 

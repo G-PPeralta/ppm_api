@@ -14,6 +14,7 @@ import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
+import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 //@UseGuards(JwtAuthGuard)
@@ -66,6 +67,14 @@ export class CampanhaController {
   @Patch()
   updatePayload(@Body() payload: UpdateCampanhaDto) {
     return this.campanhaService.updatePayload(payload);
+  }
+
+  @Post('replanejar/:id')
+  replanejarCampanha(
+    @Body() payload: ReplanejarCampanhaDto[],
+    @Param('id') id_campanha: string,
+  ) {
+    return this.campanhaService.replanejar(payload, +id_campanha);
   }
 
   @Patch(':id/:campo/:valor')

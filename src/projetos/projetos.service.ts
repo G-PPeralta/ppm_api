@@ -286,10 +286,10 @@ and a.id = ${id};
     const query = await this.prismaClient.$queryRawUnsafe(`
     select 
     ano,
-    mes,
+    namemonth(mes::int4) as mes,
     concat(ano, mes) as mesano,
-    avg(pct_plan) as pct_plan,
-    avg(pct_real) as pct_real,
+    round(avg(pct_plan)::numeric, 2) as pct_plan,
+    round(avg(pct_real)::numeric, 2) as pct_real,
     avg(pct_capex_plan),
     avg(pct_capex_real)
   from (
@@ -344,7 +344,7 @@ and a.id = ${id};
     const query = await this.prismaClient.$queryRawUnsafe(`
     select 
     ano,
-    mes,
+    namemonth(mes::int4) as mes,
     concat(ano, mes) as mesano,
     round(avg(pct_plan)::numeric, 2) as pct_plan,
     round(avg(pct_real)::numeric, 2) as pct_real,
