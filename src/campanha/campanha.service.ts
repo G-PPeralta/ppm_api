@@ -107,14 +107,23 @@ export class CampanhaService {
       .trimStart()
       .trimEnd();
 
-    const id_projeto = await this.prisma.$queryRawUnsafe(
-      `select id_projeto from tb_campanha where id = ${createCampanhaDto.id_campanha}`,
+    const id_projeto_temp = await this.prisma.$queryRawUnsafe(
+      `select nom_campanha from tb_campanha where id = ${createCampanhaDto.id_campanha}`,
     );
+
+    const nom_campanha = id_projeto_temp[0].nom_campanha
+      .substring(id_projeto_temp[0].nom_campanha.indexOf('-') + 1)
+      .trimStart()
+      .trimEnd();
+
+    const id_projeto = await this.prisma.$queryRawUnsafe(`
+      SELECT id FROM tb_projetos WHERE nome_projeto = '${nom_campanha}'
+    `);
 
     if (Number(poco_id_temp) === 0 && createCampanhaDto.nova_campanha) {
       await this.prisma.$executeRawUnsafe(
         `call sp_in_criar_cronograma_novo_poco_('${nom_poco}', ${
-          id_projeto[0].id_projeto
+          id_projeto[0].id
         }, '${new Date(createCampanhaDto.data_limite).toISOString()}');`,
       );
     }
@@ -124,7 +133,7 @@ export class CampanhaService {
       id
       FROM tb_projetos_atividade
       WHERE
-      id_projeto = ${id_projeto[0].id_projeto} and nom_atividade = '${nom_poco}'
+      id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
     `);
 
     const id_pai = await this.prisma.$queryRawUnsafe(`

@@ -2,7 +2,7 @@ export class CreateProjetoDto {
   nomeProjeto: string;
   descricao?: string;
   justificativa?: string;
-  capexPrevisto?: number;
+  capexPrevisto?: string;
   dataInicio: Date;
   dataFim: Date;
   poloId: number;

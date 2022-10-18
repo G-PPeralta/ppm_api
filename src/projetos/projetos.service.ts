@@ -207,11 +207,11 @@ export class ProjetosService {
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa
-    }', ${createProjetoDto.capexPrevisto}, '${new Date(
-      createProjetoDto.dataInicio,
-    ).toISOString()}', ${createProjetoDto.poloId}, ${
-      createProjetoDto.localId
-    }, ${createProjetoDto.solicitanteId}, ${
+    }', ${Number(
+      createProjetoDto.capexPrevisto.replace('.', '').replace(',', '.'),
+    )}, '${new Date(createProjetoDto.dataInicio).toISOString()}', ${
+      createProjetoDto.poloId
+    }, ${createProjetoDto.localId}, ${createProjetoDto.solicitanteId}, ${
       createProjetoDto.classificacaoId
     }, ${createProjetoDto.divisaoId}, ${createProjetoDto.gateId}, ${
       createProjetoDto.tipoProjetoId
