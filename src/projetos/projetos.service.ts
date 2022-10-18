@@ -193,7 +193,7 @@ export class ProjetosService {
       ) as b
       on a.id = b.id_projeto
       where 
-              (a.nome_projeto like('%${nomProjeto}%') or ${nomProjeto} is null or ${nomProjeto} = '')
+              (a.nome_projeto like('%${nomProjeto}%') or '${nomProjeto}' is null or '${nomProjeto}' = '')
         and   a.tipo_projeto_id in (1,2)
       order by vlr_ranking desc  
     `;

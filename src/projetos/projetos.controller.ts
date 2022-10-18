@@ -56,7 +56,11 @@ export class ProjetosController {
 
   @Get('/filtroProjeto/:nomProjeto')
   async filtroProjeto(@Param('nomProjeto') nomProjeto: string) {
-    return this.projetosService.filtroProjetos(nomProjeto);
+    if (!isNaN(Number(nomProjeto))) {
+      return this.projetosService.filtroProjetos(nomProjeto);
+    } else {
+      return this.projetosService.filtroProjetos('');
+    }
   }
 
   @Post('/registro')

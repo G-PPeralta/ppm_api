@@ -10,70 +10,75 @@ export class EstatisticasService {
   async estatisticasProjeto() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
+      
       select
-      sonda.id as id_sonda,
-      sonda.nom_atividade as sonda,
-      pocos.nom_atividade as poco,
-      pocos.id as id_poco,
-      case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end as nome_atividade,
-      atividades.id as id_atividade, --verificar se é id da atividade ou da origem
-      0.00 as custo,
-      atividades.dat_ini_plan as inicio_planejado,
-      atividades.dat_fim_plan as fim_planejado,
-      fn_hrs_totais_cronograma_atvv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
-      case when fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
-      atividades.dat_ini_real as inicio_real,
-      atividades.dat_fim_real as fim_real,
-      round(fn_atv_calc_pct_plan(
-              fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
-              fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
-              fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
-          )*100,1) as pct_plan,
-          coalesce(atividades.pct_real, 0) as pct_real,
-          responsaveis.nome_responsavel as nome_responsavel,
-          calc.vlr_min,
-          calc.vlr_max,
-          calc.vlr_med as vlr_media,
-          calc.vlr_dp
-      from
-      tb_projetos_atividade sonda
-      inner join tb_projetos_atividade pocos
-      on pocos.id_pai = sonda.id
-      inner join tb_projetos_atividade atividades
-      on (atividades.id_pai = pocos.id)
-      left join tb_projetos_operacao tarefas
-      on (tarefas.id = atividades.id_operacao)
-      left join tb_responsaveis responsaveis
-      on responsaveis.responsavel_id = atividades.id_responsavel
-      left join (
-        select 
-          nom_atividade,
-          vlr_min,
-          vlr_max,
-          vlr_med,
-          stddev(vlr_max) as vlr_dp
-        from (  
+        sonda.id as id_sonda,
+        sonda.nom_atividade as sonda,
+        pocos.nom_atividade as poco,
+        pocos.id as id_poco,
+        case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end as nome_atividade,
+        atividades.id as id_atividade, --verificar se é id da atividade ou da origem
+        0.00 as custo,
+        atividades.dat_ini_plan as inicio_planejado,
+        atividades.dat_fim_plan as fim_planejado,
+        fn_hrs_totais_cronograma_atvv(atividades.dat_ini_plan, atividades.dat_fim_plan) as hrs_totais,
+        case when fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 else fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais,
+        atividades.dat_ini_real as inicio_real,
+        atividades.dat_fim_real as fim_real,
+        round(fn_atv_calc_pct_plan(
+                fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
+                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
+                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
+            )*100,1) as pct_plan,
+            coalesce(atividades.pct_real, 0) as pct_real,
+            responsaveis.nome_responsavel as nome_responsavel,
+            calc.vlr_min,
+            calc.vlr_max,
+            calc.vlr_med as vlr_media,
+            calc.vlr_dp,
+            (select min(dat_ini_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_inicio,
+            (select max(dat_fim_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_final,
+            (dev.fn_cron_calc_pct_real(pocos.id)) as pct_real_consol
+        from
+        tb_projetos_atividade sonda
+        inner join tb_projetos_atividade pocos
+        on pocos.id_pai = sonda.id
+        inner join tb_projetos_atividade atividades
+        on (atividades.id_pai = pocos.id)
+        left join tb_projetos_operacao tarefas
+        on (tarefas.id = atividades.id_operacao)
+        left join tb_responsaveis responsaveis
+        on responsaveis.responsavel_id = atividades.id_responsavel
+        left join (
           select 
-            nom_atividade, count(*), 
-            dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), min(dat_fim_real)) as vlr_min,
-            dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real)) as vlr_max,
-            dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real))/count(*) as vlr_med
-          from tb_projetos_atividade tp 
-          group by nom_atividade ) as qr
-        group by nom_atividade, 	vlr_min,
-          vlr_max,
-          vlr_med
-        having vlr_min is not null
-        ) as calc
-        on calc.nom_atividade = atividades.nom_atividade
-      where
-      sonda.id_pai = 0
-      group by 
-      sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
-      case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
-      atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
-      responsaveis.nome_responsavel, vlr_min, vlr_max, vlr_dp, vlr_med
-      order by atividades.id_pai asc, atividades.dat_ini_plan asc;
+            nom_atividade,
+            vlr_min,
+            vlr_max,
+            vlr_med,
+            stddev(vlr_max) as vlr_dp
+          from (  
+            select 
+              nom_atividade, count(*), 
+              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), min(dat_fim_real)) as vlr_min,
+              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real)) as vlr_max,
+              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real))/count(*) as vlr_med
+            from tb_projetos_atividade tp 
+            group by nom_atividade ) as qr
+          group by nom_atividade, 	vlr_min,
+            vlr_max,
+            vlr_med
+          having vlr_min is not null
+          ) as calc
+          on calc.nom_atividade = atividades.nom_atividade
+        where
+        sonda.id_pai = 0
+        group by 
+        sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
+        case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
+        atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
+        responsaveis.nome_responsavel, vlr_min, vlr_max, vlr_dp, vlr_med
+        order by atividades.id_pai asc, atividades.dat_ini_plan asc;
+
     `);
 
     const tratamento = [];
