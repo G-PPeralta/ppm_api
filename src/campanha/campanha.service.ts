@@ -5,6 +5,7 @@ import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
+import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
 export class CampanhaService {
@@ -136,13 +137,21 @@ export class CampanhaService {
       id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
     `);
 
+    const ordem = await this.prisma.$queryRawUnsafe(`
+      SELECT 
+      count(id) as ordem
+      FROM tb_projetos_atividade
+      WHERE
+      id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
+    `);
+
     const id_pai = await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create, ordem)
       VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
     }, '${new Date(data).toISOString()}', '${
       createCampanhaDto.nom_usu_create
-    }', NOW())
+    }', NOW(), ${ordem[0].ordem})
       RETURNING ID
     `);
 
@@ -405,7 +414,6 @@ export class CampanhaService {
 
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    --- relacionar pocos ou intervencoes e campanhas
     select campanha.id id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
@@ -418,7 +426,12 @@ export class CampanhaService {
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)) / fn_atv_calc_hrs_totais(pai.id) -- valor ponderado
         )*100,1) as pct_plan,
-    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real
+    COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real,
+    case when (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pai.poco_id group by id_pai) < pai.dat_ini_plan then 
+        1
+    else 
+        0
+    end as ind_alerta
     from 
     tb_camp_atv_campanha pai
     right join
@@ -435,7 +448,6 @@ export class CampanhaService {
     on poco2.id = pai.poco_id
     ${where}
     order by pai.dat_ini_plan asc
-;
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {
@@ -554,6 +566,31 @@ export class CampanhaService {
       }
       where id = ${id}`);
     }
+  }
+
+  async updatePayload(payload: UpdateCampanhaDto) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_camp_atv_campanha
+      SET
+      pct_real = ${payload.atividadeStatus},
+      nom_atividade = '${payload.nome}',
+      responsavel_id = ${payload.responsavelId},
+      area_id = ${payload.areaId},
+      dat_ini_plan = '${new Date(payload.inicioPlanejado).toISOString()}',
+      dat_fim_plan = '${new Date(payload.fimPlanejado).toISOString()}',
+      dat_ini_real = ${
+        payload.inicioReal === null
+          ? null
+          : "'" + new Date(payload.inicioReal).toISOString() + "'"
+      },
+      dat_ini_real = ${
+        payload.inicioReal === null
+          ? null
+          : "'" + new Date(payload.fimReal).toISOString() + "'"
+      }
+      WHERE
+      id = ${payload.atividadeId}
+    `);
   }
 
   async remove(id: number, user: string) {

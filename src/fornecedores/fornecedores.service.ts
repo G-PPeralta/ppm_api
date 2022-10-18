@@ -31,8 +31,19 @@ export class FornecedoresService {
     `);
   }
 
-  update(id: number, updateFornecedoreDto: UpdateFornecedoreDto) {
-    return `This action updates a #${id} fornecedore`;
+  async update(updateFornecedoreDto: UpdateFornecedoreDto) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE
+      tb_fornecedores
+      SET
+      poloid = ${updateFornecedoreDto.poloId},
+      servicoId = ${updateFornecedoreDto.servicoId},
+      nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
+      representante = '${updateFornecedoreDto.representante}',
+      justificativa = '${updateFornecedoreDto.justificativa}'
+      WHERE
+      id = ${updateFornecedoreDto.id}
+    `);
   }
 
   remove(id: number) {
