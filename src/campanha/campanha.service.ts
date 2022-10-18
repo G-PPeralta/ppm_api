@@ -5,6 +5,7 @@ import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
+import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
@@ -137,21 +138,13 @@ export class CampanhaService {
       id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
     `);
 
-    const ordem = await this.prisma.$queryRawUnsafe(`
-      SELECT 
-      count(id) as ordem
-      FROM tb_projetos_atividade
-      WHERE
-      id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
-    `);
-
     const id_pai = await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create, ordem)
+      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
       VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.campo_id}, ${
       createCampanhaDto.id_campanha
     }, '${new Date(data).toISOString()}', '${
       createCampanhaDto.nom_usu_create
-    }', NOW(), ${ordem[0].ordem})
+    }', NOW())
       RETURNING ID
     `);
 
@@ -566,6 +559,53 @@ export class CampanhaService {
       }
       where id = ${id}`);
     }
+  }
+
+  async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
+    const anterior: ReplanejarCampanhaDto[] = await this.prisma
+      .$queryRawUnsafe(`
+      SELECT 
+      poco.id as id_cronograma,
+      poco.ordem
+      FROM
+      tb_projetos_atividade poco
+      inner join tb_projetos_atividade sonda
+      on poco.id_pai = sonda.id
+      WHERE
+      sonda.id_pai = 0
+      AND
+      sonda.id = ${id_campanha}
+    `);
+
+    const id_projeto = await this.prisma.$queryRawUnsafe(`
+      select 
+      projeto.id
+      from
+      tb_projetos projeto
+      inner join tb_campanha campanha
+      on rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1))) = projeto.nome_projeto
+      where campanha.id = ${id_campanha}
+    `);
+
+    const copia_payload = payload;
+
+    payload.forEach(async (el) => {
+      anterior.forEach(async (inner) => {
+        if (el.id_cronograma === inner.id_cronograma) {
+          if (el.ordem !== inner.ordem) {
+            let id_para = 0;
+            copia_payload.forEach((e) => {
+              if (e.ordem === inner.ordem) {
+                id_para = e.id_cronograma;
+              }
+            });
+            await this.prisma.$queryRawUnsafe(`
+              CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
+            `);
+          }
+        }
+      });
+    });
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
