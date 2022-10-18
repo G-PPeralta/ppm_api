@@ -92,7 +92,7 @@ export class EstatisticasService {
         atividades: [],
         dat_inicio: e.dat_inicio,
         dat_final: e.dat_final,
-        pct_real_consol: e.pct_real_consol,
+        pct_real: e.pct_real_consol,
       };
 
       const atividade = {
