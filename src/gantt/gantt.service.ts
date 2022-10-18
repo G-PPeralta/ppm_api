@@ -70,30 +70,35 @@ export class GanttService {
 
   async findOne(id: number) {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
-    select
-    projetos.nome_projeto,
-    macroatividade.dat_ini_real,
-    macroatividade.dat_fim_real,
-    macroatividade.dat_ini_plan,
-    macroatividade.dat_fim_plan,
-    macroatividade.id as microatividade_id,
-    microatividade.nom_atividade as nome_atividade,
-    macroatividade.id as macroatividade_id,
-    macroatividade.nom_atividade as macroatividade_nome,
-    case when weekdays_sql(macroatividade.dat_ini_plan::date, macroatividade.dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(macroatividade.dat_ini_plan::date, macroatividade.dat_fim_plan::date)::int - 1 end as duracao,
-    macroatividade.pct_real as progresso
-    from
-    tb_projetos_atividade projetos_atividade
-    left join
-    tb_projetos projetos
-    on (projetos.id = projetos_atividade.id_projeto) and (coalesce(projetos_atividade.id_pai, 0) = 0)
-    left join
-    tb_projetos_atividade macroatividade
-    on macroatividade.id_pai = projetos_atividade.id
-    left join
-    tb_projetos_atividade microatividade
-    on microatividade.id_pai = macroatividade.id
-    where projetos.id = ${id} order by 2,3
+        select
+        b.nome_projeto,
+          a.dat_ini_real,
+          a.dat_fim_real,
+          a.dat_ini_plan,
+          a.dat_fim_plan,
+          a.id as microatividade_id,
+          a.nom_atividade as nome_atividade,
+          macroatividade_id,
+          (select nom_atividade from tb_projetos_atividade where id = macroatividade_id) as macroatividade_nome,
+          case when weekdays_sql(ma.dat_ini_plan::date, ma.dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(ma.dat_ini_plan::date, ma.dat_fim_plan::date)::int - 1 end as duracao,
+          a.pct_real as progresso
+        from tb_projetos_atividade a
+        inner join (
+        select 
+          case when ma.dat_ini_real is null then (select min(dat_ini_real) from tb_projetos_atividade where id_pai = ma.id) else ma.dat_ini_real end as dat_ini_real,
+            case when ma.dat_fim_real is null then (select max(dat_fim_real) from tb_projetos_atividade where id_pai = ma.id) else ma.dat_fim_real end as dat_fim_real,
+            case when ma.dat_ini_plan is null then (select min(dat_ini_plan) from tb_projetos_atividade where id_pai = ma.id) else ma.dat_ini_plan end as dat_ini_plan,
+            case when ma.dat_fim_plan is null then (select max(dat_fim_plan) from tb_projetos_atividade where id_pai = ma.id) else ma.dat_fim_plan end as dat_fim_plan,
+            ma.id as id,
+            ma.id_pai as macroatividade_id
+        from tb_projetos_atividade ma
+        --	where id = a.id_pai
+        ) as ma
+        on a.id = ma.id
+        inner join tb_projetos b
+        on a.id_projeto = b.id
+        where a.id_projeto = ${id} 
+        and (a.id_pai is not null or not a.id_pai = 0) -- regra para não exibir a raiz do cronograma
     `);
     if (gantt.length <= 0) return null;
     const ganttFormatted = ganttFormatter(gantt);
