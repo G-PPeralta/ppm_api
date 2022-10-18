@@ -76,12 +76,12 @@ export class GanttService {
     macroatividade.dat_fim_real,
     macroatividade.dat_ini_plan,
     macroatividade.dat_fim_plan,
-    microatividade.id as microatividade_id,
+    macroatividade.id as microatividade_id,
     microatividade.nom_atividade as nome_atividade,
     macroatividade.id as macroatividade_id,
     macroatividade.nom_atividade as macroatividade_nome,
-    case when weekdays_sql(microatividade.dat_ini_plan::date, microatividade.dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(microatividade.dat_ini_plan::date, microatividade.dat_fim_plan::date)::int - 1 end as duracao,
-    microatividade.pct_real as progresso
+    case when weekdays_sql(macroatividade.dat_ini_plan::date, macroatividade.dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(macroatividade.dat_ini_plan::date, macroatividade.dat_fim_plan::date)::int - 1 end as duracao,
+    macroatividade.pct_real as progresso
     from
     tb_projetos_atividade projetos_atividade
     left join
@@ -113,8 +113,10 @@ export class GanttService {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade
       SET
-      dat_ini_plan = '${new Date(updateGannt.dat_ini).toISOString()}',
-      dat_fim_plan = '${new Date(updateGannt.dat_fim).toISOString()}',
+      dat_ini_plan = '${updateGannt.dat_ini_plan}'::timestamp,
+      dat_fim_plan = '${updateGannt.dat_fim_plan}'::timestamp,
+      dat_ini_real = '${updateGannt.dat_ini_real}'::timestamp,
+      dat_fim_real = '${updateGannt.dat_fim_real}'::timestamp,
       pct_real = ${updateGannt.pct_real}
       WHERE id = ${id}
     `);
