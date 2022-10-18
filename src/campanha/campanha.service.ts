@@ -589,6 +589,8 @@ export class CampanhaService {
 
     const copia_payload = payload;
 
+    const recalculados: Map<number, number> = new Map<number, number>();
+
     payload.forEach(async (el) => {
       anterior.forEach(async (inner) => {
         if (el.id_cronograma === inner.id_cronograma) {
@@ -599,12 +601,15 @@ export class CampanhaService {
                 id_para = e.id_cronograma;
               }
             });
-            Logger.log(
-              `CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )`,
-            );
-            await this.prisma.$queryRawUnsafe(`
+            if (
+              !recalculados.get(el.id_cronograma) ||
+              !recalculados.get(id_para)
+            ) {
+              recalculados.set(el.id_cronograma, id_para);
+              await this.prisma.$queryRawUnsafe(`
               CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
             `);
+            }
           }
         }
       });
