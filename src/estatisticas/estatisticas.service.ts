@@ -90,6 +90,9 @@ export class EstatisticasService {
         id_poco: e.id_poco,
         poco: e.poco,
         atividades: [],
+        dat_inicio: e.dat_inicio,
+        dat_final: e.dat_final,
+        pct_real_consol: e.pct_real_consol,
       };
 
       const atividade = {
