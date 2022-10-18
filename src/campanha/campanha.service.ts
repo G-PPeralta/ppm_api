@@ -599,6 +599,9 @@ export class CampanhaService {
                 id_para = e.id_cronograma;
               }
             });
+            Logger.log(
+              `CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )`,
+            );
             await this.prisma.$queryRawUnsafe(`
               CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
             `);
