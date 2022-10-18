@@ -28,7 +28,7 @@ export class EstatisticasService {
         round(fn_atv_calc_pct_plan(
                 fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
                 fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
-                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
+                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_por_data(atividades.dat_ini_plan) -- valor ponderado
             )*100,1) as pct_plan,
             coalesce(atividades.pct_real, 0) as pct_real,
             responsaveis.nome_responsavel as nome_responsavel,
