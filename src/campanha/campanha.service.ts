@@ -407,7 +407,9 @@ export class CampanhaService {
 
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    select campanha.id id_campanha,
+    select 
+	(select ordem from tb_projetos_atividade where id = pai.poco_id) as ordem,
+	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
@@ -434,13 +436,12 @@ export class CampanhaService {
     a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
     from tb_projetos_atividade a  
     where 
-        
     id_operacao is null
     and id_pai <> 0) poco on poco.id = pai.poco_id
     left join tb_intervencoes_pocos poco2
     on poco2.id = pai.poco_id
     ${where}
-    order by pai.dat_ini_plan asc
+    order by ordem, pai.dat_ini_plan asc
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {
