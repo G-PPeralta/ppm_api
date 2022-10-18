@@ -717,7 +717,7 @@ and a.id = ${id};
         vincularAtividade.duracao_plan,
       );
 
-      await this.prismaClient.$queryRawUnsafe(`
+      const id_atv = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
         vincularAtividade.nom_atividade
@@ -726,6 +726,11 @@ and a.id = ${id};
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id
       })
+        RETURNING ID
+      `);
+
+      await this.prismaClient.$executeRawUnsafe(`
+      call dev.sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});
       `);
     }
   }
