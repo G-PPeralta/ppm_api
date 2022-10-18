@@ -2,7 +2,7 @@ export class CreateProjetoDto {
   nomeProjeto: string;
   descricao?: string;
   justificativa?: string;
-  valorTotalPrevisto?: number;
+  capexPrevisto?: string;
   dataInicio: Date;
   dataFim: Date;
   poloId: number;
@@ -12,7 +12,6 @@ export class CreateProjetoDto {
   divisaoId: number;
   gateId?: number;
   tipoProjetoId: number;
-  // demandaId?: number;
   statusId: number;
   prioridadeId: number;
   complexidadeId: number;
@@ -21,8 +20,8 @@ export class CreateProjetoDto {
   comentarios?: string;
   deletado: boolean;
   item: number;
-  // numero: number;
-  responsavel_id?: number;
-  coordenador_id?: number;
-  elemento_pep: string;
+  responsavelId?: number;
+  coordenadorId?: number;
+  elementoPep: string;
+  nom_usu_create: string;
 }

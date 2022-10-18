@@ -29,9 +29,19 @@ export class ProjetosController {
     return await this.projetosService.getProjetosDetalhados();
   }
 
+  @Get('previstoXRealizado')
+  async previstoXRealizadoGeral() {
+    return await this.projetosService.previstoXRealizadoGeral();
+  }
+
   @Get('/prazos/find')
   async findAllProjetosPrazos() {
     return this.projetosService.findAllProjetosPrazos();
+  }
+
+  @Get('/previsXRealizadoProjeto/:id')
+  async revistoXRealizadoGeralPorProjeto(@Param('id') id: string) {
+    return this.projetosService.previstoXRealizadoGeralPorProjeto(+id);
   }
 
   @Get('/prazos/find/:id')

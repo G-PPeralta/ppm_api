@@ -1,11 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { validateOrReject } from 'class-validator';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
-import { CreateBudgetDto } from './dto/create-budget.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
@@ -84,12 +82,10 @@ export class BudgetsService {
       select 
       poco.id as id_filho, 
       poco.nom_atividade as nome_poco,
-      sum(coalesce(planejado.vlr_planejado, 0)) as vlr_planejado,
+      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
       sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap,
-      coalesce(planejado.txt_observacao, '') as observacao_planejada,
-      coalesce(realizado.txt_observacao, '') as observacao_realizado
+      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
       from tb_projetos_atividade sonda
       inner join tb_projetos_atividade poco
       on poco.id_pai = sonda.id
@@ -104,8 +100,7 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       sonda.id = ${pai.id_pai} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, coalesce(planejado.txt_observacao, ''), coalesce(realizado.txt_observacao, '')
-        
+      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)        
      `);
       return {
         id: pai.id_pai,
@@ -164,12 +159,10 @@ export class BudgetsService {
     select 
       poco.id as id_pai, 
       poco.nom_atividade as nome_poco,
-      sum(coalesce(planejado.vlr_planejado, 0)) as vlr_planejado,
-      sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
+      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
+      coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap,
-      coalesce(planejado.txt_observacao, '') as observacao_planejada,
-      coalesce(realizado.txt_observacao, '') as observacao_realizado
+      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
       from tb_projetos_atividade sonda
       inner join tb_projetos_atividade poco
       on poco.id_pai = sonda.id
@@ -184,7 +177,7 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       poco.id = ${id} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, coalesce(planejado.txt_observacao, ''), coalesce(realizado.txt_observacao, '')`);
+      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)`);
 
     const retornar = async () => {
       const tratamento: any = [];
@@ -194,14 +187,11 @@ export class BudgetsService {
         const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
         poco.id as id_filho, 
         planejado.id as id_planejado,
-        realizado.id as id_realizado,
         atividades.id as id_atividade,
         case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
         coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
-        coalesce(realizado.vlr_realizado, 0) as vlr_realizado,
-        coalesce(ROUND(((realizado.vlr_realizado/planejado.vlr_planejado)* 100), 0), 0) as gap,
-        coalesce(planejado.txt_observacao, '') as observacao_planejada,
-        coalesce(realizado.txt_observacao, '') as observacao_realizado
+        coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
+        coalesce(ROUND(((sum(realizado.vlr_realizado)/sum(planejado.vlr_planejado))* 100), 0), 0) as gap
         from tb_projetos_atividade sonda
         inner join tb_projetos_atividade poco
         on poco.id_pai = sonda.id
@@ -211,11 +201,14 @@ export class BudgetsService {
         tb_projetos_atividade_custo_plan planejado
         on planejado.id_atividade = atividades.id 
         left join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = planejado.id_atividade)
+        on (realizado.id_atividade = atividades.id)
         left join tb_projetos_operacao operacao
         on (operacao.id = atividades.id_operacao)
         where
         poco.id = ${e.id_pai} and sonda.id_pai = 0
+        group by poco.id, planejado.id,
+        atividades.id,
+        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
      `);
 
         const dados = {
@@ -287,7 +280,8 @@ export class BudgetsService {
     sonda.id_pai = 0 and projetos.tipo_projeto_id = 3
     group by
     sonda.id,
-    sonda.nom_atividade`);
+    sonda.nom_atividade
+    order by nome `);
     /*const projetos = await this.prisma.tb_projetos_atividade.findMany({
       select: { nom_atividade: true, id: true },
       where: { id_pai: 0 },
@@ -338,22 +332,20 @@ export class BudgetsService {
   having  
   atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
 
-    return +custoTotalAcumulado[0].total_realizado;
+    return +custoTotalAcumulado[0]?.total_realizado;
   }
 
   async getTotalPlanejado(id) {
     const custoPlanejado: { total_planjeado: number }[] = await this.prisma
       .$queryRawUnsafe(`select 
-    sum(planejado.vlr_planejado) as total_planjeado  
-  from tb_projetos_atividade_custo_plan planejado
-  inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
-  where 
-  atividade.id_pai  = ${id}
-  Group by dat_ini_plan, id_projeto
-  having  
-  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+      sum(planejado.vlr_planejado) as total_planjeado  
+    from tb_projetos_atividade_custo_plan planejado
+    inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
+    where 
+    atividade.id_pai  = ${id}
+    Group by    id_projeto`);
 
-    return +custoPlanejado[0].total_planjeado;
+    return +custoPlanejado[0]?.total_planjeado;
   }
 
   async getTotalRealizdo(id) {
@@ -364,7 +356,7 @@ export class BudgetsService {
   inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
   where 
   atividade.id_pai  = ${id} `);
-    return +custoRealizado[0].total_realizado;
+    return +custoRealizado[0]?.total_realizado;
   }
 
   async convertBRLtoUSD(valueReal: number): Promise<number> {
@@ -393,9 +385,13 @@ export class BudgetsService {
     );
 
     const totalBRL =
-      custoDiarioTotalBRL + custoTotalRealizadoBRL + custoTotalTotalPrevistoBRL;
+      (custoDiarioTotalBRL || 0) +
+      (custoTotalRealizadoBRL || 0) +
+      (custoTotalTotalPrevistoBRL || 0);
     const totalUSD =
-      custoDiarioTotalUSD + custoTotalRealizadoUSD + custoTotalTotalPrevistoUSD;
+      (custoDiarioTotalUSD || 0) +
+      (custoTotalRealizadoUSD || 0) +
+      (custoTotalTotalPrevistoUSD || 0);
 
     return {
       ...(await this.getInicioAndFim(id)),

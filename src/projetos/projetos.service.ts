@@ -202,16 +202,38 @@ export class ProjetosService {
   }
 
   async create(createProjetoDto: CreateProjetoDto) {
-    return await this.prismaClient.projeto.create({
-      data: {
-        ...createProjetoDto,
-        dataFim: new Date(createProjetoDto.dataFim),
-        dataFimReal: new Date(createProjetoDto.dataFimReal),
-        dataInicio: new Date(createProjetoDto.dataInicio),
-        dataInicioReal: new Date(createProjetoDto.dataInicioReal),
-      },
-    });
+    return await this.prismaClient.$queryRawUnsafe(`
+      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, data_inicio, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, complexidade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
+        createProjetoDto.nomeProjeto
+      }', '${createProjetoDto.descricao}',  '${
+      createProjetoDto.justificativa
+    }', ${Number(
+      createProjetoDto.capexPrevisto.replace('.', '').replace(',', '.'),
+    )}, '${new Date(createProjetoDto.dataInicio).toISOString()}', ${
+      createProjetoDto.poloId
+    }, ${createProjetoDto.localId}, ${createProjetoDto.solicitanteId}, ${
+      createProjetoDto.classificacaoId
+    }, ${createProjetoDto.divisaoId}, ${createProjetoDto.gateId}, ${
+      createProjetoDto.tipoProjetoId
+    }, ${createProjetoDto.statusId}, 1, ${createProjetoDto.complexidadeId}, '${
+      createProjetoDto.comentarios
+    }', ${createProjetoDto.responsavelId}, ${
+      createProjetoDto.coordenadorId
+    }, '${createProjetoDto.elementoPep}', '${createProjetoDto.nom_usu_create}')
+    `);
   }
+
+  // async create(createProjetoDto: CreateProjetoDto) {
+  //   return await this.prismaClient.projeto.create({
+  //     data: {
+  //       ...createProjetoDto,
+  //       dataFim: new Date(createProjetoDto.dataFim),
+  //       dataFimReal: new Date(createProjetoDto.dataFimReal),
+  //       dataInicio: new Date(createProjetoDto.dataInicio),
+  //       dataInicioReal: new Date(createProjetoDto.dataInicioReal),
+  //     },
+  //   });
+  // }
 
   async findAllProjetosPrazos() {
     return this.prismaClient.$queryRawUnsafe(`
@@ -258,6 +280,122 @@ and a.id = ${id};
     const projects = await this.prismaClient.projeto.findMany();
     if (!projects) throw new Error('Falha na listagem de projetos');
     return projects;
+  }
+
+  async previstoXRealizadoGeral() {
+    const query = await this.prismaClient.$queryRawUnsafe(`
+    select 
+    ano,
+    mes,
+    concat(ano, mes) as mesano,
+    avg(pct_plan) as pct_plan,
+    avg(pct_real) as pct_real,
+    avg(pct_capex_plan),
+    avg(pct_capex_real)
+  from (
+      select 
+        ano,
+        mes,
+        case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
+        case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
+        sum(vlr_plan) as pct_capex_plan,
+        sum(vlr_real) as pct_capex_real
+      from (	
+        select 
+           extract(year from dat_ini_plan) as ano,
+           extract(month from dat_ini_plan) as mes,
+           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
+           case when (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
+           else 
+             (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
+           end as horas_planejadas,
+           0 as horas_totais_real,
+           0 as horas_realizadas,
+           0 as vlr_plan,
+           0 as vlr_real
+        from dev.tb_projetos_atividade tpa 
+        where dat_usu_erase is null
+        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
+        union
+        select 
+           extract(year from dat_ini_plan) as ano,
+           extract(month from dat_ini_plan) as mes,
+            concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+           0 as horas_totais_plan,
+           0 as horas_planejadas,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
+           0 as vlr_plan,
+           0 as vlr_real
+        from dev.tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
+        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
+      ) as qr
+    group by ano, mes
+  ) as qr2
+  group by ano, mes
+  order by ano, mes asc
+  ;`);
+
+    return query;
+  }
+
+  async previstoXRealizadoGeralPorProjeto(id: number) {
+    const query = await this.prismaClient.$queryRawUnsafe(`
+    select 
+    ano,
+    mes,
+    concat(ano, mes) as mesano,
+    round(avg(pct_plan)::numeric, 2) as pct_plan,
+    round(avg(pct_real)::numeric, 2) as pct_real,
+    avg(pct_capex_plan) as capex_previsto,
+    avg(pct_capex_real) as capex_realizado
+  from (
+      select 
+        ano,
+        mes,
+        case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
+        case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
+        sum(vlr_plan) as pct_capex_plan,
+        sum(vlr_real) as pct_capex_real
+      from (	
+        select 
+           extract(year from dat_ini_plan) as ano,
+           extract(month from dat_ini_plan) as mes,
+           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
+           case when (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
+           else 
+             (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
+           end as horas_planejadas,
+           0 as horas_totais_real,
+           0 as horas_realizadas,
+           0 as vlr_plan,
+           0 as vlr_real
+        from dev.tb_projetos_atividade tpa 
+        where dat_usu_erase is null
+        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' and id_projeto = ${id}
+        union
+        select 
+           extract(year from dat_ini_plan) as ano,
+           extract(month from dat_ini_plan) as mes,
+            concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+           0 as horas_totais_plan,
+           0 as horas_planejadas,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
+           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
+           0 as vlr_plan,
+           0 as vlr_real
+        from dev.tb_projetos_atividade tcac where dat_usu_erase is null and id_projeto = ${id}
+        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
+      ) as qr
+    group by ano, mes
+  ) as qr2
+  group by ano, mes
+  order by ano, mes asc
+  ;`);
+
+    return query;
   }
 
   async findTotalValue(id: number) {
