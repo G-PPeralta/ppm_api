@@ -407,7 +407,9 @@ export class CampanhaService {
 
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    select campanha.id id_campanha,
+    select 
+	(select ordem from tb_projetos_atividade where id = pai.poco_id) as ordem,
+	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
     campanha.nom_campanha as sonda,
@@ -434,13 +436,12 @@ export class CampanhaService {
     a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
     from tb_projetos_atividade a  
     where 
-        
     id_operacao is null
     and id_pai <> 0) poco on poco.id = pai.poco_id
     left join tb_intervencoes_pocos poco2
     on poco2.id = pai.poco_id
     ${where}
-    order by pai.dat_ini_plan asc
+    order by ordem, pai.dat_ini_plan asc
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {
@@ -571,10 +572,12 @@ export class CampanhaService {
       tb_projetos_atividade poco
       inner join tb_projetos_atividade sonda
       on poco.id_pai = sonda.id
+      inner join tb_campanha campanha
+      on rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1))) = sonda.nom_atividade
       WHERE
-      sonda.id_pai = 0
-      AND
-      sonda.id = ${id_campanha}
+      sonda.id_pai = 0 and campanha.id = ${id_campanha}
+      and poco.ordem is not null
+      order by ordem
     `);
 
     const id_projeto = await this.prisma.$queryRawUnsafe(`
@@ -587,9 +590,9 @@ export class CampanhaService {
       where campanha.id = ${id_campanha}
     `);
 
-    const copia_payload = payload;
+    const copia_payload = JSON.parse(JSON.stringify(payload));
 
-    const recalculados: Map<number, number> = new Map<number, number>();
+    const rodou: Set<number> = new Set<number>();
 
     payload.forEach(async (el) => {
       anterior.forEach(async (inner) => {
@@ -601,14 +604,13 @@ export class CampanhaService {
                 id_para = e.id_cronograma;
               }
             });
-            if (
-              !recalculados.get(el.id_cronograma) ||
-              !recalculados.get(id_para)
-            ) {
-              recalculados.set(el.id_cronograma, id_para);
+
+            if (!rodou.has(el.id_cronograma) && !rodou.has(id_para)) {
               await this.prisma.$queryRawUnsafe(`
-              CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
-            `);
+                CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
+              `);
+              rodou.add(el.id_cronograma);
+              rodou.add(id_para);
             }
           }
         }
