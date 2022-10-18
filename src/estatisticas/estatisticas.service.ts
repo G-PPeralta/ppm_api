@@ -55,7 +55,7 @@ export class EstatisticasService {
             min(hr_total) as vlr_min,
             max(hr_total) as vlr_max,
             avg(hr_total) as vlr_med,
-            0 as vlr_dp
+            case when round(stddev(hr_total)) is null then 0 else round(stddev(hr_total)) end as vlr_dp
           from (
             select nom_atividade, 
             dev.fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real) as hr_total
