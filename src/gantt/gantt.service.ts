@@ -71,7 +71,7 @@ export class GanttService {
   async findOne(id: number) {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
         select
-        b.nome_projeto,
+          b.nome_projeto,
           a.dat_ini_real,
           a.dat_fim_real,
           a.dat_ini_plan,
