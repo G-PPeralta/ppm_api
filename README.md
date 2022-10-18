@@ -5,7 +5,12 @@
 ## Installation
 
 ```bash
-$ yarn
+
+$ sudo npm i -g @nestjs/cli
+
+$ sudo npm i -g yarn
+
+$ yarn || yarn install
 
 $ yarn prisma generate
 

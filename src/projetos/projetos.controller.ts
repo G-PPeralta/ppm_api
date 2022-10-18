@@ -54,6 +54,11 @@ export class ProjetosController {
     return this.projetosService.findProjetosPercentuais(+id);
   }
 
+  @Get('/filtroProjeto/:nomProjeto')
+  async filtroProjeto(@Param('nomProjeto') nomProjeto: string) {
+    return this.projetosService.filtroProjetos(nomProjeto);
+  }
+
   @Post('/registro')
   async create(@Body() payload: CreateProjetoDto) {
     try {
