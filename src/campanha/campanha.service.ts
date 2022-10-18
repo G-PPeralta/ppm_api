@@ -605,12 +605,9 @@ export class CampanhaService {
             });
 
             if (!rodou.has(el.id_cronograma) && !rodou.has(id_para)) {
-              Logger.log(`
-              CALL sp_up_recalcula_cronograma_intervencao(${id_para}, ${el.id_cronograma}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
-            `); /*
               await this.prisma.$queryRawUnsafe(`
                 CALL sp_up_recalcula_cronograma_intervencao(${id_para}, ${el.id_cronograma}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
-              `);*/
+              `);
               rodou.add(el.id_cronograma);
               rodou.add(id_para);
             }
