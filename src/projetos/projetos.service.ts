@@ -283,15 +283,13 @@ and a.id = ${id};
   }
 
   async previstoXRealizadoGeral() {
-    const query = await this.prismaClient.$queryRawUnsafe(`
+    const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select 
-    ano,
-    namemonth(mes::int4) as mes,
-    concat(ano, mes) as mesano,
+    concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
     round(avg(pct_plan)::numeric, 2) as pct_plan,
     round(avg(pct_real)::numeric, 2) as pct_real,
-    avg(pct_capex_plan),
-    avg(pct_capex_real)
+    avg(pct_capex_plan) as capex_previsto,
+    avg(pct_capex_real) as capex_realizado
   from (
       select 
         ano,
@@ -337,15 +335,21 @@ and a.id = ${id};
   order by ano, mes asc
   ;`);
 
-    return query;
+    return query.map((el) => {
+      return {
+        mes: el.mes,
+        cronogramaPrevisto: Number(el.pct_plan),
+        cronogramaRealizado: Number(el.pct_real),
+        capexPrevisto: Number(el.capex_previsto),
+        capexRealizado: Number(el.capex_realizado),
+      };
+    });
   }
 
   async previstoXRealizadoGeralPorProjeto(id: number) {
-    const query = await this.prismaClient.$queryRawUnsafe(`
+    const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select 
-    ano,
-    namemonth(mes::int4) as mes,
-    concat(ano, mes) as mesano,
+    concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
     round(avg(pct_plan)::numeric, 2) as pct_plan,
     round(avg(pct_real)::numeric, 2) as pct_real,
     avg(pct_capex_plan) as capex_previsto,
@@ -395,7 +399,15 @@ and a.id = ${id};
   order by ano, mes asc
   ;`);
 
-    return query;
+    return query.map((el) => {
+      return {
+        mes: el.mes,
+        cronogramaPrevisto: Number(el.pct_plan),
+        cronogramaRealizado: Number(el.pct_real),
+        capexPrevisto: Number(el.capex_previsto),
+        capexRealizado: Number(el.capex_realizado),
+      };
+    });
   }
 
   async findTotalValue(id: number) {
