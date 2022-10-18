@@ -52,24 +52,18 @@ export class EstatisticasService {
         left join (
           select 
             nom_atividade,
-            vlr_min,
-            vlr_max,
-            vlr_med,
-            stddev(vlr_max) as vlr_dp
-          from (  
-            select 
-              nom_atividade, count(*), 
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), min(dat_fim_real)) as vlr_min,
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real)) as vlr_max,
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real))/count(*) as vlr_med
-            from tb_projetos_atividade tp 
-            group by nom_atividade ) as qr
-          group by nom_atividade, 	vlr_min,
-            vlr_max,
-            vlr_med
-          having vlr_min is not null
-          ) as calc
-          on calc.nom_atividade = atividades.nom_atividade
+            min(hr_total) as vlr_min,
+            max(hr_total) as vlr_max,
+            avg(hr_total) as vlr_med,
+            0 as vlr_dp
+          from (
+            select nom_atividade, 
+            dev.fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real) as hr_total
+            from tb_projetos_atividade
+          ) as q
+          group by nom_atividade
+              ) as calc
+              on calc.nom_atividade = atividades.nom_atividade
         where
         sonda.id_pai = 0
         group by 
