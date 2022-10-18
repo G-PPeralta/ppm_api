@@ -7,12 +7,11 @@ export class AtividadeFerramentasService {
   constructor(private prisma: PrismaService) {}
 
   public create = async (dto: CreateAtividadeFerramentaDto) => {
-    const dataHora = new Date(dto.data_hora);
     const data: any[] = await this.prisma.$queryRawUnsafe(`
       insert into tb_atividade_ferramentas(atividade_id, nome, data_hora, anotacoes)
-      values (${dto.atividade_id}, '${
-      dto.nome
-    }', '${dataHora.toISOString()}', '${dto.anotacoes ? dto.anotacoes : ''}')
+      values (${dto.atividade_id}, '${dto.nome}', '${dto.data} ${dto.hora}', '${
+      dto.anotacoes ? dto.anotacoes : ''
+    }')
       returning id
     `);
 

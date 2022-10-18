@@ -8,6 +8,9 @@ export class CreateAtividadeFerramentaDto {
   atividade_id: number;
 
   @IsNotEmpty()
-  data_hora: Date;
+  data: string;
+
+  hora: string;
+
   anotacoes?: string;
 }
