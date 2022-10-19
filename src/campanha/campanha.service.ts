@@ -612,7 +612,7 @@ export class CampanhaService {
 
             if (!rodou.has(el.id_cronograma) && !rodou.has(id_para)) {
               await this.prisma.$queryRawUnsafe(`
-                CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${el.ordem}, ${inner.ordem}, ${id_projeto[0].id} )
+                CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${inner.ordem}, ${el.ordem}, ${id_projeto[0].id} )
               `);
               rodou.add(el.id_cronograma);
               rodou.add(id_para);
