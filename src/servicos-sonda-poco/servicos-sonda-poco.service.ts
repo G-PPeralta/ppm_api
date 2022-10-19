@@ -26,6 +26,7 @@ export class ServicosSondaPocoService {
 
   async findPocos(id_projeto: number) {
     return await this.prisma.$queryRawUnsafe(`
+        
     select id, nom_poco, dat_ini_limite, ordem from (
       select  a.id, concat(a.id, ' - ', nom_atividade) as nom_poco,
           (select 
@@ -44,7 +45,7 @@ export class ServicosSondaPocoService {
                   id_pai = a.id) as dat_ini_limite, 1 as ordem
           from tb_projetos_atividade a  
           inner join tb_pocos c
-            on a.nom_atividade = c.nom_poco
+            on a.nom_atividade = c.nom_poco 
           where 
               id_projeto = ${id_projeto}
           and id_operacao is null
@@ -62,6 +63,7 @@ export class ServicosSondaPocoService {
               nom_poco not in (select nom_atividade from tb_projetos_atividade where pct_real < 100)
       )as qr
       order by ordem desc, dat_ini_limite asc;
+  
     `);
   }
 
