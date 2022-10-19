@@ -43,6 +43,8 @@ export class ServicosSondaPocoService {
               where     
                   id_pai = a.id) as dat_ini_limite, 1 as ordem
           from tb_projetos_atividade a  
+          inner join tb_pocos c
+            on a.nom_atividade = c.nom_poco
           where 
               id_projeto = ${id_projeto}
           and id_operacao is null
