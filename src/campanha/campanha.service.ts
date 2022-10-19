@@ -412,7 +412,12 @@ export class CampanhaService {
 	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
-    campanha.nom_campanha as sonda,
+    (
+    	select
+    	concat(p.id, ' - ', p.nome_projeto)
+    	from tb_projetos p
+    	where p.nome_projeto = rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1)))
+    ) as sonda,
     coalesce(poco.nom_poco, poco2.poco) as poco,
     pai.dat_ini_plan as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
