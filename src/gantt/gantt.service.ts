@@ -76,7 +76,7 @@ export class GanttService {
     dat_ini_plan as StartDate,
     dat_fim_plan EndDate,
     case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int - 1 end as Duration,
-    0 as Progress,
+    round(pct_real::numeric, 1) as Progress,
     null as Predecessor,
     (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
@@ -119,7 +119,7 @@ export class GanttService {
         dat_ini_plan as StartDate,
         dat_fim_plan EndDate,
         case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int - 1 end as Duration,
-        0 as Progress,
+        round(pct_real::numeric, 1) as Progress,
         null as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
