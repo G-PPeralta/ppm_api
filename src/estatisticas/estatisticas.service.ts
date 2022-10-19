@@ -28,14 +28,14 @@ export class EstatisticasService {
         round(fn_atv_calc_pct_plan(
                 fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
                 fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan),  -- horas totais
-                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_projetos(pocos.id) -- valor ponderado
+                fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_por_data(atividades.dat_ini_plan) -- valor ponderado
             )*100,1) as pct_plan,
             coalesce(atividades.pct_real, 0) as pct_real,
             responsaveis.nome_responsavel as nome_responsavel,
-            calc.vlr_min,
-            calc.vlr_max,
-            calc.vlr_med as vlr_media,
-            calc.vlr_dp,
+            round(calc.vlr_min) as vlr_min,
+            round(calc.vlr_max) as vlr_max,
+            round(calc.vlr_med) as vlr_media,
+            round(calc.vlr_dp) as vlr_dp,
             (select min(dat_ini_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_inicio,
             (select max(dat_fim_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_final,
             (dev.fn_cron_calc_pct_real(pocos.id)) as pct_real_consol
@@ -52,24 +52,18 @@ export class EstatisticasService {
         left join (
           select 
             nom_atividade,
-            vlr_min,
-            vlr_max,
-            vlr_med,
-            stddev(vlr_max) as vlr_dp
-          from (  
-            select 
-              nom_atividade, count(*), 
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), min(dat_fim_real)) as vlr_min,
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real)) as vlr_max,
-              dev.fn_hrs_totais_cronograma_atvv(min(dat_ini_real), max(dat_fim_real))/count(*) as vlr_med
-            from tb_projetos_atividade tp 
-            group by nom_atividade ) as qr
-          group by nom_atividade, 	vlr_min,
-            vlr_max,
-            vlr_med
-          having vlr_min is not null
-          ) as calc
-          on calc.nom_atividade = atividades.nom_atividade
+            min(hr_total) as vlr_min,
+            max(hr_total) as vlr_max,
+            avg(hr_total) as vlr_med,
+            case when round(stddev(hr_total)) is null then 0 else round(stddev(hr_total)) end as vlr_dp
+          from (
+            select nom_atividade, 
+            dev.fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real) as hr_total
+            from tb_projetos_atividade
+          ) as q
+          group by nom_atividade
+              ) as calc
+              on calc.nom_atividade = atividades.nom_atividade
         where
         sonda.id_pai = 0
         group by 
