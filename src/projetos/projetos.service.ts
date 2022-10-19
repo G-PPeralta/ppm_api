@@ -274,9 +274,9 @@ export class ProjetosService {
             from (
               select 
                 c.id,
-                case when sum(vlr_planejado) is null 
+                case when sum(c.valor_total_previsto) is null 
                   then 0 
-                  else sum(vlr_planejado)
+                  else sum(valor_total_previsto)
                 end as vlr_planejado,
                 0 as vlr_realizado,
                 c.valor_total_previsto,
@@ -290,11 +290,7 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_projetos_atividade_custo_plan a
-              inner join dev.tb_projetos_atividade b
-                on a.id_atividade = b.id
-              inner join dev.tb_projetos c
-                on b.id_projeto = c.id
+              from tb_projetos c
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
               LEFT JOIN tb_classificacoes_projetos cpx
