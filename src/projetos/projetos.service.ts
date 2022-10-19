@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
@@ -387,16 +387,25 @@ export class ProjetosService {
   }
 
   async create(createProjetoDto: CreateProjetoDto) {
+    const capexValor = createProjetoDto.capexPrevisto
+      .replace('.', '')
+      .replace(',', '');
+
+    const formatado = `${capexValor.substring(
+      0,
+      capexValor.length - 2,
+    )}.${capexValor.substring(capexValor.length - 2)}`;
+
     return await this.prismaClient.$queryRawUnsafe(`
       INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, data_inicio, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, complexidade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa
-    }', ${Number(
-      createProjetoDto.capexPrevisto.replace('.', '').replace(',', '.'),
-    )}, '${new Date(createProjetoDto.dataInicio).toISOString()}', ${
-      createProjetoDto.poloId
-    }, ${createProjetoDto.localId}, ${createProjetoDto.solicitanteId}, ${
+    }', ${Number(formatado)}, '${new Date(
+      createProjetoDto.dataInicio,
+    ).toISOString()}', ${createProjetoDto.poloId}, ${
+      createProjetoDto.localId
+    }, ${createProjetoDto.solicitanteId}, ${
       createProjetoDto.classificacaoId
     }, ${createProjetoDto.divisaoId}, ${createProjetoDto.gateId}, ${
       createProjetoDto.tipoProjetoId
@@ -624,7 +633,7 @@ and a.id = ${id};
     const projeto: any[] = await this.prismaClient.$queryRawUnsafe(`
       SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
     `);
-    console.log(vincularAtividade);
+
     const existe = await this.prismaClient.$queryRawUnsafe(`
       SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${
         projeto === null || projeto.length === 0 ? null : projeto[0].id
@@ -655,7 +664,6 @@ and a.id = ${id};
       }
       `);
 
-      console.log(id_ret);
       await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
