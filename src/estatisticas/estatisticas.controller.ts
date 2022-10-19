@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { CreateEstatisticaDto } from './dto/create-estatistica.dto';
 import { EstatisticaDto } from './dto/update-estatistica.dto';
 import { EstatisticasService } from './estatisticas.service';
@@ -22,5 +22,10 @@ export class EstatisticasController {
   @Post('projetos')
   vincularAtividade(@Body() vincularAtividade: CreateEstatisticaDto) {
     return this.estatisticasService.vincularAtividade(vincularAtividade);
+  }
+
+  @Delete('projetos/:id')
+  apagarAtividade(@Param('id') id: string) {
+    return this.estatisticasService.apagarAtividade(+id);
   }
 }
