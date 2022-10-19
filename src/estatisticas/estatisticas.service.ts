@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateEstatisticaDto } from './dto/create-estatistica.dto';
 import { EstatisticaDto } from './dto/update-estatistica.dto';
@@ -147,25 +147,53 @@ export class EstatisticasService {
   }
 
   async updateProjetosEstatistica(updateEstatistica: EstatisticaDto) {
+    const inicio_planejado = await this.trataData(
+      updateEstatistica.inicio_planejado,
+    );
+
+    const fim_planejado = await this.trataData(updateEstatistica.fim_planejado);
+
+    const inicio_realizado = await this.trataData(
+      updateEstatistica.inicio_realizado,
+    );
+
+    const fim_realizado = await this.trataData(updateEstatistica.fim_realizado);
+
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade 
       SET
-      dat_ini_plan = '${new Date(
-        updateEstatistica.inicio_planejado,
-      ).toISOString()}',
-      dat_fim_plan = '${new Date(
-        updateEstatistica.fim_planejado,
-      ).toISOString()}',
-      dat_ini_real = '${new Date(
-        updateEstatistica.inicio_realizado,
-      ).toISOString()}',
-      dat_fim_real = '${new Date(
-        updateEstatistica.fim_realizado,
-      ).toISOString()}',
+      dat_ini_plan = '${inicio_planejado.toISOString()}',
+      dat_fim_plan = '${fim_planejado.toISOString()}',
+      dat_ini_real = '${inicio_realizado.toISOString()}',
+      dat_fim_real = '${fim_realizado.toISOString()}',
       pct_real = ${updateEstatistica.pct_real}
       WHERE
       id = ${updateEstatistica.id_atividade}
     `);
+
+    const id_ret = await this.prisma.$queryRawUnsafe(`
+      SELECT id_projeto FROM tb_projetos_atividade WHERE id = ${updateEstatistica.id_atividade}
+    `);
+
+    await this.prisma.$executeRawUnsafe(`
+      CALL sp_recalcula_cronograma(${id_ret[0].id_projeto}, ${
+      updateEstatistica.id_atividade
+    }, '${inicio_realizado.toISOString()}')
+    `);
+  }
+
+  async trataData(data: string) {
+    const retorno = data.split(' ')[0];
+
+    const [day, month, year] = retorno.split('/');
+
+    const data_retorno = new Date(
+      `${[year, month, day].join('-')}T${data.split(' ')[1]}`,
+    );
+
+    data_retorno.setHours(data_retorno.getHours() - 3);
+
+    return data_retorno;
   }
 
   async vincularAtividade(createAtividade: CreateEstatisticaDto) {
