@@ -111,16 +111,16 @@ export class DetalhamentoService {
   // INFORMAÇÕES DO CARD FINANCEIRO
 
   async findOneInfoFinanc(id: number) {
-    const query: InfoFinanceiro[] = await this.prisma.$queryRaw`
-      select
-    vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
-    vlr_realizado / vlr_planejado * 100 as pct_realizado,
-    vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
-    vlr_planejado,
-    vlr_realizado,
-    vlr_nao_prev,
-    vlr_remanescente
-from
+    const query: InfoFinanceiro[] = await this.prisma.$queryRaw`  
+    select
+      vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
+      vlr_realizado / vlr_planejado * 100 as pct_realizado,
+      vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
+      vlr_planejado,
+      vlr_realizado,
+      vlr_nao_prev,
+      vlr_remanescente
+    from
     (
     select
         case
@@ -136,7 +136,7 @@ from
             else sum(vlr_planejado)
         end as vlr_planejado,
         case
-            when sum(vlr_realizado) =0 then 0.00000001
+            when sum(vlr_realizado) = 0 then 0.00000001
             else sum(vlr_realizado)
         end as vlr_realizado,
         sum(vlr_planejado)
@@ -144,20 +144,14 @@ from
         (
         select
             case
-                when sum(vlr_planejado) is null 
+                when sum(c.valor_total_previsto) is null 
                 then 0
-                else sum(vlr_planejado)-1
+                else sum(valor_total_previsto)-1
             end as vlr_nao_prev,
-            sum(vlr_planejado) as vlr_planejado,
+            sum(valor_total_previsto) as vlr_planejado,
             0 as vlr_realizado
         from
-            dev.tb_projetos_atividade_custo_plan a
-        inner join dev.tb_projetos_atividade b
-            on
-            a.id_atividade = b.id
-        inner join dev.tb_projetos c
-            on
-            b.id_projeto = c.id
+            tb_projetos c
             where c.id = ${id}
     union
         select
@@ -179,7 +173,7 @@ from
             where c.id = ${id}
             --where c.tipo_projeto_id in (1,2)
     ) as qr
-) as qr2;`;
+    ) as qr2;`;
     return query.map((info) => ({
       planejado: Number(info.vlr_planejado),
       realizado: Number(info.vlr_realizado),

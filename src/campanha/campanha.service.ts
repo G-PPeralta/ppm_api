@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -628,11 +628,6 @@ export class CampanhaService {
       area_id = ${payload.areaId},
       dat_ini_plan = '${new Date(payload.inicioPlanejado).toISOString()}',
       dat_fim_plan = '${new Date(payload.fimPlanejado).toISOString()}',
-      dat_ini_real = ${
-        payload.inicioReal === null
-          ? null
-          : "'" + new Date(payload.inicioReal).toISOString() + "'"
-      },
       dat_ini_real = ${
         payload.inicioReal === null
           ? null

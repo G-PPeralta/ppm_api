@@ -274,9 +274,9 @@ export class ProjetosService {
             from (
               select 
                 c.id,
-                case when sum(vlr_planejado) is null 
+                case when sum(c.valor_total_previsto) is null 
                   then 0 
-                  else sum(vlr_planejado)
+                  else sum(valor_total_previsto)
                 end as vlr_planejado,
                 0 as vlr_realizado,
                 c.valor_total_previsto,
@@ -290,11 +290,7 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_projetos_atividade_custo_plan a
-              inner join dev.tb_projetos_atividade b
-                on a.id_atividade = b.id
-              inner join dev.tb_projetos c
-                on b.id_projeto = c.id
+              from tb_projetos c
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
               LEFT JOIN tb_classificacoes_projetos cpx
@@ -536,69 +532,22 @@ and a.id = ${id};
   }
 
   async previstoXRealizadoGeralPorProjeto(id: number) {
+    await this.prismaClient.$queryRawUnsafe(`
+      CALL sp_in_graf_curva_s(${id})
+    `);
     const query: any[] = await this.prismaClient.$queryRawUnsafe(`
-    select 
-	    concat(substring(namemonth(qr2.mes::int4) from 1 for 3), '/', qr2.ano) as mes,
-	    round(avg(pct_plan)::numeric, 2) as pct_plan,
-	    round(avg(pct_real)::numeric, 2) as pct_real,
-	    avg(pct_capex_plan) as capex_previsto,
-	    avg(pct_capex_real) as capex_realizado
-	  from (
-	      select 
-	        ano,
-	        mes,
-	        case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
-	        case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
-	        sum(vlr_plan) as pct_capex_plan,
-	        sum(vlr_real) as pct_capex_real
-	      from (	
-	        select 
-	           extract(year from dat_ini_plan) as ano,
-	           extract(month from dat_ini_plan) as mes,
-	           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-	           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
-	           case when (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
-	           else 
-	             (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
-	           end as horas_planejadas,
-	           0 as horas_totais_real,
-	           0 as horas_realizadas,
-	           0 as vlr_plan,
-	           0 as vlr_real
-	        from dev.tb_projetos_atividade tpa 
-	        where dat_usu_erase is null
-	        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' and id_projeto = ${id}
-	        union
-	        select 
-	           extract(year from dat_ini_plan) as ano,
-	           extract(month from dat_ini_plan) as mes,
-	            concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-	           0 as horas_totais_plan,
-	           0 as horas_planejadas,
-	           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
-	           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
-	           0 as vlr_plan,
-	           0 as vlr_real
-	        from dev.tb_projetos_atividade tcac where dat_usu_erase is null and id_projeto = ${id}
-	        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
-	        union 
-	        select 
-	        	ano, 
-	        	mes, 
-	        	mesano::varchar,
-	            0 as horas_totais_plan,
-	            0 as horas_planejadas,
-	            0 as horas_totais_real,
-	            0 as horas_realizadas,
-	            0 as vlr_plan,
-	            0 as vlr_real
-	        from tb_mesano
-	      ) as qr
-	    group by ano, mes
-	  ) as qr2
-	  group by qr2.ano, qr2.mes
-	  order by qr2.ano, qr2.mes asc;
-  ;`);
+        select 
+          concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
+          case when a.mesano is null then b.mesano else a.mesano end as mesano,
+          case when a.pct_plan is null then 0 else a.pct_plan end as pct_plan,
+          case when a.pct_real is null then 0 else a.pct_real end as pct_real,
+          case when a.pct_capex_plan is null then 0 else a.pct_capex_plan end as capex_previsto,
+          case when a.pct_capex_real is null then 0 else a.pct_capex_real end as capex_realizado
+        from tb_projeto_curva_s a
+        right join tb_mesano b 
+          on a.mesano = b.mesano
+        where a.id_projeto = ${id} or a.hrs_totais is null;
+    ;`);
 
     return query.map((el) => {
       return {
@@ -675,7 +624,7 @@ and a.id = ${id};
     const projeto: any[] = await this.prismaClient.$queryRawUnsafe(`
       SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
     `);
-
+    console.log(vincularAtividade);
     const existe = await this.prismaClient.$queryRawUnsafe(`
       SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${
         projeto === null || projeto.length === 0 ? null : projeto[0].id
@@ -706,6 +655,7 @@ and a.id = ${id};
       }
       `);
 
+      console.log(id_ret);
       await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
