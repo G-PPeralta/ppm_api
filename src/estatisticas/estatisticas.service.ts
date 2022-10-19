@@ -229,4 +229,10 @@ export class EstatisticasService {
     })
     `);
   }
+
+  async apagarAtividade(id: number) {
+    await this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_projetos_atividade WHERE id = ${id}
+    `);
+  }
 }
