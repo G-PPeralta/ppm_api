@@ -191,8 +191,6 @@ export class EstatisticasService {
       `${[year, month, day].join('-')}T${data.split(' ')[1]}`,
     );
 
-    data_retorno.setHours(data_retorno.getHours() - 3);
-
     return data_retorno;
   }
 
