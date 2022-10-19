@@ -86,14 +86,14 @@ export class GanttService {
 
     const tratar = retorno_inicial.map((el) => {
       return {
-        taskId: el.taskid,
-        taskName: el.taskname,
-        startDate: el.startdate,
-        endDate: el.endDate,
-        duration: el.duration,
-        progress: el.progress,
-        predecessor: el.predecessor,
-        subtaskAmount: el.subtasks,
+        TaskID: el.taskid,
+        TaskName: el.taskname,
+        StartDate: el.startdate,
+        EndDate: el.endDate,
+        Duration: el.duration,
+        Progress: el.progress,
+        Predecessor: el.predecessor,
+        SubtaskAmount: el.subtasks,
         subtasks: [],
       };
     });
@@ -111,7 +111,7 @@ export class GanttService {
   }
 
   async substasksRecursive(element, id) {
-    if (element.subtaskAmount > 0) {
+    if (element.SubtaskAmount > 0) {
       const substasks: any[] = await this.prisma.$queryRawUnsafe(`
         select
         id as TaskID,
@@ -123,19 +123,19 @@ export class GanttService {
         null as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
-        where (id_pai = ${element.taskId})
+        where (id_pai = ${element.TaskID})
         and id_projeto = ${id};
       `);
       const mapped = substasks.map((el) => {
         return {
-          taskId: el.taskid,
-          taskName: el.taskname,
-          startDate: el.startdate,
-          endDate: el.endDate,
-          duration: el.duration,
-          progress: el.progress,
-          predecessor: el.predecessor,
-          subtaskAmount: el.subtasks,
+          TaskID: el.taskid,
+          TaskName: el.taskname,
+          StartDate: el.startdate,
+          EndDate: el.endDate,
+          Duration: el.duration,
+          Progress: el.progress,
+          Predecessor: el.predecessor,
+          SubtaskAmount: el.subtasks,
           subtasks: [],
         };
       });
@@ -149,7 +149,7 @@ export class GanttService {
         return tratamento;
       };
 
-      element.subtasks.push(await retornar());
+      element.subtasks = await retornar();
     }
   }
 
