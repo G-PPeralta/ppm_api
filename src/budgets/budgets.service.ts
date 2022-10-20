@@ -159,25 +159,32 @@ export class BudgetsService {
     select 
       poco.id as id_pai, 
       poco.nom_atividade as nome_poco,
-      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
+      planejado.total_planejado as vlr_planejado,
       coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-      case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
+      case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or coalesce(planejado.total_planejado , 0) = 0 then 0 else
+      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/coalesce(planejado.total_planejado, 0))* 100), 0), 0) end as gap
       from tb_projetos_atividade sonda
       inner join tb_projetos_atividade poco
       on poco.id_pai = sonda.id
       left join tb_projetos_atividade atividades
       on (atividades.id_pai = poco.id)
       left join
-      tb_projetos_atividade_custo_plan planejado
-      on planejado.id_atividade = atividades.id 
+      (
+         select 
+         atividade.id_pai as id,
+         sum(planejado.vlr_planejado) as total_planejado  
+         from tb_projetos_atividade_custo_plan planejado
+         inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
+         Group by 1
+      ) planejado
+      on planejado.id = atividades.id_pai
       left join tb_projetos_atividade_custo_real realizado
-      on (realizado.id_atividade = planejado.id_atividade)
+      on (realizado.id_atividade = atividades.id)
       left join tb_projetos_operacao operacao
       on (operacao.id = atividades.id_operacao)
       where
       poco.id = ${id} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)`);
+      group by poco.id, poco.nom_atividade, planejado.total_planejado`);
 
     const retornar = async () => {
       const tratamento: any = [];
@@ -191,7 +198,7 @@ export class BudgetsService {
         case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
         coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
         coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-        coalesce(ROUND(((sum(realizado.vlr_realizado)/sum(planejado.vlr_planejado))* 100), 0), 0) as gap
+        100 - coalesce(ROUND(((sum(realizado.vlr_realizado)/planejado.vlr_planejado)* 100), 0), 0) as gap
         from tb_projetos_atividade sonda
         inner join tb_projetos_atividade poco
         on poco.id_pai = sonda.id
