@@ -415,18 +415,6 @@ export class ProjetosService {
     `);
   }
 
-  // async create(createProjetoDto: CreateProjetoDto) {
-  //   return await this.prismaClient.projeto.create({
-  //     data: {
-  //       ...createProjetoDto,
-  //       dataFim: new Date(createProjetoDto.dataFim),
-  //       dataFimReal: new Date(createProjetoDto.dataFimReal),
-  //       dataInicio: new Date(createProjetoDto.dataInicio),
-  //       dataInicioReal: new Date(createProjetoDto.dataInicioReal),
-  //     },
-  //   });
-  // }
-
   async findAllProjetosPrazos() {
     return this.prismaClient.$queryRawUnsafe(`
     select 
@@ -592,15 +580,37 @@ and a.id = ${id};
     return project;
   }
 
-  async update(id: number, updateProjetoDto: UpdateProjetoDto) {
-    const projeto = await this.prismaClient.projeto.update({
-      where: {
-        id,
-      },
-      data: updateProjetoDto,
-    });
+  // async update(id: number, updateProjetoDto: UpdateProjetoDto) {
+  //   const projeto = await this.prismaClient.projeto.update({
+  //     where: {
+  //       id,
+  //     },
+  //     data: updateProjetoDto,
+  //   });
 
-    return projeto;
+  //   return projeto;
+  // }
+
+  async update(id: number, updateProjetoDto: UpdateProjetoDto) {
+    return await this.prismaClient.$queryRawUnsafe(`
+      UPDATE tb_projetos
+      SET 
+      responsavel_id = ${updateProjetoDto.nome_responsavel},
+      coordenador_id = ${updateProjetoDto.coordenador_nome},
+      status_id = ${updateProjetoDto.status},
+      polo_id = ${updateProjetoDto.polo},
+      local_id = ${updateProjetoDto.local},
+      solicitante_id = ${updateProjetoDto.solicitacao},
+      nome_projeto = '${updateProjetoDto.nome_projeto}',
+      elemento_pep = '${updateProjetoDto.elemento_pep}',
+      data_inicio = ${updateProjetoDto.data_inicio},
+      data_fim = ${updateProjetoDto.data_fim},
+      divisao_id = ${updateProjetoDto.divisao},
+      classificacao_id= ${updateProjetoDto.classificacao},
+      tipo_projeto_id = ${updateProjetoDto.tipo},
+      gate_id = ${updateProjetoDto.gate}
+      WHERE id = ${id}
+    `);
   }
 
   remove(id: number) {
