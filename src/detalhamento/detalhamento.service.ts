@@ -183,52 +183,13 @@ export class DetalhamentoService {
   }
 
   async findOneCpiSpi(id) {
+    await this.prisma.$executeRawUnsafe(
+      `select fn_se_calcula_spi_cpi('${id}');`,
+    );
+
     const query: CpiSpi[] = await this.prisma.$queryRaw`
-      
-   select
-      id_projeto as id_projeto,
-      round(vlr_va / vlr_cr, 1) as vlr_cpi,
-      round(vlr_va / vlr_vp, 1) as vlr_spi
-      from
-	    (
-	    select
-	        id_projeto,
-	        (
-	        dev.fn_cron_calc_pct_plan_projeto(0,id_projeto)/ 100) * sum(vlr_planejado) as vlr_vp,
-	        (dev.fn_cron_calc_pct_real_projeto(0,id_projeto)/ 100) * sum(vlr_planejado) as vlr_va,
-	        sum(vlr_realizado) as vlr_cr
-	    from
-	        (
-	        select
-	            id as id_projeto,
-	            case
-	                when sum(valor_total_previsto) is null 
-	                then 0
-	                else sum(valor_total_previsto)
-	            end as vlr_planejado,
-	            0 as vlr_realizado
-	        from tb_projetos c
-	            --where c.tipo_projeto_id in (1,2)
-	        group by id_projeto
-	    union
-	        select
-	            projeto_id as id_projeto,
-	            0 as vlr_planejado,
-	            case
-	                when sum(valor) is null 
-	                then 0
-	                else sum(valor)
-	            end as vlr_realizado
-	        from tb_centro_custo a
-	        inner join dev.tb_projetos c
-	            on
-	            a.projeto_id = c.id
-	            --where c.tipo_projeto_id in (1,2)
-	        group by id_projeto
-	    ) as qr
-	    group by id_projeto
-	) as qr2
-	where id_projeto = ${id}`;
+      select * from tb_projetos_spi_cpi where id_projeto = ${id}
+      `;
 
     if (query.length <= 0) {
       return { cpi: 1, spi: 1 };
