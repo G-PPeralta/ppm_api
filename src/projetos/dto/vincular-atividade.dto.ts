@@ -5,7 +5,7 @@ export class VincularAtividade {
   nom_atividade: string;
   responsavel_id: number;
   relacao_id: number;
-  dat_inicio_plan: Date;
+  dat_inicio_plan: string;
   duracao_plan: number;
   area_atuacao: string;
   nao_iniciar_antes_de: {

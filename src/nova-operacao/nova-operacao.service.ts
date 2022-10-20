@@ -24,7 +24,16 @@ export class NovaOperacaoService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_projetos_operacao
+        SELECT 
+        *, 
+        (select 
+        case when sum(fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real)) is not null then
+            sum(fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real)) 
+        else
+            0
+        end as hrs_totais
+        from tb_projetos_atividade where nom_atividade = a.nom_operacao) 
+      FROM tb_projetos_operacao a 
     `);
   }
 

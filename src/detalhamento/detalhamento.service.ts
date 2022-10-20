@@ -111,75 +111,66 @@ export class DetalhamentoService {
   // INFORMAÇÕES DO CARD FINANCEIRO
 
   async findOneInfoFinanc(id: number) {
-    const query: InfoFinanceiro[] = await this.prisma.$queryRaw`
+    const query: InfoFinanceiro[] = await this.prisma.$queryRaw`  
       select
-    vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
-    vlr_realizado / vlr_planejado * 100 as pct_realizado,
-    vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
-    vlr_planejado,
-    vlr_realizado,
-    vlr_nao_prev,
-    vlr_remanescente
-from
-    (
-    select
-        case
-            when sum(vlr_nao_prev) <= 0 then 0.00001
-            else sum(vlr_nao_prev)
-        end as vlr_nao_prev,
-        case
-            when sum(vlr_nao_prev) = 0 then 0.00000001
-            else sum(vlr_nao_prev)*-1
-        end as vlr_remanescente,        
-        case
-            when sum(vlr_planejado) =0 then 0.00000001
-            else sum(vlr_planejado)
-        end as vlr_planejado,
-        case
-            when sum(vlr_realizado) =0 then 0.00000001
-            else sum(vlr_realizado)
-        end as vlr_realizado,
-        sum(vlr_planejado)
-    from
-        (
-        select
-            case
-                when sum(vlr_planejado) is null 
-                then 0
-                else sum(vlr_planejado)-1
-            end as vlr_nao_prev,
-            sum(vlr_planejado) as vlr_planejado,
-            0 as vlr_realizado
-        from
-            dev.tb_projetos_atividade_custo_plan a
-        inner join dev.tb_projetos_atividade b
-            on
-            a.id_atividade = b.id
-        inner join dev.tb_projetos c
-            on
-            b.id_projeto = c.id
-            where c.id = ${id}
-    union
-        select
-            case
-                when sum(vlr_realizado) is null 
-                then 0
-                else sum(vlr_realizado)
-            end as vlr_nao_prev,
-            0 as vlr_planejado,
-            sum(vlr_realizado) as vlr_realizado
-        from
-            dev.tb_projetos_atividade_custo_real a
-        inner join dev.tb_projetos_atividade b
-            on
-            a.id_atividade = b.id
-        inner join dev.tb_projetos c
-            on
-            b.id_projeto = c.id
-            where c.id = ${id}
-            --where c.tipo_projeto_id in (1,2)
-    ) as qr
-) as qr2;`;
+        vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
+        vlr_realizado / vlr_planejado * 100 as pct_realizado,
+        vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
+        vlr_planejado,
+        vlr_realizado,
+        vlr_nao_prev,
+        vlr_remanescente
+      from
+      (
+      select
+          case
+              when sum(vlr_nao_prev) <= 0 then 0.00001
+              else sum(vlr_nao_prev)
+          end as vlr_nao_prev,
+          case
+              when sum(vlr_nao_prev) = 0 then 0.00000001
+              else sum(vlr_nao_prev)*-1
+          end as vlr_remanescente,        
+          case
+              when sum(vlr_planejado) =0 then 0.00000001
+              else sum(vlr_planejado)
+          end as vlr_planejado,
+          case
+              when sum(vlr_realizado) = 0 then 0.00000001
+              else sum(vlr_realizado)
+          end as vlr_realizado,
+          sum(vlr_planejado)
+      from
+          (
+          select
+              case
+                  when sum(c.valor_total_previsto) is null 
+                  then 0
+                  else sum(valor_total_previsto)-1
+              end as vlr_nao_prev,
+              sum(valor_total_previsto) as vlr_planejado,
+              0 as vlr_realizado
+          from
+              tb_projetos c
+              where c.id = ${id}
+      union
+              select
+                  case
+                      when sum(valor) is null 
+                      then 0
+                      else sum(valor)
+                  end as vlr_nao_prev,
+                  0 as vlr_planejado,
+                  sum(valor) as vlr_realizado
+              from
+                  dev.tb_centro_custo a
+              inner join dev.tb_projetos c
+                  on
+                  a.projeto_id = c.id
+              where c.id = ${id}
+              --where c.tipo_projeto_id in (1,2)
+      ) as qr
+      ) as qr2;`;
     return query.map((info) => ({
       planejado: Number(info.vlr_planejado),
       realizado: Number(info.vlr_realizado),
@@ -193,62 +184,51 @@ from
 
   async findOneCpiSpi(id) {
     const query: CpiSpi[] = await this.prisma.$queryRaw`
-      select
-    id_projeto as id_projeto,
-    coalesce(vlr_va / vlr_cr, 1) as vlr_cpi,
-    coalesce(vlr_va / vlr_vp, 1) as vlr_spi
-from
-    (
-    select
-        id_projeto,
-        (dev.fn_cron_calc_pct_plan_projeto(0,
-        id_projeto)/ 100) * sum(vlr_planejado) as vlr_vp,
-        (dev.fn_cron_calc_pct_real_projeto(0,
-        id_projeto)/ 100) * sum(vlr_planejado) as vlr_va,
-        sum(vlr_realizado) as vlr_cr
-    from
-        (
-        select
-            id_projeto,
-            case
-                when sum(vlr_planejado) is null 
-                then 0
-                else sum(vlr_planejado)
-            end as vlr_planejado,
-            0 as vlr_realizado
-        from
-            dev.tb_projetos_atividade_custo_plan a
-        inner join dev.tb_projetos_atividade b
-            on
-            a.id_atividade = b.id
-        inner join dev.tb_projetos c
-            on
-            b.id_projeto = c.id
-            --where c.tipo_projeto_id in (1,2)
-        group by id_projeto
-    union
-        select
-            id_projeto,
-            0 as vlr_planejado,
-            case
-                when sum(vlr_realizado) is null 
-                then 0
-                else sum(vlr_realizado)
-            end as vlr_realizado
-        from
-            dev.tb_projetos_atividade_custo_real a
-        inner join dev.tb_projetos_atividade b
-            on
-            a.id_atividade = b.id
-        inner join dev.tb_projetos c
-            on
-            b.id_projeto = c.id
-            --where c.tipo_projeto_id in (1,2)
-        group by id_projeto
-    ) as qr
-    group by id_projeto
-) as qr2
-where id_projeto = ${id};`;
+      
+   select
+      id_projeto as id_projeto,
+      round(vlr_va / vlr_cr, 1) as vlr_cpi,
+      round(vlr_va / vlr_vp, 1) as vlr_spi
+      from
+	    (
+	    select
+	        id_projeto,
+	        (
+	        dev.fn_cron_calc_pct_plan_projeto(0,id_projeto)/ 100) * sum(vlr_planejado) as vlr_vp,
+	        (dev.fn_cron_calc_pct_real_projeto(0,id_projeto)/ 100) * sum(vlr_planejado) as vlr_va,
+	        sum(vlr_realizado) as vlr_cr
+	    from
+	        (
+	        select
+	            id as id_projeto,
+	            case
+	                when sum(valor_total_previsto) is null 
+	                then 0
+	                else sum(valor_total_previsto)
+	            end as vlr_planejado,
+	            0 as vlr_realizado
+	        from tb_projetos c
+	            --where c.tipo_projeto_id in (1,2)
+	        group by id_projeto
+	    union
+	        select
+	            projeto_id as id_projeto,
+	            0 as vlr_planejado,
+	            case
+	                when sum(valor) is null 
+	                then 0
+	                else sum(valor)
+	            end as vlr_realizado
+	        from tb_centro_custo a
+	        inner join dev.tb_projetos c
+	            on
+	            a.projeto_id = c.id
+	            --where c.tipo_projeto_id in (1,2)
+	        group by id_projeto
+	    ) as qr
+	    group by id_projeto
+	) as qr2
+	where id_projeto = ${id}`;
 
     if (query.length <= 0) {
       return { cpi: 1, spi: 1 };

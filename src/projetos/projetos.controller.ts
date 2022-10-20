@@ -54,6 +54,15 @@ export class ProjetosController {
     return this.projetosService.findProjetosPercentuais(+id);
   }
 
+  @Get('/filtroProjeto/:nomProjeto')
+  async filtroProjeto(@Param('nomProjeto') nomProjeto: string) {
+    if (!isNaN(Number(nomProjeto))) {
+      return this.projetosService.filtroProjetos(nomProjeto);
+    } else {
+      return this.projetosService.filtroProjetos('');
+    }
+  }
+
   @Post('/registro')
   async create(@Body() payload: CreateProjetoDto) {
     try {
