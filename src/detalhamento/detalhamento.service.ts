@@ -113,13 +113,13 @@ export class DetalhamentoService {
   async findOneInfoFinanc(id: number) {
     const query: InfoFinanceiro[] = await this.prisma.$queryRaw`  
       select
-        vlr_remanescente / vlr_planejado * 100 as pct_remanescente,
-        vlr_realizado / vlr_planejado * 100 as pct_realizado,
-        vlr_nao_prev / vlr_planejado * 100 as pct_nao_previsto,
+        case when vlr_remanescente / vlr_planejado * 100 < 0 then 0 else round(vlr_remanescente / vlr_planejado * 100, 1) end as pct_remanescente,
+        case when vlr_realizado / vlr_planejado > 1 then 100 else round((vlr_realizado / vlr_planejado * 100), 1) end as pct_realizado,
+        round((vlr_realizado / (vlr_realizado - vlr_planejado)-1) * 100, 1) as pct_nao_previsto,
         vlr_planejado,
         vlr_realizado,
-        vlr_nao_prev,
-        vlr_remanescente
+        round(vlr_realizado - vlr_planejado, 2) as vlr_nao_prev,
+        case when  vlr_remanescente < 0 then 0 else vlr_remanescente end as vlr_remanescente
       from
       (
       select
