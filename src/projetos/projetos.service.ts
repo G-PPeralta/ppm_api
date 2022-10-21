@@ -512,7 +512,7 @@ and a.id = ${id};
     group by ano, mes
   ) as qr2
   group by ano, mes
-  order by ano, mes asc
+  order by ano, mes desc
   ;`);
 
     return query.map((el) => {
