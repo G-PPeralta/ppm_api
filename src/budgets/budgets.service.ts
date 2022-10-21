@@ -4,6 +4,7 @@ import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
+import { CustoDiarioDto, CustoDiarioORMDto } from './dto/custos-diarios.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
@@ -411,5 +412,74 @@ export class BudgetsService {
       totalBRL,
       totalUSD,
     };
+  }
+
+  async custosDiariosList(id: string, _custoDiario: CustoDiarioDto) {
+    /*return this.prisma.atividadeCustosRealizado.findMany({
+      select: { vlr_realizado: true, dat_lcto: true },
+      where: {
+        id_atividade: +id,
+        dat_lcto: {
+          lte: _custoDiario.endDate,
+          // gte: _custoDiario.startDate,
+        },
+      },
+    });*/
+
+    const data: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`select 
+        realizado.id,
+        atividades.nom_atividade as nome_atividade,
+        realizado.vlr_realizado as valor_realizado,
+        realizado.dat_lcto  as data_realizado
+        from tb_projetos_atividade sonda
+        inner join tb_projetos_atividade poco
+        on poco.id_pai = sonda.id
+        left join tb_projetos_atividade atividades
+        on (atividades.id_pai = poco.id)
+        left join tb_projetos_atividade_custo_real realizado
+        on (realizado.id_atividade = atividades.id)
+        left join tb_projetos_operacao operacao
+        on (operacao.id = atividades.id_operacao)
+        where
+        poco.id = ${id} and sonda.id_pai = 0
+        and realizado.dat_lcto >= '${_custoDiario.startDate}'
+        and realizado.dat_lcto <= '${_custoDiario.endDate}'
+  `);
+    /*data data.map(item=>{
+     return {
+       id: item.id,
+       d
+     }
+   })
+
+
+   {
+    id: 1,
+    index: "1",
+    date: "2022-10-08T00:00:00Z",
+    fornecedor: "-",
+    realizado: 2000,
+    filhos: [
+      {
+        id: 2,
+        index: "1.1",
+        atividade: "Dreno",
+        fornecedor: "-",
+        realizado: 500,
+      },
+    }
+*/
+
+    return this.groupBy(data, 'data_realizado');
+  }
+
+  private groupBy(array, key) {
+    return array.reduce(
+      (acc, item) => ({
+        ...acc,
+        [item[key]]: [...(acc[item[key]] ?? []), item],
+      }),
+      {},
+    );
   }
 }
