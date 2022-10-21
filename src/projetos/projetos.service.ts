@@ -608,8 +608,22 @@ and a.id = ${id};
       divisao_id = ${updateProjetoDto.divisao},
       classificacao_id= ${updateProjetoDto.classificacao},
       tipo_projeto_id = ${updateProjetoDto.tipo},
-      gate_id = ${updateProjetoDto.gate}
+      gate_id = ${updateProjetoDto.gate},
+      prioridade_id = ${Number(updateProjetoDto.prioridade)},
+      complexidade_id = ${Number(updateProjetoDto.complexidade)}
       WHERE id = ${id}
+    `);
+  }
+
+  async updateDescricaoJustificativa(
+    id: number,
+    updateProjetoDto: UpdateProjetoDto,
+  ) {
+    return await this.prismaClient.$queryRawUnsafe(`
+    UPDATE tb_projetos
+    SET
+    descricao='${updateProjetoDto.descricao}',
+    justificativa='${updateProjetoDto.justificativa}'
     `);
   }
 

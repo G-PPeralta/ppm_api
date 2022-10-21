@@ -16,4 +16,8 @@ export class UpdateProjetoDto {
   classificacao?: number;
   tipo?: number;
   gate?: number;
+  prioridade?: number;
+  complexidade?: number;
+  descricao?: string;
+  justificativa?: string;
 }
