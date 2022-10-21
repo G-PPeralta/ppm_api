@@ -103,6 +103,12 @@ export class ProjetosAtividadesService {
     });
   }
 
+  async findOperacoes() {
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT * FROM tb_projetos_operacao
+    `);
+  }
+
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
     select 

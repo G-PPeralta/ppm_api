@@ -9,15 +9,38 @@ export class ProjetosAtividadesNotasService {
   async create(
     createProjetosAtividadesNotasDto: CreateProjetosAtividadeNotasDto,
   ) {
-    return null;
+    const id = await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atv_notas
+      (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao, url_anexo)
+      VALUES
+      (${createProjetosAtividadesNotasDto.id_atividade}, '${createProjetosAtividadesNotasDto.txt_nota}', '${createProjetosAtividadesNotasDto.nom_usu_create}',
+      NOW(), ${createProjetosAtividadesNotasDto.ind_tipo_anotacao}, '${createProjetosAtividadesNotasDto.url_anexo}'
+      )
+      RETURNING ID
+    `);
+
+    if (
+      createProjetosAtividadesNotasDto.ind_tipo_anotacao === 2 &&
+      createProjetosAtividadesNotasDto.cod_moc.length > 0
+    ) {
+      await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atv_notas
+      SET cod_moc = CONCAT('${createProjetosAtividadesNotasDto.cod_moc}', RIGHT(CONCAT('0000', ${id[0].id}), 4))
+      WHERE id = ${id[0].id}
+      `);
+    }
   }
 
-  async findAll() {
-    return null;
+  async findAll(id_atividade: number) {
+    return await this.prisma.$queryRawUnsafe(`
+      select * from tb_projetos_atv_notas where id_atividade = ${id_atividade}
+    `);
   }
 
   async findOne(id: number) {
-    return null;
+    return await this.prisma.$queryRawUnsafe(`
+      select * from tb_projetos_atv_notas where id = ${id}
+    `);
   }
 
   async update(id: number, campo: string, valor: string) {

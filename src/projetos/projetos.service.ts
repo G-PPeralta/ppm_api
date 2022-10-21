@@ -395,7 +395,7 @@ export class ProjetosService {
     )}.${capexValor.substring(capexValor.length - 2)}`;
 
     return await this.prismaClient.$queryRawUnsafe(`
-      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, data_inicio, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, complexidade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
+      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa

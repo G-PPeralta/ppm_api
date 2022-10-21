@@ -17,9 +17,9 @@ export class ProjetosAtividadesNotasController {
     );
   }
 
-  @Get()
-  findAll() {
-    return this.projetosAtividadesNotasService.findAll();
+  @Get('all/:id')
+  findAll(@Param('id') id: string) {
+    return this.projetosAtividadesNotasService.findAll(+id);
   }
 
   @Get(':id')
