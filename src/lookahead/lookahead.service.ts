@@ -22,18 +22,36 @@ export class LookaheadService {
   async atividadesPorProjeto(id: string) {
     if (id == '0') {
       return await this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_projetos_atividade
+      SELECT a.* from tb_projetos_atividade a  
+      inner join tb_pocos c
+        on a.nom_atividade = c.nom_poco 
+    where 
+         id_operacao is null
+    and id_pai <> 0
     `);
     } else {
       return await this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_projetos_atividade WHERE id_projeto = ${+id}
+      SELECT * from tb_projetos_atividade a  
+      inner join tb_pocos c
+        on a.nom_atividade = c.nom_poco 
+    where 
+         id_operacao is null
+    and id_pai <> 0
+      WHERE a.id_projeto = ${+id}
     `);
     }
   }
 
   async atividade(id: string) {
     return await this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_projetos_atividade WHERE id = ${+id}
+    SELECT a.* 
+    FROM tb_projetos_atividade a
+    inner join tb_pocos c
+      on a.nom_atividade = c.nom_poco 
+    where 
+        a.id_operacao is null
+    AND a.id_pai <> 0
+    and a.id = ${+id}
     `);
   }
 

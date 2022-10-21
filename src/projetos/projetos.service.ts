@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
@@ -318,9 +318,9 @@ export class ProjetosService {
               select 
                 c.id,
                 0 as vlr_planejado,
-                case when sum(vlr_realizado) is null 
+                case when sum(valor) is null 
                   then 0 
-                  else sum(vlr_realizado)
+                  else sum(valor)
                 end as vlr_realizado,
                 c.valor_total_previsto,
                 pri.prioridade,
@@ -333,11 +333,9 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_projetos_atividade_custo_real a
-              inner join dev.tb_projetos_atividade b
-                on a.id_atividade = b.id
+              from dev.tb_centro_custo a
               inner join dev.tb_projetos c
-                on b.id_projeto = c.id
+                on a.projeto_id = c.id
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
               LEFT JOIN tb_classificacoes_projetos cpx
@@ -387,36 +385,35 @@ export class ProjetosService {
   }
 
   async create(createProjetoDto: CreateProjetoDto) {
+    const capexValor = createProjetoDto.capexPrevisto
+      .replace('.', '')
+      .replace(',', '');
+
+    const formatado = `${capexValor.substring(
+      0,
+      capexValor.length - 2,
+    )}.${capexValor.substring(capexValor.length - 2)}`;
+
     return await this.prismaClient.$queryRawUnsafe(`
       INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa
-    }', ${Number(
-      createProjetoDto.capexPrevisto.replace('.', '').replace(',', '.'),
-    )}, ${createProjetoDto.poloId}, ${createProjetoDto.localId}, ${
-      createProjetoDto.solicitanteId
-    }, ${createProjetoDto.classificacaoId}, ${createProjetoDto.divisaoId}, ${
-      createProjetoDto.gateId
-    }, ${createProjetoDto.tipoProjetoId}, ${createProjetoDto.statusId}, '${
+    }', ${Number(formatado)}, '${new Date(
+      createProjetoDto.dataInicio,
+    ).toISOString()}', ${createProjetoDto.poloId}, ${
+      createProjetoDto.localId
+    }, ${createProjetoDto.solicitanteId}, ${
+      createProjetoDto.classificacaoId
+    }, ${createProjetoDto.divisaoId}, ${createProjetoDto.gateId}, ${
+      createProjetoDto.tipoProjetoId
+    }, ${createProjetoDto.statusId}, 1, ${createProjetoDto.complexidadeId}, '${
       createProjetoDto.comentarios
     }', ${createProjetoDto.responsavelId}, ${
       createProjetoDto.coordenadorId
     }, '${createProjetoDto.elementoPep}', '${createProjetoDto.nom_usu_create}')
     `);
   }
-
-  // async create(createProjetoDto: CreateProjetoDto) {
-  //   return await this.prismaClient.projeto.create({
-  //     data: {
-  //       ...createProjetoDto,
-  //       dataFim: new Date(createProjetoDto.dataFim),
-  //       dataFimReal: new Date(createProjetoDto.dataFimReal),
-  //       dataInicio: new Date(createProjetoDto.dataInicio),
-  //       dataInicioReal: new Date(createProjetoDto.dataInicioReal),
-  //     },
-  //   });
-  // }
 
   async findAllProjetosPrazos() {
     return this.prismaClient.$queryRawUnsafe(`
@@ -515,7 +512,7 @@ and a.id = ${id};
     group by ano, mes
   ) as qr2
   group by ano, mes
-  order by ano, mes asc
+  order by ano, mes desc
   ;`);
 
     return query.map((el) => {
@@ -583,15 +580,51 @@ and a.id = ${id};
     return project;
   }
 
-  async update(id: number, updateProjetoDto: UpdateProjetoDto) {
-    const projeto = await this.prismaClient.projeto.update({
-      where: {
-        id,
-      },
-      data: updateProjetoDto,
-    });
+  // async update(id: number, updateProjetoDto: UpdateProjetoDto) {
+  //   const projeto = await this.prismaClient.projeto.update({
+  //     where: {
+  //       id,
+  //     },
+  //     data: updateProjetoDto,
+  //   });
 
-    return projeto;
+  //   return projeto;
+  // }
+
+  async update(id: number, updateProjetoDto: UpdateProjetoDto) {
+    return await this.prismaClient.$queryRawUnsafe(`
+      UPDATE tb_projetos
+      SET 
+      responsavel_id = ${updateProjetoDto.nome_responsavel},
+      coordenador_id = ${updateProjetoDto.coordenador_nome},
+      status_id = ${updateProjetoDto.status},
+      polo_id = ${updateProjetoDto.polo},
+      local_id = ${updateProjetoDto.local},
+      solicitante_id = ${updateProjetoDto.solicitacao},
+      nome_projeto = '${updateProjetoDto.nome_projeto}',
+      elemento_pep = '${updateProjetoDto.elemento_pep}',
+      data_inicio = ${updateProjetoDto.data_inicio},
+      data_fim = ${updateProjetoDto.data_fim},
+      divisao_id = ${updateProjetoDto.divisao},
+      classificacao_id= ${updateProjetoDto.classificacao},
+      tipo_projeto_id = ${updateProjetoDto.tipo},
+      gate_id = ${updateProjetoDto.gate},
+      prioridade_id = ${Number(updateProjetoDto.prioridade)},
+      complexidade_id = ${Number(updateProjetoDto.complexidade)}
+      WHERE id = ${id}
+    `);
+  }
+
+  async updateDescricaoJustificativa(
+    id: number,
+    updateProjetoDto: UpdateProjetoDto,
+  ) {
+    return await this.prismaClient.$queryRawUnsafe(`
+    UPDATE tb_projetos
+    SET
+    descricao='${updateProjetoDto.descricao}',
+    justificativa='${updateProjetoDto.justificativa}'
+    `);
   }
 
   remove(id: number) {
@@ -622,7 +655,7 @@ and a.id = ${id};
     const projeto: any[] = await this.prismaClient.$queryRawUnsafe(`
       SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
     `);
-    console.log(vincularAtividade);
+
     const existe = await this.prismaClient.$queryRawUnsafe(`
       SELECT count(*) existe FROM tb_projetos_atividade WHERE (id_projeto = ${
         projeto === null || projeto.length === 0 ? null : projeto[0].id
@@ -653,7 +686,6 @@ and a.id = ${id};
       }
       `);
 
-      console.log(id_ret);
       await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${

@@ -165,8 +165,6 @@ export class GanttService {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade
       SET
-      dat_ini_plan = TO_TIMESTAMP('${updateGannt.dat_ini_plan}', 'DD/MM/YYYY HH24:MI:ss'),
-      dat_fim_plan = TO_TIMESTAMP('${updateGannt.dat_fim_plan}', 'DD/MM/YYYY HH24:MI:ss'),
       dat_ini_real = TO_TIMESTAMP('${updateGannt.dat_ini_real}', 'DD/MM/YYYY HH24:MI:ss'),
       dat_fim_real = TO_TIMESTAMP('${updateGannt.dat_fim_real}', 'DD/MM/YYYY HH24:MI:ss'),
       pct_real = ${updateGannt.pct_real}
