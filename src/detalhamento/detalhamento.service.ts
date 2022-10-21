@@ -49,9 +49,9 @@ export class DetalhamentoService {
     return projeto;
   }
 
-  async findOneProgresso() {
+  async findOneProgresso(id: number) {
     const percentual = await this.prisma.$queryRawUnsafe(`
-    SELECT coalesce(dev.fn_cron_calc_pct_real(0), 0) as fn_cron_calc_pct_real
+    SELECT round(fn_se_calcula_pct_projeto(${id})*100, 0) as fn_cron_calc_pct_real
   `);
     return percentual;
   }
