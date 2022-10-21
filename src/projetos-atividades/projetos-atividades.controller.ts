@@ -21,6 +21,11 @@ export class ProjetosAtividadesController {
     return this.projetosAtividadesService.create(createProjetosAtividadesDto);
   }
 
+  @Get('find/operacoes')
+  findOperacoes() {
+    return this.projetosAtividadesService.findOperacoes();
+  }
+
   @Get()
   findAll() {
     return this.projetosAtividadesService.findAll();
