@@ -127,6 +127,17 @@ export class ProjetosController {
     return this.projetosService.update(+id, updateProjetoDto);
   }
 
+  @Patch('/descJust/:id')
+  updateDescricaoJustificativa(
+    @Param('id') id: string,
+    @Body() updateProjetoDto: UpdateProjetoDto,
+  ) {
+    return this.projetosService.updateDescricaoJustificativa(
+      +id,
+      updateProjetoDto,
+    );
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projetosService.remove(+id);
