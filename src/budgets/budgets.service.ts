@@ -426,11 +426,30 @@ export class BudgetsService {
       },
     });*/
 
-    const data: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`select 
-        realizado.id,
+    const data: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`
+    select  sum(realizado.vlr_realizado) as valor_realizado,
+    concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado
+     from tb_projetos_atividade sonda
+     inner join tb_projetos_atividade poco
+     on poco.id_pai = sonda.id
+     left join tb_projetos_atividade atividades
+     on (atividades.id_pai = poco.id)
+     left join tb_projetos_atividade_custo_real realizado
+     on (realizado.id_atividade = atividades.id)
+     left join tb_projetos_operacao operacao
+     on (operacao.id = atividades.id_operacao)
+     where
+     poco.id = ${id} and sonda.id_pai = 0
+     and realizado.dat_lcto >= '${_custoDiario.startDate}'
+     and realizado.dat_lcto <= '${_custoDiario.endDate}'
+     group by 
+      realizado.dat_lcto  `);
+    const retorno = data.map(async (pai, keyPai) => {
+      const filhos: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`
+      select 
+		atividades.id as id,
         atividades.nom_atividade as nome_atividade,
-        realizado.vlr_realizado as valor_realizado,
-        realizado.dat_lcto  as data_realizado
+        sum(realizado.vlr_realizado) as valor_realizado
         from tb_projetos_atividade sonda
         inner join tb_projetos_atividade poco
         on poco.id_pai = sonda.id
@@ -442,44 +461,28 @@ export class BudgetsService {
         on (operacao.id = atividades.id_operacao)
         where
         poco.id = ${id} and sonda.id_pai = 0
-        and realizado.dat_lcto >= '${_custoDiario.startDate}'
-        and realizado.dat_lcto <= '${_custoDiario.endDate}'
-  `);
-    /*data data.map(item=>{
-     return {
-       id: item.id,
-       d
-     }
-   })
+        and realizado.dat_lcto  =  '${pai.data_realizado}'
+        group by        
+        atividades.id, atividades.nom_atividade
+    `);
 
-
-   {
-    id: 1,
-    index: "1",
-    date: "2022-10-08T00:00:00Z",
-    fornecedor: "-",
-    realizado: 2000,
-    filhos: [
-      {
-        id: 2,
-        index: "1.1",
-        atividade: "Dreno",
-        fornecedor: "-",
-        realizado: 500,
-      },
-    }
-*/
-
-    return this.groupBy(data, 'data_realizado');
-  }
-
-  private groupBy(array, key) {
-    return array.reduce(
-      (acc, item) => ({
-        ...acc,
-        [item[key]]: [...(acc[item[key]] ?? []), item],
-      }),
-      {},
-    );
+      return {
+        id: new Date(pai.data_realizado).getTime(),
+        index: `${++keyPai}`,
+        date: new Date(pai.data_realizado),
+        fornecedor: '-',
+        realizado: +pai.valor_realizado,
+        filhos: filhos.map((filho, keyFIlho) => {
+          return {
+            id: filho.id,
+            index: `${keyPai}.${++keyFIlho}`,
+            atividade: filho.nome_atividade,
+            fornecedor: '-',
+            realizado: +filho.valor_realizado,
+          };
+        }),
+      };
+    });
+    return await Promise.all(retorno);
   }
 }
