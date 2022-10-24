@@ -475,7 +475,7 @@ and a.id = ${id};
 
   async projetoConfig(id: number) {
     return await this.prismaClient.$queryRawUnsafe(`
-    select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
+    select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, resp.nome_responsavel, coord.coordenador_nome ,divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
     inner join tb_polos polo
     on polo.id = projeto.polo_id
     inner join tb_locais locais
@@ -492,6 +492,10 @@ and a.id = ${id};
     on tipos.id = projeto.tipo_projeto_id
     inner join tb_status_projetos status
     on status.id = projeto.status_id
+    inner join tb_responsaveis resp
+    on resp.responsavel_id = projeto.responsavel_id
+    inner join tb_coordenadores coord
+    on coord.id_coordenador = projeto.coordenador_id
     where
     projeto.id = ${id};
     `);
