@@ -3,20 +3,17 @@ import { GraficosService } from './graficos.service';
 @Controller('graficos')
 export class GraficosController {
   constructor(private readonly graficosService: GraficosService) {}
-  @Get('historico/:de/:a')
-  getHistoricoParams(@Param('de') de: string, @Param('a') a: string) {
-    return this.graficosService.getHistorico(de, a);
-  }
-  @Get('historico')
-  getHistorico() {
-    return this.graficosService.getHistorico();
+  @Get(['historico/:de/:a', 'historico'])
+  getRelatorioHistorico(@Param('de') de?: string, @Param('a') a?: string) {
+    if (de && a) return this.graficosService.getRelatorioHistorico(de, a);
+    else return this.graficosService.getRelatorioHistorico();
   }
   @Get('intervencao')
-  getIntervencao() {
-    return this.graficosService.getIntervencao();
+  getRelatorioPorCadaIntervencao() {
+    return this.graficosService.getRelatorioPorCadaIntervencao();
   }
-  @Get('intervencao')
-  getNPT() {
-    return this.graficosService.getIntervencao();
+  @Get('tempo')
+  getRelatorioTempoNPTPorSonda() {
+    return this.graficosService.getRelatorioTempoNPTPorSonda();
   }
 }
