@@ -206,6 +206,7 @@ export class ProjetosService {
     select 
     a.id,
     a.nome_projeto,
+    responsavel,
     vlr_cr,
     vlr_orcado,
     (
