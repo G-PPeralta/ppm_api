@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+
 @Injectable()
 export class GraficosService {
   constructor(private prisma: PrismaService) {}
-  async getHistorico(dataIni?, dataFim?) {
+  async getRelatorioHistorico(dataIni?, dataFim?) {
     let where = '';
     if (dataIni && dataFim) {
       where = `and atividades.dat_ini_real >= '${new Date(
@@ -47,168 +49,36 @@ export class GraficosService {
     `);
     return retorno;
   }
-  getHistoricoMock() {
-    return [
-      {
-        month: 'Pir-61',
-        duration: 90,
-      },
-      {
-        month: 'Pir-62',
-        duration: 80,
-      },
-      {
-        month: 'Pir-63',
-        duration: 70,
-      },
-      {
-        month: 'Pir-64',
-        duration: 60,
-      },
-      {
-        month: 'Pir-65',
-        duration: 50,
-      },
-      {
-        month: 'Pir-66',
-        duration: 40,
-      },
-      {
-        month: 'Pir-67',
-        duration: 30,
-      },
-      {
-        month: 'Pir-68',
-        duration: 20,
-      },
-      {
-        month: 'Pir-69',
-        duration: 90,
-      },
-      {
-        month: 'Pir-70',
-        duration: 70,
-      },
-      {
-        month: 'Pir-71',
-        duration: 50,
-      },
-      {
-        month: 'Pir-72',
-        duration: 100,
-      },
-    ];
+
+  getRelatorioPorCadaIntervencao() {
+    const query = Prisma.sql`select 
+      nom_poco,
+      sum(hrs_npt_man) as hrs_manutencao,
+      sum(hrs_npt_rec_ori) as hrs_recursos_origem,
+      sum(hrs_npt_rec_cia) as hrs_recursos_cia,
+      sum(hrs_npt_clima) as hrs_mudanca_climatica,
+      sum(hrs_npt_inf_tec) as hrs_info_tecnicas,
+      sum(hrs_npt_outros) as hrs_outros
+    from tb_hist_estatistica a
+    inner join tb_pocos b 
+        on a.id_poco = b.id
+    group by nom_poco;`;
+    return this.prisma.$queryRaw(query);
   }
-  getIntervencao() {
-    return [
-      {
-        month: 'Pir-61',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-62',
-        Manutenção: 5,
-        'Recurso Origem': 5,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 50,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-63',
-        Manutenção: 5,
-        'Recurso Origem': 5,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 50,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-64',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-65',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-66',
-        Manutenção: 5,
-        'Recurso Origem': 5,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 50,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-67',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-68',
-        Manutenção: 20,
-        'Recurso Origem': 20,
-        'Recurso Cia': 20,
-        'Condições Climáticas': 20,
-        'Informações Técnicas': 20,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-69',
-        Manutenção: 5,
-        'Recurso Origem': 5,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 50,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-70',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-      {
-        month: 'Pir-71',
-        Manutenção: 10,
-        'Recurso Origem': 10,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 10,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 90,
-      },
-      {
-        month: 'Pir-72',
-        Manutenção: 10,
-        'Recurso Origem': 20,
-        'Recurso Cia': 10,
-        'Condições Climáticas': 30,
-        'Informações Técnicas': 10,
-        'Aguardando Outros': 20,
-      },
-    ];
+
+  getRelatorioTempoNPTPorSonda() {
+    const query = Prisma.sql`select 
+        nom_sonda,
+        sum(hrs_npt_man) as hrs_manutencao,
+        sum(hrs_npt_rec_ori) as hrs_recursos_origem,
+        sum(hrs_npt_rec_cia) as hrs_recursos_cia,
+        sum(hrs_npt_clima) as hrs_mudanca_climatica,
+        sum(hrs_npt_inf_tec) as hrs_info_tecnicas,
+        sum(hrs_npt_outros) as hrs_outros
+    from tb_hist_estatistica a
+    inner join tb_sondas b 
+        on a.id_sonda = b.id
+    group by nom_sonda;`;
+    return this.prisma.$queryRaw(query);
   }
 }
