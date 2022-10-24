@@ -63,6 +63,7 @@ import { ProjetosFinanceiroModule } from './projetos-financeiro/projetos-finance
 import { CentroCustoModule } from './centro-custo/centro-custo.module';
 import { ClasseServicoModule } from './classe-servico/classe-servico.module';
 import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
+import { GraficosModule } from './graficos/graficos.module';
 
 @Module({
   imports: [
@@ -128,6 +129,7 @@ import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
     CentroCustoModule,
     ClasseServicoModule,
     OcorrenciasModule,
+    GraficosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
