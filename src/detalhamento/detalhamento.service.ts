@@ -188,7 +188,11 @@ export class DetalhamentoService {
     );
 
     const query: CpiSpi[] = await this.prisma.$queryRaw`
-      select * from tb_projetos_spi_cpi where id_projeto = ${id}
+      select 
+      id_projeto,
+      case when vlr_spi is null then 1 else vlr_spi end as vlr_spi,
+      case when vlr_cpi is null then 1 else vlr_cpi end as vlr_cpi
+      from tb_projetos_spi_cpi tpsc where id_projeto = ${id}
       `;
 
     if (query.length <= 0) {
