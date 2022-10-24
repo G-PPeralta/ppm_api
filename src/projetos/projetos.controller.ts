@@ -78,6 +78,11 @@ export class ProjetosController {
     return this.projetosService.verificarRelacoes(+id);
   }
 
+  @Get('configuracoes/:id')
+  async projetoConfig(@Param('id') id: string) {
+    return this.projetosService.projetoConfig(+id);
+  }
+
   @Post('vincular')
   async vincular(@Body() vincularAtividade: VincularAtividade) {
     return this.projetosService.vincularAtividade(vincularAtividade);

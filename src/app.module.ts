@@ -66,6 +66,7 @@ import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
 import { FiltrosModule } from './filtros/filtros.module';
 import { EditarAtividadeModule } from './editar-atividade/editar-atividade.module';
 import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
+import { GraficosModule } from './graficos/graficos.module';
 
 @Module({
   imports: [
@@ -134,6 +135,7 @@ import { HistoricoEstatisticoModule } from './historico-estatistico/historico-es
     FiltrosModule,
     EditarAtividadeModule,
     HistoricoEstatisticoModule,
+    GraficosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

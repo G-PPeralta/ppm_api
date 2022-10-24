@@ -208,9 +208,24 @@ export class ProjetosService {
     a.nome_projeto,
     vlr_cr,
     vlr_orcado,
-    prioridade,
-    complexidade_id,
-    complexidade,
+    (
+    select opcoes.nom_opcao from tb_ranking ranking
+    inner join tb_projetos_ranking projeto_ranking
+    on projeto_ranking.id_ranking = ranking.id
+    inner join tb_ranking_opcoes opcoes
+    on opcoes.id = projeto_ranking.id_opcao 
+    where ranking.id = 4
+    and projeto_ranking.id_projeto = a.id
+    ) as prioridade,
+    (
+    select opcoes.nom_opcao from tb_ranking ranking
+    inner join tb_projetos_ranking projeto_ranking
+    on projeto_ranking.id_ranking = ranking.id
+    inner join tb_ranking_opcoes opcoes
+    on opcoes.id = projeto_ranking.id_opcao 
+    where ranking.id = 5
+    and projeto_ranking.id_projeto = a.id
+    ) as complexidade,
     polo_id,
     polo,
     coordenador,
@@ -221,12 +236,14 @@ export class ProjetosService {
     coalesce(a.descricao, b.descricao) as descricao,
     coalesce(a.justificativa, b.justificativa) as justificativa,
       a.id as id_projeto_real,
-      case when vlr_cpi is null then
-        1
-      else vlr_cpi end  as vlr_cpi,
-      case when vlr_spi is null then
-        1
-      else vlr_spi end  as vlr_spi,
+      coalesce((
+      select vlr_cpi from tb_projetos_spi_cpi
+      where id_projeto = a.id
+      ), 1) as vlr_cpi,
+      coalesce((
+      select vlr_spi from tb_projetos_spi_cpi
+      where id_projeto = a.id
+      ), 1) as vlr_spi,
       case when ranking is null then 0 else ranking end as vlr_ranking
       from tb_projetos a
       left join (select aa.id_projeto, sum(bb.num_nota) as ranking
@@ -454,6 +471,30 @@ where
     b.id_pai = 0 or b.id_pai is null
 and a.id = ${id};
 `);
+  }
+
+  async projetoConfig(id: number) {
+    return await this.prismaClient.$queryRawUnsafe(`
+    select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
+    inner join tb_polos polo
+    on polo.id = projeto.polo_id
+    inner join tb_locais locais
+    on locais.id = projeto.local_id
+    inner join tb_solicitantes_projetos solicitantes
+    on solicitantes.id = projeto.solicitante_id
+    inner join tb_classificacoes_projetos classificacao
+    on classificacao.id = projeto.classificacao_id
+    inner join tb_divisoes_projetos divisoes
+    on divisoes.id = projeto.divisao_id
+    inner join tb_gates gates
+    on gates.id = projeto.gate_id
+    inner join tb_tipos_projeto tipos
+    on tipos.id = projeto.tipo_projeto_id
+    inner join tb_status_projetos status
+    on status.id = projeto.status_id
+    where
+    projeto.id = ${id};
+    `);
   }
 
   async findAll() {
