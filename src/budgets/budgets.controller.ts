@@ -11,6 +11,7 @@ import { BudgetsService } from './budgets.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
 import { CreateBudgetDto } from './dto/create-budget.dto';
+import { CustoDiarioDto } from './dto/custos-diarios.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Controller('budgets')
@@ -42,6 +43,10 @@ export class BudgetsController {
     return this.budgetsService.findAllProjects();
   }
 
+  @Post('/custoDiario/:id')
+  custosDiarios(@Param('id') id: string, @Body() _custoDiario: CustoDiarioDto) {
+    return this.budgetsService.custosDiariosList(id, _custoDiario);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.budgetsService.findOne(+id);
