@@ -206,6 +206,7 @@ export class ProjetosService {
     select 
     a.id,
     a.nome_projeto,
+    responsavel,
     vlr_cr,
     vlr_orcado,
     (
@@ -475,7 +476,7 @@ and a.id = ${id};
 
   async projetoConfig(id: number) {
     return await this.prismaClient.$queryRawUnsafe(`
-    select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
+    select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, resp.nome_responsavel, coord.coordenador_nome ,divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
     inner join tb_polos polo
     on polo.id = projeto.polo_id
     inner join tb_locais locais
@@ -492,6 +493,10 @@ and a.id = ${id};
     on tipos.id = projeto.tipo_projeto_id
     inner join tb_status_projetos status
     on status.id = projeto.status_id
+    inner join tb_responsaveis resp
+    on resp.responsavel_id = projeto.responsavel_id
+    inner join tb_coordenadores coord
+    on coord.id_coordenador = projeto.coordenador_id
     where
     projeto.id = ${id};
     `);
@@ -644,14 +649,12 @@ and a.id = ${id};
       solicitante_id = ${updateProjetoDto.solicitacao},
       nome_projeto = '${updateProjetoDto.nome_projeto}',
       elemento_pep = '${updateProjetoDto.elemento_pep}',
-      data_inicio = ${updateProjetoDto.data_inicio},
-      data_fim = ${updateProjetoDto.data_fim},
+      data_inicio = '${updateProjetoDto.data_inicio}',
+      data_fim = '${updateProjetoDto.data_fim}',
       divisao_id = ${updateProjetoDto.divisao},
       classificacao_id= ${updateProjetoDto.classificacao},
       tipo_projeto_id = ${updateProjetoDto.tipo},
-      gate_id = ${updateProjetoDto.gate},
-      prioridade_id = ${Number(updateProjetoDto.prioridade)},
-      complexidade_id = ${Number(updateProjetoDto.complexidade)}
+      gate_id = ${updateProjetoDto.gate}
       WHERE id = ${id}
     `);
   }
