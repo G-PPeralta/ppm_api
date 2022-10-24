@@ -649,14 +649,12 @@ and a.id = ${id};
       solicitante_id = ${updateProjetoDto.solicitacao},
       nome_projeto = '${updateProjetoDto.nome_projeto}',
       elemento_pep = '${updateProjetoDto.elemento_pep}',
-      data_inicio = ${updateProjetoDto.data_inicio},
-      data_fim = ${updateProjetoDto.data_fim},
+      data_inicio = '${updateProjetoDto.data_inicio}',
+      data_fim = '${updateProjetoDto.data_fim}',
       divisao_id = ${updateProjetoDto.divisao},
       classificacao_id= ${updateProjetoDto.classificacao},
       tipo_projeto_id = ${updateProjetoDto.tipo},
-      gate_id = ${updateProjetoDto.gate},
-      prioridade_id = ${Number(updateProjetoDto.prioridade)},
-      complexidade_id = ${Number(updateProjetoDto.complexidade)}
+      gate_id = ${updateProjetoDto.gate}
       WHERE id = ${id}
     `);
   }
