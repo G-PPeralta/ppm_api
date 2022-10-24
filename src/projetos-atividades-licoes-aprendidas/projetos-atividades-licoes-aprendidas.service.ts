@@ -30,6 +30,12 @@ export class ProjetosAtividadesLicoesAprendidasService {
     `);
   }
 
+  async findOneLicao(id_do_projeto: number, id_da_licao: number) {
+    return this.prisma.$queryRawUnsafe(`
+      select * from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id_do_projeto} and id = ${id_da_licao}
+    `);
+  }
+
   async update(id: number, campo: string, valor: string, user: string) {
     const existe = await this.prisma.$queryRawUnsafe(`
     select CAST(count(*) AS INT) as qt from tb_projetos_atv_licoes_aprendidas where id = ${id} and dat_usu_exc is null;
@@ -43,9 +49,31 @@ export class ProjetosAtividadesLicoesAprendidasService {
     }
   }
 
+  async updateOne(
+    id_do_projeto: number,
+    id_da_licao: number,
+    payload: CreateProjetosAtividadesLicoesAprendidasDto,
+  ) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atv_licoes_aprendidas
+      SET
+      txt_acao = '${payload.txt_acao}',
+      txt_licao_aprendida = '${payload.txt_licao_aprendida}'
+      WHERE
+      id = ${id_da_licao}
+      AND id_projeto = ${id_do_projeto}
+    `);
+  }
+
+  async removeOne(id_do_projeto: number, id_da_licao: number) {
+    return await this.prisma.$queryRawUnsafe(`
+      delete tb_projetos_atv_licoes_aprendidas WHERE id = ${id_da_licao} and id_projeto = ${id_do_projeto}
+    `);
+  }
+
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-        update tb_projetos_atv_licoes_aprendidas set dat_usu_exc = now(), nom_usu_exc = '${user}' where id = ${id}
+      update tb_projetos_atv_licoes_aprendidas set dat_usu_exc = now(), nom_usu_exc = '${user}' where id = ${id}
     `);
   }
 }
