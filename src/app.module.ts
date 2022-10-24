@@ -63,6 +63,9 @@ import { ProjetosFinanceiroModule } from './projetos-financeiro/projetos-finance
 import { CentroCustoModule } from './centro-custo/centro-custo.module';
 import { ClasseServicoModule } from './classe-servico/classe-servico.module';
 import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
+import { FiltrosModule } from './filtros/filtros.module';
+import { EditarAtividadeModule } from './editar-atividade/editar-atividade.module';
+import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
 
 @Module({
   imports: [
@@ -128,6 +131,9 @@ import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
     CentroCustoModule,
     ClasseServicoModule,
     OcorrenciasModule,
+    FiltrosModule,
+    EditarAtividadeModule,
+    HistoricoEstatisticoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
