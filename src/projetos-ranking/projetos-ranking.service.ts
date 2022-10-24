@@ -70,20 +70,12 @@ export class ProjetosRankingService {
       VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, ${
       dsc_comentario === null ? null : "'" + dsc_comentario + "'"
     }, '${nom_usu_create}', now())
-    ON CONFLICT (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
+    ON CONFLICT (id_projeto, id_ranking)
     DO UPDATE SET
-      id_projeto = ${id_projeto},
-      id_ranking = ${id_ranking},
-      id_opcao = ${id_opcao},
-      dsc_comentario = ${
-        dsc_comentario === null ? null : "'" + dsc_comentario + "'"
-      },
-      nom_usu_create = '${nom_usu_create}',
-      dat_usu_create = now()
-    WHERE
-      id_projeto = ${id_projeto} AND
-      id_ranking = ${id_ranking} AND
       id_opcao = ${id_opcao}
+    WHERE
+      tb_projetos_ranking.id_projeto = ${id_projeto} AND
+      tb_projetos_ranking.id_ranking = ${id_ranking}
     `);
   }
 
