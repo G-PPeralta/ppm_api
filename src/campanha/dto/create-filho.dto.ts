@@ -3,7 +3,6 @@ export class CreateCampanhaFilhoDto {
   poco_id: string;
   nova_campanha: boolean;
   data_limite: Date;
-  campo_id: number;
   id_campanha: number;
   dat_ini_prev: Date;
   atividades: Atividades[];

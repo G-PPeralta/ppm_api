@@ -20,6 +20,7 @@ export class DetalhamentoService {
   async findOne(id: number) {
     const projeto = await this.prisma.$queryRaw(Prisma.sql`
     select
+		tp.id,
 	    nome_projeto,
 	    data_inicio,
 	    data_fim,
@@ -30,7 +31,10 @@ export class DetalhamentoService {
       descricao,
       justificativa,
 	    tr.nome_responsavel,
-	    tc.coordenador_nome 
+	    tc.coordenador_nome,
+	    tsp.solicitante,
+	    case when tp."dataFim_real" > data_fim then date_part('day', age(tp."dataFim_real",data_fim)) else 0 end as atraso,
+      tp.dat_usu_update
     from
 	    tb_projetos tp
     left join tb_polos tp2 on
@@ -43,6 +47,8 @@ export class DetalhamentoService {
 	    tp.responsavel_id = tr.responsavel_id
     left join tb_coordenadores tc on
 	    tp.coordenador_id = tc.id_coordenador 
+	  left join tb_solicitantes_projetos tsp on
+		  tsp.id = tp.solicitante_id
     where tp.id = ${id};
     `);
 

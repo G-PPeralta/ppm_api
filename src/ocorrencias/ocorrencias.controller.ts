@@ -14,9 +14,9 @@ import { OcorrenciasService } from './ocorrencias.service';
 export class OcorrenciasController {
   constructor(private readonly service: OcorrenciasService) {}
 
-  @Post()
-  create(@Body() payload: CreateOcorrenciaDto) {
-    return this.service.create(payload);
+  @Post(':id')
+  create(@Body() payload: CreateOcorrenciaDto, @Param('id') id: string) {
+    return this.service.create(payload, +id);
   }
 
   @Get()
@@ -27,11 +27,6 @@ export class OcorrenciasController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Body() payload: CreateOcorrenciaDto, @Param('id') id: string) {
-    return this.service.update(payload, +id);
   }
 
   @Delete(':id')
