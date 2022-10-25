@@ -7,7 +7,7 @@ export class FiltrosController {
   constructor(private readonly service: FiltrosService) {}
 
   @Post()
-  findMedia(@Body() filtro: FiltroDto) {
-    return this.service.findMedia(filtro);
+  async findMedia(@Body() filtro: FiltroDto) {
+    return await this.service.findMedia(filtro);
   }
 }
