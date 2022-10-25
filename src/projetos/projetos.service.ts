@@ -674,7 +674,8 @@ and a.id = ${id};
         updateProjetoDto.data_fim_real === null
           ? null
           : "'" + new Date(updateProjetoDto.data_fim_real).toISOString() + "'"
-      }
+      },
+      dat_usu_update=now()
       WHERE id = ${id}
     `);
   }
