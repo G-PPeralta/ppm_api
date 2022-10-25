@@ -12,7 +12,15 @@ export class OcorrenciasService {
         (id_atv, dsc_ocorrencia, observacoes, num_hrs_impacto, nom_usu_create,
             dat_usu_create)
         VALUES
-        (${id_atv}, '${payload.ocorrencia}', '${payload.observacoes}', ${payload.impacto}, '${payload.user}', now());
+        (${id_atv}, '${payload.ocorrencia}', '${payload.observacoes}', ${payload.impacto}, '${payload.user}', now())
+        ON CONFLICT (id_atv, dsc_ocorrencia) DO
+        UPDATE
+        SET
+        observacoes = '${payload.observacoes}',
+        num_hrs_impacto = ${payload.impacto}
+        WHERE
+        id_atv = ${id_atv} AND
+        dsc_ocorrencia = '${payload.ocorrencia}'
     `);
   }
 
