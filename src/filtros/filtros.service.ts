@@ -6,6 +6,22 @@ import { FiltroDto } from './dto/filtros.dto';
 export class FiltrosService {
   constructor(private prisma: PrismaService) {}
 
+  async findProxData(id_poco: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    select max(dat_ini_real) as prox_ini from tb_projetos_atividade poco
+    where id_pai = ${id_poco}
+    `);
+  }
+
+  async findDuracaoMedia(nome_operacao: string) {
+    return await this.prisma.$queryRawUnsafe(`
+    select avg(historico.hrs_totais) as duracao_media from tb_hist_estatistica historico
+    inner join tb_projetos_operacao operacao
+    on operacao.id = historico.id_operacao
+    where operacao.nom_operacao like '%${nome_operacao}%'
+    `);
+  }
+
   async findMedia(filtro: FiltroDto) {
     return this.prisma.$queryRawUnsafe(`
     select 
