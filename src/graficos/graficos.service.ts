@@ -5,26 +5,33 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class GraficosService {
   constructor(private prisma: PrismaService) {}
-  async getRelatorioHistorico(dataIni?, dataFim?) {
+  async getRelatorioHistorico(params) {
     let where = '';
-    if (dataIni && dataFim) {
-      where = ` where a.dat_conclusao between '${new Date(
-        dataIni,
-      ).toISOString()}' and '${new Date(dataFim).toISOString()}' `;
+    const { de, a, sonda } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
     }
+    if (sonda) where += ` and nom_sonda like '${sonda}' `;
     const query = `select 
-          b.nom_poco,
-          a.id_operacao,
-          a.id_poco,
-          round(avg(a.hrs_totais),0) as hrs_media,
-          round(min(a.hrs_totais),0) hrs_min,
-          round(max(a.hrs_totais),0) hrs_max,
+          nom_sonda,
+          nom_poco,
+          id_operacao,
+          id_poco,
+          round(avg(hrs_totais),0) as hrs_media,
+          round(min(hrs_totais),0) hrs_min,
+          round(max(hrs_totais),0) hrs_max,
           0 as hrs_dp,
           0 as tend_duracao
       from tb_hist_estatistica a
       inner join tb_pocos b 
-          on a.id_poco = b.id ${where}
-      group by a.id_operacao, a.id_poco, b.nom_poco;`;
+        on a.id_poco = b.id
+      inner join tb_sondas c 
+        on a.id_sonda = c.id 
+      where 1=1
+      ${where}
+      group by id_operacao, id_poco, nom_poco, nom_sonda;`;
     // --    id_operacao = 14
     // --and num_profundidade between 500 and 1000
     // --and id_sonda in (26)
