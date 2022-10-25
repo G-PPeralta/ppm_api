@@ -12,8 +12,8 @@ export class ProjetosFinanceiroController {
     return this.projetosFinanceiroService.findPais();
   }
 
-  @Get('filhos/:id')
-  findFilhos(@Param('id') id: string) {
-    return this.projetosFinanceiroService.findFilhos(+id);
+  @Get('filhos/:id/:mes')
+  findFilhos(@Param('id') id: string, @Param('mes') mes: string) {
+    return this.projetosFinanceiroService.findFilhos(+id, mes);
   }
 }
