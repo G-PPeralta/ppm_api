@@ -12,6 +12,8 @@ export class UpdateProjetoDto {
   elemento_pep?: string;
   data_inicio?: Date;
   data_fim?: Date;
+  data_inicio_real?: Date;
+  data_fim_real?: Date;
   divisao?: number;
   classificacao?: number;
   tipo?: number;

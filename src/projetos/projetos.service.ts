@@ -654,7 +654,9 @@ and a.id = ${id};
       divisao_id = ${updateProjetoDto.divisao},
       classificacao_id= ${updateProjetoDto.classificacao},
       tipo_projeto_id = ${updateProjetoDto.tipo},
-      gate_id = ${updateProjetoDto.gate}
+      gate_id = ${updateProjetoDto.gate},
+      dataInicio_real = '${updateProjetoDto.data_inicio_real}',
+      dataFim_real='${updateProjetoDto.data_fim_real}'
       WHERE id = ${id}
     `);
   }
