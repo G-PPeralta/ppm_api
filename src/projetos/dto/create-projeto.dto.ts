@@ -3,8 +3,8 @@ export class CreateProjetoDto {
   descricao?: string;
   justificativa?: string;
   capexPrevisto?: string;
-  dataInicio: Date;
-  dataFim: Date;
+  dataInicio?: Date;
+  dataFim?: Date;
   poloId: number;
   localId: number;
   solicitanteId: number;
