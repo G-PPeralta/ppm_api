@@ -13,12 +13,11 @@ export class GraficosService {
         de,
       ).toISOString()}' and '${new Date(a).toISOString()}' `;
     }
-    if (sonda) where += ` and nom_sonda like '${sonda}' `;
+    if (sonda) where += ` and id_sonda = ${sonda} `;
     const query = `select 
-          nom_sonda,
           nom_poco,
-          id_operacao,
           id_poco,
+          id_sonda,
           round(avg(hrs_totais),0) as hrs_media,
           round(min(hrs_totais),0) hrs_min,
           round(max(hrs_totais),0) hrs_max,
@@ -27,11 +26,9 @@ export class GraficosService {
       from tb_hist_estatistica a
       inner join tb_pocos b 
         on a.id_poco = b.id
-      inner join tb_sondas c 
-        on a.id_sonda = c.id 
       where 1=1
       ${where}
-      group by id_operacao, id_poco, nom_poco, nom_sonda;`;
+      group by id_poco, nom_poco, id_sonda;`;
     // --    id_operacao = 14
     // --and num_profundidade between 500 and 1000
     // --and id_sonda in (26)
@@ -71,12 +68,23 @@ export class GraficosService {
     return this.prisma.$queryRaw(query);
   }
 
+  getRelatorioPorCadaSonda() {
+    const query = Prisma.sql`select 
+      nom_sonda,
+      sum(hrs_totais) as hrs_totais
+    from tb_hist_estatistica a
+    inner join tb_sondas b 
+        on a.id_sonda = b.id
+    group by nom_sonda;`;
+    return this.prisma.$queryRaw(query);
+  }
+
   // -- GRAFICO - DURACAO DE INTERVENCAO NORMALIZADA PELA METRAGEM DA ZONA INTERVIDA -- ???
-  getRelatorioIntervencaoNormal() {
+  getRelatorioParaCPI() {
     const query = Prisma.sql`
     select 
         nom_poco,
-        sum(hrs_totais)/max(num_profundidade)
+        sum(hrs_totais)/max(num_profundidade) as taxa
     from (
         select 
             id_poco,

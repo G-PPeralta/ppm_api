@@ -1,9 +1,9 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { GraficosService } from './graficos.service';
 @Controller('graficos')
 export class GraficosController {
   constructor(private readonly graficosService: GraficosService) {}
-  @Get(['historico/:de/:a', 'historico'])
+  @Get('historico')
   getRelatorioHistorico(@Query() params?: string[]) {
     return this.graficosService.getRelatorioHistorico(params);
   }
@@ -14,5 +14,13 @@ export class GraficosController {
   @Get('tempo')
   getRelatorioTempoNPTPorSonda() {
     return this.graficosService.getRelatorioTempoNPTPorSonda();
+  }
+  @Get('sonda')
+  getRelatorioPorCadaSonda() {
+    return this.graficosService.getRelatorioPorCadaSonda();
+  }
+  @Get('cpi')
+  getRelatorioParaCPI() {
+    return this.graficosService.getRelatorioParaCPI();
   }
 }
