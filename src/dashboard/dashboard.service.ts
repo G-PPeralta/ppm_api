@@ -24,6 +24,26 @@ export class DashboardService {
       badRequestError: 'Query string param polo_id_param is not a number',
     },
   };
+
+  async getGates() {
+    return await this.prisma.$queryRaw`
+    select gates.gate as name, count(projetos.gate_id)::integer as value from tb_gates gates
+    inner join tb_projetos projetos
+    on gates.id = projetos.gate_id
+    where tipo_projeto_id <> 3
+    group by gates.gate
+    union 
+    select gate as name, 0 as value from tb_gates
+    where gate not in (
+      select gates.gate from
+      tb_gates gates
+      inner join tb_projetos projetos
+      on projetos.gate_id = gates.id
+      where projetos.tipo_projeto_id <> 3
+    )
+    `;
+  }
+
   async getTotalProjetosSGrafico() {
     const retornoQuery: QueryTotalProjetosDto[] = await this.prisma
       .$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;

@@ -18,6 +18,11 @@ export class DashboardController {
     return this.dashboardService.getTotalProjetosSGrafico();
   }
 
+  @Get('gates')
+  getGates() {
+    return this.dashboardService.getGates();
+  }
+
   @Get('areas-demandadas')
   getAreasDemandadas() {
     return this.dashboardService.getAreasDemandadas();

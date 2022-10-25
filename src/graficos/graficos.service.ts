@@ -5,49 +5,38 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class GraficosService {
   constructor(private prisma: PrismaService) {}
-  async getRelatorioHistorico(dataIni?, dataFim?) {
+  async getRelatorioHistorico(params) {
     let where = '';
-    if (dataIni && dataFim) {
-      where = `and atividades.dat_ini_real >= '${new Date(
-        dataIni,
-      ).toISOString()}'
-      and atividades.dat_fim_real <= '${new Date(dataFim).toISOString()}' `;
+    const { de, a, sonda } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
     }
-    const retorno: any[] = await this.prisma.$queryRawUnsafe(`
-    select t.id_sonda, t.sonda, t.poco, t.id_poco, 
-      round(min(hrs_reais)) as vlr_min,
-      round(max(hrs_reais)) as vlr_max,
-      round(avg(hrs_reais)) as vlr_med 
-    from (
-      select
-        sonda.id as id_sonda,
-        sonda.nom_atividade as sonda,
-        pocos.nom_atividade as poco,
-        pocos.id as id_poco,
-        case when atividades.nom_atividade is null then tarefas.nom_operacao 
-        else atividades.nom_atividade end as nome_atividade,
-        atividades.id as id_atividade, --verificar se é id da atividade ou da origem
-        case when fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) is null then 0 
-        else fn_hrs_totais_cronograma_atvv(atividades.dat_ini_real, atividades.dat_fim_real) end as hrs_reais
-        from
-        tb_projetos_atividade sonda
-        inner join tb_projetos_atividade pocos
-        on pocos.id_pai = sonda.id
-        inner join tb_projetos_atividade atividades
-        on (atividades.id_pai = pocos.id)
-        left join tb_projetos_operacao tarefas
-        on (tarefas.id = atividades.id_operacao)
-        where
-        sonda.id_pai = 0 ${where}
-        group by 
-        sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
-        case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
-        atividades.id
-        order by atividades.id_pai asc, atividades.dat_ini_real asc
-    ) as t
-    group by t.id_poco, t.poco, t.id_sonda, t.sonda
-    `);
-    return retorno;
+    if (sonda) where += ` and nom_sonda like '${sonda}' `;
+    const query = `select 
+          nom_sonda,
+          nom_poco,
+          id_operacao,
+          id_poco,
+          round(avg(hrs_totais),0) as hrs_media,
+          round(min(hrs_totais),0) hrs_min,
+          round(max(hrs_totais),0) hrs_max,
+          0 as hrs_dp,
+          0 as tend_duracao
+      from tb_hist_estatistica a
+      inner join tb_pocos b 
+        on a.id_poco = b.id
+      inner join tb_sondas c 
+        on a.id_sonda = c.id 
+      where 1=1
+      ${where}
+      group by id_operacao, id_poco, nom_poco, nom_sonda;`;
+    // --    id_operacao = 14
+    // --and num_profundidade between 500 and 1000
+    // --and id_sonda in (26)
+    // --and id_poco in (77)
+    return this.prisma.$queryRawUnsafe(query);
   }
 
   getRelatorioPorCadaIntervencao() {
@@ -79,6 +68,30 @@ export class GraficosService {
     inner join tb_sondas b 
         on a.id_sonda = b.id
     group by nom_sonda;`;
+    return this.prisma.$queryRaw(query);
+  }
+
+  // -- GRAFICO - DURACAO DE INTERVENCAO NORMALIZADA PELA METRAGEM DA ZONA INTERVIDA -- ???
+  getRelatorioIntervencaoNormal() {
+    const query = Prisma.sql`
+    select 
+        nom_poco,
+        sum(hrs_totais)/max(num_profundidade)
+    from (
+        select 
+            id_poco,
+            hrs_totais,
+            num_profundidade
+        from tb_hist_estatistica
+    ) as q
+    inner join tb_pocos tp 
+        on    q.id_poco = tp.id 
+        group by nom_poco;`;
+    // --where
+    // --and num_profundidade between 500 and 1000
+    // --and id_sonda in (26)
+    // --and id_poco in (77)
+    // --and dat_conclusao between '2022-09-01' and '2022-10-31'
     return this.prisma.$queryRaw(query);
   }
 }
