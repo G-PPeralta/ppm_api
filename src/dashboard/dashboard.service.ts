@@ -26,7 +26,7 @@ export class DashboardService {
   };
 
   async getGates() {
-    return await this.prisma.$queryRaw`
+    const retorno: any[] = await this.prisma.$queryRaw`
     select gates.gate as name, count(projetos.gate_id)::integer as value from tb_gates gates
     inner join tb_projetos projetos
     on gates.id = projetos.gate_id
@@ -42,6 +42,18 @@ export class DashboardService {
       where projetos.tipo_projeto_id <> 3
     )
     `;
+
+    let sum = 0;
+    retorno.forEach((e) => {
+      sum += e.value;
+    });
+
+    return retorno.map((e) => {
+      return {
+        name: e.name,
+        value: Number((e.value > 0 ? e.value / sum : e.value) * 100).toFixed(1),
+      };
+    });
   }
 
   async getTotalProjetosSGrafico() {
