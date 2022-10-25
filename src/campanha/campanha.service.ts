@@ -139,8 +139,8 @@ export class CampanhaService {
     `);
 
     const id_pai = await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, campo_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
-      VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.campo_id}, ${
+      INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+      VALUES (0, ${poco_id[0].id}, ${
       createCampanhaDto.id_campanha
     }, '${new Date(data).toISOString()}', '${
       createCampanhaDto.nom_usu_create
