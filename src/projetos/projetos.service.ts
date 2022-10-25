@@ -649,14 +649,32 @@ and a.id = ${id};
       solicitante_id = ${updateProjetoDto.solicitacao},
       nome_projeto = '${updateProjetoDto.nome_projeto}',
       elemento_pep = '${updateProjetoDto.elemento_pep}',
-      data_inicio = '${updateProjetoDto.data_inicio}',
-      data_fim = '${updateProjetoDto.data_fim}',
+      data_inicio = ${
+        updateProjetoDto.data_inicio === null
+          ? null
+          : "'" + new Date(updateProjetoDto.data_inicio).toISOString() + "'"
+      },
+      data_fim = ${
+        updateProjetoDto.data_fim === null
+          ? null
+          : "'" + new Date(updateProjetoDto.data_fim).toISOString() + "'"
+      },
       divisao_id = ${updateProjetoDto.divisao},
       classificacao_id= ${updateProjetoDto.classificacao},
       tipo_projeto_id = ${updateProjetoDto.tipo},
       gate_id = ${updateProjetoDto.gate},
-      dataInicio_real = '${updateProjetoDto.data_inicio_real}',
-      dataFim_real='${updateProjetoDto.data_fim_real}'
+      "dataInicio_real" = ${
+        updateProjetoDto.data_inicio_real === null
+          ? null
+          : "'" +
+            new Date(updateProjetoDto.data_inicio_real).toISOString() +
+            "'"
+      },
+      "dataFim_real"=${
+        updateProjetoDto.data_fim_real === null
+          ? null
+          : "'" + new Date(updateProjetoDto.data_fim_real).toISOString() + "'"
+      }
       WHERE id = ${id}
     `);
   }
