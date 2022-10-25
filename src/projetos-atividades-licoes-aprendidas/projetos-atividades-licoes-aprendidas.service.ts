@@ -11,7 +11,15 @@ export class ProjetosAtividadesLicoesAprendidasService {
   ) {
     const id = this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_projetos_atv_licoes_aprendidas (id_projeto, id_categoria, txt_licao_aprendida, txt_acao, nom_usu_create, dat_usu_create)
-      values (${createProjetosAtividadesLicoesAprendidasDto.id_projeto}, ${createProjetosAtividadesLicoesAprendidasDto.id_categoria}, '${createProjetosAtividadesLicoesAprendidasDto.txt_licao_aprendida}', '${createProjetosAtividadesLicoesAprendidasDto.txt_acao}', '${createProjetosAtividadesLicoesAprendidasDto.nom_usu_create}', now())
+      values (${
+        createProjetosAtividadesLicoesAprendidasDto.id_atividade
+      }, null, '${
+      createProjetosAtividadesLicoesAprendidasDto.licao_aprendida
+    }', '${
+      createProjetosAtividadesLicoesAprendidasDto.acoes_e_recomendacoes
+    }', '${createProjetosAtividadesLicoesAprendidasDto.user}', '${new Date(
+      createProjetosAtividadesLicoesAprendidasDto.data,
+    ).toISOString()}')
       returning id_projeto
       `);
 
@@ -20,19 +28,19 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async findAll() {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas
+      select * from tb_projetos_atv_licoes_aprendidasselect id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas
     `);
   }
 
   async findOne(id: number) {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id}
+      select id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id}
     `);
   }
 
   async findOneLicao(id_do_projeto: number, id_da_licao: number) {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id_do_projeto} and id = ${id_da_licao}
+      select id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id_do_projeto} and id = ${id_da_licao}
     `);
   }
 
@@ -57,8 +65,9 @@ export class ProjetosAtividadesLicoesAprendidasService {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atv_licoes_aprendidas
       SET
-      txt_acao = '${payload.txt_acao}',
-      txt_licao_aprendida = '${payload.txt_licao_aprendida}'
+      txt_acao = '${payload.acoes_e_recomendacoes}',
+      txt_licao_aprendida = '${payload.licao_aprendida}'
+      dat_usu_create = '${new Date(payload.data).toISOString()}'
       WHERE
       id = ${id_da_licao}
       AND id_projeto = ${id_do_projeto}
