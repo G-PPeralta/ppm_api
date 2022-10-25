@@ -24,11 +24,11 @@ export class ProjetosFinanceiroService {
     where
     projetos.tipo_projeto_id in (1, 2)
     group by 
-    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto, centro_custo.data
+    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto, coalesce(to_char(centro_custo.data, 'MM'), '')
     `);
   }
 
-  async findFilhos(id: number) {
+  async findFilhos(id: number, mes: string) {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`select 
     projetos.id as idProjeto,
@@ -55,8 +55,13 @@ export class ProjetosFinanceiroService {
     left join tb_fornecedores fornecedores
     on fornecedores.id = centro_custo.prestador_servico_id
     where
-    projetos.tipo_projeto_id in (1, 2)
-    and projetos.id = ${id}`);
+    projetos.tipo_projeto_id in (1, 2) and   to_char(centro_custo.data, 'MM') = '${mes}'
+    and projetos.id = ${id}
+    group by 
+    projetos.id,  centro_custo.id, classe_servico.classe_servico,centro_custo.data, centro_custo.valor, centro_custo.descricao_do_servico, 
+    fornecedores.nomefornecedor, centro_custo.pedido,  coalesce(to_char(centro_custo.data, 'MM'), '')
+    
+    `);
 
     const tratamento: any[] = [];
     for (const e of retorno) {
