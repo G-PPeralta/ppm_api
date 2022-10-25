@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { FiltroDto } from './dto/filtros.dto';
 import { FiltrosService } from './filtros.service';
 
@@ -9,5 +9,15 @@ export class FiltrosController {
   @Post()
   findMedia(@Body() filtro: FiltroDto) {
     return this.service.findMedia(filtro);
+  }
+
+  @Get('datas/:id_poco')
+  findDataIni(@Param('id_poco') id: string) {
+    return this.service.findProxData(+id);
+  }
+
+  @Get('operacao/:nome')
+  findDuracaoMediaByName(@Param('nome') nome: string) {
+    return this.service.findDuracaoMedia(nome);
   }
 }
