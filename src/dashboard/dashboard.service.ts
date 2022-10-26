@@ -56,6 +56,28 @@ export class DashboardService {
     });
   }
 
+  async getTotalProjetosGraficoMes() {
+    return await this.prisma.$queryRawUnsafe(`
+    select
+    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) as month,
+    (count(status.id) filter (where status.id = 1))::int4 as nao_iniciados,
+    (count(status.id) filter (where status.id = 2))::int4 as holds,
+    (count(status.id) filter (where status.id = 3))::int4 as iniciados,
+    (count(status.id) filter (where status.id = 4))::int4 as em_analise,
+    (count(status.id) filter (where status.id = 5))::int4 as finalizados,
+    (count(status.id) filter (where status.id = 6))::int4 as cancelados,
+    (count(status.id) filter (where status.id = 7))::int4 as pre_aprovacao,
+    (count(status.id) filter (where status.id = 8))::int4 as reprogramado
+    from dev.tb_status_projetos status
+    inner join tb_projetos projetos
+    on projetos.status_id = status.id
+    where
+    projetos.tipo_projeto_id <> 3
+    group by
+    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY'))
+    `);
+  }
+
   async getTotalProjetosSGrafico() {
     const retornoQuery: QueryTotalProjetosDto[] = await this.prisma
       .$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
