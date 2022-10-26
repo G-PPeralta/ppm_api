@@ -46,12 +46,12 @@ export class EditarAtividadeService {
         (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
         VALUES
         (${atividade.geral.id_atividade}, '${atividade.anotacoes.anotacoes}', '${atividade.nom_usu_create}', now(), 1)
-        ON CONFLICT (txt_nota, ind_tipo_anotacao) DO
+        ON CONFLICT (id_atividade, txt_nota, ind_tipo_anotacao) DO
         UPDATE
         SET
         txt_nota = '${atividade.anotacoes.anotacoes}'
         WHERE
-        id_atividade = ${atividade.geral.id_atividade}
+        tb_projetos_atv_notas.id_atividade = ${atividade.geral.id_atividade}
     `);
 
     //criação ou atualização dos mocs
