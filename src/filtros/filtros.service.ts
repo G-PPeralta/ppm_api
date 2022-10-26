@@ -22,6 +22,27 @@ export class FiltrosService {
     `);
   }
 
+  async findSondas() {
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT atv.id, atv.nom_atividade 
+    FROM tb_projetos_atividade atv
+    inner join tb_hist_estatistica est
+    on est.id_sonda = atv.id
+    WHERE atv.id_pai = 0
+    group by atv.id, atv.nom_atividade
+    `);
+  }
+
+  async findPocos() {
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT atv.id, atv.nom_atividade 
+    FROM tb_projetos_atividade atv
+    inner join tb_hist_estatistica est
+    on est.id_poco = atv.id
+    group by atv.id, atv.nom_atividade
+    `);
+  }
+
   async findMedia(filtro: FiltroDto) {
     return this.prisma.$queryRawUnsafe(`
     select 
