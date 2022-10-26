@@ -18,6 +18,11 @@ export class DashboardController {
     return this.dashboardService.getTotalProjetosSGrafico();
   }
 
+  @Get('total-projetos-mes')
+  getTotalProjetosGraficoMes() {
+    return this.dashboardService.getTotalProjetosGraficoMes();
+  }
+
   @Get('gates')
   getGates() {
     return this.dashboardService.getGates();

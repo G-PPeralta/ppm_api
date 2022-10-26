@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
+import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
 import { ProjetosAtividadesService } from './projetos-atividades.service';
 
 @Controller('projetos-atividades')
@@ -19,6 +20,11 @@ export class ProjetosAtividadesController {
   @Post()
   create(@Body() createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
     return this.projetosAtividadesService.create(createProjetosAtividadesDto);
+  }
+
+  @Post('vincular')
+  createFilho(@Body() payload: CreateProjetosFilhoDto) {
+    return this.projetosAtividadesService.createFilho(payload);
   }
 
   @Get('find/operacoes')
