@@ -14,10 +14,11 @@ export class ProjetosAtividadesService {
     `);
 
     const dados_sonda_projeto: any[] = await this.prisma.$queryRawUnsafe(`
-    select tb_projetos.* from tb_sondas
-    inner join tb_projetos
-    on tb_projetos.nome_projeto = tb_sondas.nom_sonda
-    and tb_sondas.id = ${payload.id_sonda}
+    select projetos.* from tb_projetos projetos
+    inner join tb_projetos_atividade projetos_atv
+    on projetos.id = projetos_atv.id_projeto 
+    where projetos_atv.id = 38
+    and projetos_atv.id = ${payload.id_sonda}
     `);
 
     await this.prisma.$queryRawUnsafe(`
