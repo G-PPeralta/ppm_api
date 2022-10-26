@@ -30,4 +30,9 @@ export class FiltrosController {
   findPocos() {
     return this.service.findPocos();
   }
+
+  @Get('media-hora/:id')
+  async mediaHoraById(@Param('id') id: string) {
+    return await this.service.MediaHoraById(id);
+  }
 }

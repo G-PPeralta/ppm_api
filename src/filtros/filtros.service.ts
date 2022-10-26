@@ -70,4 +70,15 @@ export class FiltrosService {
 
     return resp;
   }
+
+  async MediaHoraById(id: string) {
+    const query = `
+    select 
+    round(avg(hrs_totais),0) as hrs_media
+    from tb_hist_estatistica
+    where id_operacao = ${id}
+    `;
+    const resp = await this.prisma.$queryRawUnsafe(query);
+    return resp;
+  }
 }
