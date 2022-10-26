@@ -59,6 +59,7 @@ export class EditarAtividadeService {
         WHERE id_atividade = ${atividade.geral.id_atividade}
         AND ind_tipo_anotacao = 2
     `);
+
     //criação ou atualização dos mocs
     atividade.mocs.forEach(async (moc) => {
       await this.prisma.$queryRawUnsafe(`
