@@ -576,18 +576,18 @@ and a.id = ${id};
     `);
     const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select 
-    concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
-    case when a.mesano is null then b.mesano else a.mesano end as mesano,
-    case when a.pct_plan is null then 0 else a.pct_plan end as pct_plan,
-    case when a.pct_real is null then 0 else a.pct_real end as pct_real,
-    case when a.pct_capex_plan is null then 0 else a.pct_capex_plan end as capex_previsto,
-    case when a.pct_capex_real is null then 0 else a.pct_capex_real end as capex_realizado
-  from tb_projeto_curva_s a
-  right join tb_mesano b 
-    on a.mesano = b.mesano
-  where a.id_projeto = ${id} or a.hrs_totais is null
-  group by 1, 2, 3, 4, 5, 6
-  order by mesano
+          concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
+          case when a.mesano is null then b.mesano else a.mesano end as mesano,
+          case when max(a.pct_plan) is null then 0 else max(a.pct_plan) end as pct_plan,
+          case when max(a.pct_real) is null then 0 else max(a.pct_real) end as pct_real,
+          case when max(a.pct_capex_plan) is null then 0 else max(a.pct_capex_plan) end as capex_previsto,
+          case when max(a.pct_capex_real) is null then 0 else max(a.pct_capex_real) end as capex_realizado
+        from tb_projeto_curva_s a
+        right join tb_mesano b 
+          on a.mesano = b.mesano
+        where a.id_projeto = ${id} or a.hrs_totais is null
+        group by 1, 2
+        order by mesano
     ;`);
 
     return query.map((el) => {
