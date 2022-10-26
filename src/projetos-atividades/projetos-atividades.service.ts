@@ -1,10 +1,39 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
+import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
 
 @Injectable()
 export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
+
+  async createFilho(payload: CreateProjetosFilhoDto) {
+    const operacao: any[] = await this.prisma.$queryRawUnsafe(`
+    SELECT nom_operacao FROM tb_projetos_operacao
+    WHERE id = ${payload.operacao_id}
+    `);
+
+    const dados_sonda_projeto: any[] = await this.prisma.$queryRawUnsafe(`
+    select tb_projetos.* from tb_sondas
+    inner join tb_projetos
+    on tb_projetos.nome_projeto = tb_sondas.nom_sonda
+    and tb_sondas.id = ${payload.id_sonda}
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+    INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real)
+    VALUES
+    ('${operacao[0].nom_operacao}', 0, ${dados_sonda_projeto[0].id}, ${
+      payload.id_poco
+    }, ${payload.operacao_id}, '${new Date(
+      payload.data_inicio,
+    ).toISOString()}', '${new Date(payload.data_fim).toISOString()}', '${
+      payload.nom_usu_create
+    }', now(), '${new Date(payload.data_inicio).toISOString()}', '${new Date(
+      payload.data_fim,
+    ).toISOString()}')
+    `);
+  }
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
     const sonda: any[] = await this.prisma.$queryRawUnsafe(
