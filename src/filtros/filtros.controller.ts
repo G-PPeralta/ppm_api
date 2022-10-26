@@ -20,4 +20,14 @@ export class FiltrosController {
   findDuracaoMediaByName(@Param('nome') nome: string) {
     return this.service.findDuracaoMedia(nome);
   }
+
+  @Get('sondas')
+  findSondas() {
+    return this.service.findSondas();
+  }
+
+  @Get('pocos')
+  findPocos() {
+    return this.service.findPocos();
+  }
 }
