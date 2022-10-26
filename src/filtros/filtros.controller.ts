@@ -35,4 +35,9 @@ export class FiltrosController {
   async mediaHoraById(@Param('id') id: string) {
     return await this.service.MediaHoraById(id);
   }
+
+  @Get('metodos')
+  findMetodos() {
+    return this.service.findMetodos();
+  }
 }

@@ -43,6 +43,15 @@ export class FiltrosService {
     `);
   }
 
+  async findMetodos() {
+    return await this.prisma.$queryRawUnsafe(`
+    select met.id, met.metodo from tb_hist_estatistica est
+    inner join tb_metodo_elevacao met
+    on met.id = est.id_metodo_elevacao
+    group by met.id, met.metodo
+    `);
+  }
+
   async findMedia(filtro: FiltroDto) {
     const query = `
     select 
@@ -74,11 +83,11 @@ export class FiltrosService {
   async MediaHoraById(id: string) {
     const query = `
     select 
-    round(avg(hrs_totais),0) as hrs_media
+    coalesce(round(avg(hrs_totais),0), 0) as hrs_media
     from tb_hist_estatistica
     where id_operacao = ${id}
     `;
     const resp = await this.prisma.$queryRawUnsafe(query);
-    return resp;
+    return resp[0];
   }
 }
