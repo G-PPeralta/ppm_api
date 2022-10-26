@@ -75,9 +75,14 @@ export class FiltrosService {
         ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
         group by id_operacao
     `;
-    const resp = await this.prisma.$queryRawUnsafe(query);
+    const resp: any[] = await this.prisma.$queryRawUnsafe(query);
 
-    return resp;
+    return resp.map((r) => {
+      return {
+        id_operacao: r.id_operacao,
+        hrs_media: Number(r.hrs_media),
+      };
+    });
   }
 
   async MediaHoraById(id: string) {
