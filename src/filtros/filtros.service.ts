@@ -53,7 +53,7 @@ export class FiltrosService {
   }
 
   async findMedia(filtro: FiltroDto) {
-    return this.prisma.$queryRawUnsafe(`
+    const query = `
     select 
     id_operacao,
     round(avg(hrs_totais),0) as hrs_media
@@ -71,17 +71,23 @@ export class FiltrosService {
             : ``
         }
         ${filtro.sondaId > 0 ? ` AND id_sonda = ${filtro.sondaId} ` : ``}
-        ${
-          filtro.dataDe.length > 0
-            ? ` AND dat_conclusao >= ${filtro.dataDe} `
-            : ``
-        }
-        ${
-          filtro.dataDe.length > 0
-            ? ` AND dat_conclusao <= ${filtro.dataDe} `
-            : ``
-        }
+        ${filtro.dataDe ? ` AND dat_conclusao >= '${filtro.dataDe}' ` : ``}
+        ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
         group by id_operacao
-    `);
+    `;
+    const resp = await this.prisma.$queryRawUnsafe(query);
+
+    return resp;
+  }
+
+  async MediaHoraById(id: string) {
+    const query = `
+    select 
+    round(avg(hrs_totais),0) as hrs_media
+    from tb_hist_estatistica
+    where id_operacao = ${id}
+    `;
+    const resp = await this.prisma.$queryRawUnsafe(query);
+    return resp;
   }
 }

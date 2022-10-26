@@ -33,7 +33,8 @@ export class DetalhamentoService {
 	    tr.nome_responsavel,
 	    tc.coordenador_nome,
 	    tsp.solicitante,
-	    case when tp."dataFim_real" > data_fim then date_part('day', age(tp."dataFim_real",data_fim)) else 0 end as atraso
+	    case when tp."dataFim_real" > data_fim then date_part('day', age(tp."dataFim_real",data_fim)) else 0 end as atraso,
+      tp.dat_usu_update
     from
 	    tb_projetos tp
     left join tb_polos tp2 on
