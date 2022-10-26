@@ -3,9 +3,14 @@ import { GraficosService } from './graficos.service';
 @Controller('graficos')
 export class GraficosController {
   constructor(private readonly graficosService: GraficosService) {}
+
+  @Get('total')
+  getHistoricoTotal() {
+    return this.graficosService.getHistoricoTotal();
+  }
   @Get('historico')
-  getRelatorioHistorico(@Query() params?: string[]) {
-    return this.graficosService.getRelatorioHistorico(params);
+  getRelatorioHistoricoPorPoco(@Query() params?: string[]) {
+    return this.graficosService.getRelatorioHistoricoPorPoco(params);
   }
   @Get('intervencao')
   getRelatorioPorCadaIntervencao() {
