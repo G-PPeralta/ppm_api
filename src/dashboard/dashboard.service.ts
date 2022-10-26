@@ -51,7 +51,7 @@ export class DashboardService {
     return retorno.map((e) => {
       return {
         name: e.name,
-        value: Number((e.value > 0 ? e.value / sum : e.value) * 100).toFixed(1),
+        value: Number((e.value > 0 ? e.value / sum : e.value) * 100),
       };
     });
   }
