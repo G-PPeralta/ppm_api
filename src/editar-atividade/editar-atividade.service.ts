@@ -55,7 +55,7 @@ export class EditarAtividadeService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
-        DELETE tb_projetos_atv_notas
+        DELETE FROM tb_projetos_atv_notas
         WHERE id_atividade = ${atividade.geral.id_atividade}
         AND ind_tipo_anotacao = 2
     `);
