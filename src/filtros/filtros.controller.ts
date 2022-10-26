@@ -30,4 +30,9 @@ export class FiltrosController {
   findPocos() {
     return this.service.findPocos();
   }
+
+  @Get('metodos')
+  findMetodos() {
+    return this.service.findMetodos();
+  }
 }
