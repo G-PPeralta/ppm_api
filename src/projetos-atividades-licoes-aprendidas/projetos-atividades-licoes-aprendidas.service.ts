@@ -28,7 +28,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async findAll() {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidasselect id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas
+      select * from tb_projetos_atv_licoes_aprendidas;
     `);
   }
 
