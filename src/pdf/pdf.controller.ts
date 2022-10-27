@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Logger,
   Param,
   Post,
   Res,
@@ -48,7 +49,7 @@ export class PdfController {
   getFile(@Param('nome_arquivo') nome_arquivo: string, @Res() response) {
     const file = createReadStream(`uploads/${nome_arquivo}.pdf`);
     response.set('Content-Type', 'application/pdf');
-    response.set(`attachment; filename=${nome_arquivo}.pdf`);
+    response.set(`attachment; filename=${nome_arquivo}`);
     file.pipe(response);
   }
 }
