@@ -689,6 +689,7 @@ and a.id = ${id};
     SET
     descricao='${updateProjetoDto.descricao}',
     justificativa='${updateProjetoDto.justificativa}'
+    where id=${id}
     `);
   }
 
