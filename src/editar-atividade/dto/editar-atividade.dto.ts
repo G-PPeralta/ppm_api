@@ -15,6 +15,7 @@ export class EditarAtividadeDto {
   mocs: [
     {
       numero_moc: string;
+      anexo: string;
     },
   ];
 }
