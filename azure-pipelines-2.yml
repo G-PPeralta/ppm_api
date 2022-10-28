@@ -1,0 +1,34 @@
+trigger:
+- staging
+
+resources:
+- repo: self
+
+variables:
+- name: tag
+  value: '$(Build.BuildId)'
+
+stages:
+- stage: BuildPush
+  displayName: Build image and push to registry
+  jobs:
+  - job: BuildPush
+    displayName: Build and push
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Docker@2
+      displayName: 'Docker image build'
+      inputs:
+        containerRegistry: 'Azure IK Registry'
+        repository: 'origem-ppm-api-qa'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        tags: latest
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'Azure IK Registry'
+        repository: 'origem-ppm-api-qa'
+        command: 'push'
+        tags: latest
+      displayName: 'Docker image push'
