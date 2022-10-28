@@ -34,7 +34,7 @@ export class ProjetosRankingService {
     await this.prepareInsert(
       createProjetosRankingDto,
       createProjetosRankingDto.prioridade.id_ranking,
-      createProjetosRankingDto.prioridade.opcao_ranking,
+      createProjetosRankingDto.prioridade.opcao_id,
     );
 
     await this.prepareInsert(
@@ -67,7 +67,15 @@ export class ProjetosRankingService {
   ) {
     await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_projetos_ranking (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
-      VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, '${dsc_comentario}', '${nom_usu_create}', now())
+      VALUES (${id_projeto}, ${id_ranking}, ${id_opcao}, ${
+      dsc_comentario === null ? null : "'" + dsc_comentario + "'"
+    }, '${nom_usu_create}', now())
+    ON CONFLICT (id_projeto, id_ranking)
+    DO UPDATE SET
+      id_opcao = ${id_opcao}
+    WHERE
+      tb_projetos_ranking.id_projeto = ${id_projeto} AND
+      tb_projetos_ranking.id_ranking = ${id_ranking}
     `);
   }
 
@@ -92,13 +100,8 @@ export class ProjetosRankingService {
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id  from 
-    tb_ranking tr
-    inner join tb_ranking_opcoes tro 
-    on tro.id_ranking = tr.id 
-    inner join tb_projetos_ranking tpr 
-    on tpr.id_opcao = tro.num_opcao  and tpr.id_ranking  = tr.id
-    where tpr.id_projeto = ${id}
+    select * from tb_projetos_ranking
+    where id_projeto = ${id}
     `);
   }
 

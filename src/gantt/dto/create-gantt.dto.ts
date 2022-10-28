@@ -25,10 +25,10 @@ export interface GanttPayload {
   data_fim: Date;
   microatividade_id: number;
   nome_atividade: string;
-  item: string;
+  //item: string;
   macroatividade_id: number;
   macroatividade_nome: string;
-  macroatividade_item: number;
+  //macroatividade_item: number;
   duracao: number;
   progresso: number;
 }

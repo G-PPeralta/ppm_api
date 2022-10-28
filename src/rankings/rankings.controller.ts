@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateRankingDto } from './dto/create-ranking.dto';
 import { RankingsService } from './rankings.service';
 
@@ -7,7 +15,7 @@ export class RankingsController {
   constructor(private readonly rankingService: RankingsService) {}
 
   @Post()
-  create(createRanking: CreateRankingDto) {
+  create(@Body() createRanking: CreateRankingDto) {
     return this.rankingService.create(createRanking);
   }
 

@@ -17,9 +17,14 @@ export class ProjetosAtividadesNotasController {
     );
   }
 
-  @Get()
-  findAll() {
-    return this.projetosAtividadesNotasService.findAll();
+  @Get('all/:id')
+  findAll(@Param('id') id: string) {
+    return this.projetosAtividadesNotasService.findAll(+id);
+  }
+
+  @Get('moc/:id')
+  findMocs(@Param('id') id: string) {
+    return this.projetosAtividadesNotasService.findMocs(+id);
   }
 
   @Get(':id')

@@ -7,12 +7,14 @@ import {
   Delete,
   NotFoundException,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { GanttService } from './gantt.service';
 import { CreateGanttDto } from './dto/create-gantt.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateGanttDto } from './dto/update-gantt.dto';
 
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 @Controller('gantt')
 export class GanttController {
   constructor(private readonly ganttService: GanttService) {}
@@ -29,6 +31,11 @@ export class GanttController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
+  }
+
+  @Patch(':id')
+  async update(@Body() updateGannt: UpdateGanttDto, @Param('id') id: string) {
+    return this.ganttService.updateGantt(updateGannt, +id);
   }
 
   @Get('/gant')

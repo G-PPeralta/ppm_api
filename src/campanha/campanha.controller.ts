@@ -10,9 +10,11 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CampanhaService } from './campanha.service';
+import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
-import { CampanhaFilhoDto } from './dto/create-filho.dto';
+import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
+import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 //@UseGuards(JwtAuthGuard)
@@ -20,13 +22,13 @@ import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 export class CampanhaController {
   constructor(private readonly campanhaService: CampanhaService) {}
 
-  @Post()
+  @Post('/pai')
   createPai(@Body() createCampanhaDto: CreateCampanhaDto) {
     return this.campanhaService.createPai(createCampanhaDto);
   }
 
   @Post('/filho')
-  createFilho(@Body() createCampanhaDto: CampanhaFilhoDto) {
+  createFilho(@Body() createCampanhaDto: CreateCampanhaFilhoDto) {
     return this.campanhaService.createFilho(createCampanhaDto);
   }
 
@@ -37,14 +39,42 @@ export class CampanhaController {
     return this.campanhaService.createAtividade(createAtividadeCampanhaDto);
   }
 
-  @Get()
-  findAll() {
-    return this.campanhaService.findAll();
+  @Post()
+  findAll(@Body() campanhaFiltro: CampanhaFiltro) {
+    return this.campanhaService.findAll(campanhaFiltro);
   }
 
-  @Get(':id')
+  @Get('precedentes')
+  visaoPrecedentes() {
+    return this.campanhaService.visaoPrecedentes();
+  }
+
+  @Get('find')
+  findCampanhas() {
+    return this.campanhaService.findCampanha();
+  }
+
+  @Get('find/datas/:id')
+  findDatas(@Param('id') id: string) {
+    return this.campanhaService.findDatas(+id);
+  }
+
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.campanhaService.findOne(+id);
+  }
+
+  @Patch()
+  updatePayload(@Body() payload: UpdateCampanhaDto) {
+    return this.campanhaService.updatePayload(payload);
+  }
+
+  @Post('replanejar/:id')
+  replanejarCampanha(
+    @Body() payload: ReplanejarCampanhaDto[],
+    @Param('id') id_campanha: string,
+  ) {
+    return this.campanhaService.replanejar(payload, +id_campanha);
   }
 
   @Patch(':id/:campo/:valor')
