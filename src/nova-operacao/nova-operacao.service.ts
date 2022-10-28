@@ -16,7 +16,9 @@ export class NovaOperacaoService {
         ('${createNovaOperacao.id_origem}', '${
       createNovaOperacao.nom_operacao
     }',
-         ${null}, ${null},
+         ${createNovaOperacao.responsavel_id || null}, ${
+      createNovaOperacao.area_id || null
+    },
          ${null}, ${null}, false, '${createNovaOperacao.nom_usu_create}', NOW()
          )
     `);
