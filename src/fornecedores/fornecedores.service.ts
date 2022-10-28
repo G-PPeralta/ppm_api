@@ -1,23 +1,49 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
 import { UpdateFornecedoreDto } from './dto/update-fornecedore.dto';
 
 @Injectable()
 export class FornecedoresService {
-  create(createFornecedoreDto: CreateFornecedoreDto) {
-    return 'This action adds a new fornecedore';
+  constructor(private prisma: PrismaService) {}
+
+  async create(createFornecedoreDto: CreateFornecedoreDto) {
+    return await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_fornecedores 
+      (poloId, servicoId, statusId, nomeFornecedor, numeroContrato, representante, email, telefone, invoice, cnpj, justificativa, outrasInformacoes, nom_usu_create, dat_usu_create)
+      VALUES
+      (${createFornecedoreDto.poloId}, ${createFornecedoreDto.servicoId}, ${createFornecedoreDto.statusId}, '${createFornecedoreDto.nomeFornecedor}',
+      '${createFornecedoreDto.numeroContrato}', '${createFornecedoreDto.representante}', '${createFornecedoreDto.email}', '${createFornecedoreDto.telefone}',
+      '${createFornecedoreDto.invoice}', '${createFornecedoreDto.cnpj}', '${createFornecedoreDto.justificativa}', '${createFornecedoreDto.outrasInformacoes}',
+      '${createFornecedoreDto.nom_usu_create}', now())
+    `);
   }
 
   findAll() {
-    return `This action returns all fornecedores`;
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_fornecedores
+    `);
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} fornecedore`;
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_fornecedores WHERE id = ${id}
+    `);
   }
 
-  update(id: number, updateFornecedoreDto: UpdateFornecedoreDto) {
-    return `This action updates a #${id} fornecedore`;
+  async update(updateFornecedoreDto: UpdateFornecedoreDto) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE
+      tb_fornecedores
+      SET
+      poloid = ${updateFornecedoreDto.poloId},
+      servicoId = ${updateFornecedoreDto.servicoId},
+      nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
+      representante = '${updateFornecedoreDto.representante}',
+      justificativa = '${updateFornecedoreDto.justificativa}'
+      WHERE
+      id = ${updateFornecedoreDto.id}
+    `);
   }
 
   remove(id: number) {

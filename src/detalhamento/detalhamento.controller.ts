@@ -6,15 +6,15 @@ import {
   // Body,
   // Patch,
   Param,
-  UseGuards,
+  // UseGuards,
   // Delete,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DetalhamentoService } from './detalhamento.service';
 // import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
 // import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('detalhamento')
 export class DetalhamentoController {
   constructor(private readonly detalhamentoService: DetalhamentoService) {}
@@ -28,6 +28,19 @@ export class DetalhamentoController {
   // findAll() {
   //   return this.detalhamentoService.findAll();
   // }
+
+  @Get('/progresso/:id')
+  async findOneProgresso(@Param('id') id: number) {
+    const percentual = this.detalhamentoService.findOneProgresso(+id);
+    // console.log(percentual);
+    return percentual;
+  }
+
+  @Get('/info-financeiro/:id')
+  async findOneInfoFinanc(@Param('id') id: number) {
+    const info = await this.detalhamentoService.findOneInfoFinanc(+id);
+    return info;
+  }
 
   @Get(':id')
   findOne(@Param('id') id: number) {
@@ -61,6 +74,12 @@ export class DetalhamentoController {
   async findOneNaoPrevistoPercentual(@Param('id') id: number) {
     const naoPrevisto = await this.detalhamentoService.findOneNaoPrevisto(+id);
     return naoPrevisto;
+  }
+
+  @Get('/cpi-spi/:id')
+  async findOneCpiSpi(@Param('id') id: number) {
+    const cpiSpi = await this.detalhamentoService.findOneCpiSpi(+id);
+    return cpiSpi;
   }
 
   // @Get('/remanescente/:id')

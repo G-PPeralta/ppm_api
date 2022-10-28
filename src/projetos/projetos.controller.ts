@@ -15,6 +15,7 @@ import { UpdateProjetoDto } from './dto/update-projeto.dto';
 // import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
 // import { prismaClient } from 'index.prisma';
 import { ResponsavelService } from '../responsavel/responsavel.service';
+import { VincularAtividade } from './dto/vincular-atividade.dto';
 
 @Controller('projetos')
 export class ProjetosController {
@@ -23,9 +24,24 @@ export class ProjetosController {
     private readonly responsavelService: ResponsavelService,
   ) {}
 
+  @Get('detalhados')
+  async getProjetosDetalhados() {
+    return await this.projetosService.getProjetosDetalhados();
+  }
+
+  @Get('previstoXRealizado')
+  async previstoXRealizadoGeral() {
+    return await this.projetosService.previstoXRealizadoGeral();
+  }
+
   @Get('/prazos/find')
   async findAllProjetosPrazos() {
     return this.projetosService.findAllProjetosPrazos();
+  }
+
+  @Get('/previsXRealizadoProjeto/:id')
+  async revistoXRealizadoGeralPorProjeto(@Param('id') id: string) {
+    return this.projetosService.previstoXRealizadoGeralPorProjeto(+id);
   }
 
   @Get('/prazos/find/:id')
@@ -38,6 +54,15 @@ export class ProjetosController {
     return this.projetosService.findProjetosPercentuais(+id);
   }
 
+  @Get('/filtroProjeto/:nomProjeto')
+  async filtroProjeto(@Param('nomProjeto') nomProjeto: string) {
+    if (!isNaN(Number(nomProjeto))) {
+      return this.projetosService.filtroProjetos(nomProjeto);
+    } else {
+      return this.projetosService.filtroProjetos('');
+    }
+  }
+
   @Post('/registro')
   async create(@Body() payload: CreateProjetoDto) {
     try {
@@ -46,6 +71,21 @@ export class ProjetosController {
     } catch (error: any) {
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  @Get('relacoes/:id')
+  async relacoes(@Param('id') id: string) {
+    return this.projetosService.verificarRelacoes(+id);
+  }
+
+  @Get('configuracoes/:id')
+  async projetoConfig(@Param('id') id: string) {
+    return this.projetosService.projetoConfig(+id);
+  }
+
+  @Post('vincular')
+  async vincular(@Body() vincularAtividade: VincularAtividade) {
+    return this.projetosService.vincularAtividade(vincularAtividade);
   }
 
   @Get('listagem')
@@ -90,6 +130,17 @@ export class ProjetosController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProjetoDto: UpdateProjetoDto) {
     return this.projetosService.update(+id, updateProjetoDto);
+  }
+
+  @Patch('/descJust/:id')
+  updateDescricaoJustificativa(
+    @Param('id') id: string,
+    @Body() updateProjetoDto: UpdateProjetoDto,
+  ) {
+    return this.projetosService.updateDescricaoJustificativa(
+      +id,
+      updateProjetoDto,
+    );
   }
 
   @Delete(':id')

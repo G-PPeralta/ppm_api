@@ -36,6 +36,17 @@ export class ProjetosAtividadesLicoesAprendidasController {
     return this.projetosAtividadesLicoesAprendidasService.findOne(+id);
   }
 
+  @Get(':id_do_projeto/:id_da_licao')
+  findOneLicao(
+    @Param('id_do_projeto') id_do_projeto: string,
+    @Param('id_da_licao') id_da_licao: string,
+  ) {
+    return this.projetosAtividadesLicoesAprendidasService.findOneLicao(
+      +id_do_projeto,
+      +id_da_licao,
+    );
+  }
+
   @Patch(':id/:campo/:valor/:user')
   update(
     @Param('id') id: string,
@@ -48,6 +59,30 @@ export class ProjetosAtividadesLicoesAprendidasController {
       campo,
       valor,
       user,
+    );
+  }
+
+  @Patch(':id_do_projeto/:id_da_licao')
+  updateOne(
+    @Param('id_do_projeto') id_do_projeto: string,
+    @Param('id_da_licao') id_da_licao: string,
+    @Body() payload: CreateProjetosAtividadesLicoesAprendidasDto,
+  ) {
+    return this.projetosAtividadesLicoesAprendidasService.updateOne(
+      +id_do_projeto,
+      +id_da_licao,
+      payload,
+    );
+  }
+
+  @Delete(':id_do_projeto/:id_da_licao')
+  removeOne(
+    @Param('id_do_projeto') id_do_projeto: string,
+    @Param('id_da_licao') id_da_licao: string,
+  ) {
+    return this.projetosAtividadesLicoesAprendidasService.removeOne(
+      +id_do_projeto,
+      +id_da_licao,
     );
   }
 

@@ -48,6 +48,25 @@ import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.modul
 import { AreasModule } from './areas/areas.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
+import { BudgetsModule } from './budgets/budgets.module';
+import { EstatisticasModule } from './estatisticas/estatisticas.module';
+import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
+import { NovaAtividadeModule } from './nova-atividade/nova-atividade.module';
+import { TarefasModule } from './tarefas/tarefas.module';
+import { AtividadeFerramentasModule } from './atividade-ferramentas/atividade-ferramentas.module';
+import { AtividadeServicosModule } from './atividade-servicos/atividade-servicos.module';
+import { AtividadesProjetosModule } from './atividades-projetos/atividades-projetos.module';
+import { LookaheadModule } from './lookahead/lookahead.module';
+import { NovaOperacaoModule } from 'nova-operacao/nova-operacao.module';
+import { ServicosSondaPocoModule } from './servicos-sonda-poco/servicos-sonda-poco.module';
+import { ProjetosFinanceiroModule } from './projetos-financeiro/projetos-financeiro.module';
+import { CentroCustoModule } from './centro-custo/centro-custo.module';
+import { ClasseServicoModule } from './classe-servico/classe-servico.module';
+import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
+import { FiltrosModule } from './filtros/filtros.module';
+import { EditarAtividadeModule } from './editar-atividade/editar-atividade.module';
+import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
+import { GraficosModule } from './graficos/graficos.module';
 
 @Module({
   imports: [
@@ -98,6 +117,25 @@ import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-inter
     AreasModule,
     CategoriasModule,
     OperacaoIntervencaoModule,
+    BudgetsModule,
+    EstatisticasModule,
+    CampanhaProjetoTipoModule,
+    NovaAtividadeModule,
+    TarefasModule,
+    AtividadeFerramentasModule,
+    AtividadeServicosModule,
+    AtividadesProjetosModule,
+    NovaOperacaoModule,
+    LookaheadModule,
+    ServicosSondaPocoModule,
+    ProjetosFinanceiroModule,
+    CentroCustoModule,
+    ClasseServicoModule,
+    OcorrenciasModule,
+    FiltrosModule,
+    EditarAtividadeModule,
+    HistoricoEstatisticoModule,
+    GraficosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

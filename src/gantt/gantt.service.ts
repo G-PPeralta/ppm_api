@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { ganttFormatter } from '../utils/gantt/gantConverter';
 import { CreateGanttDto, GanttPayload } from './dto/create-gantt.dto';
+import { UpdateGanttDto } from './dto/update-gantt.dto';
 
 @Injectable()
 export class GanttService {
@@ -13,7 +14,27 @@ export class GanttService {
 
   async findAll() {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`
-      SELECT * FROM v_gantt_temp
+    select
+    projetos.nome_projeto,
+    microatividade.dat_ini_plan as data_inicio,
+    microatividade.dat_fim_plan as data_fim,
+    microatividade.id as microatividade_id,
+    microatividade.nom_atividade as nome_atividade,
+    macroatividade.id as macroatividade_id,
+    macroatividade.nom_atividade as macroatividade_nome,
+    date_part('day', age(microatividade.dat_fim_plan, microatividade.dat_ini_plan))  as duracao,
+    microatividade.pct_real as progresso
+    from
+    tb_projetos_atividade projetos_atividade
+    left join
+    tb_projetos projetos
+    on (projetos.id = projetos_atividade.id_projeto) and (coalesce(projetos_atividade.id_pai, 0) = 0)
+    left join
+    tb_projetos_atividade macroatividade
+    on macroatividade.id_pai = projetos_atividade.id
+    left join
+    tb_projetos_atividade microatividade
+    on microatividade.id_pai = macroatividade.id
     `);
     const ganttFormatted = ganttFormatter(gantt);
     if (!ganttFormatted) throw new Error('Falha na listagem de dados do gantt');
@@ -47,8 +68,89 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} gantt`;
+  async findOne(id: number) {
+    const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
+    select
+    id as TaskID,
+    nom_atividade as TaskName,
+    dat_ini_real as StartDate,
+    dat_fim_real EndDate,
+    case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
+    round(pct_real::numeric, 1) as Progress,
+    null as Predecessor,
+    (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
+    from tb_projetos_atividade a
+    where (id_pai = 0 or id_pai is null) -- NULL SOMENTE NO PRIMEIRO NÓ ATE RESOLVER A CAGADA)
+    and id_projeto = ${id};
+    `);
+
+    const tratar = retorno_inicial.map((el) => {
+      return {
+        TaskID: el.taskid,
+        TaskName: el.taskname,
+        StartDate: el.startdate,
+        EndDate: el.endDate,
+        Duration: el.duration,
+        Progress: el.progress,
+        Predecessor: el.predecessor,
+        SubtaskAmount: el.subtasks,
+        subtasks: [],
+      };
+    });
+
+    const retornar = async () => {
+      const tratamento: any[] = [];
+      for (const e of tratar) {
+        await this.substasksRecursive(e, id);
+        tratamento.push(e);
+      }
+      return tratamento;
+    };
+
+    return await retornar();
+  }
+
+  async substasksRecursive(element, id) {
+    if (element.SubtaskAmount > 0) {
+      const substasks: any[] = await this.prisma.$queryRawUnsafe(`
+        select
+        id as TaskID,
+        nom_atividade as TaskName,
+        dat_ini_real as StartDate,
+        dat_fim_real EndDate,
+        case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
+        round(pct_real::numeric, 1) as Progress,
+        null as Predecessor,
+        (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
+        from tb_projetos_atividade a
+        where (id_pai = ${element.TaskID})
+        and id_projeto = ${id};
+      `);
+      const mapped = substasks.map((el) => {
+        return {
+          TaskID: el.taskid,
+          TaskName: el.taskname,
+          StartDate: el.startdate,
+          EndDate: el.endDate,
+          Duration: el.duration,
+          Progress: el.progress,
+          Predecessor: el.predecessor,
+          SubtaskAmount: el.subtasks,
+          subtasks: [],
+        };
+      });
+
+      const retornar = async () => {
+        const tratamento: any[] = [];
+        for (const e of mapped) {
+          await this.substasksRecursive(e, id);
+          tratamento.push(e);
+        }
+        return tratamento;
+      };
+
+      element.subtasks = await retornar();
+    }
   }
 
   // update(id: number, updateGanttDto: UpdateGanttDto) {
@@ -57,6 +159,17 @@ export class GanttService {
 
   remove(id: number) {
     return `This action removes a #${id} gantt`;
+  }
+
+  async updateGantt(updateGannt: UpdateGanttDto, id: number) {
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade
+      SET
+      dat_ini_real = TO_TIMESTAMP('${updateGannt.dat_ini_real}', 'DD/MM/YYYY HH24:MI:ss'),
+      dat_fim_real = TO_TIMESTAMP('${updateGannt.dat_fim_real}', 'DD/MM/YYYY HH24:MI:ss'),
+      pct_real = ${updateGannt.pct_real}
+      WHERE id = ${id}
+`);
   }
 }
 

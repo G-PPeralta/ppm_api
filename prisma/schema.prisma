@@ -440,12 +440,16 @@ model ProjetosAtividadedsNotas {
 
 model ProjetosAtividadesLicoesAprendidas {
   id                  Int       @id @default(autoincrement())
-  id_atividade        Int?
+  id_projeto          Int
   id_categoria        Int?
-  txt_licao_aprendida String?   @db.VarChar(32767)
-  txt_acao            String?   @db.VarChar(255)
-  nom_usu_create      String?   @db.VarChar(255)
-  dat_usu_create      DateTime? @db.Timestamp(6)
+  txt_licao_aprendida String    @db.VarChar(32767)
+  txt_acao            String?   @db.VarChar(32767)
+  nom_usu_create      String    @db.VarChar(255)
+  dat_usu_create      DateTime  @db.Timestamp(6)
+  nom_usu_alt         String?   @db.VarChar
+  dat_usu_alt         DateTime? @db.Timestamp(6)
+  nom_usu_exc         String?   @db.VarChar
+  dat_usu_exc         DateTime? @db.Timestamp(6)
 
   @@map("tb_projetos_atv_licoes_aprendidas")
 }
@@ -469,7 +473,13 @@ model CampAtvCampanha {
   nom_usu_erase  String?   @db.VarChar(255)
   dat_usu_erase  DateTime? @db.Timestamp(6)
   id_campanha    Int?
+  poco_id        Int?
+  campo_id       Int?
+  tarefa_id      Int?
+  area_id        Int?
+  responsavel_id Int?
 
+  @@unique([id_pai, nom_atividade, id_campanha], map: "id_pai_campanha_nom_ativ")
   @@map("tb_camp_atv_campanha")
 }
 
@@ -507,7 +517,7 @@ model CapAtvLicoesAprendidas {
 
 model TbCampanha {
   id             Int       @id @default(autoincrement())
-  nom_campanha   String    @db.VarChar(255)
+  nom_campanha   String    @unique(map: "unique_nom_campanha") @db.VarChar(255)
   id_sonda       Int?
   dsc_comentario String    @db.VarChar(32767)
   nom_usu_create String?   @db.VarChar(255)
@@ -578,11 +588,12 @@ model existe {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model tb_camp_atv_recursos {
-  id             Int?
-  id_atividade   Int?
-  nom_recurso    String?   @db.VarChar
+  id             Int       @default(autoincrement())
+  id_atividade   Int
+  nom_recurso    String    @db.VarChar
   nom_usu_create String?   @db.VarChar
   dat_usu_create DateTime? @db.Timestamp(6)
+  id_area        Int?
 
   @@ignore
 }
@@ -614,6 +625,327 @@ model tb_projetos_atividade {
   nom_usu_erase  String?   @db.VarChar(255)
   dat_usu_erase  DateTime? @db.Timestamp(6)
   id_projeto     Int?
+  id_operacao    Int?
+  id_area        Int?
+  id_responsavel Int?
+  profundidade   Decimal?  @db.Decimal
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_area {
+  id             Int       @default(autoincrement())
+  nom_area       String    @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_atv {
+  id                     Int       @default(autoincrement())
+  id_origem              String?   @unique @db.VarChar
+  nom_atividade          String?   @db.VarChar
+  responsavel_id         Int?
+  area_atuacao           Int?
+  nao_iniciar_antes_de   DateTime? @db.Timestamp(6)
+  nao_terminar_depois_de DateTime? @db.Timestamp(6)
+  o_mais_breve_possivel  Boolean?
+  nom_usuario_create     String?   @db.VarChar
+  dat_usuario_create     DateTime? @db.Date
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_atv_area {
+  id              Int    @default(autoincrement())
+  id_atividade    Int
+  id_area         Int
+  nom_responsavel String @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_atv_precedente {
+  id                Int @default(autoincrement())
+  id_atividade      Int
+  id_campanha       Int
+  id_atv_precedente Int
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_atv_tag {
+  id           Int    @default(autoincrement())
+  id_atividade Int
+  nom_tag      String @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_projeto_tipo {
+  id               Int       @default(autoincrement())
+  nom_projeto_tipo String?   @unique(map: "tb_camp_projeto_tipo_un") @db.VarChar
+  dat_usu_create   DateTime? @db.Date
+  nom_usu_create   String?   @db.VarChar
+  dat_usu_edit     DateTime? @db.Date
+  nom_usu_edit     String?   @db.VarChar
+  dat_usu_erase    DateTime? @db.Date
+  nom_usu_erase    String?   @db.VarChar
+  dsc_comentarios  String?   @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_projetos_atv {
+  id                   Int       @default(autoincrement())
+  id_camp_projeto_tipo Int?
+  id_area              Int?
+  id_tarefa            Int?
+  qtde_dias            Int?
+  nom_usu_create       String?   @db.VarChar
+  dat_usu_edit         DateTime? @db.Date
+  nom_usu_edit         String?   @db.VarChar
+  dat_usu_erase        DateTime? @db.Date
+  nom_usu_erase        String?   @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_operacao_intervencao {
+  id                 Int       @default(autoincrement())
+  nom_operacao       String
+  vlr_duracao_minima Decimal?  @db.Decimal
+  vlr_duracao_maxima Decimal?  @db.Decimal
+  vlr_duracao_media  Decimal?  @db.Decimal
+  vlr_desvio_padrao  Decimal?  @db.Decimal
+  nom_usu_create     String?   @db.VarChar
+  dat_usu_create     DateTime? @db.Timestamp(6)
+  nom_usu_edit       String?   @db.VarChar
+  dat_usu_edit       DateTime? @db.Timestamp(6)
+  nom_usu_erase      String?   @db.VarChar
+  dat_usu_erase      DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_pocos {
+  id             Int       @default(autoincrement())
+  id_polo        Int
+  id_local       Int
+  nom_poco       String    @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+model AtividadeCustoPlanejado {
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int       @unique
+  id_fornecedor  Int?
+  vlr_planejado  Decimal   @db.Decimal
+  txt_observacao String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@map("tb_projetos_atividade_custo_plan")
+}
+
+model AtividadeCustosRealizado {
+  id             Int       @id @default(autoincrement())
+  id_atividade   Int
+  id_fornecedor  Int?
+  dat_lcto       DateTime  @db.Timestamp(6)
+  vlr_realizado  Decimal   @db.Decimal
+  txt_observacao String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+  num_pedido     Int?
+
+  @@map("tb_projetos_atividade_custo_real")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_atv_area {
+  id              Int    @default(autoincrement())
+  id_atividade    Int
+  id_area         Int
+  nom_responsavel String @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_atv_precedente {
+  id                Int @default(autoincrement())
+  id_atividade      Int
+  id_projeto        Int
+  id_atv_precedente Int
+
+  @@ignore
+}
+
+model tb_projetos_ranking {
+  id             Int       @default(autoincrement())
+  id_projeto     Int
+  id_ranking     Int
+  id_opcao       Int
+  dsc_comentario String?   @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@unique([id_projeto, id_ranking], map: "tb_projetos_ranking_un")
+}
+
+model tb_ranking {
+  id                  Int       @default(autoincrement())
+  id_area_responsavel Int
+  nom_ranking         String    @unique(map: "tb_ranking_un") @db.VarChar
+  num_peso            Decimal?  @db.Decimal
+  nom_usu_create      String?   @db.VarChar
+  dat_usu_create      DateTime? @db.Timestamp(6)
+  nom_usu_edit        String?   @db.VarChar
+  dat_usu_edit        DateTime? @db.Timestamp(6)
+  nom_usu_erase       String?   @db.VarChar
+  dat_usu_erase       DateTime? @db.Timestamp(6)
+}
+
+model tb_ranking_opcoes {
+  id             Int       @default(autoincrement())
+  id_ranking     Int
+  num_opcao      Int
+  nom_opcao      String    @db.VarChar
+  num_nota       Decimal   @db.Decimal
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@unique([id_ranking, nom_opcao], map: "tb_ranking_opcoes_un")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_sondas {
+  id             Int       @default(autoincrement())
+  nom_sonda      String    @db.VarChar
+  nom_usu_create String?   @db.VarChar
+  dat_usu_create DateTime? @db.Timestamp(6)
+  nom_usu_edit   String?   @db.VarChar
+  dat_usu_edit   DateTime? @db.Timestamp(6)
+  nom_usu_erase  String?   @db.VarChar
+  dat_usu_erase  DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_usuarios_area {
+  id_usuario Int
+  id_area    Int
+
+  @@ignore
+}
+
+model AtividadeServico {
+  id           Int       @id @default(autoincrement())
+  atividade_id Int
+  nome         String    @db.VarChar(90)
+  data_hora    DateTime? @db.Timestamp(6)
+  anotacoes    String?   @db.VarChar(900)
+
+  @@map("tb_atividade_servicos")
+}
+
+model AtividadeFerramenta {
+  id           Int       @id @default(autoincrement())
+  atividade_id Int
+  nome         String    @db.VarChar(90)
+  data_hora    DateTime? @db.Timestamp(6)
+  anotacoes    String?   @db.VarChar(900)
+
+  @@map("tb_atividade_ferramentas")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_camp_projetos_atv_precedentes {
+  id_camp_projetos_atv Int?
+  id_precedente        Int?
+  id_camp_projeto_tipo Int?
+
+  @@unique([id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo], map: "tb_camp_projetos_atv_precedentes_un")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_operacao {
+  id                     Int       @default(autoincrement())
+  id_origem              String?   @unique @db.VarChar
+  nom_operacao           String?   @unique @db.VarChar
+  responsavel_id         Int?
+  area_id                Int?
+  nao_iniciar_antes_de   DateTime? @db.Timestamp(6)
+  nao_terminar_depois_de DateTime? @db.Timestamp(6)
+  o_mais_breve_possivel  Boolean?
+  nom_usu_create         String?   @db.VarChar
+  dat_usu_create         DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_projetos_poco {
+  id   Int     @default(autoincrement())
+  poco String? @unique @db.VarChar
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tb_tarefas {
+  id                    Int       @default(autoincrement())
+  nome_tarefa           String?   @unique @db.VarChar
+  data_tarefa           DateTime? @db.Timestamp(6)
+  atividade_relacionada Int
+  descricao_tarefa      String?   @db.VarChar
+  status                Decimal?  @db.Decimal
+  nom_usu_create        String?   @db.VarChar
+  dat_usu_create        DateTime? @db.Timestamp(6)
+  nom_usu_edit          String?   @db.VarChar
+  dat_usu_edit          DateTime? @db.Timestamp(6)
+  nom_usu_erase         String?   @db.VarChar
+  dat_usu_erase         DateTime? @db.Timestamp(6)
+
+  @@ignore
 }
 
 enum atividade {
