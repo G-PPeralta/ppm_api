@@ -636,6 +636,11 @@ export class CampanhaService {
       dat_ini_real = ${
         payload.inicioReal === null
           ? null
+          : "'" + new Date(payload.inicioReal).toISOString() + "'"
+      },
+      dat_fim_real = ${
+        payload.fimReal === null
+          ? null
           : "'" + new Date(payload.fimReal).toISOString() + "'"
       }
       WHERE
