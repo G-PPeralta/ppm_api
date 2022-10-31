@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -624,6 +624,7 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
+    Logger.log(new Date(payload.fimReal).toISOString());
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
@@ -635,6 +636,11 @@ export class CampanhaService {
       dat_fim_plan = '${new Date(payload.fimPlanejado).toISOString()}',
       dat_ini_real = ${
         payload.inicioReal === null
+          ? null
+          : "'" + new Date(payload.inicioReal).toISOString() + "'"
+      },
+      dat_fim_real = ${
+        payload.fimReal === null
           ? null
           : "'" + new Date(payload.fimReal).toISOString() + "'"
       }
