@@ -7,20 +7,28 @@ export class OcorrenciasService {
   constructor(private prisma: PrismaService) {}
 
   async create(payload: CreateOcorrenciaDto, id_atv: number) {
+    const projeto = await this.prisma.$queryRawUnsafe(`
+      select id_projeto from tb_projetos_atividade where id = ${payload.id_sonda}
+    `);
+
+    const ocorrencia = await this.prisma.$queryRawUnsafe(`
+      select id from tb_ocorrencias
+      where dsc_ocorrencia = '${payload.ocorrencia}'
+    `);
+
     await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_ocorrencias
         (id_atv, dsc_ocorrencia, observacoes, num_hrs_impacto, nom_usu_create,
-            dat_usu_create)
+            dat_usu_create, id_sonda, id_poco, id_projeto, id_ocorrencia)
         VALUES
-        (${id_atv}, '${payload.ocorrencia}', '${payload.observacoes}', ${payload.impacto}, '${payload.user}', now())
+        (${id_atv}, '${payload.ocorrencia}', '', ${payload.impacto}, '${payload.user}', now(), ${payload.id_sonda}, ${payload.id_poco}, ${projeto[0].id_projeto}, ${ocorrencia[0].id})
         ON CONFLICT (id_atv, dsc_ocorrencia) DO
         UPDATE
         SET
-        observacoes = '${payload.observacoes}',
         num_hrs_impacto = ${payload.impacto}
         WHERE
-        id_atv = ${id_atv} AND
-        dsc_ocorrencia = '${payload.ocorrencia}'
+        tb_projetos_ocorrencias.id_atv = ${id_atv} AND
+        tb_projetos_ocorrencias.dsc_ocorrencia = '${payload.ocorrencia}'
     `);
   }
 

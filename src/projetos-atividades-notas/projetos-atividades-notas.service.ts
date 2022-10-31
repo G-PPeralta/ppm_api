@@ -39,7 +39,7 @@ export class ProjetosAtividadesNotasService {
 
   async findMocs(id_atividade: number) {
     return await this.prisma.$queryRawUnsafe(`
-      select txt_nota as numero_moc from tb_projetos_atv_notas where id_atividade = ${id_atividade} and ind_tipo_anotacao = 2
+      select txt_nota as numero_moc, url_anexo as anexo from tb_projetos_atv_notas where id_atividade = ${id_atividade} and ind_tipo_anotacao = 2
     `);
   }
 

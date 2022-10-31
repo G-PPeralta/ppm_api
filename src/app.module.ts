@@ -67,6 +67,7 @@ import { FiltrosModule } from './filtros/filtros.module';
 import { EditarAtividadeModule } from './editar-atividade/editar-atividade.module';
 import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
 import { GraficosModule } from './graficos/graficos.module';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -136,6 +137,7 @@ import { GraficosModule } from './graficos/graficos.module';
     EditarAtividadeModule,
     HistoricoEstatisticoModule,
     GraficosModule,
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],
