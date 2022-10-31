@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -624,7 +624,6 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
-    Logger.log(new Date(payload.fimReal).toISOString());
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
