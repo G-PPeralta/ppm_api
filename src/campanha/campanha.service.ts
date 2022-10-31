@@ -496,6 +496,8 @@ export class CampanhaService {
     filho.tarefa_id as id_atividade,
     filho.dat_ini_plan as inicioplanejado,
     filho.dat_fim_plan as finalplanejado,
+    filho.dat_ini_real as inicioreal,
+    filho.dat_fim_real as fimreal,
     coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
     coalesce(filho.nom_atividade, tarefa.nom_atividade) as atividade,
     responsaveis.nome_responsavel as nom_responsavel,
