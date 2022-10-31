@@ -46,21 +46,27 @@ export class EditarAtividadeService {
         (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
         VALUES
         (${atividade.geral.id_atividade}, '${atividade.anotacoes.anotacoes}', '${atividade.nom_usu_create}', now(), 1)
-        ON CONFLICT (txt_nota, ind_tipo_anotacao) DO
+        ON CONFLICT (id_atividade, ind_tipo_anotacao, txt_nota) DO
         UPDATE
         SET
         txt_nota = '${atividade.anotacoes.anotacoes}'
         WHERE
-        id_atividade = ${atividade.geral.id_atividade}
+        tb_projetos_atv_notas.id_atividade = ${atividade.geral.id_atividade}
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+        DELETE FROM tb_projetos_atv_notas
+        WHERE id_atividade = ${atividade.geral.id_atividade}
+        AND ind_tipo_anotacao = 2
     `);
 
     //criação ou atualização dos mocs
     atividade.mocs.forEach(async (moc) => {
       await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atv_notas
-        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
+        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao, url_anexo)
         VALUES
-        (${atividade.geral.id_atividade}, '${moc.numero_moc}', '${atividade.nom_usu_create}', now(), 2)
+        (${atividade.geral.id_atividade}, '${moc.numero_moc}', '${atividade.nom_usu_create}', now(), 2, '${moc.anexo}')
         `);
     });
   }

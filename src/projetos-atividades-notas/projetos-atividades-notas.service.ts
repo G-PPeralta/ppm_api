@@ -33,13 +33,19 @@ export class ProjetosAtividadesNotasService {
 
   async findAll(id_atividade: number) {
     return await this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_notas where id_atividade = ${id_atividade}
+      select * from tb_projetos_atv_notas where id_atividade = ${id_atividade} and ind_tipo_anotacao = 1
+    `);
+  }
+
+  async findMocs(id_atividade: number) {
+    return await this.prisma.$queryRawUnsafe(`
+      select txt_nota as numero_moc, url_anexo as anexo from tb_projetos_atv_notas where id_atividade = ${id_atividade} and ind_tipo_anotacao = 2
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_notas where id = ${id}
+      select * from tb_projetos_atv_notas where id = ${id} and ind_tipo_anotacao = 1
     `);
   }
 

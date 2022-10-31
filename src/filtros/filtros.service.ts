@@ -22,8 +22,38 @@ export class FiltrosService {
     `);
   }
 
+  async findSondas() {
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT atv.id, atv.nom_atividade 
+    FROM tb_projetos_atividade atv
+    inner join tb_hist_estatistica est
+    on est.id_sonda = atv.id
+    WHERE atv.id_pai = 0
+    group by atv.id, atv.nom_atividade
+    `);
+  }
+
+  async findPocos() {
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT atv.id, atv.nom_atividade 
+    FROM tb_projetos_atividade atv
+    inner join tb_hist_estatistica est
+    on est.id_poco = atv.id
+    group by atv.id, atv.nom_atividade
+    `);
+  }
+
+  async findMetodos() {
+    return await this.prisma.$queryRawUnsafe(`
+    select met.id, met.metodo from tb_hist_estatistica est
+    inner join tb_metodo_elevacao met
+    on met.id = est.id_metodo_elevacao
+    group by met.id, met.metodo
+    `);
+  }
+
   async findMedia(filtro: FiltroDto) {
-    return this.prisma.$queryRawUnsafe(`
+    const query = `
     select 
     id_operacao,
     round(avg(hrs_totais),0) as hrs_media
@@ -41,17 +71,28 @@ export class FiltrosService {
             : ``
         }
         ${filtro.sondaId > 0 ? ` AND id_sonda = ${filtro.sondaId} ` : ``}
-        ${
-          filtro.dataDe.length > 0
-            ? ` AND dat_conclusao >= ${filtro.dataDe} `
-            : ``
-        }
-        ${
-          filtro.dataDe.length > 0
-            ? ` AND dat_conclusao <= ${filtro.dataDe} `
-            : ``
-        }
+        ${filtro.dataDe ? ` AND dat_conclusao >= '${filtro.dataDe}' ` : ``}
+        ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
         group by id_operacao
-    `);
+    `;
+    const resp: any[] = await this.prisma.$queryRawUnsafe(query);
+
+    return resp.map((r) => {
+      return {
+        id_operacao: r.id_operacao,
+        hrs_media: Number(r.hrs_media),
+      };
+    });
+  }
+
+  async MediaHoraById(id: string) {
+    const query = `
+    select 
+    coalesce(round(avg(hrs_totais),0), 0) as hrs_media
+    from tb_hist_estatistica
+    where id_operacao = ${id}
+    `;
+    const resp = await this.prisma.$queryRawUnsafe(query);
+    return resp[0];
   }
 }

@@ -5,7 +5,19 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class GraficosService {
   constructor(private prisma: PrismaService) {}
-  async getRelatorioHistorico(params) {
+
+  getHistoricoTotal() {
+    const query = Prisma.sql`select 
+        round(avg(hrs_totais),0) as hrs_media,
+        round(min(hrs_totais),0) hrs_min,
+        round(max(hrs_totais),0) hrs_max,
+        0 as hrs_dp,
+        0 as tend_duracao
+    from tb_hist_estatistica a`;
+    return this.prisma.$queryRaw(query);
+  }
+
+  async getRelatorioHistoricoPorPoco(params) {
     let where = '';
     const { de, a, sonda } = params;
     if (de && a) {

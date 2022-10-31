@@ -22,6 +22,11 @@ export class ProjetosAtividadesNotasController {
     return this.projetosAtividadesNotasService.findAll(+id);
   }
 
+  @Get('moc/:id')
+  findMocs(@Param('id') id: string) {
+    return this.projetosAtividadesNotasService.findMocs(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.projetosAtividadesNotasService.findOne(+id);

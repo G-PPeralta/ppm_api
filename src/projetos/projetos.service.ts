@@ -413,23 +413,21 @@ export class ProjetosService {
     )}.${capexValor.substring(capexValor.length - 2)}`;
 
     return await this.prismaClient.$queryRawUnsafe(`
-      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
+      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa
-    }', ${Number(formatado)}, '${new Date(
-      createProjetoDto.dataInicio,
-    ).toISOString()}', ${createProjetoDto.poloId}, ${
+    }', ${Number(formatado)}, ${createProjetoDto.poloId}, ${
       createProjetoDto.localId
     }, ${createProjetoDto.solicitanteId}, ${
       createProjetoDto.classificacaoId
     }, ${createProjetoDto.divisaoId}, ${createProjetoDto.gateId}, ${
       createProjetoDto.tipoProjetoId
-    }, ${createProjetoDto.statusId}, 1, ${createProjetoDto.complexidadeId}, '${
-      createProjetoDto.comentarios
-    }', ${createProjetoDto.responsavelId}, ${
-      createProjetoDto.coordenadorId
-    }, '${createProjetoDto.elementoPep}', '${createProjetoDto.nom_usu_create}')
+    }, ${createProjetoDto.statusId}, 1, '${createProjetoDto.comentarios}', ${
+      createProjetoDto.responsavelId
+    }, ${createProjetoDto.coordenadorId}, '${createProjetoDto.elementoPep}', '${
+      createProjetoDto.nom_usu_create
+    }')
     `);
   }
 
@@ -577,17 +575,19 @@ and a.id = ${id};
       CALL sp_in_graf_curva_s(${id})
     `);
     const query: any[] = await this.prismaClient.$queryRawUnsafe(`
-        select 
+    select 
           concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
           case when a.mesano is null then b.mesano else a.mesano end as mesano,
-          case when a.pct_plan is null then 0 else a.pct_plan end as pct_plan,
-          case when a.pct_real is null then 0 else a.pct_real end as pct_real,
-          case when a.pct_capex_plan is null then 0 else a.pct_capex_plan end as capex_previsto,
-          case when a.pct_capex_real is null then 0 else a.pct_capex_real end as capex_realizado
+          case when max(a.pct_plan) is null then 0 else max(a.pct_plan) end as pct_plan,
+          case when max(a.pct_real) is null then 0 else max(a.pct_real) end as pct_real,
+          case when max(a.pct_capex_plan) is null then 0 else max(a.pct_capex_plan) end as capex_previsto,
+          case when max(a.pct_capex_real) is null then 0 else max(a.pct_capex_real) end as capex_realizado
         from tb_projeto_curva_s a
         right join tb_mesano b 
           on a.mesano = b.mesano
-        where a.id_projeto = ${id} or a.hrs_totais is null;
+        where a.id_projeto = ${id} or a.hrs_totais is null
+        group by 1, 2
+        order by mesano
     ;`);
 
     return query.map((el) => {
@@ -689,6 +689,7 @@ and a.id = ${id};
     SET
     descricao='${updateProjetoDto.descricao}',
     justificativa='${updateProjetoDto.justificativa}'
+    where id=${id}
     `);
   }
 

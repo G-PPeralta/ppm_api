@@ -4,11 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { Encrypt64 } from '../utils/security/encrypt.security';
 import { UserMapper } from '../utils/mapper/userMapper';
+import { privateKey } from '../config/private.key';
+import { publicKey } from '../config/public.key';
 
 import * as jwt from 'jsonwebtoken';
-import { join } from 'path';
-
-import * as fs from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -59,32 +58,14 @@ export class AuthService {
   }
 
   public verifyToken(token: string): any {
-    const decoded = jwt.verify(token, this.getPublicKey(), {
+    const decoded = jwt.verify(token, publicKey, {
       ignoreExpiration: true,
     });
 
     return decoded;
   }
 
-  getPrivateKey() {
-    const caminho = join(process.cwd(), 'src', 'config', 'private.key');
-
-    const privateKey = fs.readFileSync(caminho, 'utf8');
-
-    return privateKey;
-  }
-
-  getPublicKey() {
-    const caminho = join(process.cwd(), 'src', 'config', 'public.key');
-
-    const publicKey = fs.readFileSync(caminho, 'utf8');
-
-    return publicKey;
-  }
-
   createRefreshToken(userId: number) {
-    const privateKey = this.getPrivateKey();
-
     const token = jwt.sign({ userId }, privateKey, {
       expiresIn: '2h',
       algorithm: 'RS256',
@@ -95,7 +76,7 @@ export class AuthService {
 
   async validateLocalRefreshToken(refreshToken: string) {
     try {
-      const result: any = jwt.verify(refreshToken, this.getPublicKey());
+      const result: any = jwt.verify(refreshToken, publicKey);
 
       if (!result || !result.userId) throw new Error('Token inválido [00]');
 

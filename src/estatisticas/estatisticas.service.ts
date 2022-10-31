@@ -43,7 +43,7 @@ export class EstatisticasService {
         tb_projetos_atividade sonda
         inner join tb_projetos_atividade pocos
         on pocos.id_pai = sonda.id
-        inner join tb_projetos_atividade atividades
+        left join tb_projetos_atividade atividades
         on (atividades.id_pai = pocos.id)
         left join tb_projetos_operacao tarefas
         on (tarefas.id = atividades.id_operacao)
