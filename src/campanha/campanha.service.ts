@@ -503,7 +503,7 @@ export class CampanhaService {
     responsaveis.nome_responsavel as nom_responsavel,
     area_atuacao.tipo as nom_area,
     campanha.nom_campanha as sonda,
-    campanha.dsc_comentario as comentarios,
+    filho.dsc_comentario as comentario,
     floor(fn_atv_calc_pct_plan(
       fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
       fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
@@ -646,7 +646,7 @@ export class CampanhaService {
           ? null
           : "'" + new Date(payload.fimReal).toISOString() + "'"
       },
-      dsc_comentario: '${payload.comentario}'
+      dsc_comentario = '${payload.comentario}'
       WHERE
       id = ${payload.atividadeId}
     `);
