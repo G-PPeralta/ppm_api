@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CampanhaService } from 'campanha/campanha.service';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { addWorkDays } from 'utils/days/daysUtil';
@@ -13,7 +13,7 @@ export class NovaAtividadeService {
 
   async create(createAtividade: CreateAtividade) {
     return await this.prisma
-      .$queryRawUnsafe(`INSERT INTO tb_camp_atv (id_origem, nom_atividade, responsavel_id, area_atuacao, nao_iniciar_antes_de, nao_terminar_depois_de, o_mais_breve_possivel)
+      .$queryRawUnsafe(`INSERT INTO tb_camp_atv (id_origem, nom_atividade, responsavel_id, area_atuacao, nao_iniciar_antes_de, nao_terminar_depois_de, o_mais_breve_possivel, dsc_comentario)
     VALUES ('${createAtividade.id_origem}', '${
       createAtividade.nom_atividade
     }', ${createAtividade.responsavel_id}, ${createAtividade.area_atuacao}, ${
@@ -28,7 +28,7 @@ export class NovaAtividadeService {
         : "'" +
           new Date(createAtividade.nao_terminar_depois_de.data).toISOString() +
           "'"
-    }, ${createAtividade.o_mais_breve_possivel})
+    }, ${createAtividade.o_mais_breve_possivel}, null)
     returning ID
 `);
   }
