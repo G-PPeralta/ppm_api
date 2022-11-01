@@ -9,4 +9,5 @@ export class UpdateCampanhaDto {
   fimPlanejado: Date;
   inicioReal: Date;
   fimReal: Date;
+  comentarios: string;
 }
