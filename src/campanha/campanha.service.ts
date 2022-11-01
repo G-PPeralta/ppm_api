@@ -645,7 +645,8 @@ export class CampanhaService {
         payload.fimReal === null
           ? null
           : "'" + new Date(payload.fimReal).toISOString() + "'"
-      }
+      },
+      dsc_comentario: '${payload.comentario}'
       WHERE
       id = ${payload.atividadeId}
     `);
