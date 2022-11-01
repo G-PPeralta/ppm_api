@@ -83,7 +83,21 @@ export class BudgetsService {
       select 
       poco.id as id_filho, 
       poco.nom_atividade as nome_poco,
-      coalesce(sum(planejado.vlr_planejado), 0) as vlr_planejado,
+      (
+         select 
+         sum(planejado.vlr_planejado) as total_planejado  
+         from tb_projetos_atividade_custo_plan planejado
+         inner join tb_projetos_atividade atividade on atividade.id = planejado.id_atividade
+         where atividade.id in (
+             select atividades.id from
+             tb_projetos_atividade sonda
+             inner join tb_projetos_atividade pocoInner
+             on pocoInner.id_pai = sonda.id
+             left join tb_projetos_atividade atividades
+             on atividades.id_pai = poco.id
+             where sonda.id_pai = 0 and sonda.id = ${pai.id_pai} and pocoInner.id = poco.id
+         )
+      ) as vlr_planejado,
       sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
       coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
@@ -101,7 +115,7 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       sonda.id = ${pai.id_pai} and sonda.id_pai = 0
-      group by poco.id,  poco.nom_atividade      
+      group by poco.id,  poco.nom_atividade    
         `);
       return {
         id: pai.id_pai,
