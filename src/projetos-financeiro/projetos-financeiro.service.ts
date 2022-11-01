@@ -16,7 +16,7 @@ export class ProjetosFinanceiroService {
     coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
     coalesce(sum(centro_custo.valor), 0) as totalRealizado,
     ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) as gap,
-    coalesce(to_char(centro_custo.data, 'MM'), '') as mes
+    coalesce(to_char(centro_custo.data, 'MM/yyyy'), '') as mes
     from tb_projetos projetos
     left join
     tb_centro_custo centro_custo
@@ -24,7 +24,7 @@ export class ProjetosFinanceiroService {
     where
     projetos.tipo_projeto_id in (1, 2)
     group by 
-    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto, coalesce(to_char(centro_custo.data, 'MM'), '')
+    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto, coalesce(to_char(centro_custo.data, 'MM/yyyy'), '')
     `);
   }
 
