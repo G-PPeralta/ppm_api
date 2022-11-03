@@ -194,6 +194,7 @@ export class ProjetosService {
       on a.id = b.id_projeto
       where 
               (a.nome_projeto like('%${nomProjeto}%') or '${nomProjeto}' is null or '${nomProjeto}' = '')
+        and a.deletado = false
         and   a.tipo_projeto_id in (1,2)
       order by vlr_ranking desc  
     `;
@@ -396,6 +397,7 @@ export class ProjetosService {
       on a.id = b.id_projeto
       where 
       a.tipo_projeto_id in (1,2)
+      AND a.deletado = false
       order by vlr_ranking desc  
     `;
 
@@ -693,8 +695,11 @@ and a.id = ${id};
     `);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} projeto`;
+  async remove(id: number) {
+    return await this.prismaClient.$queryRawUnsafe(`UPDATE tb_projetos
+    SET DELETADO = TRUE,
+    dat_usu_update = NOW()
+    WHERE ID = ${id}`);
   }
 
   async countAll() {
