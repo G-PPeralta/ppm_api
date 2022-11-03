@@ -10,4 +10,10 @@ export class UpdateCampanhaDto {
   inicioReal: Date;
   fimReal: Date;
   comentario: string;
+  precedentes: [
+    {
+      id: number;
+      dias: number;
+    },
+  ];
 }

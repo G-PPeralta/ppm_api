@@ -202,7 +202,9 @@ export class DetalhamentoService {
       `;
 
     if (query.length <= 0) {
-      return { cpi: 1, spi: 1 };
+      const ret: any = [];
+      ret.push({ cpi: 1, spi: 1 });
+      return ret;
     }
 
     return query.map((calc) => ({

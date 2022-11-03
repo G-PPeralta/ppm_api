@@ -573,10 +573,12 @@ and a.id = ${id};
   }
 
   async previstoXRealizadoGeralPorProjeto(id: number) {
-    await this.prismaClient.$queryRawUnsafe(`
-      CALL sp_in_graf_curva_s(${id})
-    `);
-    const query: any[] = await this.prismaClient.$queryRawUnsafe(`
+    try {
+      await this.prismaClient.$queryRawUnsafe(`
+        CALL sp_in_graf_curva_s(${id})
+      `);
+    } finally {
+      const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select 
           concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
           case when a.mesano is null then b.mesano else a.mesano end as mesano,
@@ -592,15 +594,16 @@ and a.id = ${id};
         order by mesano
     ;`);
 
-    return query.map((el) => {
-      return {
-        mes: el.mes,
-        cronogramaPrevisto: Number(el.pct_plan),
-        cronogramaRealizado: Number(el.pct_real),
-        capexPrevisto: Number(el.capex_previsto),
-        capexRealizado: Number(el.capex_realizado),
-      };
-    });
+      return query.map((el) => {
+        return {
+          mes: el.mes,
+          cronogramaPrevisto: Number(el.pct_plan),
+          cronogramaRealizado: Number(el.pct_real),
+          capexPrevisto: Number(el.capex_previsto),
+          capexRealizado: Number(el.capex_realizado),
+        };
+      });
+    }
   }
 
   async findTotalValue(id: number) {

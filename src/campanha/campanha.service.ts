@@ -627,6 +627,18 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
+    await this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_camp_atv_campanha
+      WHERE id_pai = ${payload.atividadeId}
+    `);
+
+    payload.precedentes.forEach(async (p) => {
+      await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
+        VALUES (${payload.atividadeId}, ${p.id})
+      `);
+    });
+
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
