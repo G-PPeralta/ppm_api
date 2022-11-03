@@ -799,6 +799,14 @@ and a.id = ${id};
         RETURNING ID
       `);
 
+      vincularAtividade.precedentes.forEach(async (p) => {
+        await this.prismaClient.$queryRawUnsafe(`
+          insert into tb_projetos_atividade_precedentes (id_atv, id_prec, dias)
+          values
+          (${id_atv[0].id}, ${p.atividadesPrecedenteId}, ${p.dias})
+        `);
+      });
+
       await this.prismaClient.$executeRawUnsafe(`
       call dev.sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});
       `);

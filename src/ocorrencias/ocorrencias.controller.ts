@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
 import { OcorrenciasService } from './ocorrencias.service';
 
