@@ -587,7 +587,7 @@ and a.id = ${id};
         from tb_projeto_curva_s a
         right join tb_mesano b 
           on a.mesano = b.mesano
-        where a.id_projeto = ${id} or a.hrs_totais is null
+        where a.id_projeto = ${id} --or a.hrs_totais is null
         group by 1, 2
         order by mesano
     ;`);
