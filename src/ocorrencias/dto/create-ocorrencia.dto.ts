@@ -5,4 +5,5 @@ export class CreateOcorrenciaDto {
   observacoes: string;
   id_poco: number;
   id_sonda: number;
+  anexo: string;
 }
