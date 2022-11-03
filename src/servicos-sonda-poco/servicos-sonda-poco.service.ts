@@ -15,11 +15,17 @@ export class ServicosSondaPocoService {
           where 
           b.id_pai = 0
           and a.tipo_projeto_id = 3
+          and nome_projeto not in (
+          	select rtrim(ltrim(substring(nom_campanha, position('- ' in nom_campanha) + 1))) from tb_campanha
+          )
       union 
           select 0 as id, concat(0, ' - ', nom_sonda) as nom_sonda, 0 as ordem
           from tb_sondas
           where 
               nom_sonda not in (select nome_projeto from tb_projetos tp where tipo_projeto_id = 3)
+              and nom_sonda not in (
+          		select rtrim(ltrim(substring(nom_campanha, position('- ' in nom_campanha) + 1))) from tb_campanha
+              )
       ) as qr
   order by ordem desc;`);
   }
@@ -51,11 +57,13 @@ export class ServicosSondaPocoService {
           and id_operacao is null
           and id_pai <> 0
           and a.id not in (
-          	select tpa.id from tb_projetos_atividade tpa 
+          	select poco.id from tb_projetos_atividade sonda 
           	inner join tb_projetos p
-          	on p.id = tpa.id_projeto 
-          	where p.tipo_projeto_id = 3 and p.id = ${id_projeto}
-          	and tpa.id_pai <> 0
+          	on p.id = sonda.id_projeto 
+          	inner join tb_projetos_atividade poco
+          	on poco.id_pai = sonda.id
+          	where p.tipo_projeto_id = 3
+          	and poco.id_pai <> 0 and (sonda.id_pai is null or sonda.id_pai = 0)
           )
       union 
           select 0 as id, concat(0, ' - ', nom_poco) as nom_poco, 
@@ -68,6 +76,15 @@ export class ServicosSondaPocoService {
           from tb_pocos
           where 
               nom_poco not in (select nom_atividade from tb_projetos_atividade where pct_real < 100)
+              and nom_poco not in (
+              	select poco.nom_atividade  from tb_projetos_atividade sonda 
+	          	inner join tb_projetos p
+	          	on p.id = sonda.id_projeto 
+	          	inner join tb_projetos_atividade poco
+	          	on poco.id_pai = sonda.id
+	          	where p.tipo_projeto_id = 3
+	          	and poco.id_pai <> 0 and (sonda.id_pai is null or sonda.id_pai = 0)
+              )
       )as qr
       order by ordem desc, dat_ini_limite asc;
   
