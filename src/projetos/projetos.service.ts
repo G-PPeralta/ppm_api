@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
@@ -757,7 +757,7 @@ and a.id = ${id};
       }
       `);
 
-      await this.prismaClient.$queryRawUnsafe(`
+      const id_atv = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
         vincularAtividade.nom_atividade
@@ -765,7 +765,17 @@ and a.id = ${id};
         vincularAtividade.nom_usu_create
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id
-      })`);
+      })
+        RETURNING ID
+      `);
+
+      vincularAtividade.precedentes.forEach(async (p) => {
+        await this.prismaClient.$queryRawUnsafe(`
+          insert into tb_projetos_atividade_precedentes (id_atv, id_prec, dias)
+          values
+          (${id_atv[0].id}, ${p.atividadePrecedenteId}, ${p.dias})
+        `);
+      });
     } else {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (NOM_ATIVIDADE, PCT_REAL, ID_PROJETO, DAT_INI_PLAN, DAT_FIM_PLAN, NOM_USU_CREATE, DAT_USU_CREATE)
@@ -803,7 +813,7 @@ and a.id = ${id};
         await this.prismaClient.$queryRawUnsafe(`
           insert into tb_projetos_atividade_precedentes (id_atv, id_prec, dias)
           values
-          (${id_atv[0].id}, ${p.atividadesPrecedenteId}, ${p.dias})
+          (${id_atv[0].id}, ${p.atividadePrecedenteId}, ${p.dias})
         `);
       });
 

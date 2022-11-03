@@ -82,7 +82,7 @@ export class GanttService {
       case when count(p.id_prec) = 0 then null else
       string_agg(concat(p.id_prec::varchar, 'FS+', p.dias::varchar, 'dias'), ',') end as precedente
       from tb_projetos_atividade_precedentes p
-      where p.id_atv = ${id}
+      where p.id_atv = a.id
     ) as Predecessor,
     (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
@@ -131,8 +131,8 @@ export class GanttService {
           case when count(p.id_prec) = 0 then null else
           string_agg(concat(p.id_prec::varchar, 'FS+', p.dias::varchar, 'dias'), ',') end as precedente
           from tb_projetos_atividade_precedentes p
-          where p.id_atv = ${element.TaskID}
-        ) as Predecessor as Predecessor,
+          where p.id_atv = a.id
+        ) as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
         where (id_pai = ${element.TaskID})
