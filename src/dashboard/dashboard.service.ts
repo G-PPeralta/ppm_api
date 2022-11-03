@@ -225,7 +225,7 @@ GROUP BY 1, 2;
               on a.id_atividade = b.id
           inner join dev.tb_projetos c
               on b.id_projeto = c.id
-          --where c.tipo_projeto_id in (1,2)
+          where c.tipo_projeto_id in (1,2)
           union
           select 
               case when sum(vlr_realizado) is null 
@@ -237,7 +237,7 @@ GROUP BY 1, 2;
               on a.id_atividade = b.id
           inner join dev.tb_projetos c
               on b.id_projeto = c.id
-          --where c.tipo_projeto_id in (1,2)
+          where c.tipo_projeto_id in (1,2)
       ) as qr;`;
 
     return retornoQuery.map((tot) => ({

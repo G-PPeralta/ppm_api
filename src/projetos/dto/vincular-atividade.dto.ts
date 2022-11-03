@@ -19,7 +19,7 @@ export class VincularAtividade {
   o_mais_breve_possivel: false;
   precedentes: [
     {
-      atividadesPrecedenteId: number;
+      atividadePrecedenteId: number;
       dias: number;
     },
   ];
