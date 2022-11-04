@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { FornecedoresService } from './fornecedores.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
-import { UpdateFornecedoreDto } from './dto/update-fornecedore.dto';
+import { UpdateFornecedorDto } from './dto/update-fornecedore.dto';
 
 @Controller('fornecedores')
 export class FornecedoresController {
@@ -31,7 +31,7 @@ export class FornecedoresController {
   }
 
   @Patch()
-  update(@Body() updateFornecedoreDto: UpdateFornecedoreDto) {
+  update(@Body() updateFornecedoreDto: UpdateFornecedorDto) {
     return this.fornecedoresService.update(updateFornecedoreDto);
   }
 
