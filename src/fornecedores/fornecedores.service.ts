@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
-import { UpdateFornecedoreDto } from './dto/update-fornecedore.dto';
+import { UpdateFornecedorDto } from './dto/update-fornecedore.dto';
 
 @Injectable()
 export class FornecedoresService {
@@ -31,16 +31,38 @@ export class FornecedoresService {
     `);
   }
 
-  async update(updateFornecedoreDto: UpdateFornecedoreDto) {
+  // async update(updateFornecedoreDto: UpdateFornecedoreDto) {
+  //   return await this.prisma.$queryRawUnsafe(`
+  //     UPDATE
+  //     tb_fornecedores
+  //     SET
+  //     poloid = ${updateFornecedoreDto.poloId},
+  //     servicoId = ${updateFornecedoreDto.servicoId},
+  //     nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
+  //     representante = '${updateFornecedoreDto.representante}',
+  //     justificativa = '${updateFornecedoreDto.justificativa}'
+  //     WHERE
+  //     id = ${updateFornecedoreDto.id}
+  //   `);
+  // }
+
+  async update(updateFornecedoreDto: UpdateFornecedorDto) {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE
       tb_fornecedores
       SET
       poloid = ${updateFornecedoreDto.poloId},
       servicoId = ${updateFornecedoreDto.servicoId},
+      status = '${updateFornecedoreDto.status}',
       nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
+      numerocontrato = '${updateFornecedoreDto.numerocontrato},
       representante = '${updateFornecedoreDto.representante}',
-      justificativa = '${updateFornecedoreDto.justificativa}'
+      email = '${updateFornecedoreDto.email}',
+      invoice ='${updateFornecedoreDto.invoice}',
+      cnpj = '${updateFornecedoreDto.cnpj}',
+      telefone = '${updateFornecedoreDto.telefone}',
+      outrasinformacoes = '${updateFornecedoreDto.outrasInformacoes}',
+      nom_usu_create = '${updateFornecedoreDto.nom_usu_create}'
       WHERE
       id = ${updateFornecedoreDto.id}
     `);
