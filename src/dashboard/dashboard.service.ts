@@ -73,8 +73,11 @@ export class DashboardService {
     on projetos.status_id = status.id
     where
     projetos.tipo_projeto_id <> 3
+    and projetos.data_inicio is not null
     group by
     concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY'))
+    order by
+    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) desc
     `);
   }
 
