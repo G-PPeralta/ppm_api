@@ -194,17 +194,10 @@ GROUP BY 1, 2;
 
   async getTotalRealizado() {
     const retornoQuery: TotalRealizadoDto[] = await this.prisma
-      .$queryRaw`select 
-      case when max(vlr_realizado) is null 
-          then 0 
-          else max(vlr_realizado)
-      end as vlr_realizado
-  from dev.tb_projetos_atividade_custo_real a
-  inner join dev.tb_projetos_atividade b
-      on a.id_atividade = b.id
-  inner join dev.tb_projetos c
-      on b.id_projeto = c.id
-  where c.tipo_projeto_id in (1,2);`;
+      .$queryRaw`     select sum(valor) as vlr_realizado from tb_centro_custo centro_custo
+      inner join tb_projetos projetos
+      on projetos.id = centro_custo.projeto_id
+    where projetos.tipo_projeto_id in (1, 2);`;
 
     return retornoQuery.map((tot) => ({
       totalRealizado: Number(tot.vlr_realizado),
