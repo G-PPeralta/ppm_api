@@ -1,10 +1,12 @@
 export interface BudgetReal {
-  atividadeId: number;
+  id?: number;
+  atividadeId?: number;
   valor: number;
   data: string;
-  fornecedor: number;
+  fornecedor: string;
   classeServico: string;
   pedido: number;
   textPedido: string;
-  nom_usu_create: string;
+  nom_usu_create?: string;
+  nom_usu_edit?: string;
 }
