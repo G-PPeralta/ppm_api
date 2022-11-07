@@ -439,8 +439,14 @@ export class BudgetsService {
         },
       },
     });*/
+
     let data: CustoDiarioORMDto[] = [];
-    if (_custoDiario.startDate != null && _custoDiario.endDate != null) {
+    if (
+      _custoDiario.startDate !== null &&
+      _custoDiario.endDate !== null &&
+      _custoDiario.startDate !== '' &&
+      _custoDiario.endDate !== ''
+    ) {
       data = await this.prisma.$queryRawUnsafe(`
       select
       realizado .id as id,
@@ -493,7 +499,13 @@ export class BudgetsService {
 
   async custosDiariosPaiList(id: string, _custoDiario: CustoDiarioDto) {
     let data: CustoDiarioORMDto[] = [];
-    if (_custoDiario.startDate != null && _custoDiario.endDate != null) {
+
+    if (
+      _custoDiario.startDate !== null &&
+      _custoDiario.endDate !== null &&
+      _custoDiario.startDate !== '' &&
+      _custoDiario.endDate !== ''
+    ) {
       data = await this.prisma.$queryRawUnsafe(`
         select
         realizado .id as id,
