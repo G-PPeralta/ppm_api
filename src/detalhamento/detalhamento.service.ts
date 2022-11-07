@@ -121,7 +121,7 @@ export class DetalhamentoService {
       select
         case when vlr_remanescente / vlr_planejado * 100 < 0 then 0 else round(vlr_remanescente / vlr_planejado * 100, 1) end as pct_remanescente,
         case when vlr_realizado / vlr_planejado > 1 then 100 else round((vlr_realizado / vlr_planejado * 100), 1) end as pct_realizado,
-        round((vlr_realizado / (vlr_realizado - vlr_planejado)-1) * 100, 1) as pct_nao_previsto,
+        case when vlr_realizado < 0.1 then 0 when vlr_planejado < 0.1 then 0 else round((vlr_realizado / (vlr_realizado - vlr_planejado)-1) * 100, 1) end as pct_nao_previsto,
         vlr_planejado,
         vlr_realizado,
         round(vlr_realizado - vlr_planejado, 2) as vlr_nao_prev,
