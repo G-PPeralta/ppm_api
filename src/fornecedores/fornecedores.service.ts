@@ -51,17 +51,17 @@ export class FornecedoresService {
       UPDATE
       tb_fornecedores
       SET
-      poloid = ${updateFornecedoreDto.poloId},
-      servico_txt = ${updateFornecedoreDto.servicoTxt},
-      status = '${updateFornecedoreDto.status}',
-      nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
-      numerocontrato = '${updateFornecedoreDto.numerocontrato},
+      poloid = ${updateFornecedoreDto.poloid},
+      servico_txt = '${updateFornecedoreDto.servico_txt}',
+      statusid = ${updateFornecedoreDto.statusid},
+      nomefornecedor = '${updateFornecedoreDto.nomefornecedor}',
+      numerocontrato = '${updateFornecedoreDto.numerocontrato}',
       representante = '${updateFornecedoreDto.representante}',
       email = '${updateFornecedoreDto.email}',
       invoice ='${updateFornecedoreDto.invoice}',
       cnpj = '${updateFornecedoreDto.cnpj}',
       telefone = '${updateFornecedoreDto.telefone}',
-      outrasinformacoes = '${updateFornecedoreDto.outrasInformacoes}',
+      outrasinformacoes = '${updateFornecedoreDto.outrasinformacoes}',
       nom_usu_create = '${updateFornecedoreDto.nom_usu_create}'
       WHERE
       id = ${updateFornecedoreDto.id}
