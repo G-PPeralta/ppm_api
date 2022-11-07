@@ -90,20 +90,20 @@ export class DashboardService {
       qtd,
     }));
 
-    const totalProjetos = retornoQuery[0].total;
+    const totalProjetos = retornoQuery[0]?.total | 0;
 
     const prioridades: PrioridadesProjetoDto = {
-      alta: retornoQuery[0].prioridades_alta,
-      media: retornoQuery[0].prioridades_media,
-      baixa: retornoQuery[0].prioridades_baixa,
-      nula: retornoQuery[0].prioridades_nula,
+      alta: retornoQuery[0]?.prioridades_alta | 0,
+      media: retornoQuery[0]?.prioridades_media | 0,
+      baixa: retornoQuery[0]?.prioridades_baixa | 0,
+      nula: retornoQuery[0]?.prioridades_nula | 0,
     };
 
     const complexidades: ComplexidadesProjetoDto = {
-      alta: retornoQuery[0].complexidades_alta,
-      media: retornoQuery[0].complexidades_media,
-      baixa: retornoQuery[0].complexidades_baixa,
-      nula: retornoQuery[0].complexidades_nula,
+      alta: retornoQuery[0]?.complexidades_alta | 0,
+      media: retornoQuery[0]?.complexidades_media | 0,
+      baixa: retornoQuery[0]?.complexidades_baixa | 0,
+      nula: retornoQuery[0]?.complexidades_nula | 0,
     };
 
     const retornoApi: TotalProjetosDto = {

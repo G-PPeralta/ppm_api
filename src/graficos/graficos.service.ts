@@ -48,8 +48,15 @@ export class GraficosService {
     return this.prisma.$queryRawUnsafe(query);
   }
 
-  getRelatorioPorCadaIntervencao() {
-    const query = Prisma.sql`select 
+  getRelatorioPorCadaIntervencao(params) {
+    let where = '';
+    const { de, a } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
+    }
+    const query = `select 
       nom_poco,
       sum(hrs_npt_man) as hrs_manutencao,
       sum(hrs_npt_rec_ori) as hrs_recursos_origem,
@@ -60,12 +67,21 @@ export class GraficosService {
     from tb_hist_estatistica a
     inner join tb_pocos b 
         on a.id_poco = b.id
+    where 1=1
+    ${where}
     group by nom_poco;`;
-    return this.prisma.$queryRaw(query);
+    return this.prisma.$queryRawUnsafe(query);
   }
 
-  getRelatorioTempoNPTPorSonda() {
-    const query = Prisma.sql`select 
+  getRelatorioTempoNPTPorSonda(params) {
+    let where = '';
+    const { de, a } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
+    }
+    const query = `select 
         nom_sonda,
         sum(hrs_npt_man) as hrs_manutencao,
         sum(hrs_npt_rec_ori) as hrs_recursos_origem,
@@ -76,24 +92,42 @@ export class GraficosService {
     from tb_hist_estatistica a
     inner join tb_sondas b 
         on a.id_sonda = b.id
+    where 1=1
+    ${where}
     group by nom_sonda;`;
-    return this.prisma.$queryRaw(query);
+    return this.prisma.$queryRawUnsafe(query);
   }
 
-  getRelatorioPorCadaSonda() {
-    const query = Prisma.sql`select 
+  getRelatorioPorCadaSonda(params) {
+    let where = '';
+    const { de, a } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
+    }
+    const query = `select 
       nom_sonda,
       sum(hrs_totais) as hrs_totais
     from tb_hist_estatistica a
     inner join tb_sondas b 
         on a.id_sonda = b.id
+    where 1=1
+    ${where}
     group by nom_sonda;`;
-    return this.prisma.$queryRaw(query);
+    return this.prisma.$queryRawUnsafe(query);
   }
 
   // -- GRAFICO - DURACAO DE INTERVENCAO NORMALIZADA PELA METRAGEM DA ZONA INTERVIDA -- ???
-  getRelatorioParaCPI() {
-    const query = Prisma.sql`
+  getRelatorioParaCPI(params) {
+    let where = '';
+    const { de, a } = params;
+    if (de && a) {
+      where = ` and a.dat_conclusao between '${new Date(
+        de,
+      ).toISOString()}' and '${new Date(a).toISOString()}' `;
+    }
+    const query = `
     select 
         nom_poco,
         sum(hrs_totais)/max(num_profundidade) as taxa
@@ -102,7 +136,9 @@ export class GraficosService {
             id_poco,
             hrs_totais,
             num_profundidade
-        from tb_hist_estatistica
+        from tb_hist_estatistica a
+        where 1=1
+        ${where}
     ) as q
     inner join tb_pocos tp 
         on    q.id_poco = tp.id 
@@ -112,6 +148,6 @@ export class GraficosService {
     // --and id_sonda in (26)
     // --and id_poco in (77)
     // --and dat_conclusao between '2022-09-01' and '2022-10-31'
-    return this.prisma.$queryRaw(query);
+    return this.prisma.$queryRawUnsafe(query);
   }
 }
