@@ -569,7 +569,7 @@ export class BudgetsService {
       SET
       vlr_realizado = ${data.vlr_realizado},
       dat_lcto = '${data.dat_lcto}',
-      id_fornecedor = ${data.id_fornecedor},,
+      id_fornecedor = ${data.id_fornecedor},
       num_pedido = ${data.num_pedido},
       txt_observacao = '${data.txt_observacao}',
       nom_usu_edit = '${data.nom_usu_edit}'
