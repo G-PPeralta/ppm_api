@@ -31,37 +31,22 @@ export class FornecedoresService {
     `);
   }
 
-  // async update(updateFornecedoreDto: UpdateFornecedoreDto) {
-  //   return await this.prisma.$queryRawUnsafe(`
-  //     UPDATE
-  //     tb_fornecedores
-  //     SET
-  //     poloid = ${updateFornecedoreDto.poloId},
-  //     servicoId = ${updateFornecedoreDto.servicoId},
-  //     nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
-  //     representante = '${updateFornecedoreDto.representante}',
-  //     justificativa = '${updateFornecedoreDto.justificativa}'
-  //     WHERE
-  //     id = ${updateFornecedoreDto.id}
-  //   `);
-  // }
-
   async update(updateFornecedoreDto: UpdateFornecedorDto) {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE
       tb_fornecedores
       SET
-      poloid = ${updateFornecedoreDto.poloId},
-      servico_txt = ${updateFornecedoreDto.servicoTxt},
-      status = '${updateFornecedoreDto.status}',
-      nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
-      numerocontrato = '${updateFornecedoreDto.numerocontrato},
+      poloid = ${updateFornecedoreDto.poloid},
+      servico_txt = '${updateFornecedoreDto.servico_txt}',
+      statusid = ${updateFornecedoreDto.statusid},
+      nomefornecedor = '${updateFornecedoreDto.nomefornecedor}',
+      numerocontrato = '${updateFornecedoreDto.numerocontrato}',
       representante = '${updateFornecedoreDto.representante}',
       email = '${updateFornecedoreDto.email}',
       invoice ='${updateFornecedoreDto.invoice}',
       cnpj = '${updateFornecedoreDto.cnpj}',
       telefone = '${updateFornecedoreDto.telefone}',
-      outrasinformacoes = '${updateFornecedoreDto.outrasInformacoes}',
+      outrasinformacoes = '${updateFornecedoreDto.outrasinformacoes}',
       nom_usu_create = '${updateFornecedoreDto.nom_usu_create}'
       WHERE
       id = ${updateFornecedoreDto.id}

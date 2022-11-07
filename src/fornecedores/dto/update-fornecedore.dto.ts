@@ -1,16 +1,16 @@
 export class UpdateFornecedorDto {
   id: number;
-  poloId: number;
-  servicoId: number;
-  servicoTxt: string;
-  nomeFornecedor: string;
+  poloid: number;
+  servicoid: number;
+  servico_txt: string;
+  nomefornecedor: string;
   representante: string;
   numerocontrato: string;
   email: string;
   invoice: string;
   cnpj: string;
-  status: number;
+  statusid: number;
   telefone: string;
-  outrasInformacoes: string;
+  outrasinformacoes: string;
   nom_usu_create: string;
 }
