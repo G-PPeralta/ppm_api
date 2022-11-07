@@ -15,7 +15,8 @@ export class LookaheadService {
       PRJ.justificativa   
 
       FROM tb_projetos PRJ
-        JOIN tb_projetos_atividade PRJ_ATV ON PRJ.id = PRJ_ATV.id_projeto;
+        JOIN tb_projetos_atividade PRJ_ATV ON PRJ.id = PRJ_ATV.id_projeto
+      WHERE PRJ.tipo_projeto_id = 3;
     `);
   }
 
