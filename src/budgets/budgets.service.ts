@@ -545,10 +545,12 @@ export class BudgetsService {
   }
 
   async getCustoDiario(id) {
-    const data = await this.prisma.atividadeCustosRealizado.findFirst({
-      where: { id: +id },
-    });
-    return data;
+    const data = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_atividade_custo_real
+      WHERE id = ${id}
+    `);
+
+    return data[0];
   }
 
   async updateBudgetReal(_updateBudgetReal: BudgetReal) {
@@ -562,13 +564,22 @@ export class BudgetsService {
       nom_usu_edit: _updateBudgetReal.nom_usu_edit,
     };
 
-    return await this.prisma.atividadeCustosRealizado.update({
-      data,
-      where: { id: _updateBudgetReal.id },
-    });
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade_custo_real
+      SET
+      vlr_realizado = ${data.vlr_realizado},
+      dat_lcto = '${data.dat_lcto}',
+      id_fornecedor = ${data.id_fornecedor},,
+      num_pedido = ${data.num_pedido},
+      txt_observacao = '${data.txt_observacao}',
+      nom_usu_edit = '${data.nom_usu_edit}'
+      WHERE id = ${_updateBudgetReal.id}
+    `);
   }
 
   async deleteCusto(id: number) {
-    return this.prisma.atividadeCustosRealizado.delete({ where: { id } });
+    return this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_projetos_atividade_custo_real WHERE id = ${id}
+    `);
   }
 }
