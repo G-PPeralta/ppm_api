@@ -13,19 +13,19 @@ export class GraficosController {
     return this.graficosService.getRelatorioHistoricoPorPoco(params);
   }
   @Get('intervencao')
-  getRelatorioPorCadaIntervencao() {
-    return this.graficosService.getRelatorioPorCadaIntervencao();
+  getRelatorioPorCadaIntervencao(@Query() params?: string[]) {
+    return this.graficosService.getRelatorioPorCadaIntervencao(params);
   }
   @Get('tempo')
-  getRelatorioTempoNPTPorSonda() {
-    return this.graficosService.getRelatorioTempoNPTPorSonda();
+  getRelatorioTempoNPTPorSonda(@Query() params?: string[]) {
+    return this.graficosService.getRelatorioTempoNPTPorSonda(params);
   }
   @Get('sonda')
-  getRelatorioPorCadaSonda() {
-    return this.graficosService.getRelatorioPorCadaSonda();
+  getRelatorioPorCadaSonda(@Query() params?: string[]) {
+    return this.graficosService.getRelatorioPorCadaSonda(params);
   }
   @Get('cpi')
-  getRelatorioParaCPI() {
-    return this.graficosService.getRelatorioParaCPI();
+  getRelatorioParaCPI(@Query() params?: string[]) {
+    return this.graficosService.getRelatorioParaCPI(params);
   }
 }
