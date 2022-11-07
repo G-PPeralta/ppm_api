@@ -31,21 +31,6 @@ export class FornecedoresService {
     `);
   }
 
-  // async update(updateFornecedoreDto: UpdateFornecedoreDto) {
-  //   return await this.prisma.$queryRawUnsafe(`
-  //     UPDATE
-  //     tb_fornecedores
-  //     SET
-  //     poloid = ${updateFornecedoreDto.poloId},
-  //     servicoId = ${updateFornecedoreDto.servicoId},
-  //     nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
-  //     representante = '${updateFornecedoreDto.representante}',
-  //     justificativa = '${updateFornecedoreDto.justificativa}'
-  //     WHERE
-  //     id = ${updateFornecedoreDto.id}
-  //   `);
-  // }
-
   async update(updateFornecedoreDto: UpdateFornecedorDto) {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE
