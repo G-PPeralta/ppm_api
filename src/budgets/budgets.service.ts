@@ -443,7 +443,7 @@ export class BudgetsService {
     if (_custoDiario.startDate != null && _custoDiario.endDate != null) {
       data = await this.prisma.$queryRawUnsafe(`
       select
-      atividades .id as id,
+      realizado .id as id,
       concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
       atividades.nom_atividade as nome_atividade,
       realizado.num_pedido,
@@ -461,7 +461,7 @@ export class BudgetsService {
     } else {
       data = await this.prisma.$queryRawUnsafe(`
         select
-        atividades .id as id,
+        realizado .id as id,
         concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
         atividades.nom_atividade as nome_atividade,
         realizado.num_pedido,
@@ -496,7 +496,7 @@ export class BudgetsService {
     if (_custoDiario.startDate != null && _custoDiario.endDate != null) {
       data = await this.prisma.$queryRawUnsafe(`
         select
-        atividades .id as id,
+        realizado .id as id,
         concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
         atividades.nom_atividade as nome_atividade,
         realizado.num_pedido,
@@ -514,7 +514,7 @@ export class BudgetsService {
     } else {
       data = await this.prisma.$queryRawUnsafe(`
         select
-        atividades .id as id,
+        realizado.id as id,
         concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
         atividades.nom_atividade as nome_atividade,
         realizado.num_pedido,
@@ -542,5 +542,44 @@ export class BudgetsService {
       };
     });
     return await Promise.all(retorno);
+  }
+
+  async getCustoDiario(id) {
+    const data = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_atividade_custo_real
+      WHERE id = ${id}
+    `);
+
+    return data[0];
+  }
+
+  async updateBudgetReal(_updateBudgetReal: BudgetReal) {
+    const data = {
+      vlr_realizado: _updateBudgetReal.valor,
+      dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
+      id_fornecedor: +_updateBudgetReal.fornecedor,
+      // classeServico: _updateBudgetReal.classeServico,
+      num_pedido: _updateBudgetReal.pedido,
+      txt_observacao: _updateBudgetReal.textPedido,
+      nom_usu_edit: _updateBudgetReal.nom_usu_edit,
+    };
+
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade_custo_real
+      SET
+      vlr_realizado = ${data.vlr_realizado},
+      dat_lcto = '${data.dat_lcto}',
+      id_fornecedor = ${data.id_fornecedor},,
+      num_pedido = ${data.num_pedido},
+      txt_observacao = '${data.txt_observacao}',
+      nom_usu_edit = '${data.nom_usu_edit}'
+      WHERE id = ${_updateBudgetReal.id}
+    `);
+  }
+
+  async deleteCusto(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_projetos_atividade_custo_real WHERE id = ${id}
+    `);
   }
 }
