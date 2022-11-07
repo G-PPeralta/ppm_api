@@ -52,7 +52,7 @@ export class FornecedoresService {
       tb_fornecedores
       SET
       poloid = ${updateFornecedoreDto.poloId},
-      servicoId = ${updateFornecedoreDto.servicoId},
+      servico_txt = ${updateFornecedoreDto.servicoTxt},
       status = '${updateFornecedoreDto.status}',
       nomefornecedor = '${updateFornecedoreDto.nomeFornecedor}',
       numerocontrato = '${updateFornecedoreDto.numerocontrato},

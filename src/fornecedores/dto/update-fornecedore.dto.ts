@@ -2,6 +2,7 @@ export class UpdateFornecedorDto {
   id: number;
   poloId: number;
   servicoId: number;
+  servicoTxt: string;
   nomeFornecedor: string;
   representante: string;
   numerocontrato: string;
