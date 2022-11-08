@@ -492,15 +492,18 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
     select 
-	filho.id as id_filho,
+    filho.id as id_filho,
     filho.tarefa_id as id_atividade,
     filho.dat_ini_plan as inicioplanejado,
     filho.dat_fim_plan as finalplanejado,
+    filho.dat_ini_real as inicioreal,
+    filho.dat_fim_real as fimreal,
     coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
-    tarefa.nom_atividade as atividade,
+    coalesce(filho.nom_atividade, tarefa.nom_atividade) as atividade,
     responsaveis.nome_responsavel as nom_responsavel,
     area_atuacao.tipo as nom_area,
     campanha.nom_campanha as sonda,
+    filho.dsc_comentario as comentario,
     floor(fn_atv_calc_pct_plan(
       fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
       fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
@@ -624,6 +627,18 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
+    await this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_camp_atv_campanha
+      WHERE id_pai = ${payload.atividadeId}
+    `);
+
+    payload.precedentes.forEach(async (p) => {
+      await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
+        VALUES (${payload.atividadeId}, ${p.id})
+      `);
+    });
+
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
@@ -636,8 +651,14 @@ export class CampanhaService {
       dat_ini_real = ${
         payload.inicioReal === null
           ? null
+          : "'" + new Date(payload.inicioReal).toISOString() + "'"
+      },
+      dat_fim_real = ${
+        payload.fimReal === null
+          ? null
           : "'" + new Date(payload.fimReal).toISOString() + "'"
-      }
+      },
+      dsc_comentario = '${payload.comentario}'
       WHERE
       id = ${payload.atividadeId}
     `);

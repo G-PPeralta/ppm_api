@@ -64,9 +64,9 @@ export class EditarAtividadeService {
     atividade.mocs.forEach(async (moc) => {
       await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atv_notas
-        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
+        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao, url_anexo)
         VALUES
-        (${atividade.geral.id_atividade}, '${moc.numero_moc}', '${atividade.nom_usu_create}', now(), 2)
+        (${atividade.geral.id_atividade}, '${moc.numero_moc}', '${atividade.nom_usu_create}', now(), 2, '${moc.anexo}')
         `);
     });
   }

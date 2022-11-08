@@ -66,7 +66,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
       UPDATE tb_projetos_atv_licoes_aprendidas
       SET
       txt_acao = '${payload.acoes_e_recomendacoes}',
-      txt_licao_aprendida = '${payload.licao_aprendida}'
+      txt_licao_aprendida = '${payload.licao_aprendida}',
       dat_usu_create = '${new Date(payload.data).toISOString()}'
       WHERE
       id = ${id_da_licao}
@@ -76,7 +76,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async removeOne(id_do_projeto: number, id_da_licao: number) {
     return await this.prisma.$queryRawUnsafe(`
-      delete tb_projetos_atv_licoes_aprendidas WHERE id = ${id_da_licao} and id_projeto = ${id_do_projeto}
+      delete from tb_projetos_atv_licoes_aprendidas WHERE id = ${id_da_licao} and id_projeto = ${id_do_projeto}
     `);
   }
 

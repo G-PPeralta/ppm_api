@@ -74,10 +74,16 @@ export class GanttService {
     id as TaskID,
     nom_atividade as TaskName,
     dat_ini_real as StartDate,
-    dat_fim_real EndDate,
+    dat_fim_real as EndDate,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
-    null as Predecessor,
+    (
+      select 
+      case when count(p.id_prec) = 0 then null else
+      string_agg(concat(p.id_prec::varchar, 'FS+', p.dias::varchar, 'dias'), ',') end as precedente
+      from tb_projetos_atividade_precedentes p
+      where p.id_atv = a.id
+    ) as Predecessor,
     (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
     where (id_pai = 0 or id_pai is null) -- NULL SOMENTE NO PRIMEIRO NÓ ATE RESOLVER A CAGADA)
@@ -89,7 +95,7 @@ export class GanttService {
         TaskID: el.taskid,
         TaskName: el.taskname,
         StartDate: el.startdate,
-        EndDate: el.endDate,
+        EndDate: el.enddate,
         Duration: el.duration,
         Progress: el.progress,
         Predecessor: el.predecessor,
@@ -117,10 +123,16 @@ export class GanttService {
         id as TaskID,
         nom_atividade as TaskName,
         dat_ini_real as StartDate,
-        dat_fim_real EndDate,
+        dat_fim_real as EndDate,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
-        null as Predecessor,
+        (
+          select 
+          case when count(p.id_prec) = 0 then null else
+          string_agg(concat(p.id_prec::varchar, 'FS+', p.dias::varchar, 'dias'), ',') end as precedente
+          from tb_projetos_atividade_precedentes p
+          where p.id_atv = a.id
+        ) as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
         where (id_pai = ${element.TaskID})
@@ -131,7 +143,7 @@ export class GanttService {
           TaskID: el.taskid,
           TaskName: el.taskname,
           StartDate: el.startdate,
-          EndDate: el.endDate,
+          EndDate: el.enddate,
           Duration: el.duration,
           Progress: el.progress,
           Predecessor: el.predecessor,
@@ -165,8 +177,16 @@ export class GanttService {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade
       SET
-      dat_ini_real = TO_TIMESTAMP('${updateGannt.dat_ini_real}', 'DD/MM/YYYY HH24:MI:ss'),
-      dat_fim_real = TO_TIMESTAMP('${updateGannt.dat_fim_real}', 'DD/MM/YYYY HH24:MI:ss'),
+      dat_ini_real = ${
+        updateGannt.dat_ini_real === null
+          ? null
+          : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+      },
+      dat_fim_real = ${
+        updateGannt.dat_fim_real === null
+          ? null
+          : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
+      },
       pct_real = ${updateGannt.pct_real}
       WHERE id = ${id}
 `);

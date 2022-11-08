@@ -28,6 +28,16 @@ export class BudgetsController {
     return this.budgetsService.createBudgetReal(_updateBudgetReal);
   }
 
+  @Patch('/orcamento-real')
+  updateOrcamentoReal(@Body() _updateBudgetReal: BudgetReal) {
+    return this.budgetsService.updateBudgetReal(_updateBudgetReal);
+  }
+
+  @Delete('/orcamento-real/:id')
+  deleteBudgetCost(@Param('id') id: string) {
+    return this.budgetsService.deleteCusto(+id);
+  }
+
   @Get()
   findAll() {
     return this.budgetsService.findAll();
@@ -43,10 +53,24 @@ export class BudgetsController {
     return this.budgetsService.findAllProjects();
   }
 
-  @Post('/custoDiario/:id')
+  @Post('/custoDiario/filho/:id')
   custosDiarios(@Param('id') id: string, @Body() _custoDiario: CustoDiarioDto) {
-    return this.budgetsService.custosDiariosList(id, _custoDiario);
+    return this.budgetsService.custosDiariosFilhoList(id, _custoDiario);
   }
+
+  @Post('/custoDiario/pai/:id')
+  custosDiariosPai(
+    @Param('id') id: string,
+    @Body() _custoDiario: CustoDiarioDto,
+  ) {
+    return this.budgetsService.custosDiariosPaiList(id, _custoDiario);
+  }
+
+  @Get('/custoDiario/:id')
+  getCustosDiario(@Param('id') id: string) {
+    return this.budgetsService.getCustoDiario(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.budgetsService.findOne(+id);
