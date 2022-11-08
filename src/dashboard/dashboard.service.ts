@@ -73,8 +73,11 @@ export class DashboardService {
     on projetos.status_id = status.id
     where
     projetos.tipo_projeto_id <> 3
+    and projetos.data_inicio is not null
     group by
     concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY'))
+    order by
+    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) desc
     `);
   }
 
@@ -87,20 +90,20 @@ export class DashboardService {
       qtd,
     }));
 
-    const totalProjetos = retornoQuery[0].total;
+    const totalProjetos = retornoQuery[0]?.total | 0;
 
     const prioridades: PrioridadesProjetoDto = {
-      alta: retornoQuery[0].prioridades_alta,
-      media: retornoQuery[0].prioridades_media,
-      baixa: retornoQuery[0].prioridades_baixa,
-      nula: retornoQuery[0].prioridades_nula,
+      alta: retornoQuery[0]?.prioridades_alta | 0,
+      media: retornoQuery[0]?.prioridades_media | 0,
+      baixa: retornoQuery[0]?.prioridades_baixa | 0,
+      nula: retornoQuery[0]?.prioridades_nula | 0,
     };
 
     const complexidades: ComplexidadesProjetoDto = {
-      alta: retornoQuery[0].complexidades_alta,
-      media: retornoQuery[0].complexidades_media,
-      baixa: retornoQuery[0].complexidades_baixa,
-      nula: retornoQuery[0].complexidades_nula,
+      alta: retornoQuery[0]?.complexidades_alta | 0,
+      media: retornoQuery[0]?.complexidades_media | 0,
+      baixa: retornoQuery[0]?.complexidades_baixa | 0,
+      nula: retornoQuery[0]?.complexidades_nula | 0,
     };
 
     const retornoApi: TotalProjetosDto = {
@@ -194,17 +197,10 @@ GROUP BY 1, 2;
 
   async getTotalRealizado() {
     const retornoQuery: TotalRealizadoDto[] = await this.prisma
-      .$queryRaw`select 
-      case when max(vlr_realizado) is null 
-          then 0 
-          else max(vlr_realizado)
-      end as vlr_realizado
-  from dev.tb_projetos_atividade_custo_real a
-  inner join dev.tb_projetos_atividade b
-      on a.id_atividade = b.id
-  inner join dev.tb_projetos c
-      on b.id_projeto = c.id
-  where c.tipo_projeto_id in (1,2);`;
+      .$queryRaw`     select sum(valor) as vlr_realizado from tb_centro_custo centro_custo
+      inner join tb_projetos projetos
+      on projetos.id = centro_custo.projeto_id
+    where projetos.tipo_projeto_id in (1, 2);`;
 
     return retornoQuery.map((tot) => ({
       totalRealizado: Number(tot.vlr_realizado),
@@ -225,7 +221,7 @@ GROUP BY 1, 2;
               on a.id_atividade = b.id
           inner join dev.tb_projetos c
               on b.id_projeto = c.id
-          --where c.tipo_projeto_id in (1,2)
+          where c.tipo_projeto_id in (1,2)
           union
           select 
               case when sum(vlr_realizado) is null 
@@ -237,7 +233,7 @@ GROUP BY 1, 2;
               on a.id_atividade = b.id
           inner join dev.tb_projetos c
               on b.id_projeto = c.id
-          --where c.tipo_projeto_id in (1,2)
+          where c.tipo_projeto_id in (1,2)
       ) as qr;`;
 
     return retornoQuery.map((tot) => ({

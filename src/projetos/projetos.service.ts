@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
@@ -194,6 +194,7 @@ export class ProjetosService {
       on a.id = b.id_projeto
       where 
               (a.nome_projeto like('%${nomProjeto}%') or '${nomProjeto}' is null or '${nomProjeto}' = '')
+        and a.deletado = false
         and   a.tipo_projeto_id in (1,2)
       order by vlr_ranking desc  
     `;
@@ -396,6 +397,7 @@ export class ProjetosService {
       on a.id = b.id_projeto
       where 
       a.tipo_projeto_id in (1,2)
+      AND a.deletado = false
       order by vlr_ranking desc  
     `;
 
@@ -571,10 +573,12 @@ and a.id = ${id};
   }
 
   async previstoXRealizadoGeralPorProjeto(id: number) {
-    await this.prismaClient.$queryRawUnsafe(`
-      CALL sp_in_graf_curva_s(${id})
-    `);
-    const query: any[] = await this.prismaClient.$queryRawUnsafe(`
+    try {
+      await this.prismaClient.$queryRawUnsafe(`
+        CALL sp_in_graf_curva_s(${id})
+      `);
+    } finally {
+      const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select 
           concat(substring(namemonth(right(b.mesano::varchar,2)::int4) from 1 for 3), '/', left(b.mesano::varchar,4)) as mes,
           case when a.mesano is null then b.mesano else a.mesano end as mesano,
@@ -585,20 +589,21 @@ and a.id = ${id};
         from tb_projeto_curva_s a
         right join tb_mesano b 
           on a.mesano = b.mesano
-        where a.id_projeto = ${id} or a.hrs_totais is null
+        where a.id_projeto = ${id} --or a.hrs_totais is null
         group by 1, 2
         order by mesano
     ;`);
 
-    return query.map((el) => {
-      return {
-        mes: el.mes,
-        cronogramaPrevisto: Number(el.pct_plan),
-        cronogramaRealizado: Number(el.pct_real),
-        capexPrevisto: Number(el.capex_previsto),
-        capexRealizado: Number(el.capex_realizado),
-      };
-    });
+      return query.map((el) => {
+        return {
+          mes: el.mes,
+          cronogramaPrevisto: Number(el.pct_plan),
+          cronogramaRealizado: Number(el.pct_real),
+          capexPrevisto: Number(el.capex_previsto),
+          capexRealizado: Number(el.capex_realizado),
+        };
+      });
+    }
   }
 
   async findTotalValue(id: number) {
@@ -693,8 +698,11 @@ and a.id = ${id};
     `);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} projeto`;
+  async remove(id: number) {
+    return await this.prismaClient.$queryRawUnsafe(`UPDATE tb_projetos
+    SET DELETADO = TRUE,
+    dat_usu_update = NOW()
+    WHERE ID = ${id}`);
   }
 
   async countAll() {
@@ -752,7 +760,7 @@ and a.id = ${id};
       }
       `);
 
-      await this.prismaClient.$queryRawUnsafe(`
+      const id_atv = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
         vincularAtividade.nom_atividade
@@ -760,7 +768,17 @@ and a.id = ${id};
         vincularAtividade.nom_usu_create
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id
-      })`);
+      })
+        RETURNING ID
+      `);
+
+      vincularAtividade.precedentes.forEach(async (p) => {
+        await this.prismaClient.$queryRawUnsafe(`
+          insert into tb_projetos_atividade_precedentes (id_atv, id_prec, dias)
+          values
+          (${id_atv[0].id}, ${p.atividadePrecedenteId}, ${p.dias})
+        `);
+      });
     } else {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (NOM_ATIVIDADE, PCT_REAL, ID_PROJETO, DAT_INI_PLAN, DAT_FIM_PLAN, NOM_USU_CREATE, DAT_USU_CREATE)
@@ -793,6 +811,14 @@ and a.id = ${id};
       })
         RETURNING ID
       `);
+
+      vincularAtividade.precedentes.forEach(async (p) => {
+        await this.prismaClient.$queryRawUnsafe(`
+          insert into tb_projetos_atividade_precedentes (id_atv, id_prec, dias)
+          values
+          (${id_atv[0].id}, ${p.atividadePrecedenteId}, ${p.dias})
+        `);
+      });
 
       await this.prismaClient.$executeRawUnsafe(`
       call dev.sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});

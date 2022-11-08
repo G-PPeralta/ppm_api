@@ -83,7 +83,21 @@ export class BudgetsService {
       select 
       poco.id as id_filho, 
       poco.nom_atividade as nome_poco,
-      coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
+      (
+         select 
+         sum(planejado.vlr_planejado) as total_planejado  
+         from tb_projetos_atividade_custo_plan planejado
+         inner join tb_projetos_atividade atividade on atividade.id = planejado.id_atividade
+         where atividade.id in (
+             select atividades.id from
+             tb_projetos_atividade sonda
+             inner join tb_projetos_atividade pocoInner
+             on pocoInner.id_pai = sonda.id
+             left join tb_projetos_atividade atividades
+             on atividades.id_pai = poco.id
+             where sonda.id_pai = 0 and sonda.id = ${pai.id_pai} and pocoInner.id = poco.id
+         )
+      ) as vlr_planejado,
       sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
       case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
       coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
@@ -101,8 +115,8 @@ export class BudgetsService {
       on (operacao.id = atividades.id_operacao)
       where
       sonda.id = ${pai.id_pai} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, coalesce(planejado.vlr_planejado, 0)        
-     `);
+      group by poco.id,  poco.nom_atividade    
+        `);
       return {
         id: pai.id_pai,
         item: `${++Pkey}`,
@@ -192,7 +206,8 @@ export class BudgetsService {
       let pKey = 0;
       for (const e of pais) {
         let fKey = 0;
-        const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+        const filhos: any[] = await this.prisma.$queryRawUnsafe(`
+        select 
         poco.id as id_filho, 
         planejado.id as id_planejado,
         atividades.id as id_atividade,
@@ -214,6 +229,7 @@ export class BudgetsService {
         on (operacao.id = atividades.id_operacao)
         where
         poco.id = ${e.id_pai} and sonda.id_pai = 0
+        and atividades.id is not null
         group by poco.id, planejado.id,
         atividades.id,
         case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
@@ -224,7 +240,7 @@ export class BudgetsService {
           brt: `${++pKey}`,
           projeto: {
             id: e.id_pai,
-            nome: e.nome_pai,
+            nome: e.nome_poco,
           },
           planejado: +e.vlr_planejado,
           realizado: +e.vlr_realizado,
@@ -414,7 +430,7 @@ export class BudgetsService {
     };
   }
 
-  async custosDiariosList(id: string, _custoDiario: CustoDiarioDto) {
+  async custosDiariosFilhoList(id: string, _custoDiario: CustoDiarioDto) {
     /*return this.prisma.atividadeCustosRealizado.findMany({
       select: { vlr_realizado: true, dat_lcto: true },
       where: {
@@ -426,63 +442,158 @@ export class BudgetsService {
       },
     });*/
 
-    const data: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`
-    select  sum(realizado.vlr_realizado) as valor_realizado,
-    concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado
-     from tb_projetos_atividade sonda
-     inner join tb_projetos_atividade poco
-     on poco.id_pai = sonda.id
-     left join tb_projetos_atividade atividades
-     on (atividades.id_pai = poco.id)
-     left join tb_projetos_atividade_custo_real realizado
-     on (realizado.id_atividade = atividades.id)
-     left join tb_projetos_operacao operacao
-     on (operacao.id = atividades.id_operacao)
-     where
-     poco.id = ${id} and sonda.id_pai = 0
-     and realizado.dat_lcto >= '${_custoDiario.startDate}'
-     and realizado.dat_lcto <= '${_custoDiario.endDate}'
-     group by 
-      realizado.dat_lcto  `);
-    const retorno = data.map(async (pai, keyPai) => {
-      const filhos: CustoDiarioORMDto[] = await this.prisma.$queryRawUnsafe(`
-      select 
-		atividades.id as id,
+    let data: CustoDiarioORMDto[] = [];
+    if (
+      _custoDiario.startDate !== null &&
+      _custoDiario.endDate !== null &&
+      _custoDiario.startDate !== '' &&
+      _custoDiario.endDate !== ''
+    ) {
+      data = await this.prisma.$queryRawUnsafe(`
+      select
+      realizado .id as id,
+      concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
+      atividades.nom_atividade as nome_atividade,
+      realizado.num_pedido,
+      realizado.txt_observacao,
+      fornecedores.nomefornecedor as fornecedor,
+      realizado.vlr_realizado as  valor_realizado
+      from tb_projetos_atividade_custo_real realizado
+      left join tb_projetos_atividade atividades
+      on (atividades.id = realizado.id_atividade)
+      left join tb_fornecedores fornecedores
+      on (fornecedores.id = realizado.id_fornecedor)
+      where
+          realizado.id_atividade =   ${id} and  realizado.dat_lcto >= '${_custoDiario.startDate}'
+          and realizado.dat_lcto <= '${_custoDiario.endDate}'`);
+    } else {
+      data = await this.prisma.$queryRawUnsafe(`
+        select
+        realizado .id as id,
+        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
         atividades.nom_atividade as nome_atividade,
-        sum(realizado.vlr_realizado) as valor_realizado
-        from tb_projetos_atividade sonda
-        inner join tb_projetos_atividade poco
-        on poco.id_pai = sonda.id
+        realizado.num_pedido,
+        realizado.txt_observacao,
+        fornecedores.nomefornecedor as fornecedor,
+        realizado.vlr_realizado as  valor_realizado
+        from tb_projetos_atividade_custo_real realizado
         left join tb_projetos_atividade atividades
-        on (atividades.id_pai = poco.id)
-        left join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = atividades.id)
-        left join tb_projetos_operacao operacao
-        on (operacao.id = atividades.id_operacao)
+        on (atividades.id = realizado.id_atividade)
+        left join tb_fornecedores fornecedores
+        on (fornecedores.id = realizado.id_fornecedor)
         where
-        poco.id = ${id} and sonda.id_pai = 0
-        and realizado.dat_lcto  =  '${pai.data_realizado}'
-        group by        
-        atividades.id, atividades.nom_atividade
-    `);
+            realizado.id_atividade =   ${id} `);
+    }
 
+    const retorno = data.map((custo) => {
       return {
-        id: new Date(pai.data_realizado).getTime(),
-        index: `${++keyPai}`,
-        date: new Date(pai.data_realizado),
-        fornecedor: '-',
-        realizado: +pai.valor_realizado,
-        filhos: filhos.map((filho, keyFIlho) => {
-          return {
-            id: filho.id,
-            index: `${keyPai}.${++keyFIlho}`,
-            atividade: filho.nome_atividade,
-            fornecedor: '-',
-            realizado: +filho.valor_realizado,
-          };
-        }),
+        id: custo.id,
+        atividade: custo.nome_atividade,
+        date: new Date(custo.data_realizado),
+        pedido: custo.num_pedido,
+        txt_pedido: custo.txt_observacao,
+        fornecedor: custo.fornecedor,
+        realizado: +custo.valor_realizado,
       };
     });
     return await Promise.all(retorno);
+  }
+
+  async custosDiariosPaiList(id: string, _custoDiario: CustoDiarioDto) {
+    let data: CustoDiarioORMDto[] = [];
+
+    if (
+      _custoDiario.startDate !== null &&
+      _custoDiario.endDate !== null &&
+      _custoDiario.startDate !== '' &&
+      _custoDiario.endDate !== ''
+    ) {
+      data = await this.prisma.$queryRawUnsafe(`
+        select
+        realizado .id as id,
+        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
+        atividades.nom_atividade as nome_atividade,
+        realizado.num_pedido,
+        realizado.txt_observacao,
+        fornecedores.nomefornecedor as fornecedor,
+        realizado.vlr_realizado as valor_realizado
+        from tb_projetos_atividade_custo_real realizado
+        left join tb_projetos_atividade atividades
+        on (atividades.id = realizado.id_atividade)
+        left join tb_fornecedores fornecedores
+        on (fornecedores.id = realizado.id_fornecedor)
+        where
+            atividades.id_pai  =  ${id} and  realizado.dat_lcto >= '${_custoDiario.startDate}'
+          and realizado.dat_lcto <= '${_custoDiario.endDate}'`);
+    } else {
+      data = await this.prisma.$queryRawUnsafe(`
+        select
+        realizado.id as id,
+        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
+        atividades.nom_atividade as nome_atividade,
+        realizado.num_pedido,
+        realizado.txt_observacao,
+        fornecedores.nomefornecedor as fornecedor,
+        realizado.vlr_realizado as valor_realizado
+        from tb_projetos_atividade_custo_real realizado
+        left join tb_projetos_atividade atividades
+        on (atividades.id = realizado.id_atividade)
+        left join tb_fornecedores fornecedores
+        on (fornecedores.id = realizado.id_fornecedor)
+        where
+            atividades.id_pai  =  ${id} `);
+    }
+
+    const retorno = data.map((custo) => {
+      return {
+        id: custo.id,
+        atividade: custo.nome_atividade,
+        date: new Date(custo.data_realizado),
+        pedido: custo.num_pedido,
+        txt_pedido: custo.txt_observacao,
+        fornecedor: custo.fornecedor,
+        realizado: +custo.valor_realizado,
+      };
+    });
+    return await Promise.all(retorno);
+  }
+
+  async getCustoDiario(id) {
+    const data = await this.prisma.$queryRawUnsafe(`
+      SELECT * FROM tb_projetos_atividade_custo_real
+      WHERE id = ${id}
+    `);
+
+    return data[0];
+  }
+
+  async updateBudgetReal(_updateBudgetReal: BudgetReal) {
+    const data = {
+      vlr_realizado: _updateBudgetReal.valor,
+      dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
+      id_fornecedor: +_updateBudgetReal.fornecedor,
+      // classeServico: _updateBudgetReal.classeServico,
+      num_pedido: _updateBudgetReal.pedido,
+      txt_observacao: _updateBudgetReal.textPedido,
+      nom_usu_edit: _updateBudgetReal.nom_usu_edit,
+    };
+
+    return await this.prisma.$queryRawUnsafe(`
+      UPDATE tb_projetos_atividade_custo_real
+      SET
+      vlr_realizado = ${data.vlr_realizado},
+      dat_lcto = '${data.dat_lcto}',
+      id_fornecedor = ${data.id_fornecedor},
+      num_pedido = ${data.num_pedido},
+      txt_observacao = '${data.txt_observacao}',
+      nom_usu_edit = '${data.nom_usu_edit}'
+      WHERE id = ${_updateBudgetReal.id}
+    `);
+  }
+
+  async deleteCusto(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+      DELETE FROM tb_projetos_atividade_custo_real WHERE id = ${id}
+    `);
   }
 }

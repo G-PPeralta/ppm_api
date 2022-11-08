@@ -144,7 +144,7 @@ export class ProjetosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projetosService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.projetosService.remove(+id);
   }
 }
