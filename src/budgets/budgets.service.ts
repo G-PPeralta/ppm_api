@@ -206,7 +206,8 @@ export class BudgetsService {
       let pKey = 0;
       for (const e of pais) {
         let fKey = 0;
-        const filhos: any[] = await this.prisma.$queryRawUnsafe(`select 
+        const filhos: any[] = await this.prisma.$queryRawUnsafe(`
+        select 
         poco.id as id_filho, 
         planejado.id as id_planejado,
         atividades.id as id_atividade,
@@ -228,6 +229,7 @@ export class BudgetsService {
         on (operacao.id = atividades.id_operacao)
         where
         poco.id = ${e.id_pai} and sonda.id_pai = 0
+        and atividades.id is not null
         group by poco.id, planejado.id,
         atividades.id,
         case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
