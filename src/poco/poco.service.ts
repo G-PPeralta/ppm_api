@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreatePocoDto } from './dto/create-poco.dto';
 import { UpdatePocoDto } from './dto/update-poco.dto';

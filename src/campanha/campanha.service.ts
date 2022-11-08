@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -25,7 +25,7 @@ export class CampanhaService {
 
     if (Number(sonda_id_temp) === 0 && createCampanhaDto.nova_campanha) {
       await this.prisma.$executeRawUnsafe(`
-        call dev.sp_in_criar_cronograma_sonda('${nom_projeto}');
+        call sp_in_criar_cronograma_sonda('${nom_projeto}');
       `);
     }
 

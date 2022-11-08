@@ -7,7 +7,7 @@ export class OperacaoIntervencaoService {
 
   async findAll() {
     return this.prisma
-      .$queryRawUnsafe(`select * from dev.tb_operacao_intervencao where nom_usu_erase is null;
+      .$queryRawUnsafe(`select * from tb_operacao_intervencao where nom_usu_erase is null;
     `);
   }
 }

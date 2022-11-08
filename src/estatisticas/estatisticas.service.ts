@@ -38,7 +38,7 @@ export class EstatisticasService {
             round(calc.vlr_dp) as vlr_dp,
             (select min(dat_ini_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_inicio,
             (select max(dat_fim_plan) from tb_projetos_atividade where id_pai = pocos.id)  as dat_final,
-            (dev.fn_cron_calc_pct_real(pocos.id)) as pct_real_consol
+            (fn_cron_calc_pct_real(pocos.id)) as pct_real_consol
         from
         tb_projetos_atividade sonda
         inner join tb_projetos_atividade pocos
@@ -58,7 +58,7 @@ export class EstatisticasService {
             case when round(stddev(hr_total)) is null then 0 else round(stddev(hr_total)) end as vlr_dp
           from (
             select nom_atividade, 
-            dev.fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real) as hr_total
+            fn_hrs_totais_cronograma_atvv(dat_ini_real, dat_fim_real) as hr_total
             from tb_projetos_atividade
           ) as q
           group by nom_atividade

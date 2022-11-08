@@ -56,7 +56,7 @@ export class ServicosSondaPocoService {
               id_projeto = ${id_projeto}
           and id_operacao is null
           and id_pai <> 0
-          and a.id not in (
+          /*and a.id not in (
           	select poco.id from tb_projetos_atividade sonda 
           	inner join tb_projetos p
           	on p.id = sonda.id_projeto 
@@ -64,7 +64,7 @@ export class ServicosSondaPocoService {
           	on poco.id_pai = sonda.id
           	where p.tipo_projeto_id = 3
           	and poco.id_pai <> 0 and (sonda.id_pai is null or sonda.id_pai = 0)
-          )
+          )*/
       union 
           select 0 as id, concat(0, ' - ', nom_poco) as nom_poco, 
           case when (select max(dat_fim_real) from tb_projetos_atividade where id_projeto = ${id_projeto}) is null then

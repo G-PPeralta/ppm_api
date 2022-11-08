@@ -169,8 +169,8 @@ export class DetalhamentoService {
                   0 as vlr_planejado,
                   sum(valor) as vlr_realizado
               from
-                  dev.tb_centro_custo a
-              inner join dev.tb_projetos c
+                  tb_centro_custo a
+              inner join tb_projetos c
                   on
                   a.projeto_id = c.id
               where c.id = ${id}

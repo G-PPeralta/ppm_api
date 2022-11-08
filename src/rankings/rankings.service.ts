@@ -19,8 +19,8 @@ export class RankingsService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    SELECT ranking.*, area.tipo as nome_area FROM dev.tb_ranking ranking
-    inner join dev.tb_areas_atuacoes area
+    SELECT ranking.*, area.tipo as nome_area FROM tb_ranking ranking
+    inner join tb_areas_atuacoes area
     on area.id = ranking.id_area_responsavel 
     `);
   }
