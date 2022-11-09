@@ -117,12 +117,12 @@ export class EstatisticasService {
           t.pocos.forEach((inner) => {
             if (inner.poco === e.poco) {
               poco_existe = true;
-              inner.atividades.push(atividade);
+              if (atividade.id_atividade) inner.atividades.push(atividade);
             }
           });
 
           if (!poco_existe) {
-            poco.atividades.push(atividade);
+            if (atividade.id_atividade) poco.atividades.push(atividade);
             t.pocos.push(poco);
           }
         }
@@ -135,7 +135,7 @@ export class EstatisticasService {
           pocos: [],
         };
 
-        poco.atividades.push(atividade);
+        if (atividade.id_atividade) poco.atividades.push(atividade);
 
         data.pocos.push(poco);
 
