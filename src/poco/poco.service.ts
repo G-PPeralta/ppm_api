@@ -6,8 +6,14 @@ import { UpdatePocoDto } from './dto/update-poco.dto';
 @Injectable()
 export class PocoService {
   constructor(private prisma: PrismaService) {}
-  create(createPocoDto: CreatePocoDto) {
+  async create(createPocoDto: CreatePocoDto) {
     const poco = this.prisma.poco.create({ data: createPocoDto });
+
+    await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_pocos (id_polo, id_local, nom_poco)
+      VALUES (1, 1, '${createPocoDto.poco}')
+    `);
+
     return poco;
   }
 
