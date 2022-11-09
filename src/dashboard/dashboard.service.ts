@@ -68,7 +68,7 @@ export class DashboardService {
     (count(status.id) filter (where status.id = 6))::int4 as cancelados,
     (count(status.id) filter (where status.id = 7))::int4 as pre_aprovacao,
     (count(status.id) filter (where status.id = 8))::int4 as reprogramado
-    from dev.tb_status_projetos status
+    from tb_status_projetos status
     inner join tb_projetos projetos
     on projetos.status_id = status.id
     where
@@ -216,10 +216,10 @@ GROUP BY 1, 2;
                   then 0 
                   else sum(vlr_planejado)*-1
               end as vlr_nao_prev
-          from dev.tb_projetos_atividade_custo_plan a
-          inner join dev.tb_projetos_atividade b
+          from tb_projetos_atividade_custo_plan a
+          inner join tb_projetos_atividade b
               on a.id_atividade = b.id
-          inner join dev.tb_projetos c
+          inner join tb_projetos c
               on b.id_projeto = c.id
           where c.tipo_projeto_id in (1,2)
           union
@@ -228,10 +228,10 @@ GROUP BY 1, 2;
                   then 0 
                   else sum(vlr_realizado)
               end as vlr_nao_prev
-          from dev.tb_projetos_atividade_custo_real a
-          inner join dev.tb_projetos_atividade b
+          from tb_projetos_atividade_custo_real a
+          inner join tb_projetos_atividade b
               on a.id_atividade = b.id
-          inner join dev.tb_projetos c
+          inner join tb_projetos c
               on b.id_projeto = c.id
           where c.tipo_projeto_id in (1,2)
       ) as qr;`;

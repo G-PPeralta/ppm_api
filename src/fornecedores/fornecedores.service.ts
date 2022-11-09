@@ -10,12 +10,12 @@ export class FornecedoresService {
   async create(createFornecedoreDto: CreateFornecedoreDto) {
     return await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_fornecedores 
-      (poloId, servicoId, statusId, nomeFornecedor, numeroContrato, representante, email, telefone, invoice, cnpj, justificativa, outrasInformacoes, nom_usu_create, dat_usu_create)
+      (poloId, servicoid, statusId, nomeFornecedor, numeroContrato, representante, email, telefone, invoice, cnpj, justificativa, outrasInformacoes, nom_usu_create, dat_usu_create, servico_txt)
       VALUES
-      (${createFornecedoreDto.poloId}, ${createFornecedoreDto.servicoId}, ${createFornecedoreDto.statusId}, '${createFornecedoreDto.nomeFornecedor}',
+      (${createFornecedoreDto.poloId}, 1, ${createFornecedoreDto.statusId}, '${createFornecedoreDto.nomeFornecedor}',
       '${createFornecedoreDto.numeroContrato}', '${createFornecedoreDto.representante}', '${createFornecedoreDto.email}', '${createFornecedoreDto.telefone}',
       '${createFornecedoreDto.invoice}', '${createFornecedoreDto.cnpj}', '${createFornecedoreDto.justificativa}', '${createFornecedoreDto.outrasInformacoes}',
-      '${createFornecedoreDto.nom_usu_create}', now())
+      '${createFornecedoreDto.nom_usu_create}', now(), '${createFornecedoreDto.servico_txt}')
     `);
   }
 
