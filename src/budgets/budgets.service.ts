@@ -58,7 +58,6 @@ export class BudgetsService {
       num_pedido: createBudgetReal.pedido,
       nom_usu_create: createBudgetReal.nom_usu_create,
       id_atividade: +createBudgetReal.atividadeId,
-      dat_usu_create: new Date(createBudgetReal.dat_usu_create).toISOString(),
       classe_servico: createBudgetReal.classeServico,
     };
 
@@ -83,7 +82,8 @@ export class BudgetsService {
         ${budgetReal.vlr_realizado},
         '${budgetReal.txt_observacao}',
         '${budgetReal.nom_usu_create}',
-        '${budgetReal.dat_usu_create}',
+        now(),
+        ${budgetReal.num_pedido},
         '${budgetReal.classe_servico}'
       )
     `);
