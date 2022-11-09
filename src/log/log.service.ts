@@ -40,7 +40,7 @@ export class LogService {
     }
 
     const esse =
-      await prismaClient.$queryRaw`select * from dev.f_get_log_filtered(${Prisma.sql`${dt_inicio},${dt_fim},${limit}::int)`}`;
+      await prismaClient.$queryRaw`select * from f_get_log_filtered(${Prisma.sql`${dt_inicio},${dt_fim},${limit}::int)`}`;
 
     return esse;
   }

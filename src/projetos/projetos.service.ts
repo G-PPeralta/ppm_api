@@ -67,8 +67,8 @@ export class ProjetosService {
             from (
             select 
               id,
-              (dev.fn_cron_calc_pct_plan_projeto(0, id)/100) * sum(vlr_planejado) as vlr_vp, 
-              (dev.fn_cron_calc_pct_real_projeto(0, id)/100) * sum(vlr_planejado) as vlr_va,
+              (fn_cron_calc_pct_plan_projeto(0, id)/100) * sum(vlr_planejado) as vlr_vp, 
+              (fn_cron_calc_pct_real_projeto(0, id)/100) * sum(vlr_planejado) as vlr_va,
               sum(vlr_realizado) as vlr_cr,
               valor_total_previsto,
               prioridade,
@@ -100,10 +100,10 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_projetos_atividade_custo_plan a
-              inner join dev.tb_projetos_atividade b
+              from tb_projetos_atividade_custo_plan a
+              inner join tb_projetos_atividade b
                 on a.id_atividade = b.id
-              inner join dev.tb_projetos c
+              inner join tb_projetos c
                 on b.id_projeto = c.id
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
@@ -147,10 +147,10 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_projetos_atividade_custo_real a
-              inner join dev.tb_projetos_atividade b
+              from tb_projetos_atividade_custo_real a
+              inner join tb_projetos_atividade b
                 on a.id_atividade = b.id
-              inner join dev.tb_projetos c
+              inner join tb_projetos c
                 on b.id_projeto = c.id
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
@@ -276,8 +276,8 @@ export class ProjetosService {
             from (
             select 
               id,
-              (dev.fn_cron_calc_pct_plan_projeto(0, id)/100) * sum(vlr_planejado) as vlr_vp, 
-              (dev.fn_cron_calc_pct_real_projeto(0, id)/100) * sum(vlr_planejado) as vlr_va,
+              (fn_cron_calc_pct_plan_projeto(0, id)/100) * sum(vlr_planejado) as vlr_vp, 
+              (fn_cron_calc_pct_real_projeto(0, id)/100) * sum(vlr_planejado) as vlr_va,
               sum(vlr_realizado) as vlr_cr,
               valor_total_previsto,
               prioridade,
@@ -352,8 +352,8 @@ export class ProjetosService {
                 c.descricao,
                 c.justificativa,
                 c.nome_projeto
-              from dev.tb_centro_custo a
-              inner join dev.tb_projetos c
+              from tb_centro_custo a
+              inner join tb_projetos c
                 on a.projeto_id = c.id
               LEFT JOIN tb_prioridades_projetos pri
                 ON pri.id = c.prioridade_id
@@ -438,10 +438,10 @@ export class ProjetosService {
     select 
       *,
       '' as nome_responsavel,
-      dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
-      case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
+      fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
+      case when fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
       0.00 as vlr_custo
-  from dev.tb_projetos_atividade a
+  from tb_projetos_atividade a
   order by id_pai asc, dat_ini_plan asc;`);
   }
 
@@ -450,10 +450,10 @@ export class ProjetosService {
    select 
       *,
       '' as nome_responsavel,
-      dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
-      case when dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else dev.fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
+      fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) as hrs_totais,
+      case when fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) is null then 0 else fn_hrs_uteis_totais_atv(dat_ini_real, dat_fim_real) end as hrs_reais,
       0.00 as vlr_custo
-  from dev.tb_projetos_atividade a
+  from tb_projetos_atividade a
   where id_projeto = ${id}
   order by id_pai asc, dat_ini_plan asc;
     `);
@@ -463,10 +463,10 @@ export class ProjetosService {
     return this.prismaClient.$queryRawUnsafe(`
     select 
     *,
-    round(dev.fn_cron_calc_pct_plan(b.id),1) as pct_plan,
-    round(dev.fn_cron_calc_pct_real(b.id),1) as pct_real
-from dev.tb_projetos a
-left join dev.tb_projetos_atividade b 
+    round(fn_cron_calc_pct_plan(b.id),1) as pct_plan,
+    round(fn_cron_calc_pct_real(b.id),1) as pct_real
+from tb_projetos a
+left join tb_projetos_atividade b 
     on a.id = b.id_projeto 
 where 
     b.id_pai = 0 or b.id_pai is null
@@ -529,16 +529,16 @@ and a.id = ${id};
            extract(year from dat_ini_plan) as ano,
            extract(month from dat_ini_plan) as mes,
            concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
-           case when (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
+           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
+           case when (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
            else 
-             (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
+             (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
            end as horas_planejadas,
            0 as horas_totais_real,
            0 as horas_realizadas,
            0 as vlr_plan,
            0 as vlr_real
-        from dev.tb_projetos_atividade tpa 
+        from tb_projetos_atividade tpa 
         where dat_usu_erase is null
         and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
         union
@@ -548,11 +548,11 @@ and a.id = ${id};
             concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
            0 as horas_totais_plan,
            0 as horas_planejadas,
-           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
-           (dev.fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
+           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
+           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
            0 as vlr_plan,
            0 as vlr_real
-        from dev.tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
+        from tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
         and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
       ) as qr
     group by ano, mes
@@ -615,7 +615,7 @@ and a.id = ${id};
       meses,
       valor_total_previsto
     from
-        dev.v_grafico_curva_s
+        v_grafico_curva_s
     where
         data_fim > data_inicio
         and valor_total_previsto is not null
@@ -821,7 +821,7 @@ and a.id = ${id};
       });
 
       await this.prismaClient.$executeRawUnsafe(`
-      call dev.sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});
+      call sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});
       `);
     }
   }

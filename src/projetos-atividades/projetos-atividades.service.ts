@@ -61,7 +61,7 @@ export class ProjetosAtividadesService {
     let id_pai;
     if (!existe) {
       const ret = await this.prisma.$queryRawUnsafe(`
-      INSERT INTO dev.tb_projetos
+      INSERT INTO tb_projetos
       (nome_projeto, polo_id, local_id, tipo_projeto_id, status_id)
       VALUES('${sonda[0].nom_sonda}', 1, 4, 3, 1)
       RETURNING id
@@ -109,6 +109,8 @@ export class ProjetosAtividadesService {
       const operacao = await this.prisma.$queryRawUnsafe(`
         SELECT * FROM tb_projetos_operacao WHERE id = ${atv.operacao_id}
       `);
+
+      Logger.log(`${new Date(atv.data_inicio).toISOString()}`);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real)
