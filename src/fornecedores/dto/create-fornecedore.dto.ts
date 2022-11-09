@@ -2,6 +2,7 @@ export class CreateFornecedoreDto {
   nom_usu_create: string;
   poloId: number;
   servicoId: number;
+  servico_txt: string;
   statusId: number;
   nomeFornecedor: string;
   numeroContrato: string;
