@@ -9,4 +9,5 @@ export interface BudgetReal {
   textPedido: string;
   nom_usu_create?: string;
   nom_usu_edit?: string;
+  dat_usu_create: string;
 }
