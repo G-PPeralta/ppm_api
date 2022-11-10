@@ -85,6 +85,39 @@ export class FiltrosService {
     });
   }
 
+  async getMediaDuracao(filtro: FiltroDto) {
+    const query = `
+    select 
+      round(avg(hrs_totais),0) as hrs_media
+      from tb_hist_estatistica hist
+      inner join tb_pocos tp on hist.id_poco = tp.id
+      where 1=1
+      ${filtro.pocoId > 0 ? ` AND id_poco = ${filtro.pocoId} ` : ``}
+      ${
+        filtro.profundidadeIni > 0
+          ? ` AND num_profundidade >= ${filtro.profundidadeIni} `
+          : ``
+      }
+      ${
+        filtro.profundidadeFim > 0
+          ? ` AND num_profundidade <= ${filtro.profundidadeFim} `
+          : ``
+      }
+      ${filtro.sondaId > 0 ? ` AND id_sonda = ${filtro.sondaId} ` : ``}
+      ${filtro.dataDe ? ` AND dat_conclusao >= '${filtro.dataDe}' ` : ``}
+      ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
+      and substring(trim(nom_poco), 1, 3) in (
+        select campo from (
+        select substring(trim(nom_poco), 1, 3) as campo 
+        from tb_pocos tp) as qr
+        group by campo
+        order by campo asc
+        )
+    `;
+    const retorno = await this.prisma.$queryRawUnsafe(query);
+    return retorno[0].hrs_media;
+  }
+
   async MediaHoraById(id: string) {
     const query = `
     select 

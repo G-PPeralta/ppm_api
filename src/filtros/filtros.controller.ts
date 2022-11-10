@@ -10,6 +10,10 @@ export class FiltrosController {
   async findMedia(@Body() filtro: FiltroDto) {
     return await this.service.findMedia(filtro);
   }
+  @Post('duracao')
+  async getMediaDuracao(@Body() filtro: FiltroDto) {
+    return await this.service.getMediaDuracao(filtro);
+  }
 
   @Get('datas/:id_poco')
   findDataIni(@Param('id_poco') id: string) {
