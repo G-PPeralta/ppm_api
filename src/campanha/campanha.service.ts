@@ -277,7 +277,13 @@ export class CampanhaService {
   }
 
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
-    let where = ' WHERE 1 = 1 ';
+    let where = `
+    WHERE 
+    (
+        (
+        COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < 100
+        )
+    ) `;
 
     if (campanhaFiltro.area_atuacao_id !== null) {
       where += ` AND (select count(area_id) FROM
@@ -447,6 +453,7 @@ export class CampanhaService {
     on poco2.id = pai.poco_id
     ${where}
     order by ordem, pai.dat_ini_plan asc
+    limit 9
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {

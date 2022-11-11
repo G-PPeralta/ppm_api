@@ -46,7 +46,7 @@ export class EditarAtividadeService {
         (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
         VALUES
         (${atividade.geral.id_atividade}, '${atividade.anotacoes.anotacoes}', '${atividade.nom_usu_create}', now(), 1)
-        ON CONFLICT (id_atividade, ind_tipo_anotacao, txt_nota) DO
+        ON CONFLICT (id_atividade, ind_tipo_anotacao) DO
         UPDATE
         SET
         txt_nota = '${atividade.anotacoes.anotacoes}'
