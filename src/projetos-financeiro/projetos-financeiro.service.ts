@@ -40,7 +40,10 @@ export class ProjetosFinanceiroService {
     centro_custo.data as dataPagamento,
     coalesce(centro_custo.valor, 0) as valor,
     coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico,
-    centro_custo.pedido as pedido
+    centro_custo.pedido as pedido,
+    classe_servico.id AS classeDeServicoId,
+    fornecedores.id AS prestadorDeServicoId
+
     from tb_projetos projetos
     left join tb_projetos_atividade atividade_pai
     on atividade_pai.id_projeto = projetos.id and atividade_pai.id_pai = 0
@@ -59,7 +62,7 @@ export class ProjetosFinanceiroService {
     and projetos.id = ${id}
     group by 
     projetos.id,  centro_custo.id, classe_servico.classe_servico,centro_custo.data, centro_custo.valor, centro_custo.descricao_do_servico, 
-    fornecedores.nomefornecedor, centro_custo.pedido,  coalesce(to_char(centro_custo.data, 'MM'), '')
+    fornecedores.nomefornecedor, centro_custo.pedido,  coalesce(to_char(centro_custo.data, 'MM'), ''), classe_servico.id, fornecedores.id
     
     `);
 
@@ -84,9 +87,12 @@ export class ProjetosFinanceiroService {
             valor: e.valor,
             descricaoDoServico: e.descricaodoservico,
             pedido: e.pedido,
+            classeDeServicoId: e.classedeservicoid,
+            prestadorDeServicoId: e.prestadordeservicoid,
           });
         }
       });
+
       if (!existe) {
         dados.centroDeCusto.push({
           idCusto: e.idcusto,
@@ -96,6 +102,8 @@ export class ProjetosFinanceiroService {
           valor: e.valor,
           descricaoDoServico: e.descricaodoservico,
           pedido: e.pedido,
+          classeDeServicoId: e.classedeservicoid,
+          prestadorDeServicoId: e.prestadordeservicoid,
         });
 
         tratamento.push(dados);

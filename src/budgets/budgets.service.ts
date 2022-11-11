@@ -4,6 +4,7 @@ import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
+import { CreateBudgetDto } from './dto/create-budget.dto';
 import { CustoDiarioDto, CustoDiarioORMDto } from './dto/custos-diarios.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
@@ -33,19 +34,59 @@ export class BudgetsService {
     });
   }
 
-  async createBudgetReal(_updateBudgetReal: BudgetReal) {
+  // async createBudgetReal(_updateBudgetReal: BudgetReal) {
+  //   const budgetReal = {
+  //     id_fornecedor: +_updateBudgetReal.fornecedor,
+  //     dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
+  //     vlr_realizado: _updateBudgetReal.valor,
+  //     txt_observacao: _updateBudgetReal.textPedido,
+  //     num_pedido: _updateBudgetReal.pedido,
+  //     nom_usu_create: _updateBudgetReal.nom_usu_create,
+  //     id_atividade: +_updateBudgetReal.atividadeId,
+  //   };
+  //   return this.prisma.atividadeCustosRealizado.create({
+  //     data: budgetReal,
+  //   });
+  // }
+
+  async createBudgetReal(createBudgetReal: BudgetReal) {
     const budgetReal = {
-      id_fornecedor: +_updateBudgetReal.fornecedor,
-      dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
-      vlr_realizado: _updateBudgetReal.valor,
-      txt_observacao: _updateBudgetReal.textPedido,
-      num_pedido: _updateBudgetReal.pedido,
-      nom_usu_create: _updateBudgetReal.nom_usu_create,
-      id_atividade: +_updateBudgetReal.atividadeId,
+      id_fornecedor: +createBudgetReal.fornecedor,
+      dat_lcto: new Date(createBudgetReal.data).toISOString(),
+      vlr_realizado: createBudgetReal.valor,
+      txt_observacao: createBudgetReal.textPedido,
+      num_pedido: createBudgetReal.pedido,
+      nom_usu_create: createBudgetReal.nom_usu_create,
+      id_atividade: +createBudgetReal.atividadeId,
+      classe_servico: createBudgetReal.classeServico,
     };
-    return this.prisma.atividadeCustosRealizado.create({
-      data: budgetReal,
-    });
+
+    return await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_atividade_custo_real 
+      (
+        id_atividade,
+        id_fornecedor,
+        dat_lcto,
+        vlr_realizado,
+        txt_observacao,
+        nom_usu_create,
+        dat_usu_create,
+        num_pedido,
+        classe_servico
+      )
+      VALUES
+      (
+        ${budgetReal.id_atividade},
+        ${budgetReal.id_fornecedor},
+        '${budgetReal.dat_lcto}',
+        ${budgetReal.vlr_realizado},
+        '${budgetReal.txt_observacao}',
+        '${budgetReal.nom_usu_create}',
+        now(),
+        ${budgetReal.num_pedido},
+        '${budgetReal.classe_servico}'
+      )
+    `);
   }
 
   async findAll() {
@@ -572,7 +613,7 @@ export class BudgetsService {
       vlr_realizado: _updateBudgetReal.valor,
       dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
       id_fornecedor: +_updateBudgetReal.fornecedor,
-      // classeServico: _updateBudgetReal.classeServico,
+      classe_servico: _updateBudgetReal.classeServico,
       num_pedido: _updateBudgetReal.pedido,
       txt_observacao: _updateBudgetReal.textPedido,
       nom_usu_edit: _updateBudgetReal.nom_usu_edit,
@@ -581,12 +622,14 @@ export class BudgetsService {
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_projetos_atividade_custo_real
       SET
+      classe_servico = '${data.classe_servico}',
       vlr_realizado = ${data.vlr_realizado},
       dat_lcto = '${data.dat_lcto}',
       id_fornecedor = ${data.id_fornecedor},
       num_pedido = ${data.num_pedido},
       txt_observacao = '${data.txt_observacao}',
-      nom_usu_edit = '${data.nom_usu_edit}'
+      nom_usu_edit = '${data.nom_usu_edit}',
+      dat_usu_edit = now()
       WHERE id = ${_updateBudgetReal.id}
     `);
   }
