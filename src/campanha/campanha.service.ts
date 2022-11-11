@@ -425,7 +425,7 @@ export class CampanhaService {
     	where p.nome_projeto = rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1)))
     ) as sonda,
     coalesce(poco.nom_poco, poco2.poco) as poco,
-    pai.dat_ini_plan as inicioPlanejado,
+    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
             fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
