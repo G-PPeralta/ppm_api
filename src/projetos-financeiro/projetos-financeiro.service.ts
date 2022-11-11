@@ -15,7 +15,11 @@ export class ProjetosFinanceiroService {
     '' as textoDoPedido,
     coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
     coalesce(sum(centro_custo.valor), 0) as totalRealizado,
-    ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) as gap,
+    case
+	    when coalesce(sum(centro_custo.valor), 0) <= 0 then 0
+	    when coalesce(projetos.valor_total_previsto, 0) <= 0 then 0
+    	else    ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) 
+    end as gap,
     coalesce(to_char(centro_custo.data, 'MM/yyyy'), '') as mes
     from tb_projetos projetos
     left join
