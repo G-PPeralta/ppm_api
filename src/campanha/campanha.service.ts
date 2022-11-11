@@ -452,7 +452,7 @@ export class CampanhaService {
     left join tb_intervencoes_pocos poco2
     on poco2.id = pai.poco_id
     ${where}
-    order by ordem, pai.dat_ini_plan asc
+    order by ordem, (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) asc
     limit 9
     `);
     const tratamento: any = [];
