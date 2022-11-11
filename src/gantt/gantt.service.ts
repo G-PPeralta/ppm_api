@@ -73,6 +73,7 @@ export class GanttService {
     select
     id as TaskID,
     nom_atividade as TaskName,
+    dat_ini_plan as StartDatePlan,
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,

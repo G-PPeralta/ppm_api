@@ -578,11 +578,34 @@ export class CampanhaService {
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
+    //primeiro item da lista
+
+    /*
+      SELECT 
+        poco.id as id_cronograma,
+        poco.ordem,
+        max(dat_ini_plan) as dat_ini_proximo_cronograma
+      FROM
+      tb_projetos_atividade poco
+      inner join tb_projetos_atividade sonda
+      on poco.id_pai = sonda.id
+      inner join tb_campanha campanha
+      on rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1))) = sonda.nom_atividade
+      WHERE
+      sonda.id_pai = 0 and campanha.id = ${id_campanha}
+      and poco.ordem is not null
+      order by ordem 
+
+    */
+
+    return true;
+
+    /*
     const anterior: ReplanejarCampanhaDto[] = await this.prisma
       .$queryRawUnsafe(`
       SELECT 
-      poco.id as id_cronograma,
-      poco.ordem
+        poco.id as id_cronograma,
+        poco.ordem
       FROM
       tb_projetos_atividade poco
       inner join tb_projetos_atividade sonda
@@ -631,6 +654,8 @@ export class CampanhaService {
         }
       });
     });
+
+    */
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
