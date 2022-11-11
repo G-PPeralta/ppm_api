@@ -152,7 +152,7 @@ export class DetalhamentoService {
               case
                   when sum(c.valor_total_previsto) is null 
                   then 0
-                  else sum(valor_total_previsto)-1
+                  else sum(valor_total_previsto)
               end as vlr_nao_prev,
               sum(valor_total_previsto) as vlr_planejado,
               0 as vlr_realizado
