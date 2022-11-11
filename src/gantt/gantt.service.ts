@@ -74,6 +74,7 @@ export class GanttService {
     id as TaskID,
     nom_atividade as TaskName,
     dat_ini_plan as StartDatePlan,
+    dat_fim_plan as EndDatePlan,
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -95,6 +96,8 @@ export class GanttService {
       return {
         TaskID: el.taskid,
         TaskName: el.taskname,
+        StartDatePlan: el.startdateplan,
+        EndDatePlan: el.enddateplan,
         StartDate: el.startdate,
         EndDate: el.enddate,
         Duration: el.duration,
@@ -123,6 +126,8 @@ export class GanttService {
         select
         id as TaskID,
         nom_atividade as TaskName,
+        dat_ini_plan as StartDatePlan,
+        dat_fim_plan as EndDatePlan,
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -143,6 +148,8 @@ export class GanttService {
         return {
           TaskID: el.taskid,
           TaskName: el.taskname,
+          StartDatePlan: el.startdateplan,
+          EndDatePlan: el.enddateplan,
           StartDate: el.startdate,
           EndDate: el.enddate,
           Duration: el.duration,

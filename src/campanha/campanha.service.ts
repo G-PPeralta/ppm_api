@@ -414,7 +414,7 @@ export class CampanhaService {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     select 
-	(select ordem from tb_projetos_atividade where id = pai.poco_id) as ordem,
+    coalesce(ordem ,(select ordem from tb_projetos_atividade where id = pai.poco_id)) as ordem,
 	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
@@ -589,20 +589,20 @@ export class CampanhaService {
           id_campanha,
         );
 
-        await this.callRecalc(id_anterior, id_posterior);
+        await this.callRecalc(id_anterior, id_posterior, arr[curIdx + 1].ordem);
       }
       return curIdx + 1;
     }, Promise.resolve(0));
   }
 
-  async callRecalc(id_poco_anterior: number, id_poco_posterior: number) {
-    Logger.log(`
-      CALL sp_up_recalcula_campanha(${id_poco_anterior}, ${id_poco_posterior})
+  async callRecalc(
+    id_poco_anterior: number,
+    id_poco_posterior: number,
+    ordem: number,
+  ) {
+    await this.prisma.$queryRawUnsafe(`
+      CALL sp_recalcula_campanha(${id_poco_anterior}, ${id_poco_posterior}, ${ordem})
     `);
-
-    /*await this.prisma.$queryRawUnsafe(`
-      CALL sp_up_recalcula_campanha(${id_poco_anterior}, ${id_poco_posterior})
-    `); */
   }
 
   async getTbCampanhaFromProjetos(id: number, id_campanha: number) {
