@@ -68,6 +68,32 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
+  async deleteRecursive(id: number) {
+    const existe_filhos = await this.prisma.$queryRawUnsafe(`
+      SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id}
+    `);
+
+    if (existe_filhos[0].existe > 0) {
+      const filho: any[] = await this.prisma.$queryRawUnsafe(`
+        SELECT id FROM tb_projetos_atividade WHERE id_pai = ${id}
+      `);
+
+      filho.forEach(async (e) => {
+        await this.deleteRecursive(e.id);
+      });
+
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+      );
+    } else {
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+      );
+    }
+  }
+
   async findOne(id: number) {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select
