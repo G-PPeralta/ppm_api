@@ -277,7 +277,13 @@ export class CampanhaService {
   }
 
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
-    let where = ' WHERE 1 = 1 ';
+    let where = `
+    WHERE 
+    (
+        (
+        COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) < 100
+        )
+    ) `;
 
     if (campanhaFiltro.area_atuacao_id !== null) {
       where += ` AND (select count(area_id) FROM
@@ -408,7 +414,7 @@ export class CampanhaService {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     select 
-	(select ordem from tb_projetos_atividade where id = pai.poco_id) as ordem,
+    coalesce(ordem ,(select ordem from tb_projetos_atividade where id = pai.poco_id)) as ordem,
 	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
@@ -419,7 +425,7 @@ export class CampanhaService {
     	where p.nome_projeto = rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1)))
     ) as sonda,
     coalesce(poco.nom_poco, poco2.poco) as poco,
-    pai.dat_ini_plan as inicioPlanejado,
+    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) as inicioPlanejado,
     fn_atv_maior_data(pai.id) as finalPlanejado,
     round(fn_atv_calc_pct_plan(
             fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
@@ -446,7 +452,8 @@ export class CampanhaService {
     left join tb_intervencoes_pocos poco2
     on poco2.id = pai.poco_id
     ${where}
-    order by ordem, pai.dat_ini_plan asc
+    order by ordem, (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) asc
+    limit 9
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {
@@ -571,59 +578,40 @@ export class CampanhaService {
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
-    const anterior: ReplanejarCampanhaDto[] = await this.prisma
-      .$queryRawUnsafe(`
-      SELECT 
-      poco.id as id_cronograma,
-      poco.ordem
-      FROM
-      tb_projetos_atividade poco
-      inner join tb_projetos_atividade sonda
-      on poco.id_pai = sonda.id
-      inner join tb_campanha campanha
-      on rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1))) = sonda.nom_atividade
-      WHERE
-      sonda.id_pai = 0 and campanha.id = ${id_campanha}
-      and poco.ordem is not null
-      order by ordem
+    await payload.reduce(async (prev, cur, curIdx, arr) => {
+      if (curIdx < payload.length - 1) {
+        const id_anterior = await this.getTbCampanhaFromProjetos(
+          arr[await prev].id_cronograma,
+          id_campanha,
+        );
+        const id_posterior = await this.getTbCampanhaFromProjetos(
+          arr[curIdx + 1].id_cronograma,
+          id_campanha,
+        );
+
+        await this.callRecalc(id_anterior, id_posterior, arr[curIdx + 1].ordem);
+      }
+      return curIdx + 1;
+    }, Promise.resolve(0));
+  }
+
+  async callRecalc(
+    id_poco_anterior: number,
+    id_poco_posterior: number,
+    ordem: number,
+  ) {
+    await this.prisma.$queryRawUnsafe(`
+      CALL sp_recalcula_campanha(${id_poco_anterior}, ${id_poco_posterior}, ${ordem})
+    `);
+  }
+
+  async getTbCampanhaFromProjetos(id: number, id_campanha: number) {
+    const ret = await this.prisma.$queryRawUnsafe(`
+      select id from tb_camp_atv_campanha tcac where poco_id = ${id}
+      and id_campanha = ${id_campanha}
     `);
 
-    const id_projeto = await this.prisma.$queryRawUnsafe(`
-      select 
-      projeto.id
-      from
-      tb_projetos projeto
-      inner join tb_campanha campanha
-      on rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1))) = projeto.nome_projeto
-      where campanha.id = ${id_campanha}
-    `);
-
-    const copia_payload = JSON.parse(JSON.stringify(payload));
-
-    const rodou: Set<number> = new Set<number>();
-
-    payload.forEach(async (el) => {
-      anterior.forEach(async (inner) => {
-        if (el.id_cronograma === inner.id_cronograma) {
-          if (el.ordem !== inner.ordem) {
-            let id_para = 0;
-            copia_payload.forEach((e) => {
-              if (e.ordem === inner.ordem) {
-                id_para = e.id_cronograma;
-              }
-            });
-
-            if (!rodou.has(el.id_cronograma) && !rodou.has(id_para)) {
-              await this.prisma.$queryRawUnsafe(`
-                CALL sp_up_recalcula_cronograma_intervencao(${el.id_cronograma}, ${id_para}, ${inner.ordem}, ${el.ordem}, ${id_projeto[0].id} )
-              `);
-              rodou.add(el.id_cronograma);
-              rodou.add(id_para);
-            }
-          }
-        }
-      });
-    });
+    return ret[0].id;
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {

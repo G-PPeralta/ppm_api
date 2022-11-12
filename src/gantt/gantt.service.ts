@@ -68,11 +68,39 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
+  async deleteRecursive(id: number) {
+    const existe_filhos = await this.prisma.$queryRawUnsafe(`
+      SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id}
+    `);
+
+    if (existe_filhos[0].existe > 0) {
+      const filho: any[] = await this.prisma.$queryRawUnsafe(`
+        SELECT id FROM tb_projetos_atividade WHERE id_pai = ${id}
+      `);
+
+      filho.forEach(async (e) => {
+        await this.deleteRecursive(e.id);
+      });
+
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+      );
+    } else {
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+      );
+    }
+  }
+
   async findOne(id: number) {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select
     id as TaskID,
     nom_atividade as TaskName,
+    dat_ini_plan as StartDatePlan,
+    dat_fim_plan as EndDatePlan,
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -94,6 +122,8 @@ export class GanttService {
       return {
         TaskID: el.taskid,
         TaskName: el.taskname,
+        StartDatePlan: el.startdateplan,
+        EndDatePlan: el.enddateplan,
         StartDate: el.startdate,
         EndDate: el.enddate,
         Duration: el.duration,
@@ -122,6 +152,8 @@ export class GanttService {
         select
         id as TaskID,
         nom_atividade as TaskName,
+        dat_ini_plan as StartDatePlan,
+        dat_fim_plan as EndDatePlan,
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -142,6 +174,8 @@ export class GanttService {
         return {
           TaskID: el.taskid,
           TaskName: el.taskname,
+          StartDatePlan: el.startdateplan,
+          EndDatePlan: el.enddateplan,
           StartDate: el.startdate,
           EndDate: el.enddate,
           Duration: el.duration,

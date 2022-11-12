@@ -71,7 +71,7 @@ export class EstatisticasService {
         case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
         atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
         responsaveis.nome_responsavel, vlr_min, vlr_max, vlr_dp, vlr_med
-        order by atividades.id_pai asc, atividades.dat_ini_plan asc;
+        order by atividades.id asc, atividades.dat_ini_real asc, atividades.id_pai asc;
 
     `);
 

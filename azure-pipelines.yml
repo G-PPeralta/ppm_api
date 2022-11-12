@@ -19,9 +19,17 @@ steps:
 - task: YarnInstaller@3
   displayName: Use Yarn 1.x
 - task: Yarn@3
-  displayName: 'Yarn Install '
+  displayName: Yarn Install Dist
   inputs:
-    arguments: install
+    arguments: 'install --ignore-scripts'
+  env:
+    DATABASE_URL: $(DATABASE_URL)
+    PORT: $(PORT)
+    SECRET_KEY: $(SECRET_KEY)
+- task: Yarn@3
+  displayName: 'Prisma Generate '
+  inputs:
+    arguments: prisma generate
 - task: Yarn@3
   displayName: Yarn Build
   inputs:
@@ -30,22 +38,14 @@ steps:
     DATABASE_URL: $(DATABASE_URL)
     PORT: $(PORT)
     SECRET_KEY: $(SECRET_KEY)
-
 - task: CopyFiles@2
   inputs:
     Contents: 'package*.json'
     TargetFolder: 'dist'
-
-- task: Yarn@3
-  displayName: Yarn Build
+- task: CopyFiles@2
   inputs:
-    projectDirectory: dist
-    arguments: 'build --ignore-scripts'
-  env:
-    DATABASE_URL: $(DATABASE_URL)
-    PORT: $(PORT)
-    SECRET_KEY: $(SECRET_KEY)
-
+    Contents: '**\node_modules\**'
+    TargetFolder: 'dist'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'dist'

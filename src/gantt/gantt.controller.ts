@@ -59,6 +59,7 @@ export class GanttController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ganttService.remove(+id);
+    return this.ganttService.deleteRecursive(+id);
+    //return this.ganttService.remove(+id);
   }
 }
