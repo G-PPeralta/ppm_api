@@ -86,7 +86,7 @@ export class ProjetosAtividadesLicoesAprendidasController {
     );
   }
 
-  @Delete(':id/:user')
+  @Patch(':id/:user')
   remove(@Param('id') id: string, @Param('user') user: string) {
     return this.projetosAtividadesLicoesAprendidasService.remove(+id, user);
   }
