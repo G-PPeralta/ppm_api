@@ -84,12 +84,12 @@ export class GanttService {
 
       //delete
       const ret = await this.prisma.$queryRawUnsafe(
-        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now() WHERE id = ${id}`,
       );
     } else {
       //delete
       const ret = await this.prisma.$queryRawUnsafe(
-        `DELETE FROM tb_projetos_atividade WHERE id = ${id}`,
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now() WHERE id = ${id}`,
       );
     }
   }

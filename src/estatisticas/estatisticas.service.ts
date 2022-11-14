@@ -65,6 +65,7 @@ export class EstatisticasService {
               ) as calc
               on calc.nom_atividade = atividades.nom_atividade
         where
+        sonda.dat_usu_erase is null and
         sonda.id_pai = 0
         group by 
         sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
