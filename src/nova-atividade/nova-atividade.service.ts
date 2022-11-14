@@ -3,6 +3,7 @@ import { CampanhaService } from 'campanha/campanha.service';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { CreateAtividade } from './dto/create-atividade.dto';
+import { CreateAtividadeOutro } from './dto/create-outros.dto';
 
 @Injectable()
 export class NovaAtividadeService {
@@ -10,6 +11,14 @@ export class NovaAtividadeService {
     private prisma: PrismaService,
     private campanhaService: CampanhaService,
   ) {}
+
+  async createOutros(createOutros: CreateAtividadeOutro) {
+    return await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_camp_atv (nom_atividade, responsavel_id, area_atuacao)
+      VALUES
+      ('${createOutros.nom_atividade}', 0, 0)
+    `);
+  }
 
   async create(createAtividade: CreateAtividade) {
     return await this.prisma
@@ -39,6 +48,8 @@ export class NovaAtividadeService {
     createAtividade: CreateAtividade,
   ) {
     let dias = 0;
+
+    dias += createAtividade.duracao;
 
     createAtividade.precedentes.forEach((e) => {
       dias += e.dias;
