@@ -28,7 +28,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async findAll() {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas;
+      select * from tb_projetos_atv_licoes_aprendidas where dat_usu_erase is null;
     `);
   }
 
