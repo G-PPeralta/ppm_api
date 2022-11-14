@@ -21,7 +21,7 @@ export class FornecedoresService {
 
   findAll() {
     return this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_fornecedores
+      SELECT * FROM tb_fornecedores where dat_usu_erase is null
     `);
   }
 
@@ -53,7 +53,10 @@ export class FornecedoresService {
     `);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} fornecedore`;
+  async remove(id: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    UPDATE tb_fornecedores set dat_usu_erase = now()
+    WHERE id = ${id};
+    `);
   }
 }
