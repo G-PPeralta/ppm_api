@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
@@ -397,7 +397,7 @@ export class ProjetosService {
       on a.id = b.id_projeto
       where 
       a.tipo_projeto_id in (1,2)
-      AND a.deletado = false
+      AND a.dat_usu_erase is null
       order by vlr_ranking desc  
     `;
 
@@ -701,7 +701,7 @@ and a.id = ${id};
   async remove(id: number) {
     return await this.prismaClient.$queryRawUnsafe(`UPDATE tb_projetos
     SET DELETADO = TRUE,
-    dat_usu_update = NOW()
+    dat_usu_erase = now()
     WHERE ID = ${id}`);
   }
 
