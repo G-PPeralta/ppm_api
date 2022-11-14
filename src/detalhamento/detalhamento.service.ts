@@ -119,30 +119,26 @@ export class DetalhamentoService {
   async findOneInfoFinanc(id: number) {
     const query: InfoFinanceiro[] = await this.prisma.$queryRaw`  
       select
-        case when vlr_remanescente / vlr_planejado * 100 < 0 then 0 else round(vlr_remanescente / vlr_planejado * 100, 1) end as pct_remanescente,
-        case when vlr_realizado / vlr_planejado > 1 then 100 else round((vlr_realizado / vlr_planejado * 100), 1) end as pct_realizado,
-        case when vlr_realizado < 0.1 then 0 when vlr_planejado < 0.1 then 0 else round((vlr_realizado / (vlr_realizado - vlr_planejado)-1) * 100, 1) end as pct_nao_previsto,
+        (case when vlr_realizado > vlr_planejado then 0 when vlr_realizado = 0 then 0 when vlr_planejado = 0 then 0 else (vlr_planejado - vlr_realizado) / vlr_planejado end) * 100 as pct_remanescente,
+        (case when vlr_realizado = 0 then 0 when vlr_planejado = 0 then 0 else vlr_realizado / vlr_planejado end) * 100 as pct_realizado,
+        (case when vlr_realizado < vlr_planejado then 0 when vlr_realizado = 0 then 0 when vlr_planejado = 0 then 0 else (vlr_realizado - vlr_planejado) / vlr_planejado end) * 100 as pct_nao_previsto,
         vlr_planejado,
         vlr_realizado,
-        round(vlr_realizado - vlr_planejado, 2) as vlr_nao_prev,
-        case when  vlr_remanescente < 0 then 0 else vlr_remanescente end as vlr_remanescente
+        case when vlr_realizado < vlr_planejado then 0 else vlr_realizado - vlr_planejado end as vlr_nao_prev,
+        case when vlr_realizado > vlr_planejado then 0 else vlr_planejado - vlr_realizado end as vlr_remanescente
       from
       (
       select
           case
-              when sum(vlr_nao_prev) <= 0 then 0.00001
+              when sum(vlr_nao_prev) <= 0 then 0
               else sum(vlr_nao_prev)
-          end as vlr_nao_prev,
+          end as vlr_nao_prev, 
           case
-              when sum(vlr_nao_prev) = 0 then 0.00000001
-              else sum(vlr_nao_prev)*-1
-          end as vlr_remanescente,        
-          case
-              when sum(vlr_planejado) =0 then 0.00000001
+              when sum(vlr_planejado) =0 then 0
               else sum(vlr_planejado)
           end as vlr_planejado,
           case
-              when sum(vlr_realizado) = 0 then 0.00000001
+              when sum(vlr_realizado) = 0 then 0
               else sum(vlr_realizado)
           end as vlr_realizado,
           sum(vlr_planejado)
