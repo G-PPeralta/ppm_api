@@ -36,7 +36,7 @@ export class FornecedoresController {
   }
 
   @Patch(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('/delete/id') id: string) {
     return this.fornecedoresService.remove(+id);
   }
 }
