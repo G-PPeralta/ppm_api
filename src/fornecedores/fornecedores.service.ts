@@ -53,9 +53,9 @@ export class FornecedoresService {
     `);
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-    UPDATE tb_fornecedores set dat_usu_erase = now()
+    UPDATE tb_fornecedores set dat_usu_erase = now(), nom_usu_erase = '${user}'
     WHERE id = ${id};
     `);
   }
