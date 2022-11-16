@@ -7,6 +7,7 @@ import {
   Param,
   NotFoundException,
   InternalServerErrorException,
+  Delete,
 } from '@nestjs/common';
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -142,7 +143,7 @@ export class ProjetosController {
     );
   }
 
-  @Patch(':id')
+  @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.projetosService.remove(+id);
   }

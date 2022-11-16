@@ -38,7 +38,7 @@ export class PocoController {
     return this.pocoService.update(+id, updatePocoDto);
   }
 
-  @Patch(':id')
+  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.pocoService.remove(+id);
   }
