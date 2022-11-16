@@ -702,7 +702,7 @@ and a.id = ${id};
     return await this.prismaClient.$queryRawUnsafe(`UPDATE tb_projetos
     SET DELETADO = TRUE,
     dat_usu_erase = now()
-    WHERE ID = ${id}`);
+    WHERE id = ${id}`);
   }
 
   async countAll() {
