@@ -230,9 +230,9 @@ export class EstatisticasService {
     `);
   }
 
-  async apagarAtividade(id: number) {
+  async apagarAtividade(id: number, user: string) {
     await this.prisma.$queryRawUnsafe(`
-      UPDATE tb_projetos_atividade set dat_usu_erase = now() WHERE id = ${id}
+      UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}
     `);
   }
 }
