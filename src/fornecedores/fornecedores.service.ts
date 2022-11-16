@@ -27,7 +27,7 @@ export class FornecedoresService {
 
   findOne(id: number) {
     return this.prisma.$queryRawUnsafe(`
-      SELECT * FROM tb_fornecedores WHERE id = ${id}
+      SELECT * FROM tb_fornecedores WHERE id = ${id} and dat_usu_erase is null
     `);
   }
 
