@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   NotFoundException,
   UseGuards,
   Patch,
@@ -57,7 +56,7 @@ export class GanttController {
   //   return this.ganttService.update(+id, updateGanttDto);
   // }
 
-  @Delete(':id')
+  @Patch(':id')
   remove(@Param('id') id: string) {
     return this.ganttService.deleteRecursive(+id);
     //return this.ganttService.remove(+id);

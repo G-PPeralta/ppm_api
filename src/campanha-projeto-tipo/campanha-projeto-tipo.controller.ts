@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CampanhaProjetoTipoService } from './campanha-projeto-tipo.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
@@ -19,5 +19,10 @@ export class CampanhaProjetoTipoController {
   @Get(':id')
   findByProjetos(@Param('id') id: string) {
     return this.service.findRelacaoByProjeto(+id);
+  }
+
+  @Patch(':id')
+  delete(@Param('id') id: string) {
+    return this.service.delete(+id);
   }
 }

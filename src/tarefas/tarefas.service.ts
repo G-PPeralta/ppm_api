@@ -23,7 +23,7 @@ export class TarefasService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select * from tb_tarefas tarefas
+    select * from tb_tarefas tarefas where dat_usu_erase is null
     `);
   }
 
@@ -52,5 +52,12 @@ export class TarefasService {
       dat_usu_edit = now()
       where id = ${id}`);
     }
+  }
+
+  delete(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+   UPDATE tb_tarefas set dat_usu_erase = now()
+    WHERE id = ${id};
+   `);
   }
 }

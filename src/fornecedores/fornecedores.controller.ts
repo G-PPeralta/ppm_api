@@ -35,8 +35,8 @@ export class FornecedoresController {
     return this.fornecedoresService.update(updateFornecedoreDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Patch(':id')
+  remove(@Param('/delete/id') id: string) {
     return this.fornecedoresService.remove(+id);
   }
 }

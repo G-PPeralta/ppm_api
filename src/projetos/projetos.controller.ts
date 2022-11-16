@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -143,7 +142,7 @@ export class ProjetosController {
     );
   }
 
-  @Delete(':id')
+  @Patch(':id')
   async remove(@Param('id') id: string) {
     return await this.projetosService.remove(+id);
   }

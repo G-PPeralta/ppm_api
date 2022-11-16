@@ -28,13 +28,13 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async findAll() {
     return this.prisma.$queryRawUnsafe(`
-      select * from tb_projetos_atv_licoes_aprendidas;
+      select * from tb_projetos_atv_licoes_aprendidas where dat_usu_erase is null;
     `);
   }
 
   async findOne(id: number) {
     return this.prisma.$queryRawUnsafe(`
-      select id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas where id_projeto = ${id}
+      select id, txt_licao_aprendida as licao_aprendida, dat_usu_create as data, txt_acao as acao_e_recomendacao from tb_projetos_atv_licoes_aprendidas where dat_usu_erase is null and id_projeto = ${id}
     `);
   }
 
@@ -82,7 +82,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-      update tb_projetos_atv_licoes_aprendidas set dat_usu_exc = now(), nom_usu_exc = '${user}' where id = ${id}
+      update tb_projetos_atv_licoes_aprendidas set dat_usu_erase = now(), nom_usu_exc = '${user}' where id = ${id}
     `);
   }
 }
