@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UseGuards,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { GanttService } from './gantt.service';
 import { CreateGanttDto } from './dto/create-gantt.dto';
@@ -56,7 +57,7 @@ export class GanttController {
   //   return this.ganttService.update(+id, updateGanttDto);
   // }
 
-  @Patch(':id')
+  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ganttService.deleteRecursive(+id);
     //return this.ganttService.remove(+id);
