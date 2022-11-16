@@ -30,6 +30,17 @@ export class LixeiraService {
                  where id in (${e.rows_id})
                  `);
         }
+        if (e.table_name === 'tb_tarefas') {
+          consulta = await this.prisma.$queryRawUnsafe(`
+          select id, nome_tarefa as local_deletado,
+          case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                    else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                    case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                    else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+          from tb_tarefas deletado
+          where id in (${e.rows_id})
+          `);
+        }
 
         if (consulta) {
           consulta.forEach((e) => {
