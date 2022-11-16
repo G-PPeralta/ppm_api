@@ -142,7 +142,7 @@ export class ProjetosController {
     );
   }
 
-  @Patch(':id')
+  @Patch('/delete/:id')
   async remove(@Param('id') id: string) {
     return await this.projetosService.remove(+id);
   }
