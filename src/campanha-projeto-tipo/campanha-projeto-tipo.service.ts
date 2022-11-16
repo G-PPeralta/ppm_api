@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
@@ -100,5 +100,12 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     };
 
     return await retornar();
+  }
+
+  delete(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+   UPDATE tb_camp_projeto_tipo set dat_usu_erase = now()
+    WHERE id = ${id};
+   `);
   }
 }
