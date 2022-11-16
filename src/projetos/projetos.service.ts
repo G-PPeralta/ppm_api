@@ -698,10 +698,11 @@ and a.id = ${id};
     `);
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: string) {
     return await this.prismaClient.$queryRawUnsafe(`UPDATE tb_projetos
     SET DELETADO = TRUE,
-    dat_usu_erase = now()
+    dat_usu_erase = now(), 
+    nom_usu_erase = '${user}'
     WHERE id = ${id}`);
   }
 
