@@ -54,9 +54,9 @@ export class TarefasService {
     }
   }
 
-  delete(id: number) {
+  delete(id: number, user: string) {
     return this.prisma.$queryRawUnsafe(`
-   UPDATE tb_tarefas set dat_usu_erase = now()
+   UPDATE tb_tarefas set dat_usu_erase = now(), nom_usu_erase = '${user}'
     WHERE id = ${id};
    `);
   }
