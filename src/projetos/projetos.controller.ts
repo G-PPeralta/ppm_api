@@ -29,6 +29,11 @@ export class ProjetosController {
     return await this.projetosService.getProjetosDetalhados();
   }
 
+  @Get('curva-s')
+  async buscarDadosCurvaSGeral() {
+    return await this.projetosService.buscarDadosCurvaSGeral();
+  }
+
   @Get('previstoXRealizado')
   async previstoXRealizadoGeral() {
     return await this.projetosService.previstoXRealizadoGeral();

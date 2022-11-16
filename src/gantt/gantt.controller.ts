@@ -19,6 +19,15 @@ import { UpdateGanttDto } from './dto/update-gantt.dto';
 export class GanttController {
   constructor(private readonly ganttService: GanttService) {}
 
+  @Get('panorama')
+  async getPanoramaGeral() {
+    try {
+      return this.ganttService.getPanoramaGeral();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
   @Post()
   create(@Body() createGanttDto: CreateGanttDto) {
     return this.ganttService.create(createGanttDto);
