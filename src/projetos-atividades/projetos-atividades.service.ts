@@ -189,4 +189,50 @@ where
         id = ${id};
     `);
   }
+
+  async getAtividaesProjetos(idProjeto: string) {
+    const query = `
+    SELECT 
+    pa.id,
+    pa.nom_atividade,
+    pl.vlr_planejado,
+    re.vlr_realizado,
+    pa.id_responsavel,
+    res.nome_responsavel,
+    '' AS fase,
+    pa.dat_ini_plan,
+    pa.dat_fim_plan,
+    pa.dat_ini_real,
+    pa.dat_fim_real
+
+    FROM tb_projetos_atividade pa
+    left JOIN tb_projetos_atividade_custo_plan pl 
+      ON pl.id_atividade = pa.id
+    LEFT JOIN tb_projetos_atividade_custo_real re	 
+      ON re.id_atividade = pa.id
+    LEFT JOIN tb_responsaveis res
+      ON res.responsavel_id = pa.id_responsavel
+    WHERE 
+      id_projeto = ${idProjeto}
+    and pa.id_pai IS NOT null;`;
+
+    return await this.prisma.$queryRawUnsafe(query);
+  }
+
+  async getCurvaS(idProjeto: string) {
+    const query = `
+    SELECT         
+    id_projeto,
+    mesano,
+    hrs_totais,
+    acum_plan,
+    pct_plan,
+    pct_real,
+    pct_capex_plan,
+    pct_capex_real
+    from tb_projeto_curva_s
+    WHERE id_projeto = ${idProjeto};`;
+
+    return await this.prisma.$queryRawUnsafe(query);
+  }
 }
