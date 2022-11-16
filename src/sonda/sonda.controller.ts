@@ -38,7 +38,7 @@ export class SondaController {
     return this.sondaService.update(+id, updateSondaDto);
   }
 
-  @Delete(':id')
+  @Patch(':id')
   remove(@Param('id') id: string) {
     return this.sondaService.remove(+id);
   }
