@@ -35,7 +35,7 @@ export class TarefasService {
 
   async findByProjeto(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select * from tb_tarefas where projeto_id = ${id}
+    select * from tb_tarefas where projeto_id = ${id} and dat_usu_erase is null
     `);
   }
 
