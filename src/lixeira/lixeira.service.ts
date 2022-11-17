@@ -134,9 +134,9 @@ export class LixeiraService {
     );
   }
 
-  // async remove(id: number, table_name: string) {
-  //   return await this.prisma.$queryRawUnsafe(`
-  //   DELETE FROM ${table_name} WHERE ID = ${id}
-  //   `);
-  // }
+  async remove(id: number, table_name: string) {
+    return await this.prisma.$queryRawUnsafe(`
+    DELETE FROM ${table_name} WHERE ID = ${id}
+    `);
+  }
 }

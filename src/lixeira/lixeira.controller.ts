@@ -22,9 +22,9 @@ export class LixeiraController {
     return this.service.restoreLixeira(+id, table_name);
   }
 
-  // @Delete(':id/:table_name')
-  // @HttpCode(200)
-  // remove(@Param('id') id: string, @Param('table_name') table_name: string) {
-  //   return this.service.remove(+id, table_name);
-  // }
+  @Delete(':id/:table_name')
+  @HttpCode(200)
+  remove(@Param('id') id: string, @Param('table_name') table_name: string) {
+    return this.service.remove(+id, table_name);
+  }
 }
