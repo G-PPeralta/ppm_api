@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Param, Patch } from '@nestjs/common';
 import { OperacaoIntervencaoService } from './operacao-intervencao.service';
 
 @Controller('operacao-intervencao')
@@ -9,5 +9,10 @@ export class OperacaoIntervencaoController {
 
   findAll() {
     return this.operacaoIntervencaoService.findAll();
+  }
+
+  @Patch(':id')
+  delete(@Param('id') id: string) {
+    return this.operacaoIntervencaoService.delete(+id);
   }
 }

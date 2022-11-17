@@ -42,6 +42,16 @@ export class ProjetosAtividadesController {
     return this.projetosAtividadesService.findOne(+id);
   }
 
+  @Get('/pendencia/:idprojeto')
+  async getAtividaesProjetos(@Param('idprojeto') idprojeto: string) {
+    return await this.projetosAtividadesService.getAtividaesProjetos(idprojeto);
+  }
+
+  @Get('/curva-s/:idprojeto')
+  async getCurvaS(@Param('idprojeto') idprojeto: string) {
+    return await this.projetosAtividadesService.getCurvaS(idprojeto);
+  }
+
   @Patch(':id/:campo/:valor')
   update(
     @Param('id') id: string,

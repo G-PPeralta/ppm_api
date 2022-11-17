@@ -24,7 +24,7 @@ export class RankingsOpcoesService {
     select tr.nom_ranking, tr.id, tro.nom_opcao, tro.id, tro.num_nota  from 
     tb_ranking tr
     inner join tb_ranking_opcoes tro 
-    on tro.id_ranking = tr.id 
+    on tro.id_ranking = tr.id where tr.dat_usu_erase is null
     `);
   }
 

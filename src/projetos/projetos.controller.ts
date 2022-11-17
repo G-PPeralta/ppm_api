@@ -5,9 +5,9 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   NotFoundException,
   InternalServerErrorException,
+  Delete,
 } from '@nestjs/common';
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -27,6 +27,11 @@ export class ProjetosController {
   @Get('detalhados')
   async getProjetosDetalhados() {
     return await this.projetosService.getProjetosDetalhados();
+  }
+
+  @Get('curva-s')
+  async buscarDadosCurvaSGeral() {
+    return await this.projetosService.buscarDadosCurvaSGeral();
   }
 
   @Get('previstoXRealizado')

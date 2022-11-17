@@ -4,10 +4,10 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   NotFoundException,
   UseGuards,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { GanttService } from './gantt.service';
 import { CreateGanttDto } from './dto/create-gantt.dto';
@@ -18,6 +18,15 @@ import { UpdateGanttDto } from './dto/update-gantt.dto';
 @Controller('gantt')
 export class GanttController {
   constructor(private readonly ganttService: GanttService) {}
+
+  @Get('panorama')
+  async getPanoramaGeral() {
+    try {
+      return this.ganttService.getPanoramaGeral();
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
+  }
 
   @Post()
   create(@Body() createGanttDto: CreateGanttDto) {
