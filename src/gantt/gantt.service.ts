@@ -208,22 +208,35 @@ export class GanttService {
   }
 
   async updateGantt(updateGannt: UpdateGanttDto, id: number) {
-    return await this.prisma.$queryRawUnsafe(`
-      UPDATE tb_projetos_atividade
-      SET
-      dat_ini_real = ${
-        updateGannt.dat_ini_real === null
-          ? null
-          : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
-      },
-      dat_fim_real = ${
-        updateGannt.dat_fim_real === null
-          ? null
-          : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
-      },
-      pct_real = ${updateGannt.pct_real}
-      WHERE id = ${id}
-`);
+    const sqlQuery = `
+    call sp_up_projetos_atividade(
+        ${id}, 
+        ${
+          updateGannt.dat_ini_plan === null
+            ? null
+            : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+        },
+        ${
+          updateGannt.duracao_dias === null
+            ? null
+            : "'" + updateGannt.duracao_dias + "'"
+        },
+        ${updateGannt.pct_real},
+        ${
+          updateGannt.dat_ini_real === null
+            ? null
+            : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+        },
+        ${
+          updateGannt.dat_fim_real === null
+            ? null
+            : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
+        }
+    );
+`;
+
+    Logger.log(sqlQuery);
+    return await this.prisma.$queryRawUnsafe(sqlQuery);
   }
 }
 
