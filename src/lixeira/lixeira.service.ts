@@ -116,8 +116,10 @@ export class LixeiraService {
         }
 
         if (consulta) {
-          consulta.forEach((e) => {
-            tratamento.push(e);
+          consulta.forEach((c) => {
+            c.table_name = e.table_name;
+            c.column_name = e.column_name;
+            tratamento.push(c);
           });
         }
       }
