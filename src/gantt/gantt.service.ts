@@ -239,6 +239,11 @@ export class GanttService {
           updateGannt.dat_fim_real === null
             ? null
             : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
+        },
+        ${
+          updateGannt.responsavel_id === null
+            ? null
+            : updateGannt.responsavel_id
         }
     );
 `;
