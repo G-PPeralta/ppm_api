@@ -755,7 +755,7 @@ and a.id = ${id};
     right join tb_projetos projetos
     on projetos.id = atividades.id_projeto
     where
-    projetos.id = ${id}
+    projetos.id = ${id} and atividades.dat_usu_erase is null and projetos.dat_usu_erase is null
     `);
   }
 
