@@ -75,16 +75,16 @@ export class ProjetosAtividadesLicoesAprendidasController {
     );
   }
 
-  @Delete(':id_do_projeto/:id_da_licao')
-  removeOne(
-    @Param('id_do_projeto') id_do_projeto: string,
-    @Param('id_da_licao') id_da_licao: string,
-  ) {
-    return this.projetosAtividadesLicoesAprendidasService.removeOne(
-      +id_do_projeto,
-      +id_da_licao,
-    );
-  }
+  // @Delete(':id_do_projeto/:id_da_licao')
+  // removeOne(
+  //   @Param('id_do_projeto') id_do_projeto: string,
+  //   @Param('id_da_licao') id_da_licao: string,
+  // ) {
+  //   return this.projetosAtividadesLicoesAprendidasService.removeOne(
+  //     +id_do_projeto,
+  //     +id_da_licao,
+  //   );
+  // }
 
   @Delete(':id/:user')
   remove(@Param('id') id: string, @Param('user') user: string) {

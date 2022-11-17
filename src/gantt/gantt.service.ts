@@ -68,13 +68,42 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
+  async deleteRecursive(id: number, user: string) {
+    const existe_filhos = await this.prisma.$queryRawUnsafe(`
+      SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id}
+    `);
+
+    if (existe_filhos[0].existe > 0) {
+      const filho: any[] = await this.prisma.$queryRawUnsafe(`
+        SELECT id FROM tb_projetos_atividade WHERE id_pai = ${id}
+      `);
+
+      filho.forEach(async (e) => {
+        await this.deleteRecursive(e.id, e.user);
+      });
+
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
+      );
+    } else {
+      //delete
+      const ret = await this.prisma.$queryRawUnsafe(
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
+      );
+    }
+  }
+
   async findOne(id: number) {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select
     id as TaskID,
     nom_atividade as TaskName,
+    dat_ini_plan as BaselineStartDate,
+    dat_fim_plan as BaselineEndDate,
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
+    nome_responsavel as Responsavel,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
     (
@@ -86,6 +115,8 @@ export class GanttService {
     ) as Predecessor,
     (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
+    left join tb_responsaveis on
+    a.id_responsavel = tb_responsaveis.responsavel_id
     where (id_pai = 0 or id_pai is null) -- NULL SOMENTE NO PRIMEIRO NÓ ATE RESOLVER A CAGADA)
     and id_projeto = ${id};
     `);
@@ -94,12 +125,15 @@ export class GanttService {
       return {
         TaskID: el.taskid,
         TaskName: el.taskname,
+        BaselineStartDate: el.baselinestartdate,
+        BaselineEndDate: el.baselineenddate,
         StartDate: el.startdate,
         EndDate: el.enddate,
         Duration: el.duration,
         Progress: el.progress,
         Predecessor: el.predecessor,
         SubtaskAmount: el.subtasks,
+        Responsavel: el.responsavel,
         subtasks: [],
       };
     });
@@ -122,8 +156,11 @@ export class GanttService {
         select
         id as TaskID,
         nom_atividade as TaskName,
+        dat_ini_plan as BaselineStartDate,
+        dat_fim_plan as BaselineEndDate,
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
+        nome_responsavel as Responsavel,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
         (
@@ -135,19 +172,24 @@ export class GanttService {
         ) as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
-        where (id_pai = ${element.TaskID})
+        left join tb_responsaveis on
+        a.id_responsavel = tb_responsaveis.responsavel_id
+        where (id_pai = ${element.TaskID}) and a.dat_usu_erase is null
         and id_projeto = ${id};
       `);
       const mapped = substasks.map((el) => {
         return {
           TaskID: el.taskid,
           TaskName: el.taskname,
+          BaselineStartDate: el.baselinestartdate,
+          BaselineEndDate: el.baselineenddate,
           StartDate: el.startdate,
           EndDate: el.enddate,
           Duration: el.duration,
           Progress: el.progress,
           Predecessor: el.predecessor,
           SubtaskAmount: el.subtasks,
+          Responsavel: el.responsavel,
           subtasks: [],
         };
       });
@@ -174,22 +216,123 @@ export class GanttService {
   }
 
   async updateGantt(updateGannt: UpdateGanttDto, id: number) {
-    return await this.prisma.$queryRawUnsafe(`
-      UPDATE tb_projetos_atividade
-      SET
-      dat_ini_real = ${
-        updateGannt.dat_ini_real === null
-          ? null
-          : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
-      },
-      dat_fim_real = ${
-        updateGannt.dat_fim_real === null
-          ? null
-          : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
-      },
-      pct_real = ${updateGannt.pct_real}
-      WHERE id = ${id}
-`);
+    const sqlQuery = `
+    call sp_up_projetos_atividade(
+        ${id}, 
+        ${
+          updateGannt.dat_ini_plan === null
+            ? null
+            : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+        },
+        ${
+          updateGannt.duracao_dias === null
+            ? null
+            : "'" + updateGannt.duracao_dias + "'"
+        },
+        ${updateGannt.pct_real},
+        ${
+          updateGannt.dat_ini_real === null
+            ? null
+            : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+        },
+        ${
+          updateGannt.dat_fim_real === null
+            ? null
+            : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
+        }
+    );
+`;
+
+    Logger.log(sqlQuery);
+    return await this.prisma.$queryRawUnsafe(sqlQuery);
+  }
+
+  async getPanoramaGeral() {
+    const init: any[] = await this.prisma.$queryRaw(Prisma.sql`
+    select
+      a.id as TaskID,
+      nom_atividade as TaskName,
+      dat_ini_plan as StartDatePlan,
+      dat_fim_plan as EndDatePlan,
+      dat_ini_real as StartDate,
+      dat_fim_real as EndDate,
+      case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
+      (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
+    from tb_projetos_atividade a
+      inner join tb_projetos b
+        on a.id_projeto = b.id
+    where 
+      b.tipo_projeto_id in (1,2)
+      and (a.id_pai = 0 or a.id_pai is null)
+    `);
+
+    const formated = init.map((el) => ({
+      TaskID: el.taskid,
+      TaskName: el.taskname,
+      StartDatePlan: el.startdateplan,
+      EndDatePlan: el.enddateplan,
+      StartDate: el.startdate,
+      EndDate: el.enddate,
+      Duration: el.duration,
+      Progress: el.progress,
+      Predecessor: el.predecessor,
+      SubtaskAmount: el.subtasks,
+      subtasks: [],
+    }));
+
+    const fill = async () => {
+      const filled: any[] = [];
+      for (const e of formated) {
+        await this.substasksForAll(e);
+        filled.push(e);
+      }
+      return filled;
+    };
+
+    return await fill();
+  }
+
+  async substasksForAll(element) {
+    if (element.SubtaskAmount > 0) {
+      const substasks: any[] = await this.prisma.$queryRawUnsafe(`
+        select
+        id as TaskID,
+        nom_atividade as TaskName,
+        dat_ini_plan as StartDatePlan,
+        dat_fim_plan as EndDatePlan,
+        dat_ini_real as StartDate,
+        dat_fim_real as EndDate,
+        case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
+        (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
+        from tb_projetos_atividade a
+        where (id_pai = ${element.TaskID})
+        and dat_usu_erase is null;
+      `);
+      const formated = substasks.map((el) => ({
+        TaskID: el.taskid,
+        TaskName: el.taskname,
+        StartDatePlan: el.startdateplan,
+        EndDatePlan: el.enddateplan,
+        StartDate: el.startdate,
+        EndDate: el.enddate,
+        Duration: el.duration,
+        Progress: el.progress,
+        Predecessor: el.predecessor,
+        SubtaskAmount: el.subtasks,
+        subtasks: [],
+      }));
+
+      const fill = async () => {
+        const filled: any[] = [];
+        for (const e of formated) {
+          await this.substasksForAll(e);
+          filled.push(e);
+        }
+        return filled;
+      };
+
+      element.subtasks = await fill();
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateEstatisticaDto } from './dto/create-estatistica.dto';
 import { EstatisticaDto } from './dto/update-estatistica.dto';
@@ -65,14 +65,14 @@ export class EstatisticasService {
               ) as calc
               on calc.nom_atividade = atividades.nom_atividade
         where
+        atividades.dat_usu_erase is null and
         sonda.id_pai = 0
         group by 
         sonda.id, sonda.nom_atividade, pocos.nom_atividade, pocos.id,
         case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
         atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
         responsaveis.nome_responsavel, vlr_min, vlr_max, vlr_dp, vlr_med
-        order by atividades.id_pai asc, atividades.dat_ini_plan asc;
-
+        order by atividades.id asc, atividades.dat_ini_real asc, atividades.id_pai asc;
     `);
 
     const tratamento = [];
@@ -230,9 +230,9 @@ export class EstatisticasService {
     `);
   }
 
-  async apagarAtividade(id: number) {
+  async apagarAtividade(id: number, user: string) {
     await this.prisma.$queryRawUnsafe(`
-      DELETE FROM tb_projetos_atividade WHERE id = ${id}
+      UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}
     `);
   }
 }

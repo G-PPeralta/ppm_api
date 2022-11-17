@@ -68,6 +68,8 @@ import { EditarAtividadeModule } from './editar-atividade/editar-atividade.modul
 import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
 import { GraficosModule } from './graficos/graficos.module';
 import { PdfModule } from './pdf/pdf.module';
+import { LixeiraModule } from './lixeira/lixeira.module';
+import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
 
 @Module({
   imports: [
@@ -138,6 +140,8 @@ import { PdfModule } from './pdf/pdf.module';
     HistoricoEstatisticoModule,
     GraficosModule,
     PdfModule,
+    LixeiraModule,
+    AreaResponsavelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

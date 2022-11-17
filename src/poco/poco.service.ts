@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreatePocoDto } from './dto/create-poco.dto';
 import { UpdatePocoDto } from './dto/update-poco.dto';
@@ -17,9 +17,10 @@ export class PocoService {
     return poco;
   }
 
-  findAll() {
-    const poco = this.prisma.poco.findMany();
-    return poco;
+  async findAll() {
+    return await this.prisma.$queryRawUnsafe(`
+      select * from tb_pocos where dat_usu_erase is null
+    `);
   }
 
   findOne(id: number) {
@@ -31,6 +32,9 @@ export class PocoService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} poco`;
+    return this.prisma.$queryRawUnsafe(`
+    UPDATE tb_pocos set dat_usu_erase = now()
+    WHERE id = ${id};
+    `);
   }
 }

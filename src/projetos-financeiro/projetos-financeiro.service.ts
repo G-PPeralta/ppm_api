@@ -15,7 +15,11 @@ export class ProjetosFinanceiroService {
     '' as textoDoPedido,
     coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
     coalesce(sum(centro_custo.valor), 0) as totalRealizado,
-    ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) as gap,
+    case
+	    when coalesce(sum(centro_custo.valor), 0) <= 0 then 0
+	    when coalesce(projetos.valor_total_previsto, 0) <= 0 then 0
+    	else    ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) 
+    end as gap,
     coalesce(to_char(centro_custo.data, 'MM/yyyy'), '') as mes
     from tb_projetos projetos
     left join
@@ -30,7 +34,8 @@ export class ProjetosFinanceiroService {
 
   async findFilhos(id: number, mes: string) {
     let retorno: any[] = [];
-    retorno = await this.prisma.$queryRawUnsafe(`select 
+    retorno = await this.prisma.$queryRawUnsafe(`
+    select 
     projetos.id as idProjeto,
     projetos.nome_projeto as nomeProjeto,
     coalesce(projetos.elemento_pep, '') as elementoPep,
@@ -42,6 +47,12 @@ export class ProjetosFinanceiroService {
     coalesce(centro_custo.descricao_do_servico, '') as descricaoDoServico,
     centro_custo.pedido as pedido,
     classe_servico.id AS classeDeServicoId,
+    coalesce(centro_custo.bm, '') as bm,
+    coalesce(centro_custo.id_nf, '') as id_nf,
+    coalesce(centro_custo.valor_bm_nf, 0) as valor_bm_nf,
+    centro_custo.status,
+    centro_custo.data_pagamento,
+    coalesce(centro_custo.valor_pago, 0) as valor_pago,
     fornecedores.id AS prestadorDeServicoId
 
     from tb_projetos projetos
@@ -58,11 +69,11 @@ export class ProjetosFinanceiroService {
     left join tb_fornecedores fornecedores
     on fornecedores.id = centro_custo.prestador_servico_id
     where
-    projetos.tipo_projeto_id in (1, 2) and   to_char(centro_custo.data, 'MM') = '${mes}'
+    projetos.tipo_projeto_id in (1, 2)
     and projetos.id = ${id}
     group by 
     projetos.id,  centro_custo.id, classe_servico.classe_servico,centro_custo.data, centro_custo.valor, centro_custo.descricao_do_servico, 
-    fornecedores.nomefornecedor, centro_custo.pedido,  coalesce(to_char(centro_custo.data, 'MM'), ''), classe_servico.id, fornecedores.id
+    fornecedores.nomefornecedor, centro_custo.pedido, classe_servico.id, fornecedores.id, centro_custo.bm, centro_custo.id_nf, centro_custo.valor_bm_nf, centro_custo.status, centro_custo.data_pagamento, centro_custo.valor_pago 
     
     `);
 
@@ -89,6 +100,12 @@ export class ProjetosFinanceiroService {
             pedido: e.pedido,
             classeDeServicoId: e.classedeservicoid,
             prestadorDeServicoId: e.prestadordeservicoid,
+            bm: e.bm,
+            id_nf: e.id_nf,
+            valor_bm_nf: e.valor_bm_nf,
+            status: e.status,
+            data_pagamento: e.data_pagamento ? e.data_pagamento : null,
+            valor_pago: e.valor_pago,
           });
         }
       });
@@ -104,6 +121,12 @@ export class ProjetosFinanceiroService {
           pedido: e.pedido,
           classeDeServicoId: e.classedeservicoid,
           prestadorDeServicoId: e.prestadordeservicoid,
+          bm: e.bm,
+          id_nf: e.id_nf,
+          valor_bm_nf: e.valor_bm_nf,
+          status: e.status,
+          data_pagamento: e.data_pagamento ? e.data_pagamento : null,
+          valor_pago: e.valor_pago,
         });
 
         tratamento.push(dados);

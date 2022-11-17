@@ -152,7 +152,7 @@ export class DetalhamentoService {
               case
                   when sum(c.valor_total_previsto) is null 
                   then 0
-                  else sum(valor_total_previsto)-1
+                  else sum(valor_total_previsto)
               end as vlr_nao_prev,
               sum(valor_total_previsto) as vlr_planejado,
               0 as vlr_realizado
@@ -176,12 +176,12 @@ export class DetalhamentoService {
               where c.id = ${id}
               --where c.tipo_projeto_id in (1,2)
       ) as qr
-      ) as qr2;`;
+      ) as qr2`;
     return query.map((info) => ({
       planejado: Number(info.vlr_planejado),
       realizado: Number(info.vlr_realizado),
       naoPrevisto: Number(info.vlr_nao_prev),
-      remanescente: Number(info.vlr_remanescente),
+      remanescente: Number(Number(info.vlr_remanescente).toFixed(0)),
       pctRealizado: Number(info.pct_realizado),
       pctRemanescente: Number(info.pct_remanescente),
       pctNaoPrevisto: Number(info.pct_nao_previsto),
