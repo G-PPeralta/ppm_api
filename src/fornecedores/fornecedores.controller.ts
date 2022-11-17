@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { FornecedoresService } from './fornecedores.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
@@ -35,8 +36,9 @@ export class FornecedoresController {
     return this.fornecedoresService.update(updateFornecedoreDto);
   }
 
-  @Delete(':id')
-  remove(@Param('/delete/id') id: string) {
-    return this.fornecedoresService.remove(+id);
+  @Delete(':id/:user')
+  @HttpCode(200)
+  remove(@Param('id') id: string, @Param('user') user: string) {
+    return this.fornecedoresService.remove(+id, user);
   }
 }

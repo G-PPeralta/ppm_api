@@ -23,13 +23,13 @@ export class TarefasService {
 
   async findAll() {
     return await this.prisma.$queryRawUnsafe(`
-    select * from tb_tarefas tarefas where dat_usu_erase is null
+    select * from tb_tarefas where dat_usu_erase is null
     `);
   }
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    select * from tb_tarefas where id = ${id}
+    select * from tb_tarefas where id = ${id} and dat_usu_erase is null
     `);
   }
 
@@ -54,9 +54,9 @@ export class TarefasService {
     }
   }
 
-  delete(id: number) {
+  delete(id: number, user: string) {
     return this.prisma.$queryRawUnsafe(`
-   UPDATE tb_tarefas set dat_usu_erase = now()
+   UPDATE tb_tarefas set dat_usu_erase = now(), nom_usu_erase = '${user}'
     WHERE id = ${id};
    `);
   }

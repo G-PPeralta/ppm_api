@@ -148,8 +148,8 @@ export class ProjetosController {
     );
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.projetosService.remove(+id);
+  @Delete(':id/:user')
+  async remove(@Param('id') id: string, @Param('user') user: string) {
+    return await this.projetosService.remove(+id, user);
   }
 }

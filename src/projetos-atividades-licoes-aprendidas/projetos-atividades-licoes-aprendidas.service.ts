@@ -82,7 +82,7 @@ export class ProjetosAtividadesLicoesAprendidasService {
 
   async remove(id: number, user: string) {
     return await this.prisma.$queryRawUnsafe(`
-      update tb_projetos_atv_licoes_aprendidas set dat_usu_erase = now(), nom_usu_exc = '${user}' where id = ${id}
+      update tb_projetos_atv_licoes_aprendidas set dat_usu_erase = now(), nom_usu_erase = '${user}' where id = ${id}
     `);
   }
 }

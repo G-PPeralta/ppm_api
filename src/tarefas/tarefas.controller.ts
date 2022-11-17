@@ -44,8 +44,8 @@ export class TarefasController {
     return this.tarefasService.update(+id, campo, valor, user);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.tarefasService.delete(+id);
+  @Delete(':id/:user')
+  delete(@Param('id') id: string, @Param('user') user: string) {
+    return this.tarefasService.delete(+id, user);
   }
 }

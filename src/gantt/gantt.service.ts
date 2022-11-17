@@ -68,7 +68,7 @@ export class GanttService {
     return Promise.all(projetosResult);
   }
 
-  async deleteRecursive(id: number) {
+  async deleteRecursive(id: number, user: string) {
     const existe_filhos = await this.prisma.$queryRawUnsafe(`
       SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id}
     `);
@@ -79,17 +79,17 @@ export class GanttService {
       `);
 
       filho.forEach(async (e) => {
-        await this.deleteRecursive(e.id);
+        await this.deleteRecursive(e.id, e.user);
       });
 
       //delete
       const ret = await this.prisma.$queryRawUnsafe(
-        `UPDATE tb_projetos_atividade set dat_usu_erase = now() WHERE id = ${id}`,
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
       );
     } else {
       //delete
       const ret = await this.prisma.$queryRawUnsafe(
-        `UPDATE tb_projetos_atividade set dat_usu_erase = now() WHERE id = ${id}`,
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
       );
     }
   }
