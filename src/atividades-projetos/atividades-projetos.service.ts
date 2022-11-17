@@ -17,7 +17,7 @@ export class AtividadesProjetosService {
 
   async findOne(id: number) {
     return await this.prisma
-      .$queryRaw`select * from tb_projetos_atividade where id_projeto = ${id};`;
+      .$queryRaw`select * from tb_projetos_atividade where id_projeto = ${id} and dat_usu_erase is null;`;
   }
 
   update(id: number, updateAtividadesProjetoDto: UpdateAtividadesProjetoDto) {
