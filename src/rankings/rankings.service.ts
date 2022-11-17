@@ -21,7 +21,7 @@ export class RankingsService {
     return await this.prisma.$queryRawUnsafe(`
     SELECT ranking.*, area.tipo as nome_area FROM tb_ranking ranking
     inner join tb_areas_atuacoes area
-    on area.id = ranking.id_area_responsavel 
+    on area.id = ranking.id_area_responsavel where ranking.dat_usu_erase is null
     `);
   }
 
