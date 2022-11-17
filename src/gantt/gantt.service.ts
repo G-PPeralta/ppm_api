@@ -99,10 +99,11 @@ export class GanttService {
     select
     id as TaskID,
     nom_atividade as TaskName,
-    dat_ini_plan as StartDatePlan,
-    dat_fim_plan as EndDatePlan,
+    dat_ini_plan as BaselineStartDate,
+    dat_fim_plan as BaselineEndDate,
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
+    nome_responsavel as Responsavel,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
     (
@@ -114,6 +115,8 @@ export class GanttService {
     ) as Predecessor,
     (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
+    left join tb_responsaveis on
+    a.id_responsavel = tb_responsaveis.responsavel_id
     where (id_pai = 0 or id_pai is null) -- NULL SOMENTE NO PRIMEIRO NÓ ATE RESOLVER A CAGADA)
     and id_projeto = ${id};
     `);
@@ -122,14 +125,15 @@ export class GanttService {
       return {
         TaskID: el.taskid,
         TaskName: el.taskname,
-        StartDatePlan: el.startdateplan,
-        EndDatePlan: el.enddateplan,
+        BaselineStartDate: el.baselinestartdate,
+        BaselineEndDate: el.baselineenddate,
         StartDate: el.startdate,
         EndDate: el.enddate,
         Duration: el.duration,
         Progress: el.progress,
         Predecessor: el.predecessor,
         SubtaskAmount: el.subtasks,
+        Responsavel: el.responsavel,
         subtasks: [],
       };
     });
@@ -152,10 +156,11 @@ export class GanttService {
         select
         id as TaskID,
         nom_atividade as TaskName,
-        dat_ini_plan as StartDatePlan,
-        dat_fim_plan as EndDatePlan,
+        dat_ini_plan as BaselineStartDate,
+        dat_fim_plan as BaselineEndDate,
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
+        nome_responsavel as Responsavel,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
         (
@@ -167,6 +172,8 @@ export class GanttService {
         ) as Predecessor,
         (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
         from tb_projetos_atividade a
+        left join tb_responsaveis on
+        a.id_responsavel = tb_responsaveis.responsavel_id
         where (id_pai = ${element.TaskID}) and a.dat_usu_erase is null
         and id_projeto = ${id};
       `);
@@ -174,14 +181,15 @@ export class GanttService {
         return {
           TaskID: el.taskid,
           TaskName: el.taskname,
-          StartDatePlan: el.startdateplan,
-          EndDatePlan: el.enddateplan,
+          BaselineStartDate: el.baselinestartdate,
+          BaselineEndDate: el.baselineenddate,
           StartDate: el.startdate,
           EndDate: el.enddate,
           Duration: el.duration,
           Progress: el.progress,
           Predecessor: el.predecessor,
           SubtaskAmount: el.subtasks,
+          Responsavel: el.responsavel,
           subtasks: [],
         };
       });
