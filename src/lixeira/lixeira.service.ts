@@ -40,6 +40,79 @@ export class LixeiraService {
           from tb_tarefas deletado
           where id in (${e.rows_id})
           `);
+          if (e.table_name === 'tb_fornecedores') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select id, 
+            concat('Fornecedor > ', nomefornecedor) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+              else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+              case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+              else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_fornecedores deletado
+            where id in (${e.rows_id})
+            `);
+          }
+          if (e.table_name === 'tb_projetos') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select
+            id,
+            concat('Projeto > ', nome_projeto) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                          else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                          case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                          else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_projetos deletado
+            where id in (${e.rows_id})
+            `);
+          }
+          if (e.table_name === 'tb_ranking') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select id, 
+            concat('Ranking > ', nom_ranking) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                          else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                          case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                          else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_ranking deletado
+            where id in (${e.rows_id})
+            `);
+          }
+          if (e.table_name === 'tb_centro_custo') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select id, 
+            concat('Centro de Custo > Pedido > ', pedido) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                          else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                          case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                          else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_centro_custo deletado
+            where id in (${e.rows_id})
+            `);
+          }
+          if (e.table_name === 'tb_projetos_atv_licoes_aprendidas') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select id, 
+            concat('Licao Aprendida > ', txt_licao_aprendida) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                          else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                          case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                          else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_projetos_atv_licoes_aprendidas deletado
+            where id in (${e.rows_id})
+            `);
+          }
+          if (e.table_name === 'tb_ranking_opcoes') {
+            consulta = await this.prisma.$queryRawUnsafe(`
+            select id, 
+            concat('Opcao de Ranking > ', nom_opcao) as local_deletado,
+            case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+                          else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+                          case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+                          else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+            from tb_ranking_opcoes deletado
+            where id in (${e.rows_id})
+            `);
+          }
         }
 
         if (consulta) {

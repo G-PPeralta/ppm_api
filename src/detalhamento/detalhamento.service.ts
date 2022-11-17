@@ -181,7 +181,7 @@ export class DetalhamentoService {
       planejado: Number(info.vlr_planejado),
       realizado: Number(info.vlr_realizado),
       naoPrevisto: Number(info.vlr_nao_prev),
-      remanescente: Number(info.vlr_remanescente),
+      remanescente: Number(Number(info.vlr_remanescente).toFixed(0)),
       pctRealizado: Number(info.pct_realizado),
       pctRemanescente: Number(info.pct_remanescente),
       pctNaoPrevisto: Number(info.pct_nao_previsto),
