@@ -5,4 +5,5 @@ export class UpdateGanttDto {
   duracao_dias: number;
   // dat_fim_plan: string;
   pct_real: number;
+  responsavel_id: number;
 }
