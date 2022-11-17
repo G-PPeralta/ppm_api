@@ -69,6 +69,7 @@ import { HistoricoEstatisticoModule } from './historico-estatistico/historico-es
 import { GraficosModule } from './graficos/graficos.module';
 import { PdfModule } from './pdf/pdf.module';
 import { LixeiraModule } from './lixeira/lixeira.module';
+import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
 
 @Module({
   imports: [
@@ -140,6 +141,7 @@ import { LixeiraModule } from './lixeira/lixeira.module';
     GraficosModule,
     PdfModule,
     LixeiraModule,
+    AreaResponsavelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
