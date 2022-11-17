@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 
 @Injectable()
@@ -128,4 +128,15 @@ export class LixeiraService {
 
     return await resolver();
   }
+  async restoreLixeira(id: number, table_name: string) {
+    await this.prisma.$queryRawUnsafe(
+      `UPDATE ${table_name} SET dat_usu_erase = NULL, nom_usu_erase = NULL WHERE ID = ${id}`,
+    );
+  }
+
+  // async remove(id: number, table_name: string) {
+  //   return await this.prisma.$queryRawUnsafe(`
+  //   DELETE FROM ${table_name} WHERE ID = ${id}
+  //   `);
+  // }
 }
