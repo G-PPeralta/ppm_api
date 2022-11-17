@@ -49,13 +49,13 @@ export class OcorrenciasService {
     from tb_ocorrencias a
     left join tb_projetos_ocorrencias b
 		on a.id = b.id_ocorrencia
-    where b.id_atv = ${id} or b.id_atv is null
+    where b.dat_usu_erase is null and b.id_atv = ${id} or b.id_atv is null
     `);
   }
 
   async delete(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    DELETE tb_projetos_ocorrencias
+    UPDATE tb_projetos_ocorrencias set dat_usu_erase = now()
     WHERE id = ${id};
     `);
   }

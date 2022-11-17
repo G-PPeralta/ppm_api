@@ -32,8 +32,8 @@ export class EstatisticasController {
     return this.estatisticasService.vincularAtividade(vincularAtividade);
   }
 
-  @Delete('projetos/:id')
-  apagarAtividade(@Param('id') id: string) {
-    return this.estatisticasService.apagarAtividade(+id);
+  @Delete('projetos/:id/:user')
+  apagarAtividade(@Param('id') id: string, @Param('user') user: string) {
+    return this.estatisticasService.apagarAtividade(+id, user);
   }
 }

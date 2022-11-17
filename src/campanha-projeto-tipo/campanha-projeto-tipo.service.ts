@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
@@ -35,7 +35,7 @@ export class CampanhaProjetoTipoService {
 
   async findProjetos() {
     return await this.prisma.$queryRawUnsafe(`
-        SELECT ID, NOM_PROJETO_TIPO FROM TB_CAMP_PROJETO_TIPO
+        SELECT ID, NOM_PROJETO_TIPO FROM TB_CAMP_PROJETO_TIPO where dat_usu_erase is null
     `);
   }
 
@@ -58,7 +58,7 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     on (precedentes.id_camp_projetos_atv = atividades.id and precedentes.id_camp_projeto_tipo = atividades.id_camp_projeto_tipo)
     left join tb_camp_atv atv_precedente
     on (atv_precedente.id = precedentes.id_precedente)
-    where projeto_tipo.id = ${id} and atividades.id = ${id_atividade}
+    where projeto_tipo.id = ${id} and projeto_tipo.dat_usu_erase is null and atividades.id = ${id_atividade}
     and precedentes.id_precedente is not null
     `);
   }
@@ -100,5 +100,12 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     };
 
     return await retornar();
+  }
+
+  delete(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+   UPDATE tb_camp_projeto_tipo set dat_usu_erase = now()
+    WHERE id = ${id};
+   `);
   }
 }

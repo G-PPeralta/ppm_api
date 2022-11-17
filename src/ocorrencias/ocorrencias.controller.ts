@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
 import { OcorrenciasService } from './ocorrencias.service';
 
@@ -21,7 +21,7 @@ export class OcorrenciasController {
     return this.service.findOne(+id);
   }
 
-  @Delete(':id')
+  @Patch(':id')
   delete(@Param('id') id: string) {
     return this.service.delete(+id);
   }

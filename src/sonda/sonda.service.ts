@@ -35,6 +35,9 @@ where dat_usu_erase is null;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} sonda`;
+    return this.prisma.$queryRawUnsafe(`
+   UPDATE tb_sondas set dat_usu_erase = now()
+    WHERE id = ${id};
+   `);
   }
 }
