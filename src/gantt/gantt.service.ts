@@ -104,6 +104,7 @@ export class GanttService {
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     nom_responsavel as Responsavel,
+    case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
     (
@@ -129,6 +130,7 @@ export class GanttService {
         BaselineEndDate: el.baselineenddate,
         StartDate: el.startdate,
         EndDate: el.enddate,
+        BaselineDuration: el.baselineduration,
         Duration: el.duration,
         Progress: el.progress,
         Predecessor: el.predecessor,
@@ -161,6 +163,7 @@ export class GanttService {
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
         nom_responsavel as Responsavel,
+        case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
         (
@@ -185,6 +188,7 @@ export class GanttService {
           BaselineEndDate: el.baselineenddate,
           StartDate: el.startdate,
           EndDate: el.enddate,
+          BaselineDuration: el.baselineduration,
           Duration: el.duration,
           Progress: el.progress,
           Predecessor: el.predecessor,
