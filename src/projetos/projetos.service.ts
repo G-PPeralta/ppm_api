@@ -475,7 +475,7 @@ and a.id = ${id};
   }
 
   async projetoConfig(id: number) {
-    return await this.prismaClient.$queryRawUnsafe(`
+    const query = await this.prismaClient.$queryRawUnsafe(`
     select projeto.*, polo.polo, locais.local, solicitantes.solicitante, classificacao.classificacao, resp.nome_responsavel, coord.coordenador_nome ,divisoes.divisao, gates.gate, tipos.tipo, status.status from tb_projetos projeto
     inner join tb_polos polo
     on polo.id = projeto.polo_id
@@ -500,6 +500,12 @@ and a.id = ${id};
     where
     projeto.id = ${id};
     `);
+
+    if (!query[0]?.valor_total_previsto.toString().includes('.')) {
+      query[0].valor_total_previsto = query[0].valor_total_previsto + '.00';
+    }
+
+    return query;
   }
 
   async findAll() {
