@@ -693,6 +693,7 @@ and a.id = ${id};
       solicitante_id = ${updateProjetoDto.solicitacao},
       nome_projeto = '${updateProjetoDto.nome_projeto}',
       elemento_pep = '${updateProjetoDto.elemento_pep}',
+      valor_total_previsto = ${updateProjetoDto.valor_total_previsto},
       data_inicio = ${
         updateProjetoDto.data_inicio === null
           ? null
