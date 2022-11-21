@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { Feriado } from './dto/feriado.dto';
 import { FeriadosService } from './feriados.service';
 
@@ -25,12 +33,12 @@ export class FeriadosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, payload: Feriado) {
+  update(@Param('id') id: string, @Body() payload: Feriado) {
     return this.service.update(payload, +id);
   }
 
   @Post()
-  create(payload: Feriado) {
+  create(@Body() payload: Feriado) {
     return this.service.create(payload);
   }
 }

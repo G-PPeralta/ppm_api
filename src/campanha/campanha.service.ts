@@ -530,6 +530,7 @@ export class CampanhaService {
     on campanha.id = pai.id_campanha 
     where pai.id_pai = 0
     and pai.id = ${id}
+    and filho.dat_usu_erase is null
     order by filho.dat_ini_plan asc
     ;
     `);
