@@ -22,4 +22,5 @@ export class UpdateProjetoDto {
   complexidade?: number;
   descricao?: string;
   justificativa?: string;
+  valor_total_previsto: number;
 }

@@ -453,7 +453,6 @@ export class CampanhaService {
     on poco2.id = pai.poco_id
     ${where}
     order by ordem, (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) asc
-    limit 9
     `);
     const tratamento: any = [];
     retorno.forEach((element) => {

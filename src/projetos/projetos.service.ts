@@ -563,8 +563,8 @@ and a.id = ${id};
       ) as qr
     group by ano, mes
   ) as qr2
-  group by ano, mes
-  order by ano, mes desc
+  group by qr2.mes, ano
+  order by qr2.mes, ano desc
   ;`);
 
     return query.map((el) => {
@@ -693,6 +693,7 @@ and a.id = ${id};
       solicitante_id = ${updateProjetoDto.solicitacao},
       nome_projeto = '${updateProjetoDto.nome_projeto}',
       elemento_pep = '${updateProjetoDto.elemento_pep}',
+      valor_total_previsto = ${updateProjetoDto.valor_total_previsto},
       data_inicio = ${
         updateProjetoDto.data_inicio === null
           ? null
