@@ -508,6 +508,12 @@ and a.id = ${id};
     return query;
   }
 
+  async findChaves() {
+    return this.prismaClient.$queryRawUnsafe(`
+    SELECT id, nome_projeto FROM tb_projetos WHERE tipo_projeto_id <> 3
+    `);
+  }
+
   async findAll() {
     const projects = await this.prismaClient.projeto.findMany();
     if (!projects) throw new Error('Falha na listagem de projetos');
