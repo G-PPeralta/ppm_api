@@ -70,6 +70,7 @@ import { GraficosModule } from './graficos/graficos.module';
 import { PdfModule } from './pdf/pdf.module';
 import { LixeiraModule } from './lixeira/lixeira.module';
 import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
+import { FeriadosModule } from './feriados/feriados.module';
 
 @Module({
   imports: [
@@ -142,6 +143,7 @@ import { AreaResponsavelModule } from './area_responsavel/area_responsavel.modul
     PdfModule,
     LixeiraModule,
     AreaResponsavelModule,
+    FeriadosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
