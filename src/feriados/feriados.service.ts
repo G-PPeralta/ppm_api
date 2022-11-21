@@ -1,9 +1,60 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
+import { Feriado } from './dto/feriado.dto';
 
 @Injectable()
 export class FeriadosService {
   constructor(private prisma: PrismaService) {}
+
+  async getAll() {
+    return await this.prisma.$queryRawUnsafe(`
+     SELECT
+     id, ind_global, id_projeto, dia_feriado, mes_feriado, nome_feriado
+     FROM
+     tb_feriados
+    `);
+  }
+
+  async create(feriado: Feriado) {
+    return await this.prisma.$queryRawUnsafe(`
+    INSERT INTO
+    tb_feriados
+    (ind_global, id_projeto, dia_feriado, mes_feriado, nome_feriado, nom_usu_create, dat_usu_create)
+    VALUES
+    (${feriado.ind_global ? 1 : 0}, ${feriado.id_projeto}, ${
+      feriado.dia_feriado
+    }, ${feriado.mes_feriado}, '${feriado.nome_feriado}', '${
+      feriado.nom_usu_create
+    }', NOW())
+    `);
+  }
+
+  async remove(id: number, nom_usu_erase: string) {
+    return await this.prisma.$queryRawUnsafe(`
+    UPDATE
+    tb_feriados
+    SET
+    dat_usu_erase = NOW(),
+    nom_usu_erase = '${nom_usu_erase}'
+    WHERE
+    id = ${id}
+    `);
+  }
+
+  async update(feriado: Feriado, id: number) {
+    return await this.prisma.$queryRawUnsafe(`
+    UPDATE
+    tb_feriados
+    SET
+    ind_global = ${feriado.ind_global ? 1 : 0},
+    id_projeto = ${feriado.id_projeto},
+    dia_feriado = ${feriado.dia_feriado},
+    mes_feriado = ${feriado.mes_feriado},
+    nom_feriado = '${feriado.nome_feriado}'
+    WHERE
+    id = ${id}
+    `);
+  }
 
   async getFeriadosTratados() {
     const retorno: any[] = await this.prisma.$queryRawUnsafe(`

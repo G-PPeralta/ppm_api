@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Feriado } from './dto/feriado.dto';
 import { FeriadosService } from './feriados.service';
 
 @Controller('feriados')
@@ -8,5 +9,28 @@ export class FeriadosController {
   @Get('range')
   getFeriadosTratados() {
     return this.service.getFeriadosTratados();
+  }
+
+  @Get()
+  getAll() {
+    return this.service.getAll();
+  }
+
+  @Delete(':id/:nom_usu_erase')
+  remove(
+    @Param('id') id: string,
+    @Param('nom_usu_erase') nom_usu_erase: string,
+  ) {
+    return this.service.remove(+id, nom_usu_erase);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, payload: Feriado) {
+    return this.service.update(payload, +id);
+  }
+
+  @Post()
+  create(payload: Feriado) {
+    return this.service.create(payload);
   }
 }
