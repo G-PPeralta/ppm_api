@@ -811,18 +811,16 @@ and a.id = ${id};
     }  
     `);
 
-    const dat_ini = new Date(
-      vincularAtividade.dat_inicio_plan.replace(/\//g, '-').replace(' ', 'T'),
-    );
+    // const dat_ini = new Date(
+    //   vincularAtividade.dat_inicio_plan.replace(/\//g, '-').replace(' ', 'T'),
+    // );
+    // dat_ini.setHours(dat_ini.getHours() - 3);
 
-    dat_ini.setHours(dat_ini.getHours() - 3);
-
+    const dat_ini = new Date(vincularAtividade.dat_inicio_plan).toISOString();
     const dat_fim = addWorkDays(
       new Date(dat_ini),
       vincularAtividade.duracao_plan,
     );
-
-    dat_fim.setHours(dat_ini.getHours() - 3);
 
     if (existe[0].existe > 0) {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
@@ -837,7 +835,7 @@ and a.id = ${id};
         INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
         VALUES (${id_ret[0].id}, '${
         vincularAtividade.nom_atividade
-      }', 0, '${dat_ini.toISOString()}', '${dat_ini.toISOString()}', '${dat_fim.toISOString()}', '${dat_fim.toISOString()}', '${
+      }', 0, '${dat_ini}', '${dat_ini}', '${dat_fim.toISOString()}', '${dat_fim.toISOString()}', '${
         vincularAtividade.nom_usu_create
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id

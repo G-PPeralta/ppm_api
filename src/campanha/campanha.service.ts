@@ -531,6 +531,7 @@ export class CampanhaService {
     where pai.id_pai = 0
     and pai.id = ${id}
     and filho.dat_usu_erase is null
+    and pai.dat_usu_erase is null
     order by filho.dat_ini_plan asc
     ;
     `);
