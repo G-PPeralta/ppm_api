@@ -3,6 +3,8 @@ export class CreateCampanhaProjetoTipo {
   nom_projeto_tipo: string;
   atividades: Atividades[];
   comentarios: string;
+  tipo_intervencao_id: number;
+  controlar_cronograma: boolean;
 }
 
 export class Atividades {
