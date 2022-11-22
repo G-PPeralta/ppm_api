@@ -19,9 +19,19 @@ export class FeriadosController {
     return this.service.getFeriadosTratados();
   }
 
+  @Get('range/one/:id')
+  getOneFeriadosTratados(@Param('id') id: string) {
+    return this.service.getOneFeriadosTratados(+id);
+  }
+
   @Get()
   getAll() {
     return this.service.getAll();
+  }
+
+  @Get('one/:id')
+  getOne(@Param('id') id: string) {
+    return this.service.getOne(+id);
   }
 
   @Delete(':id/:nom_usu_erase')
