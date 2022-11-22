@@ -93,6 +93,11 @@ export class ProjetosController {
     return this.projetosService.vincularAtividade(vincularAtividade);
   }
 
+  @Get('chaves')
+  async findChaves() {
+    return this.projetosService.findChaves();
+  }
+
   @Get('listagem')
   async findAll() {
     try {

@@ -248,6 +248,11 @@ export class GanttService {
           updateGannt.responsavel_id === null
             ? null
             : updateGannt.responsavel_id
+        },
+        ${
+          updateGannt.nome_atividade === null
+            ? null
+            : "'" + updateGannt.nome_atividade + "'"
         }
     );
 `;
