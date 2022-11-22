@@ -8,8 +8,20 @@ export class CampanhaProjetoTipoService {
 
   async create(createCampanhaProjetoTipo: CreateCampanhaProjetoTipo) {
     const id_projeto_tipo = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_projeto_tipo (nom_projeto_tipo, nom_usu_create, dat_usu_create, dsc_comentarios)
-        VALUES ('${createCampanhaProjetoTipo.nom_projeto_tipo}', '${createCampanhaProjetoTipo.nom_usu_create}', now(), '${createCampanhaProjetoTipo.comentarios}')
+        INSERT INTO tb_camp_projeto_tipo (nom_projeto_tipo, nom_usu_create, dat_usu_create, dsc_comentarios, tipo_intervencao_id, fl_controlar_cronograma)
+        VALUES ('${createCampanhaProjetoTipo.nom_projeto_tipo}', '${
+      createCampanhaProjetoTipo.nom_usu_create
+    }', now(), '${createCampanhaProjetoTipo.comentarios}',
+        ${
+          createCampanhaProjetoTipo.tipo_intervencao_id
+            ? createCampanhaProjetoTipo.tipo_intervencao_id
+            : null
+        },
+        ${
+          createCampanhaProjetoTipo.controlar_cronograma == null
+            ? false
+            : createCampanhaProjetoTipo.controlar_cronograma
+        })
         RETURNING ID
     `);
     createCampanhaProjetoTipo.atividades.forEach(async (atv) => {
