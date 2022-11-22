@@ -65,7 +65,7 @@ export class FeriadosService {
     dia_feriado = ${feriado.dia_feriado},
     mes_feriado = ${feriado.mes_feriado},
     ano_feriado = ${feriado.ano_feriado},
-    nom_feriado = '${feriado.nome_feriado}'
+    nome_feriado = '${feriado.nome_feriado}'
     WHERE
     id = ${id}
     `);
