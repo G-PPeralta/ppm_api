@@ -65,19 +65,19 @@ export class FeriadosService {
 
   async getOneFeriadosTratados(id: number) {
     const retorno: any[] = await this.prisma.$queryRawUnsafe(`
-    select nome_feriado, concat(lpad(dia_feriado::text, 2, '0'), '/', lpad(mes_feriado::text, 2, '0'), '/') as data_feriado, (
-        select date_part('year', min(atvs.dat_ini_real)) menor_data from tb_projetos_atividade atvs
-        inner join tb_projetos proj on
-        proj.id = atvs.id_projeto
-        where 
-        proj.tipo_projeto_id <> 3
-        ) as menor_data, (
-        select date_part('year', max(atvs.dat_ini_real)) maior_data from tb_projetos_atividade atvs
-        inner join tb_projetos proj on
-        proj.id = atvs.id_projeto
-        where 
-        proj.tipo_projeto_id <> 3
-        ) as maior_data from tb_feriados 
+    select nome_feriado, concat(lpad(dia_feriado::text, 2, '0'), '/', lpad(mes_feriado::text, 2, '0'), '/') as data_feriado, coalesce(ano_feriado, (
+      select date_part('year', min(atvs.dat_ini_real)) menor_data from tb_projetos_atividade atvs
+      inner join tb_projetos proj on
+      proj.id = atvs.id_projeto
+      where 
+      proj.tipo_projeto_id <> 3
+      )) as menor_data, coalesce(ano_feriado, (
+      select date_part('year', max(atvs.dat_ini_real)) maior_data from tb_projetos_atividade atvs
+      inner join tb_projetos proj on
+      proj.id = atvs.id_projeto
+      where 
+      proj.tipo_projeto_id <> 3
+      )) as maior_data from tb_feriados  
         where id_projeto = ${id} or ind_global = 1
     `);
 
@@ -100,19 +100,19 @@ export class FeriadosService {
 
   async getFeriadosTratados() {
     const retorno: any[] = await this.prisma.$queryRawUnsafe(`
-    select nome_feriado, concat(lpad(dia_feriado::text, 2, '0'), '/', lpad(mes_feriado::text, 2, '0'), '/') as data_feriado, (
-        select date_part('year', min(atvs.dat_ini_real)) menor_data from tb_projetos_atividade atvs
-        inner join tb_projetos proj on
-        proj.id = atvs.id_projeto
-        where 
-        proj.tipo_projeto_id <> 3
-        ) as menor_data, (
-        select date_part('year', max(atvs.dat_ini_real)) maior_data from tb_projetos_atividade atvs
-        inner join tb_projetos proj on
-        proj.id = atvs.id_projeto
-        where 
-        proj.tipo_projeto_id <> 3
-        ) as maior_data from tb_feriados 
+    select nome_feriado, concat(lpad(dia_feriado::text, 2, '0'), '/', lpad(mes_feriado::text, 2, '0'), '/') as data_feriado, coalesce(ano_feriado, (
+      select date_part('year', min(atvs.dat_ini_real)) menor_data from tb_projetos_atividade atvs
+      inner join tb_projetos proj on
+      proj.id = atvs.id_projeto
+      where 
+      proj.tipo_projeto_id <> 3
+      )) as menor_data, coalesce(ano_feriado, (
+      select date_part('year', max(atvs.dat_ini_real)) maior_data from tb_projetos_atividade atvs
+      inner join tb_projetos proj on
+      proj.id = atvs.id_projeto
+      where 
+      proj.tipo_projeto_id <> 3
+      )) as maior_data from tb_feriados 
     `);
 
     const retornar: any[] = [];
