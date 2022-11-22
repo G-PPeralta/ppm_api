@@ -8,20 +8,24 @@ export class FeriadosService {
 
   async getAll() {
     return await this.prisma.$queryRawUnsafe(`
-     SELECT
-     id, ind_global, id_projeto, dia_feriado, mes_feriado, ano_feriado, nome_feriado
+    SELECT
+     feriados.id, feriados.ind_global, feriados.id_projeto, feriados.dia_feriado, feriados.mes_feriado, feriados.ano_feriado, feriados.nome_feriado, coalesce(projetos.nome_projeto, '---') as nome_projeto 
      FROM
-     tb_feriados
+     tb_feriados feriados
+     LEFT JOIN tb_projetos projetos
+     on projetos.id = feriados.id_projeto
     `);
   }
 
   async getOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
     SELECT
-    id, ind_global, id_projeto, dia_feriado, mes_feriado, ano_feriado, nome_feriado
-    FROM
-    tb_feriados
-    WHERE id_projeto = ${id}
+     feriados.id, feriados.ind_global, feriados.id_projeto, feriados.dia_feriado, feriados.mes_feriado, feriados.ano_feriado, feriados.nome_feriado, coalesce(projetos.nome_projeto, '---') as nome_projeto 
+     FROM
+     tb_feriados feriados
+     LEFT JOIN tb_projetos projetos
+     on projetos.id = feriados.id_projeto
+    WHERE feriados.id_projeto = ${id}
    `);
   }
 
