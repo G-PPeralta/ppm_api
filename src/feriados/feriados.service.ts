@@ -15,6 +15,7 @@ export class FeriadosService {
      LEFT JOIN tb_projetos projetos
      on projetos.id = feriados.id_projeto
      where feriados.dat_usu_erase is null
+     order by id
     `);
   }
 
@@ -28,6 +29,7 @@ export class FeriadosService {
      on projetos.id = feriados.id_projeto
     WHERE feriados.id_projeto = ${id}
     and feriados.dat_usu_erase is null
+    order by id
    `);
   }
 
@@ -86,6 +88,7 @@ export class FeriadosService {
       )) as maior_data from tb_feriados  
         where id_projeto = ${id} or ind_global = 1
         and dat_usu_erase is null
+        order by id
     `);
 
     const retornar: any[] = [];
@@ -121,6 +124,7 @@ export class FeriadosService {
       proj.tipo_projeto_id <> 3
       )) as maior_data from tb_feriados 
       where dat_usu_erase is null
+      order by id
     `);
 
     const retornar: any[] = [];
