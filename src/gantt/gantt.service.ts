@@ -226,7 +226,7 @@ export class GanttService {
         ${
           updateGannt.dat_ini_plan === null
             ? null
-            : "'" + new Date(updateGannt.dat_ini_real).toISOString() + "'"
+            : "'" + new Date(updateGannt.dat_ini_plan).toISOString() + "'"
         },
         ${
           updateGannt.duracao_dias === null
