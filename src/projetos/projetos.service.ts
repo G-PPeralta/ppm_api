@@ -210,6 +210,7 @@ export class ProjetosService {
     responsavel,
     vlr_cr,
     vlr_orcado,
+    case when vlr_orcado = 0 then 0 else case when vlr_cr / vlr_orcado > 1 then 1 else vlr_cr / vlr_orcado end end as vlr_tpci, 
     (
     select opcoes.nom_opcao from tb_ranking ranking
     inner join tb_projetos_ranking projeto_ranking
