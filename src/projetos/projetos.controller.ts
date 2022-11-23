@@ -83,6 +83,11 @@ export class ProjetosController {
     return this.projetosService.verificarRelacoes(+id);
   }
 
+  @Get('relacoesexecucao/:id')
+  async relacoesexec(@Param('id') id: string) {
+    return this.projetosService.verificarRelacoesExecucao(+id);
+  }
+
   @Get('configuracoes/:id')
   async projetoConfig(@Param('id') id: string) {
     return this.projetosService.projetoConfig(+id);
