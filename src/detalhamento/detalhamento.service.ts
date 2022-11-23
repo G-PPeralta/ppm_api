@@ -62,7 +62,7 @@ export class DetalhamentoService {
 	  left join tb_projetos_atividade topo on
 		  topo.id_projeto = tp.id
     where tp.id = ${id}
-      and topo.id_pai = 0
+      and (topo.id_pai = 0 or topo.id_pai is null)
     ;
     `);
 
