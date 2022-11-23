@@ -59,6 +59,11 @@ export class CampanhaController {
     return this.campanhaService.findDatas(+id);
   }
 
+  @Get('/datainicioexecucao/:id')
+  findDataInicioExecucao(@Param('id') id: string) {
+    return this.campanhaService.findDataInicial(+id);
+  }
+
   @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.campanhaService.findOne(+id);
