@@ -785,7 +785,7 @@ and a.id = ${id};
   }
 
   async verificarRelacoes(id: number) {
-    return this.prismaClient.$queryRawUnsafe(`
+    const retorno: any[] = await this.prismaClient.$queryRawUnsafe(`
     select
     coalesce(atividades.id, projetos.id) as id,
     coalesce(atividades.nom_atividade, projetos.nome_projeto) as valor
@@ -796,6 +796,17 @@ and a.id = ${id};
     where
     projetos.id = ${id} and atividades.dat_usu_erase is null and projetos.dat_usu_erase is null
     `);
+
+    if (retorno.length > 0) {
+      return retorno;
+    } else {
+      return await this.prismaClient.$queryRawUnsafe(`
+      select coalesce(b.id, a.id) as id, coalesce(b.nom_atividade, a.nome_projeto) as valor from tb_projetos a
+      left join tb_projetos_atividade b
+      on b.id_projeto = a.id
+      where a.id = ${id} and (b.id_pai = 0 or b.id_pai is null)
+      `);
+    }
   }
 
   async vincularAtividade(vincularAtividade: VincularAtividade) {

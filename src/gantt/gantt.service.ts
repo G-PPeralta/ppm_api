@@ -70,12 +70,12 @@ export class GanttService {
 
   async deleteRecursive(id: number, user: string) {
     const existe_filhos = await this.prisma.$queryRawUnsafe(`
-      SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id}
+      SELECT count(*) as existe FROM tb_projetos_atividade WHERE id_pai = ${id} and dat_usu_erase is null
     `);
 
     if (existe_filhos[0].existe > 0) {
       const filho: any[] = await this.prisma.$queryRawUnsafe(`
-        SELECT id FROM tb_projetos_atividade WHERE id_pai = ${id}
+        SELECT id FROM tb_projetos_atividade WHERE id_pai = ${id} and dat_usu_erase is null
       `);
 
       filho.forEach(async (e) => {
@@ -83,13 +83,13 @@ export class GanttService {
       });
 
       //delete
-      const ret = await this.prisma.$queryRawUnsafe(
-        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
+      await this.prisma.$queryRawUnsafe(
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id} and id_pai <> 0 and dat_usu_erase is null`,
       );
     } else {
       //delete
-      const ret = await this.prisma.$queryRawUnsafe(
-        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}`,
+      await this.prisma.$queryRawUnsafe(
+        `UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id} and id_pai <> 0 and dat_usu_erase is null`,
       );
     }
   }
