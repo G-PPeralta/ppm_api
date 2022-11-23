@@ -274,6 +274,12 @@ export class CampanhaService {
     );
   }
 
+  async findDataFinalPredecessor(id: number) {
+    return await this.prisma.$queryRawUnsafe(
+      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = ${id} and ind_atv_execucao = 1;`,
+    );
+  }
+
   async findDatasPai(id: number) {
     return await this.prisma
       .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 

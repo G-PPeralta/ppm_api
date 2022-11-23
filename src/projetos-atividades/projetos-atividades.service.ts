@@ -235,4 +235,10 @@ where
 
     return await this.prisma.$queryRawUnsafe(query);
   }
+
+  async findDataFinalPredecessor(id: number) {
+    return await this.prisma.$queryRawUnsafe(
+      `  select dat_fim_plan from tb_projetos_atividade tpa where id = ${id};`,
+    );
+  }
 }

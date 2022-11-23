@@ -65,4 +65,9 @@ export class ProjetosAtividadesController {
   remove(@Param('id') id: string, @Param('user') user: string) {
     return this.projetosAtividadesService.remove(+id, user);
   }
+
+  @Get('/finddatafinalpredecessor/:id')
+  async getDataFinalPredecessor(@Param('id') id: string) {
+    return await this.projetosAtividadesService.findDataFinalPredecessor(+id);
+  }
 }

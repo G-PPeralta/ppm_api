@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
@@ -186,12 +186,15 @@ GROUP BY 1, 2;
 
   async getTotalOrcamentoPrevisto() {
     const retornoQuery: TotalOrcamentoDto[] = await this.prisma
-      .$queryRaw`select coalesce(sum(valor_total_previsto), 0) as vlr_orcamento_total
+      .$queryRaw`select 
+        coalesce(sum(valor_total_previsto), 0) as vlr_orcamento_total
       from tb_projetos tp 
       where tipo_projeto_id in (1,2)`;
 
     return retornoQuery.map((orc) => ({
-      total: Number(orc.vlr_orcamento_total),
+      total: orc.vlr_orcamento_total.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+      }),
     }));
   }
 
