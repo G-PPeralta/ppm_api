@@ -809,6 +809,20 @@ and a.id = ${id};
     }
   }
 
+  async verificarRelacoesExecucao(id: number) {
+    return this.prismaClient.$queryRawUnsafe(`
+    select
+    coalesce(atividades.id, projetos.id) as id,
+    coalesce(atividades.nom_atividade, projetos.nome_projeto) as valor
+    from
+    tb_projetos_atividade atividades
+    right join tb_projetos projetos
+    on projetos.id = atividades.id_projeto
+    where
+    id_pai = ${id} and atividades.dat_usu_erase is null and projetos.dat_usu_erase is null
+    `);
+  }
+
   async vincularAtividade(vincularAtividade: VincularAtividade) {
     const projeto: any[] = await this.prismaClient.$queryRawUnsafe(`
       SELECT * FROM tb_projetos WHERE id = ${vincularAtividade.relacao_id}
