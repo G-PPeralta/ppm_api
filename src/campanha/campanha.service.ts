@@ -6,6 +6,7 @@ import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto'
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
 import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
+import { TrocarPocoSondaDto } from './dto/trocar-poco-sonda.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
@@ -585,6 +586,10 @@ export class CampanhaService {
       }
       where id = ${id}`);
     }
+  }
+
+  async trocarPocoSonda(payload: TrocarPocoSondaDto) {
+    Logger.log(payload);
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
