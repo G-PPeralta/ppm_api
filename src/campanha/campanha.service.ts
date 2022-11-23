@@ -6,6 +6,7 @@ import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto'
 import { CreateCampanhaDto } from './dto/create-campanha.dto';
 import { CreateCampanhaFilhoDto } from './dto/create-filho.dto';
 import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
+import { TrocarPocoSondaDto } from './dto/trocar-poco-sonda.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
 @Injectable()
@@ -267,6 +268,18 @@ export class CampanhaService {
     where pai.id_campanha = ${id} and pai.id_pai = 0`);
   }
 
+  async findDataInicial(id: number) {
+    return await this.prisma.$queryRawUnsafe(
+      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = ${id} and ind_atv_execucao = 1;`,
+    );
+  }
+
+  async findDataFinalPredecessor(id: number) {
+    return await this.prisma.$queryRawUnsafe(
+      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = ${id} and ind_atv_execucao = 1;`,
+    );
+  }
+
   async findDatasPai(id: number) {
     return await this.prisma
       .$queryRawUnsafe(`select max(filho.dat_fim_plan) + interval '16' day as dat_ini_prox_intervencao 
@@ -418,6 +431,7 @@ export class CampanhaService {
 	campanha.id as id_campanha,
     pai.id as id,
     pai.poco_id as id_poco,
+    coalesce((select case when pct_real > 0 then 1 else 0 end from tb_camp_atv_campanha tcac where id_pai = pai.id and ind_atv_execucao = 1),0) as ind_block,
     (
     	select
     	concat(p.id, ' - ', p.nome_projeto)
@@ -425,8 +439,10 @@ export class CampanhaService {
     	where p.nome_projeto = rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1)))
     ) as sonda,
     coalesce(poco.nom_poco, poco2.poco) as poco,
-    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) as inicioPlanejado,
-    fn_atv_maior_data(pai.id) as finalPlanejado,
+    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id and ind_atv_execucao = 1) as inicioPlanejado,
+    (select max(dat_fim_plan) from tb_camp_atv_campanha where id_pai = pai.id and ind_atv_execucao = 1) as finalPlanejado,
+    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) as inicioProjPlanejado,
+    fn_atv_maior_data(pai.id) as finalProjPlanejado,
     round(fn_atv_calc_pct_plan(
             fn_atv_calcular_hrs(fn_atv_menor_data(pai.id)), -- horas executadas
             fn_hrs_uteis_totais_atv(fn_atv_menor_data(pai.id), fn_atv_maior_data(pai.id)),  -- horas totais
@@ -576,6 +592,10 @@ export class CampanhaService {
       }
       where id = ${id}`);
     }
+  }
+
+  async trocarPocoSonda(payload: TrocarPocoSondaDto) {
+    Logger.log(payload);
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
