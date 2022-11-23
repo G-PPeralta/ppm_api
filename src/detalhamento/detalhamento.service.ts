@@ -22,8 +22,18 @@ export class DetalhamentoService {
     select
 		tp.id,
 	    nome_projeto,
-	    data_inicio,
-	    data_fim,
+	    coalesce((
+	    	select min(atividades.dat_ini_plan) from
+	    	tb_projetos_atividade atividades
+	    	where atividades.id_pai = topo.id
+	    	and atividades.dat_usu_erase is null
+	    ), data_inicio) as data_inicio,
+	    coalesce((
+	    	select max(atividades.dat_fim_plan) from
+	    	tb_projetos_atividade atividades
+	    	where atividades.id_pai = topo.id
+	    	and atividades.dat_usu_erase is null
+	    ), data_fim) as data_fim,
 	    numero,
 	    polo,
 	    local,
@@ -49,7 +59,11 @@ export class DetalhamentoService {
 	    tp.coordenador_id = tc.id_coordenador 
 	  left join tb_solicitantes_projetos tsp on
 		  tsp.id = tp.solicitante_id
-    where tp.id = ${id};
+	  left join tb_projetos_atividade topo on
+		  topo.id_projeto = tp.id
+    where tp.id = ${id}
+      and (topo.id_pai = 0 or topo.id_pai is null)
+    ;
     `);
 
     return projeto;
