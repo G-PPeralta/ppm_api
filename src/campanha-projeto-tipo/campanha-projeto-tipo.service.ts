@@ -88,9 +88,9 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     on tag.id_atividade = atividades.id
     inner join tb_areas_atuacoes areas_atuacoes
     on areas_atuacoes.id = atividades.id_area
-    inner join tb_camp_atv tarefa
+    left join tb_camp_atv tarefa
     on tarefa.id = atividades.id_tarefa
-    inner join tb_responsaveis responsaveis
+    left join tb_responsaveis responsaveis
     on responsaveis.responsavel_id  = tarefa.responsavel_id
     where projeto_tipo.id = ${id}
     `);

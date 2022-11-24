@@ -94,6 +94,66 @@ export class GanttService {
     }
   }
 
+  async findOneCampanha(id: number) {
+    const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
+    select
+    campanha.id as TaskID,
+    case when campanha.nom_atividade is null then vinculo_atv_poco.nom_atividade else campanha.nom_atividade end as TaskName,
+    (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineStartDate,
+    (select min(dat_fim_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineEndDate,
+    (select min(dat_ini_real) from tb_camp_atv_campanha where id_pai = campanha.id) as StartDate,
+    (select min(dat_fim_real) from tb_camp_atv_campanha where id_pai = campanha.id) as EndDate, 
+    null as Responsavel,
+    (
+      select fn_hrs_totais_cronograma_atvv(min(dat_ini_plan)::date, max(dat_fim_plan)::date)/24
+      from tb_camp_atv_campanha where id_pai = campanha.id
+      and dat_usu_erase is null
+    ) as BaselineDuration,
+    (
+    select case when weekdays_sql(min(dat_ini_real)::date, max(dat_fim_real)::date)::int <= 0 then 0 else weekdays_sql(min(dat_ini_real)::date, max(dat_fim_real)::date)::int end
+    from tb_camp_atv_campanha where id_pai = campanha.id
+    and dat_usu_erase is null
+    )
+    as Duration,
+    round(campanha.pct_real::numeric, 1) as Progress,
+    null as Predecessor,
+    (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
+   from tb_camp_atv_campanha campanha
+   left join tb_projetos_atividade vinculo_atv_poco
+   on vinculo_atv_poco.id = campanha.poco_id
+   where campanha.id_pai = 0 and campanha.id = ${id}
+    `);
+
+    const tratar = retorno_inicial.map((el) => {
+      return {
+        TaskID: el.taskid,
+        TaskName: el.taskname,
+        BaselineStartDate: el.baselinestartdate,
+        BaselineEndDate: el.baselineenddate,
+        StartDate: el.startdate,
+        EndDate: el.enddate,
+        BaselineDuration: el.baselineduration,
+        Duration: el.duration,
+        Progress: el.progress,
+        Predecessor: el.predecessor,
+        SubtaskAmount: el.subtasks,
+        Responsavel: el.responsavel,
+        subtasks: [],
+      };
+    });
+
+    const retornar = async () => {
+      const tratamento: any[] = [];
+      for (const e of tratar) {
+        await this.substasksRecursiveCampanha(e);
+        tratamento.push(e);
+      }
+      return tratamento;
+    };
+
+    return await retornar();
+  }
+
   async findCampanha() {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select

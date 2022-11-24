@@ -234,8 +234,32 @@ export class ProjetosService {
     polo,
     coordenador,
     coordenador_id,
-    coalesce(a.data_inicio, b.data_inicio) as data_inicio,
-    coalesce(a.data_fim, b.data_fim) as data_fim,
+    (
+    	select
+    	case when 
+    	min(tpa.dat_ini_plan)
+    	is not null
+    	then
+    	min(tpa.dat_ini_plan)
+    	else coalesce(a.data_inicio, b.data_inicio)
+    	end
+    	from tb_projetos_atividade tpa 
+    	where tpa.dat_usu_erase is null
+    	and tpa.id_pai = a.id
+    ) as data_inicio,
+   (
+    	select
+    	case when 
+    	max(tpa.dat_fim_plan)
+    	is not null
+    	then
+    	max(tpa.dat_fim_plan)
+    	else coalesce(a.data_fim, b.data_fim)
+    	end
+    	from tb_projetos_atividade tpa 
+    	where tpa.dat_usu_erase is null
+    	and tpa.id_pai = a.id
+    ) as data_fim,
     pct,
     coalesce(a.descricao, b.descricao) as descricao,
     coalesce(a.justificativa, b.justificativa) as justificativa,

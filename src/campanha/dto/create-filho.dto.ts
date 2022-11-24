@@ -14,6 +14,7 @@ export class Atividades {
   qtde_dias: number;
   responsavel_id: number;
   area_id: number;
+  ind_atv_execucao: boolean;
   precedentes: Precedentes[];
 }
 
