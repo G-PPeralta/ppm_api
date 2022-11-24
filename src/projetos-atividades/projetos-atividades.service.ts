@@ -8,6 +8,54 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async createFilho(payload: CreateProjetosFilhoDto) {
+    Logger.log(payload);
+
+    /*
+
+    var Dia = 0;
+    Dia = Dia*60*60*24
+
+    var Hora = 1;
+    Hora = Hora*60*60;
+
+    var Minuto = 30;
+    Minuto = Minuto*60
+
+    var Segundos = 0;
+    Segundos = Segundos*1;
+
+    unix = new Date().getTime() - ((Dia+Hora+Minuto+Segundos)*1000);
+    resultado = new Date(unix);
+
+    */
+
+    const data_inicio = new Date(
+      new Date(payload.data_inicio).getTime() - 3 * 60 * 60 * 1000,
+    );
+
+    const data_final = new Date(
+      new Date(payload.data_fim).getTime() - 3 * 60 * 60 * 1000,
+    );
+
+    // Logger.log(data_tratado);
+    // const dat_ini = data_tratado.toISOString(); //new Date(vincularAtividade.dat_inicio_plan).toISOString();
+    // const data_fim_tratado = addWorkDays(
+    //   new Date(dat_ini),
+    //   vincularAtividade.duracao_plan + 1, // o front está subtraindo um dia da duração, sabe lá por que...
+    // );
+
+    // const dat_fim = new Date(
+    //   new Date(data_fim_tratado).getTime() + 9 * 60 * 60 * 1000,
+    // );
+
+    // return {
+    //   data: dat_ini,
+    //   dat_fim: data_fim_tratado,
+    //   duracao: vincularAtividade.duracao_plan,
+    // };
+
+    // return data_inicio.toISOString();
+
     const operacao: any[] = await this.prisma.$queryRawUnsafe(`
     SELECT nom_operacao FROM tb_projetos_operacao
     WHERE id = ${payload.operacao_id}
@@ -16,7 +64,7 @@ export class ProjetosAtividadesService {
     const dados_sonda_projeto: any[] = await this.prisma.$queryRawUnsafe(`
     select projetos.* from tb_projetos projetos
     inner join tb_projetos_atividade projetos_atv
-    on projetos.id = projetos_atv.id_projeto 
+    on projetos.id = projetos_atv.id_projeto
     where
     projetos_atv.id = ${payload.id_sonda}
     `);
@@ -26,14 +74,14 @@ export class ProjetosAtividadesService {
     VALUES
     ('${operacao[0].nom_operacao}', 0, ${dados_sonda_projeto[0].id}, ${
       payload.id_poco
-    }, ${payload.operacao_id}, '${new Date(
-      payload.data_inicio,
-    ).toISOString()}', '${new Date(payload.data_fim).toISOString()}', '${
+    }, ${
+      payload.operacao_id
+    }, '${data_inicio.toISOString()}', '${data_final.toISOString()}', '${
       payload.nom_usu_create
-    }', now(), '${new Date(payload.data_inicio).toISOString()}', '${new Date(
-      payload.data_fim,
-    ).toISOString()}')
+    }', now(), '${data_inicio.toISOString()}}', '${data_final.toISOString()}')
     `);
+
+    return { gravado: 1 };
   }
 
   async create(createProjetosAtividadesDto: CreateProjetosAtividadeDto) {
