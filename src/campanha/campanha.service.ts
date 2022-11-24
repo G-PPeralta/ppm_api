@@ -455,38 +455,38 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     
       select 
-      ordem,
-      id_campanha,
-      id,
-      id_poco,
-      sonda,
-      poco,
-      inicioPlanejado_fmt as inicioPlanejado,
-      finalPlanejado_fmt as finalPlanejado,
-      pct_plan::numeric as pct_plan,
-      pct_real::numeric as pct_real,
-      ind_alerta,
-      case when pct_real = 100 then
-        1
-      else
-        case when pct_real > 0 then
-          case when pct_real > pct_plan then
-            3
-          else
+        ordem,
+        id_campanha,
+        id,
+        id_poco,
+        sonda,
+        poco,
+        inicioPlanejado_fmt as inicioPlanejado,
+        finalPlanejado_fmt as finalPlanejado,
+        pct_plan::numeric as pct_plan,
+        pct_real::numeric as pct_real,
+        ind_alerta,
+        case when pct_real = 100 then
+          1
+        else
+          case when pct_real > 0 then
+            case when pct_real > pct_plan then
+              3
+            else
+              case when pct_real < pct_plan then
+                2
+              else
+                4
+              end
+            end
+          else 
             case when pct_real < pct_plan then
               2
             else
               4
             end
           end
-        else 
-          case when pct_real < pct_plan then
-            2
-          else
-            4
-          end
-        end
-      end as ind_status
+        end as ind_status
       from (
       select 
         *,
@@ -545,6 +545,7 @@ export class CampanhaService {
       ) as qr
       ) as qr2
     `);
+
     const tratamento: any = [];
     retorno.forEach((element) => {
       if (element.pct_real < element.pct_plan) {
