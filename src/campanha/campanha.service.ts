@@ -724,7 +724,6 @@ export class CampanhaService {
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
-    Logger.log(id_campanha);
     await payload.reduce(async (prev, cur, curIdx, arr) => {
       if (curIdx < payload.length - 1) {
         const id_anterior = await this.getTbCampanhaFromProjetos(
@@ -740,23 +739,11 @@ export class CampanhaService {
       return curIdx + 1;
     }, Promise.resolve(0));
 
-    const id_camp_convertido = await this.prisma.$queryRawUnsafe(`
-    select a.id
-      from tb_projetos a
-      inner join tb_projetos_atividade b 
-        on a.id = b.id_projeto 
-      where 
-        b.id_pai = 0
-        and a.tipo_projeto_id = 3
-        and nome_projeto in (
-        select rtrim(ltrim(substring(nom_campanha, position('- ' in nom_campanha) + 1))) from tb_campanha
-          where id = ${id_campanha}
-        )
-    `);
-
-    await this.prisma.$queryRawUnsafe(`
-    call sp_recalcula_cronograma_execucao(${id_camp_convertido[0].id}, null);
-    `);
+    payload.forEach(async (e) => {
+      await this.prisma.$queryRawUnsafe(`
+        CALL sp_recalcula_cronograma_execucao(${e.id_cronograma}, null);
+  `);
+    });
   }
 
   async callRecalc(
