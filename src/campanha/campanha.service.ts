@@ -154,12 +154,12 @@ export class CampanhaService {
       data = addWorkDays(data, atv.qtde_dias);
 
       const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id)
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao)
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         oldDate,
       ).toISOString()}', '${new Date(data).toISOString()}', ${atv.area_id}, ${
         atv.responsavel_id
-      })
+      }, ${atv.ind_atv_execucao ? 1 : 0})
       returning ID
       `);
 
