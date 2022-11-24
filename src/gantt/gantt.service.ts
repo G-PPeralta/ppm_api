@@ -104,7 +104,8 @@ export class GanttService {
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     nom_responsavel as Responsavel,
-    case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
+    fn_hrs_totais_cronograma_atvv(dat_ini_plan::date, dat_fim_plan::date)/24 as BaselineDuration,
+    --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
     (
@@ -163,7 +164,8 @@ export class GanttService {
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
         nom_responsavel as Responsavel,
-        case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
+        fn_hrs_totais_cronograma_atvv(dat_ini_plan::date, dat_fim_plan::date)/24 as BaselineDuration,
+        --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
         (
@@ -244,11 +246,7 @@ export class GanttService {
             ? null
             : "'" + new Date(updateGannt.dat_fim_real).toISOString() + "'"
         },
-        ${
-          updateGannt.responsavel_id === null
-            ? null
-            : updateGannt.responsavel_id
-        },
+        null,
         ${
           updateGannt.nome_atividade === null
             ? null
