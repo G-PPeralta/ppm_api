@@ -31,7 +31,7 @@ export class ProjetosFinanceiroService {
     `);
   }
 
-  async findFilhos(id: number, mes: string) {
+  async findFilhos(id: number) {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     select 
@@ -53,7 +53,6 @@ export class ProjetosFinanceiroService {
     centro_custo.data_pagamento,
     coalesce(centro_custo.valor_pago, 0) as valor_pago,
     fornecedores.id AS prestadorDeServicoId
-
     from tb_projetos projetos
     left join tb_projetos_atividade atividade_pai
     on atividade_pai.id_projeto = projetos.id and atividade_pai.id_pai = 0

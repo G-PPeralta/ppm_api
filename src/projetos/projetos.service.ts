@@ -260,7 +260,12 @@ export class ProjetosService {
     	where tpa.dat_usu_erase is null
     	and tpa.id_pai = a.id
     ) as data_fim,
-    pct,
+    round((
+    select case when sum(fn_cron_calc_pct_real_projeto(tpa.id, tp.id)) is null then 0 else sum(fn_cron_calc_pct_real_projeto(tpa.id, tp.id)) end from tb_projetos_atividade tpa
+    inner join tb_projetos tp
+    on tp.id = tpa.id_projeto
+    where tp.id = a.id
+    ), 2) as pct,
     coalesce(a.descricao, b.descricao) as descricao,
     coalesce(a.justificativa, b.justificativa) as justificativa,
       a.id as id_projeto_real,

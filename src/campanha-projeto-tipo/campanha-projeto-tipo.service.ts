@@ -8,7 +8,7 @@ export class CampanhaProjetoTipoService {
 
   async create(createCampanhaProjetoTipo: CreateCampanhaProjetoTipo) {
     const id_projeto_tipo = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_projeto_tipo (nom_projeto_tipo, nom_usu_create, dat_usu_create, dsc_comentarios, tipo_intervencao_id, fl_controlar_cronograma)
+        INSERT INTO tb_camp_projeto_tipo (nom_projeto_tipo, nom_usu_create, dat_usu_create, dsc_comentarios, tipo_intervencao_id )
         VALUES ('${createCampanhaProjetoTipo.nom_projeto_tipo}', '${
       createCampanhaProjetoTipo.nom_usu_create
     }', now(), '${createCampanhaProjetoTipo.comentarios}',
@@ -16,18 +16,14 @@ export class CampanhaProjetoTipoService {
           createCampanhaProjetoTipo.tipo_intervencao_id
             ? createCampanhaProjetoTipo.tipo_intervencao_id
             : null
-        },
-        ${
-          createCampanhaProjetoTipo.controlar_cronograma == null
-            ? false
-            : createCampanhaProjetoTipo.controlar_cronograma
-        })
+        }
+        )
         RETURNING ID
     `);
     createCampanhaProjetoTipo.atividades.forEach(async (atv) => {
       const id_atividade = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create)
-        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}')
+        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase)
+        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id})
         RETURNING id
       `);
 
@@ -80,7 +76,8 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     retorno = await this.prisma.$queryRawUnsafe(`
     select projeto_tipo.nom_projeto_tipo, projeto_tipo.id as projeto_tipo_id, atividades.id as id_atividade,
     atividades.qtde_dias, tag.nom_tag as nome_atividade, areas_atuacoes.id as id_area, areas_atuacoes.tipo as nome_area,
-    tarefa.id as id_tarefa, tarefa.nom_atividade as nom_tarefa, responsaveis.responsavel_id, responsaveis.nome_responsavel
+    tarefa.id as id_tarefa, tarefa.nom_atividade as nom_tarefa, responsaveis.responsavel_id, responsaveis.nome_responsavel,
+    atividades.id_fase
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
     on atividades.id_camp_projeto_tipo = projeto_tipo.id

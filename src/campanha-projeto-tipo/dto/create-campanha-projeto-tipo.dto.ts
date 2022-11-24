@@ -13,6 +13,7 @@ export class Atividades {
   tarefa_id: number;
   qtde_dias: number;
   precedentes: Precedentes[];
+  fase_id: number;
 }
 
 export class Precedentes {
