@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { EditarAtividadeDto } from './dto/editar-atividade.dto';
 
@@ -69,5 +69,11 @@ export class EditarAtividadeService {
         (${atividade.geral.id_atividade}, '${moc.numero_moc}', '${atividade.nom_usu_create}', now(), 2, '${moc.anexo}')
         `);
     });
+
+    await this.prisma.$queryRawUnsafe(`
+      call sp_up_atualiza_pct_real_campanha_execucao(${atividade.id_poco_pai})
+    `);
+
+    return atividade;
   }
 }
