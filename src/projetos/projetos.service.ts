@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { LogController } from 'log/log.controller';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -842,11 +843,47 @@ and a.id = ${id};
     // );
     // dat_ini.setHours(dat_ini.getHours() - 3);
 
-    const dat_ini = new Date(vincularAtividade.dat_inicio_plan).toISOString();
-    const dat_fim = addWorkDays(
-      new Date(dat_ini),
-      vincularAtividade.duracao_plan,
+    /*
+
+    var Dia = 0;
+    Dia = Dia*60*60*24
+
+    var Hora = 1;
+    Hora = Hora*60*60;
+
+    var Minuto = 30;
+    Minuto = Minuto*60
+
+    var Segundos = 0;
+    Segundos = Segundos*1;
+
+    unix = new Date().getTime() - ((Dia+Hora+Minuto+Segundos)*1000);
+    resultado = new Date(unix);
+
+    */
+
+    const data_tratado = new Date(
+      new Date(vincularAtividade.dat_inicio_plan).getTime() +
+        3 * 3600 -
+        9 * 60 * 60 * 1000,
     );
+
+    Logger.log(data_tratado);
+    const dat_ini = data_tratado.toISOString(); //new Date(vincularAtividade.dat_inicio_plan).toISOString();
+    const data_fim_tratado = addWorkDays(
+      new Date(dat_ini),
+      vincularAtividade.duracao_plan + 1, // o front está subtraindo um dia da duração, sabe lá por que...
+    );
+
+    const dat_fim = new Date(
+      new Date(data_fim_tratado).getTime() + 9 * 60 * 60 * 1000,
+    );
+
+    // return {
+    //   data: dat_ini,
+    //   dat_fim: data_fim_tratado,
+    //   duracao: vincularAtividade.duracao_plan,
+    // };
 
     if (existe[0].existe > 0) {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`
