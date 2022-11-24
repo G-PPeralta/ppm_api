@@ -703,7 +703,9 @@ export class CampanhaService {
   }
 
   async trocarPocoSonda(payload: TrocarPocoSondaDto) {
-    Logger.log(payload);
+    await this.prisma.$queryRawUnsafe(`
+      CALL sp_troca_poco_sonda(${payload.id_campanha_original}, ${payload.id_campanha_destino}, ${payload.id_cronograma_original})
+    `);
   }
 
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
