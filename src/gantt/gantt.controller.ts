@@ -56,6 +56,11 @@ export class GanttController {
     }
   }
 
+  @Get('campanha')
+  findCampanha() {
+    return this.ganttService.findCampanha();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ganttService.findOne(+id);
