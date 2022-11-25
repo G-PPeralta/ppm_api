@@ -115,7 +115,7 @@ export class GanttService {
     and dat_usu_erase is null
     )
     as Duration,
-    round(campanha.pct_real::numeric, 1) as Progress,
+    coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
     null as Predecessor,
     (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
    from tb_camp_atv_campanha campanha
@@ -175,7 +175,7 @@ export class GanttService {
     and dat_usu_erase is null
     )
     as Duration,
-    round(campanha.pct_real::numeric, 1) as Progress,
+    coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
     null as Predecessor,
     (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
    from tb_camp_atv_campanha campanha
@@ -227,7 +227,7 @@ export class GanttService {
       responsaveis.nome_responsavel as Responsavel,
       fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan::date, campanha.dat_fim_plan::date)/24 as BaselineDuration,
       case when weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int end as Duration,
-      round(campanha.pct_real::numeric, 1) as Progress,
+      coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
       null as Predecessor,
       (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
      from tb_camp_atv_campanha campanha
