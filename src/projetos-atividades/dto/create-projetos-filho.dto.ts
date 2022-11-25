@@ -5,4 +5,6 @@ export class CreateProjetosFilhoDto {
   operacao_id: number;
   data_inicio: Date;
   data_fim: Date;
+  metodo_elevacao_id: number;
+  profundidade: number;
 }
