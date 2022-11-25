@@ -1,5 +1,6 @@
 export class EditarAtividadeDto {
   nom_usu_create: string;
+  id_poco_pai: string;
   geral: {
     id_atividade: number;
     nome_atividade: string;

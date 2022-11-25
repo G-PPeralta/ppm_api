@@ -476,7 +476,7 @@ export class CampanhaService {
               case when pct_real < pct_plan then
                 2
               else
-                4
+                3
               end
             end
           else 
@@ -590,68 +590,83 @@ export class CampanhaService {
     retorno = await this.prisma.$queryRawUnsafe(`
     --- relacionar as atividades relacionados aos poços
     select 
-      *,
-      case when pct_real = 100 then
-        1
-      else
-        case when pct_real > 0 then
-          case when pct_real > pct_plan then
-            3
-          else
-            case when pct_real < pct_plan then
-              2
-            else
-              4
-            end
-          end
-        else 
+    id_filho,
+    id_atividade,
+    hoje,
+    inicioplanejado_fmt as inicioplanejado,
+    finalplanejado_fmt as finalplanejado,
+    qtddias,
+    atividade,
+    nom_responsavel,
+    nom_area,
+    sonda,
+    comentario,
+    pct_plan,
+    pct_real,
+    id_poco,
+    case when pct_real = 100 then
+      1
+    else
+      case when pct_real > 0 then
+        case when pct_real > pct_plan then
+          3
+        else
           case when pct_real < pct_plan then
             2
           else
-            4
+            3
           end
         end
-      end as ind_status
-    from (
-      select 
-          filho.id as id_filho,
-          filho.tarefa_id as id_atividade,
-          filho.dat_ini_plan as inicioplanejado,
-          current_date as hoje,
-          fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) as nm,
-          fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) as ni,
-          filho.dat_fim_plan as finalplanejado,
-          filho.dat_ini_real as inicioreal,
-          filho.dat_fim_real as fimreal,
-          coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
-          coalesce(filho.nom_atividade, tarefa.nom_atividade) as atividade,
-          responsaveis.nome_responsavel as nom_responsavel,
-          area_atuacao.tipo as nom_area,
-          campanha.nom_campanha as sonda,
-          filho.dsc_comentario as comentario,
-          case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 0 and fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) > 0 then
-            case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 1 then
-              100
-            else 
-              round(fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan), 1) * 100
-            end
-          else
-            0
-          end as pct_plan,
-          COALESCE(filho.pct_real, 0) as pct_real,
-          pai.id as id_poco
-          from tb_camp_atv_campanha pai
-          inner join tb_camp_atv_campanha filho
-          on filho.id_pai = pai.id 
-          inner join tb_camp_atv tarefa
-          on tarefa.id = filho.tarefa_id 
-          inner join tb_responsaveis responsaveis
-          on responsaveis.responsavel_id = filho.responsavel_id
-          inner join tb_areas_atuacoes area_atuacao
-          on area_atuacao.id = filho.area_id
-          inner join tb_campanha campanha
-          on campanha.id = pai.id_campanha 
-          where pai.id_pai = 0
+      else 
+        case when pct_real < pct_plan then
+          2
+        else
+          4
+        end
+      end
+    end as ind_status
+  from (
+    select 
+        filho.id as id_filho,
+        filho.tarefa_id as id_atividade,
+        current_date as hoje,
+        fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) as nm,
+        fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) as ni,
+        filho.dat_ini_plan as inicioplanejado,
+        TO_CHAR(filho.dat_ini_plan, 'DD/MM/YYYY')as inicioplanejado_fmt,
+        TO_CHAR(filho.dat_fim_plan, 'DD/MM/YYYY')as finalplanejado_fmt,
+        filho.dat_fim_plan as finalplanejado,
+        filho.dat_ini_real as inicioreal,
+        filho.dat_fim_real as fimreal,
+        coalesce(round(fn_hrs_uteis_totais_atv(filho.dat_ini_plan, filho.dat_fim_plan)/8,0), 0) as qtddias,
+        coalesce(filho.nom_atividade, tarefa.nom_atividade) as atividade,
+        responsaveis.nome_responsavel as nom_responsavel,
+        area_atuacao.tipo as nom_area,
+        campanha.nom_campanha as sonda,
+        filho.dsc_comentario as comentario,
+        case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 0 and fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) > 0 then
+          case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 1 then
+            100
+          else 
+            round(fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan), 1) * 100
+          end
+        else
+          0
+        end as pct_plan,
+        COALESCE(filho.pct_real, 0) as pct_real,
+        pai.id as id_poco
+        from tb_camp_atv_campanha pai
+        inner join tb_camp_atv_campanha filho
+        on filho.id_pai = pai.id 
+        inner join tb_camp_atv tarefa
+        on tarefa.id = filho.tarefa_id 
+        inner join tb_responsaveis responsaveis
+        on responsaveis.responsavel_id = filho.responsavel_id
+        inner join tb_areas_atuacoes area_atuacao
+        on area_atuacao.id = filho.area_id
+        inner join tb_campanha campanha
+        on campanha.id = pai.id_campanha 
+        where pai.id_pai = 0
           and pai.id = ${id}
           and filho.dat_usu_erase is null
           and pai.dat_usu_erase is null
