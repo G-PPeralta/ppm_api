@@ -145,7 +145,7 @@ export class DetalhamentoService {
         	round(vlr_realizado - vlr_planejado, 2)
         else 0 end	
         as vlr_nao_prev,
-        case when  vlr_remanescente < 0 then 0 else vlr_remanescente end as vlr_remanescente
+        case when  vlr_realizado > vlr_planejado then 0 else (vlr_realizado - vlr_planejado) *-1 end as vlr_remanescente
       from
       (
       select
