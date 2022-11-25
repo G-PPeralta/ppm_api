@@ -686,9 +686,9 @@ export class CampanhaService {
       const tratamento: any = [];
       for (const e of retorno) {
         const prec = await this.prisma.$queryRawUnsafe(`
-            select tarefa_id as precedente_id from
-            tb_camp_atv_campanha
-            where id_pai = ${e.id_filho}
+            select id_atv_precedente as precedente_id
+            from tb_camp_atv_precedente tcap 
+            where id_atividade =${e.id_filho}
             `);
 
         const data = {
