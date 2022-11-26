@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CentroCustoService } from './centro-custo.service';
 import { CreateCentroCustoDto } from './dto/create-centro-custo.dto';
 
@@ -9,6 +17,11 @@ export class CentroCustoController {
   @Post(':id')
   create(@Body() create: CreateCentroCustoDto, @Param('id') id: string) {
     return this.service.create(create, +id);
+  }
+
+  @Get('datas/:id')
+  getRange(@Param('id') id: string) {
+    return this.service.getRange(+id);
   }
 
   @Patch(':id')
