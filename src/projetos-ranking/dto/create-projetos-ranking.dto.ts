@@ -16,10 +16,6 @@ export class CreateProjetosRankingDto {
     opcao_id: number;
     id_ranking: number;
   };
-  complexidade: {
-    opcao_id: number;
-    id_ranking: number;
-  };
   estrategia: {
     opcao_id: number;
     id_ranking: number;
