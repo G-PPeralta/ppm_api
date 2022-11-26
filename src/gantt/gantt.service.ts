@@ -427,9 +427,16 @@ export class GanttService {
             : "'" + updateGannt.nome_atividade + "'"
         }
     );
-`;
+  `;
 
-    Logger.log(sqlQuery);
+    const res: any[] = await this.prisma.$queryRawUnsafe(
+      `select id_projeto from tb_projetos_atividade where id = ${id}`,
+    );
+    const id_projeto = res[0].id_projeto;
+
+    await this.prisma.$queryRawUnsafe(`
+      update tb_projetos set dat_usu_update = now() where id = (${id_projeto});
+    `);
     return await this.prisma.$queryRawUnsafe(sqlQuery);
   }
 
