@@ -221,15 +221,15 @@ export class ProjetosService {
     where ranking.id = 4
     and projeto_ranking.id_projeto = a.id
     ) as prioridade,
-    (
-    select opcoes.nom_opcao from tb_ranking ranking
-    inner join tb_projetos_ranking projeto_ranking
-    on projeto_ranking.id_ranking = ranking.id
-    inner join tb_ranking_opcoes opcoes
-    on opcoes.id = projeto_ranking.id_opcao 
-    where ranking.id = 5
-    and projeto_ranking.id_projeto = a.id
-    ) as complexidade,
+    case when vlr_orcado <= 300000 then
+		'B'
+   	else 
+   		case when vlr_orcado between 300001 and 3000000 then
+   			'M'
+   		else 
+   			'A'
+   		end
+    end as complexidade,
     polo_id,
     polo,
     coordenador,
@@ -493,15 +493,15 @@ export class ProjetosService {
   async findProjetosPercentuais(id: number) {
     return this.prismaClient.$queryRawUnsafe(`
     select 
-    *,
-    round(fn_cron_calc_pct_plan(b.id),1) as pct_plan,
-    round(fn_cron_calc_pct_real(b.id),1) as pct_real
-from tb_projetos a
-left join tb_projetos_atividade b 
-    on a.id = b.id_projeto 
-where 
-    b.id_pai = 0 or b.id_pai is null
-and a.id = ${id};
+      *,
+      round(fn_cron_calc_pct_plan_aprovada(a.id),1) as pct_plan,
+      round(fn_cron_calc_pct_real_regra_aprovada(a.id),1) as pct_real
+    from tb_projetos a
+    left join tb_projetos_atividade b 
+        on a.id = b.id_projeto 
+    where 
+        a.nome_projeto = b.nom_atividade
+    and a.id = ${id};
 `);
   }
 
@@ -985,6 +985,10 @@ and a.id = ${id};
 
       await this.prismaClient.$executeRawUnsafe(`
       call sp_cron_atv_update_datas_pcts_pais(${id_atv[0].id});
+      `);
+
+      await this.prismaClient.$executeRawUnsafe(`
+        update tb_projetos set dat_usu_update = now() where id = (${vincularAtividade.id_projeto});
       `);
     }
   }

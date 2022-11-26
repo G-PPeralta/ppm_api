@@ -152,14 +152,13 @@ export class CampanhaService {
     createCampanhaDto.atividades.forEach(async (atv) => {
       const oldDate = new Date(data);
       data = addWorkDays(data, atv.qtde_dias);
-
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao)
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         oldDate,
-      ).toISOString()}', '${new Date(data).toISOString()}', ${atv.area_id}, ${
-        atv.responsavel_id
-      }, ${atv.ind_atv_execucao ? 1 : 0})
+      ).toISOString()}', '${new Date(data).toISOString()}', ${
+        atv.area_id
+      }, 107, ${atv.ind_atv_execucao ? 1 : 0})
       returning ID
       `);
 
@@ -687,9 +686,9 @@ export class CampanhaService {
       const tratamento: any = [];
       for (const e of retorno) {
         const prec = await this.prisma.$queryRawUnsafe(`
-            select tarefa_id as precedente_id from
-            tb_camp_atv_campanha
-            where id_pai = ${e.id_filho}
+            select id_atv_precedente as precedente_id
+            from tb_camp_atv_precedente tcap 
+            where id_atividade =${e.id_filho}
             `);
 
         const data = {

@@ -24,22 +24,18 @@ export class FiltrosService {
 
   async findSondas() {
     return await this.prisma.$queryRawUnsafe(`
-    SELECT atv.id, atv.nom_atividade 
-    FROM tb_projetos_atividade atv
-    inner join tb_hist_estatistica est
-    on est.id_sonda = atv.id
-    WHERE atv.id_pai = 0
-    group by atv.id, atv.nom_atividade
+    select a.id_sonda as id, b.nom_sonda as nom_atividade
+    from tb_hist_estatistica a
+    inner join tb_sondas b
+    	on a.id_sonda = b.id
+    group by a.id_sonda, b.nom_sonda
     `);
   }
 
   async findPocos() {
     return await this.prisma.$queryRawUnsafe(`
-    SELECT atv.id, atv.nom_atividade 
-    FROM tb_projetos_atividade atv
-    inner join tb_hist_estatistica est
-    on est.id_poco = atv.id
-    group by atv.id, atv.nom_atividade
+      select 14 as id, substring(nom_poco, 1, 3) as nom_atividade
+      from tb_pocos tp limit 1
     `);
   }
 

@@ -16,6 +16,7 @@ export class EstatisticasService {
         sonda.nom_atividade as sonda,
         pocos.nom_atividade as poco,
         pocos.id as id_poco,
+        sonda.ordem as ordem,
         case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end as nome_atividade,
         atividades.id as id_atividade, --verificar se é id da atividade ou da origem
         0.00 as custo,
@@ -72,7 +73,7 @@ export class EstatisticasService {
         case when atividades.nom_atividade is null then tarefas.nom_operacao else atividades.nom_atividade end,
         atividades.id, atividades.dat_ini_plan, atividades.dat_fim_plan, atividades.dat_ini_real, atividades.dat_ini_plan,
         responsaveis.nome_responsavel, vlr_min, vlr_max, vlr_dp, vlr_med
-        order by atividades.id asc, atividades.dat_ini_real asc, atividades.id_pai asc;
+        order by sonda.ordem asc, atividades.id asc, atividades.dat_ini_real asc, atividades.id_pai asc;
     `);
 
     const tratamento = [];

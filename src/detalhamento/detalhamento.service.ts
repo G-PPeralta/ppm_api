@@ -44,7 +44,7 @@ export class DetalhamentoService {
 	    tc.coordenador_nome,
 	    tsp.solicitante,
 	    case when tp."dataFim_real" > data_fim then date_part('day', age(tp."dataFim_real",data_fim)) else 0 end as atraso,
-      tp.dat_usu_update
+      TO_CHAR((tp.dat_usu_update), 'DD/MM/YYYY HH24:MI') as dat_usu_update
     from
 	    tb_projetos tp
     left join tb_polos tp2 on
@@ -71,7 +71,7 @@ export class DetalhamentoService {
 
   async findOneProgresso(id: number) {
     const percentual = await this.prisma.$queryRawUnsafe(`
-    SELECT round(fn_se_calcula_pct_projeto(${id})*100, 0) as fn_cron_calc_pct_real
+    SELECT round(fn_cron_calc_pct_real_regra_aprovada(${id}), 0) as fn_cron_calc_pct_real
   `);
     return percentual;
   }
@@ -133,7 +133,7 @@ export class DetalhamentoService {
   async findOneInfoFinanc(id: number) {
     const query: InfoFinanceiro[] = await this.prisma.$queryRaw`  
       select
-        case when vlr_remanescente / vlr_planejado * 100 < 0 then 0 else round(vlr_remanescente / vlr_planejado * 100, 1) end as pct_remanescente,
+      case when vlr_realizado > vlr_planejado then 0 else round((1-(vlr_realizado / vlr_planejado))*100, 1) end as pct_remanescente,
         case when vlr_realizado / vlr_planejado > 1 then 100 else round((vlr_realizado / vlr_planejado * 100), 1) end as pct_realizado,
         case when vlr_realizado > vlr_planejado then
         	case when vlr_realizado < 0.1 then 0 when vlr_planejado < 0.1 then 0 else round((vlr_realizado / (vlr_realizado - vlr_planejado)-1) * 100, 1) end
@@ -145,7 +145,7 @@ export class DetalhamentoService {
         	round(vlr_realizado - vlr_planejado, 2)
         else 0 end	
         as vlr_nao_prev,
-        case when  vlr_remanescente < 0 then 0 else vlr_remanescente end as vlr_remanescente
+        case when  vlr_realizado > vlr_planejado then 0 else (vlr_realizado - vlr_planejado) *-1 end as vlr_remanescente
       from
       (
       select
