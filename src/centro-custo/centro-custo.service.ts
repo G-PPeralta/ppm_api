@@ -25,6 +25,18 @@ export class CentroCustoService {
     `);
   }
 
+  async getRange(id: number) {
+    const retorno: any[] = await this.prisma.$queryRawUnsafe(`
+      select
+      min(dat_ini_plan) as data_inicio,
+      max(dat_fim_plan) as data_final
+      from tb_projetos_atividade projeto
+      where projeto.id_projeto = ${id}
+    `);
+
+    return retorno[0];
+  }
+
   async update(update: CreateCentroCustoDto, id_custo: number) {
     return this.prisma.$queryRawUnsafe(`
         UPDATE tb_centro_custo
