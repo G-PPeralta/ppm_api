@@ -15,12 +15,6 @@ export class ProjetosRankingService {
 
     await this.prepareInsert(
       createProjetosRankingDto,
-      createProjetosRankingDto.complexidade.id_ranking,
-      createProjetosRankingDto.complexidade.opcao_id,
-    );
-
-    await this.prepareInsert(
-      createProjetosRankingDto,
       createProjetosRankingDto.estrategia.id_ranking,
       createProjetosRankingDto.estrategia.opcao_id,
     );
