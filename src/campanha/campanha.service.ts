@@ -603,6 +603,10 @@ export class CampanhaService {
     pct_plan,
     pct_real,
     id_poco,
+    inicioreal,
+    fimreal,
+    inicioplanejado as inicioplanejadohrs,
+    finalplanejado as finalplanejadohrs,
     case when pct_real = 100 then
       1
     else

@@ -473,16 +473,16 @@ export class GanttService {
       subtasks: [],
     }));
 
-    const fill = async () => {
-      const filled: any[] = [];
-      for (const e of formated) {
-        await this.substasksForAll(e);
-        filled.push(e);
-      }
-      return filled;
-    };
+    // const fill = async () => {
+    //   const filled: any[] = [];
+    //   for (const e of formated) {
+    //     await this.substasksForAll(e);
+    //     filled.push(e);
+    //   }
+    //   return filled;
+    // };
 
-    return await fill();
+    return formated;
   }
 
   async substasksForAll(element) {
