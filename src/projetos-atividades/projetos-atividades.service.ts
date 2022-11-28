@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import e from 'express';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
@@ -245,30 +246,46 @@ where
     SELECT 
     pa.id,
     pa.nom_atividade,
-    pl.vlr_planejado,
-    re.vlr_realizado,
-    pa.id_responsavel,
+    (
+    select sum(tcc.valor) from tb_centro_custo tcc where tcc.projeto_id = tp.id
+    ) as vlr_realizado,
+    tp.responsavel_id as id_responsavel,
     res.nome_responsavel,
     '' AS fase,
     (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_ini_plan,
     (select max(dat_fim_plan) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_fim_plan,
     (select min(dat_ini_real) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_ini_real,
-    (select max(dat_fim_real) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_fim_real
-
+    (select max(dat_fim_real) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_fim_real,
+    coalesce(fn_cron_calc_pct_real_regra_aprovada(pa.id_projeto), 0) as pct_real,
+    coalesce(fn_cron_calc_pct_plan_aprovada(pa.id_projeto), 0) as pct_plan,
+    tp.valor_total_previsto as vlr_planejado
     FROM tb_projetos_atividade pa
+    inner join tb_projetos tp 
+      ON tp.id = pa.id_projeto
     left JOIN tb_projetos_atividade_custo_plan pl 
       ON pl.id_atividade = pa.id
     LEFT JOIN tb_projetos_atividade_custo_real re	 
       ON re.id_atividade = pa.id
     LEFT JOIN tb_responsaveis res
-      ON res.responsavel_id = pa.id_responsavel
+      ON res.responsavel_id = tp.responsavel_id
     WHERE 
       id_projeto = ${idProjeto}
     and pa.id_pai IS NOT null
     and pa.dat_usu_erase is null
     ;`;
 
-    return await this.prisma.$queryRawUnsafe(query);
+    const retorno: any[] = await this.prisma.$queryRawUnsafe(query);
+
+    return retorno.map((e) => ({
+      ...e,
+      name: e.nom_atividade,
+      responsible: e.nome_responsavel,
+      startDate: e.dat_ini_plan,
+      endDate: e.dat_fim_plan,
+      budget: e.vlr_planejado,
+      realized: e.vlr_realizado,
+      percent: e.pct_real,
+    }));
   }
 
   async getCurvaS(idProjeto: string) {
