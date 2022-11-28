@@ -250,10 +250,10 @@ where
     pa.id_responsavel,
     res.nome_responsavel,
     '' AS fase,
-    pa.dat_ini_plan,
-    pa.dat_fim_plan,
-    pa.dat_ini_real,
-    pa.dat_fim_real
+    (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_ini_plan,
+    (select max(dat_fim_plan) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_fim_plan,
+    (select min(dat_ini_real) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_ini_real,
+    (select max(dat_fim_real) from tb_projetos_atividade tpa where id_pai = pa.id ) as dat_fim_real
 
     FROM tb_projetos_atividade pa
     left JOIN tb_projetos_atividade_custo_plan pl 
@@ -264,7 +264,9 @@ where
       ON res.responsavel_id = pa.id_responsavel
     WHERE 
       id_projeto = ${idProjeto}
-    and pa.id_pai IS NOT null;`;
+    and pa.id_pai IS NOT null
+    and pa.dat_usu_erase is null
+    ;`;
 
     return await this.prisma.$queryRawUnsafe(query);
   }

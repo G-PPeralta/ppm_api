@@ -449,6 +449,7 @@ export class GanttService {
       dat_fim_plan as EndDatePlan,
       dat_ini_real as StartDate,
       dat_fim_real as EndDate,
+      fn_cron_calc_pct_real_regra_aprovada(b.id) as progress,
       case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
       (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
