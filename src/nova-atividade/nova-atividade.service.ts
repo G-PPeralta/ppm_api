@@ -70,17 +70,24 @@ export class NovaAtividadeService {
     RETURNING id
     `);
 
+    const id_campanha = await this.prisma.$queryRawUnsafe(`
+      select topo.id_campanha as id from tb_camp_atv_campanha tcac 
+      inner join tb_camp_atv_campanha topo on topo.id = tcac.id_pai
+      where tcac.id = ${id_atv[0].id}
+    `);
+
     createAtividade.precedentes.forEach(async (p) => {
       await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
-        VALUES (${id_atv[0].id}, ${p.atividadePrecedenteId})
+        INSERT INTO tb_camp_atv_precedente (id_atividade, id_atv_precedente, id_campanha)
+        VALUES (${id_atv[0].id}, ${p.atividadePrecedenteId}, ${id_campanha[0].id})
       `);
     });
   }
 
   async findTarefas() {
     return this.prisma.$queryRawUnsafe(`
-        SELECT * FROM tb_camp_atv
+      SELECT distinct on (nom_atividade) * FROM tb_camp_atv
+      order by nom_atividade 
     `);
   }
 }

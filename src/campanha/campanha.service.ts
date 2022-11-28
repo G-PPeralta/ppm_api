@@ -770,40 +770,23 @@ export class CampanhaService {
 
   async updatePayload(payload: UpdateCampanhaDto) {
     await this.prisma.$queryRawUnsafe(`
-      DELETE FROM tb_camp_atv_campanha
-      WHERE id_pai = ${payload.atividadeId}
+      DELETE FROM tb_camp_atv_precedente
+      WHERE id_atividade = ${payload.atividadeId}
+    `);
+
+    const id_campanha = await this.prisma.$queryRawUnsafe(`
+      select topo.id_campanha as id from tb_camp_atv_campanha tcac 
+      inner join tb_camp_atv_campanha topo on topo.id = tcac.id_pai
+      where tcac.id = ${payload.atividadeId}
     `);
 
     payload.precedentes.forEach(async (p) => {
       await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
-        VALUES (${payload.atividadeId}, ${p.id})
+        INSERT INTO tb_camp_atv_precedente (id_atividade, id_atv_precedente, id_campanha)
+        VALUES (${payload.atividadeId}, ${p.id}, ${id_campanha[0].id})
       `);
     });
 
-    Logger.log(`
-    UPDATE tb_camp_atv_campanha
-    SET
-    pct_real = ${payload.atividadeStatus},
-    nom_atividade = '${payload.nome}',
-    responsavel_id = ${payload.responsavelId},
-    area_id = ${payload.areaId},
-    dat_ini_plan = '${new Date(payload.inicioPlanejado).toISOString()}',
-    dat_fim_plan = '${new Date(payload.fimPlanejado).toISOString()}',
-    dat_ini_real = ${
-      payload.inicioReal === null
-        ? null
-        : "'" + new Date(payload.inicioReal).toISOString() + "'"
-    },
-    dat_fim_real = ${
-      payload.fimReal === null
-        ? null
-        : "'" + new Date(payload.fimReal).toISOString() + "'"
-    },
-    dsc_comentario = '${payload.comentario}'
-    WHERE
-    id = ${payload.atividadeId}
-  `);
     return await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
