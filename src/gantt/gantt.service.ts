@@ -117,7 +117,7 @@ export class GanttService {
     as Duration,
     coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
     null as Predecessor,
-    (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
+    (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id and dat_usu_erase is null )::int4 as subtasks
    from tb_camp_atv_campanha campanha
    left join tb_projetos_atividade vinculo_atv_poco
    on vinculo_atv_poco.id = campanha.poco_id
@@ -177,7 +177,7 @@ export class GanttService {
     as Duration,
     coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
     null as Predecessor,
-    (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
+    (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id and dat_usu_erase is null )::int4 as subtasks
    from tb_camp_atv_campanha campanha
    left join tb_projetos_atividade vinculo_atv_poco
    on vinculo_atv_poco.id = campanha.poco_id
@@ -235,7 +235,7 @@ export class GanttService {
      on responsaveis.responsavel_id = campanha.responsavel_id
      left join tb_camp_atv tarefas
      on tarefas.id = campanha.tarefa_id
-     where campanha.id_pai = ${element.TaskID}
+     where campanha.id_pai = ${element.TaskID} and campanha.dat_usu_erase is null
       `);
       const mapped = substasks.map((el) => {
         return {
