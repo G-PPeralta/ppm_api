@@ -445,12 +445,18 @@ export class GanttService {
     select
       a.id as TaskID,
       nom_atividade as TaskName,
-      dat_ini_plan as StartDatePlan,
-      dat_fim_plan as EndDatePlan,
-      dat_ini_real as StartDate,
-      dat_fim_real as EndDate,
+      (select min(dat_ini_plan) from tb_projetos_atividade where id_pai = a.id) as StartDatePlan,
+      (select max(dat_fim_plan) from tb_projetos_atividade where id_pai = a.id) as EndDatePlan,
+      (select min(dat_ini_real) from tb_projetos_atividade where id_pai = a.id) as StartDate,
+      (select max(dat_fim_real) from tb_projetos_atividade where id_pai = a.id) as EndDate,
       fn_cron_calc_pct_real_regra_aprovada(b.id) as progress,
-      case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
+      case when weekdays_sql(
+      	(select min(dat_ini_real) from tb_projetos_atividade where id_pai = a.id)::date, 
+      	(select max(dat_fim_real) from tb_projetos_atividade where id_pai = a.id)::date
+      )::int <= 0 then 0 else weekdays_sql(
+      	(select min(dat_ini_real) from tb_projetos_atividade where id_pai = a.id)::date, 
+      	(select max(dat_fim_real) from tb_projetos_atividade where id_pai = a.id)::date
+      )::int end as Duration,
       (select count(*) from tb_projetos_atividade where id_pai = a.id)::int4 as subtasks
     from tb_projetos_atividade a
       inner join tb_projetos b
