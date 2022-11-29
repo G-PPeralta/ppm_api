@@ -20,10 +20,14 @@ export class CampanhaProjetoTipoService {
         )
         RETURNING ID
     `);
+
+    let ordem = 0;
     createCampanhaProjetoTipo.atividades.forEach(async (atv) => {
+      ordem += 1;
+
       const id_atividade = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase)
-        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id})
+        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase, ordem)
+        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id}, ${ordem})
         RETURNING id
       `);
 
@@ -90,6 +94,7 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     left join tb_responsaveis responsaveis
     on responsaveis.responsavel_id  = tarefa.responsavel_id
     where projeto_tipo.id = ${id}
+    order by atividades.ordem
     `);
 
     const retornar = async () => {
