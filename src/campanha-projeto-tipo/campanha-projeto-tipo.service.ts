@@ -60,7 +60,7 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
     on areas_atuacoes.id = atividades.id_area
     inner join tb_camp_atv tarefa
     on tarefa.id = atividades.id_tarefa
-    inner join tb_responsaveis responsaveis
+    left join tb_responsaveis responsaveis
     on responsaveis.responsavel_id  = tarefa.responsavel_id
     left join tb_camp_projetos_atv_precedentes precedentes
     on (precedentes.id_camp_projetos_atv = atividades.id and precedentes.id_camp_projeto_tipo = atividades.id_camp_projeto_tipo)
