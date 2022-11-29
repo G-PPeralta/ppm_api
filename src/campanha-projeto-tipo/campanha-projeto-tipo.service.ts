@@ -78,21 +78,28 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
   async findRelacaoByProjeto(id: number) {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    select projeto_tipo.nom_projeto_tipo, projeto_tipo.id as projeto_tipo_id, atividades.id as id_atividade,
-    atividades.qtde_dias, tag.nom_tag as nome_atividade, areas_atuacoes.id as id_area, areas_atuacoes.tipo as nome_area,
-    tarefa.id as id_tarefa, tarefa.nom_atividade as nom_tarefa, responsaveis.responsavel_id, responsaveis.nome_responsavel,
-    atividades.id_fase
+    select 
+      projeto_tipo.nom_projeto_tipo, 
+      projeto_tipo.id as projeto_tipo_id, 
+      atividades.id as id_atividade,
+      atividades.qtde_dias, 
+      tarefa.id_origem as nome_atividade, 
+      areas_atuacoes.id as id_area, 
+      areas_atuacoes.tipo as nome_area,
+      tarefa.id as id_tarefa, 
+      tarefa.nom_atividade as nom_tarefa, 
+      responsaveis.responsavel_id, 
+      responsaveis.nome_responsavel,
+      atividades.id_fase
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
-    on atividades.id_camp_projeto_tipo = projeto_tipo.id
-    inner join tb_camp_atv_tag tag
-    on tag.id_atividade = atividades.id
-    inner join tb_areas_atuacoes areas_atuacoes
-    on areas_atuacoes.id = atividades.id_area
+      on atividades.id_camp_projeto_tipo = projeto_tipo.id
+    left join tb_areas_atuacoes areas_atuacoes
+      on areas_atuacoes.id = atividades.id_area
     left join tb_camp_atv tarefa
-    on tarefa.id = atividades.id_tarefa
+      on tarefa.id = atividades.id_tarefa
     left join tb_responsaveis responsaveis
-    on responsaveis.responsavel_id  = tarefa.responsavel_id
+      on responsaveis.responsavel_id  = tarefa.responsavel_id
     where projeto_tipo.id = ${id}
     order by atividades.ordem
     `);
