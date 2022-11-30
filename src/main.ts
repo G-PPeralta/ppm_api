@@ -24,6 +24,9 @@ async function bootstrap() {
 
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+  app.use(bodyParser.raw({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb' }));
+  app.use(bodyParser.default({ limit: '50mb' }));
 
   app.enableCors();
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
