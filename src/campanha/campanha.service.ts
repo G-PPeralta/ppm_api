@@ -74,14 +74,16 @@ export class CampanhaService {
     const fim = new Date(createAtividadeCampanhaDto.dat_fim_plan);
 
     const retorno = await this.prisma.$queryRawUnsafe(`
-    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha)
+    insert into tb_camp_atv_campanha (id_pai, nom_atividade, pct_real, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, id_campanha, dat_ini_real, dat_fim_real)
     values (${createAtividadeCampanhaDto.id_pai}, '${
       createAtividadeCampanhaDto.nom_atividade
     }', ${createAtividadeCampanhaDto.pct_real}, ${
       ini == null ? null : "'" + ini.toISOString() + "'"
     }, ${fim == null ? null : "'" + fim.toISOString() + "'"}, '${
       createAtividadeCampanhaDto.nom_usu_create
-    }', now(), ${createAtividadeCampanhaDto.id_campanha}) returning id
+    }', now(), ${createAtividadeCampanhaDto.id_campanha}, ${
+      ini == null ? null : "'" + ini.toISOString() + "'"
+    }, ${fim == null ? null : "'" + fim.toISOString() + "'"}) returning id
     `);
 
     await this.prisma.$queryRawUnsafe(`
@@ -153,12 +155,14 @@ export class CampanhaService {
       const oldDate = new Date(data);
       data = addWorkDays(data, atv.qtde_dias);
       const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao)
+        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         oldDate,
       ).toISOString()}', '${new Date(data).toISOString()}', ${
         atv.area_id
-      }, 107, ${atv.ind_atv_execucao ? 1 : 0})
+      }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
+        oldDate,
+      ).toISOString()}', '${new Date(data).toISOString()}')
       returning ID
       `);
 
@@ -787,7 +791,7 @@ export class CampanhaService {
       `);
     });
 
-    return await this.prisma.$queryRawUnsafe(`
+    await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
       pct_real = ${payload.atividadeStatus},
@@ -810,6 +814,14 @@ export class CampanhaService {
       WHERE
       id = ${payload.atividadeId}
     `);
+
+    const id_pai = await this.prisma.$queryRawUnsafe(`
+      SELECT id_pai FROM tb_camp_atv_campanha where id = ${payload.atividadeId}
+    `);
+
+    await this.prisma.$queryRawUnsafe(
+      `CALL sp_recalcula_data_real(${id_pai[0].id_pai})`,
+    );
   }
 
   async remove(id: number, user: string) {
