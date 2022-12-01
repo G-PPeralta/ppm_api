@@ -135,7 +135,7 @@ export class CampanhaService {
 
     const poco_id = await this.prisma.$queryRawUnsafe(`
       SELECT 
-      id
+      id, id_campanha
       FROM tb_projetos_atividade
       WHERE
       id_projeto = ${id_projeto[0].id} and nom_atividade = '${nom_poco}'
@@ -167,9 +167,13 @@ export class CampanhaService {
       `);
 
       atv.precedentes.forEach(async (p) => {
+        const id_prec = await this.prisma.$queryRawUnsafe(`
+          SELECT id FROM tb_camp_atv_campanha WHERE tarefa_id = ${p.id}
+        `);
+
         await this.prisma.$queryRawUnsafe(`
-          INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id)
-          VALUES (${id_atv[0].id}, ${p.id})
+          INSERT INTO tb_camp_atv_precedente (id_atividade, id_atv_precedente, id_campanha)
+          VALUES (${id_atv[0].id}, ${id_prec[0].id}, ${poco_id[0].id_campanha})
         `);
       });
     });
