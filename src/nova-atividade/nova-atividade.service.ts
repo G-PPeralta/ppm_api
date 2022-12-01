@@ -22,8 +22,8 @@ export class NovaAtividadeService {
 
   async create(createAtividade: CreateAtividade) {
     return await this.prisma
-      .$queryRawUnsafe(`INSERT INTO tb_camp_atv (id_origem, nom_atividade, responsavel_id, area_atuacao, fase_id, nom_usu_create)
-    VALUES ('${createAtividade.id_origem}', '${createAtividade.nom_atividade}', ${createAtividade.responsavel_id}, ${createAtividade.area_atuacao}, ${createAtividade.fase_id}, '${createAtividade.nom_usu_create}'
+      .$queryRawUnsafe(`INSERT INTO tb_camp_atv (id_origem, nom_atividade, responsavel_id, area_atuacao, ind_fase, nom_usu_create)
+    VALUES ('${createAtividade.id_origem}', '${createAtividade.nom_atividade}', ${createAtividade.responsavel_id}, ${createAtividade.area_atuacao}, ${createAtividade.fase_id}, '${createAtividade.nom_usu_create}')
     returning ID
 `);
   }
