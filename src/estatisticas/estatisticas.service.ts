@@ -177,6 +177,7 @@ export class EstatisticasService {
         vlr_max: e.vlr_max,
         vlr_media: e.vlr_media,
         vlr_dp: e.vlr_dp,
+        flag: e.flag,
       };
 
       tratamento.forEach((t) => {
