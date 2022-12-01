@@ -730,6 +730,19 @@ export class CampanhaService {
     `);
   }
 
+  async dataFinalCampanha(idCampanha: number) {
+    const retorno = await this.prisma.$queryRawUnsafe(`
+    select max(dat_fim_plan) as ultima_data from tb_camp_atv_campanha
+    where id_pai in
+      (
+      select id from tb_camp_atv_campanha tcac 
+      where id_campanha = ${idCampanha}
+      )
+    `);
+
+    return retorno[0];
+  }
+
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
     await payload.reduce(async (prev, cur, curIdx, arr) => {
       if (curIdx < payload.length - 1) {
