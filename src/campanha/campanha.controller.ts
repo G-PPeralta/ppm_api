@@ -93,6 +93,11 @@ export class CampanhaController {
     return this.campanhaService.trocarPocoSonda(payload);
   }
 
+  @Get('datas/:id')
+  dataFinalCampanha(@Param('id') idCampanha: string) {
+    return this.campanhaService.dataFinalCampanha(+idCampanha);
+  }
+
   @Patch(':id/:campo/:valor')
   update(
     @Param('id') id: string,
