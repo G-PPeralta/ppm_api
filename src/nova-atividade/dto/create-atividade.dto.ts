@@ -5,6 +5,7 @@ export class CreateAtividade {
   atividade_id: number;
   responsavel_id: number;
   area_atuacao: number;
+  fase_id: number;
   nao_iniciar_antes_de: {
     data: Date | null;
     checked: boolean;
