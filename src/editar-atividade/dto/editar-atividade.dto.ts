@@ -19,4 +19,10 @@ export class EditarAtividadeDto {
       anexo: string;
     },
   ];
+  aprs: [
+    {
+      codigo_apr: string;
+      anexo: string;
+    },
+  ];
 }

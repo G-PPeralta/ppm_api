@@ -70,6 +70,15 @@ export class EditarAtividadeService {
         `);
     });
 
+    atividade.aprs.forEach(async (apr) => {
+      await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atv_notas
+        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao, url_anexo)
+        VALUES
+        (${atividade.geral.id_atividade}, '${apr.codigo_apr}', '${atividade.nom_usu_create}', now(), 3, '${apr.anexo}')
+      `);
+    });
+
     await this.prisma.$queryRawUnsafe(`
       call sp_up_atualiza_pct_real_campanha_execucao(${atividade.id_poco_pai})
     `);
