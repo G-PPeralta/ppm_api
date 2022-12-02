@@ -476,8 +476,7 @@ export class CampanhaService {
 
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-    
-      select 
+    select 
         ordem,
         id_campanha,
         id,
@@ -489,6 +488,10 @@ export class CampanhaService {
         pct_plan::numeric as pct_plan,
         pct_real::numeric as pct_real,
         ind_alerta,
+        (select count(*) from tb_projetos_atividade where dat_usu_erase is null and nom_atividade = (
+        	ltrim(rtrim(substring(poco, position('- ' in poco) + 1)))
+        ))
+        as existe_cronograma,
         case when pct_real = 100 then
           1
         else
