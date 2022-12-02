@@ -57,7 +57,7 @@ export class EditarAtividadeService {
     await this.prisma.$queryRawUnsafe(`
         DELETE FROM tb_projetos_atv_notas
         WHERE id_atividade = ${atividade.geral.id_atividade}
-        AND ind_tipo_anotacao = 2
+        AND ind_tipo_anotacao IN (2, 3)
     `);
 
     //criação ou atualização dos mocs
