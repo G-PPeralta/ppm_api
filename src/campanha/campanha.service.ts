@@ -490,7 +490,7 @@ export class CampanhaService {
         ind_alerta,
         (select count(*) from tb_projetos_atividade where dat_usu_erase is null and nom_atividade = (
         	ltrim(rtrim(substring(poco, position('- ' in poco) + 1)))
-        ))
+        ))::integer
         as existe_cronograma,
         case when pct_real = 100 then
           1
