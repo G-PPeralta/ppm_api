@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { LogController } from 'log/log.controller';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
@@ -212,68 +213,33 @@ export class BudgetsService {
 
   async findAllDetail(id: number) {
     const pais: any[] = await this.prisma.$queryRawUnsafe(`
+
     select 
-      poco.id as id_pai, 
-      poco.nom_atividade as nome_poco,
-      planejado.total_planejado as vlr_planejado,
-      coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-      case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or coalesce(planejado.total_planejado , 0) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/coalesce(planejado.total_planejado, 0))* 100), 0), 0) end as gap
-      from tb_projetos_atividade sonda
-      inner join tb_projetos_atividade poco
-      on poco.id_pai = sonda.id
-      left join tb_projetos_atividade atividades
-      on (atividades.id_pai = poco.id)
-      left join
-      (
-         select 
-         atividade.id_pai as id,
-         sum(planejado.vlr_planejado) as total_planejado  
-         from tb_projetos_atividade_custo_plan planejado
-         inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
-         Group by 1
-      ) planejado
-      on planejado.id = atividades.id_pai
-      left join tb_projetos_atividade_custo_real realizado
-      on (realizado.id_atividade = atividades.id)
-      left join tb_projetos_operacao operacao
-      on (operacao.id = atividades.id_operacao)
-      where
-      poco.id = ${id} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, planejado.total_planejado`);
+      a.id as id_pai,
+      a.nom_categoria as nome_poco,
+      0 as vlr_planejado,
+      0 as vlr_realizado,
+      0 as gap
+    from tb_afe_categoria a;
+
+   `);
 
     const retornar = async () => {
       const tratamento: any = [];
       let pKey = 0;
       for (const e of pais) {
-        let fKey = 0;
+        const fKey = 0;
         const filhos: any[] = await this.prisma.$queryRawUnsafe(`
         select 
-        poco.id as id_filho, 
-        planejado.id as id_planejado,
-        atividades.id as id_atividade,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
-        coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
-        coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-        100 - coalesce(ROUND(((sum(realizado.vlr_realizado)/planejado.vlr_planejado)* 100), 0), 0) as gap
-        from tb_projetos_atividade sonda
-        inner join tb_projetos_atividade poco
-        on poco.id_pai = sonda.id
-        left join tb_projetos_atividade atividades
-        on (atividades.id_pai = poco.id)
-        left join
-        tb_projetos_atividade_custo_plan planejado
-        on planejado.id_atividade = atividades.id 
-        left join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = atividades.id)
-        left join tb_projetos_operacao operacao
-        on (operacao.id = atividades.id_operacao)
-        where
-        poco.id = ${e.id_pai} and sonda.id_pai = 0
-        and atividades.id is not null
-        group by poco.id, planejado.id,
-        atividades.id,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
+            a.id_categoria as id_filho,
+            (select id from tb_afe_projeto_plan where id_servico = a.id and id_projeto = 51) as id_planejado,
+            a.id as id_atividade,
+            a.nom_servico as nom_atividade,
+            coalesce((select vlr_planejado from tb_afe_projeto_plan where id_servico = a.id and id_projeto = 51), 0) as vlr_planejado,
+            coalesce((select vlr_planejado from tb_afe_projeto_plan where id_servico = a.id and id_projeto = 51), 0) as vlr_realizado,
+            0 gap
+        from tb_afe_itens a
+     
      `);
 
         const dados = {
@@ -290,20 +256,27 @@ export class BudgetsService {
           filhos: [],
         };
 
-        filhos.forEach((f) => {
-          dados.filhos.push({
-            brt: `${pKey}.${++fKey}`,
-            projeto: {
-              id: f.id_atividade,
-              nome: f.nom_atividade,
-            },
-            id: f.id_filho,
-            planejado: +f.vlr_planejado,
-            realizado: +f.vlr_realizado,
-            gap: +f.gap,
-            descricao: f.observacao_planejada + f.dobservacao_realizado,
+        for (let i = 1; i <= 16; i++) {
+          const filtroFilho: any[] = filhos.filter((id_filho: any) => i);
+
+          filtroFilho.forEach((f) => {
+            dados.filhos.push({
+              //brt: `${pKey}.${++fKey}`,
+              brt: f.id_atividade,
+              projeto: {
+                id: f.id_atividade,
+                nome: f.nom_atividade,
+              },
+              id: f.id_filho,
+              planejado: +f.vlr_planejado,
+              realizado: +f.vlr_realizado,
+              gap: +f.gap,
+              descricao: f.observacao_planejada + f.dobservacao_realizado,
+            });
           });
-        });
+        }
+
+        return dados;
 
         let existe = false;
         tratamento.forEach((inner) => {
