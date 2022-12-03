@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { LogController } from 'log/log.controller';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
@@ -15,23 +16,28 @@ export class BudgetsService {
     private readonly httpService: HttpService,
   ) {}
   async updateBudgetPlan(_updateBudgetDto: BudgetPlan) {
-    const where = {
-      id_atividade: _updateBudgetDto.atividadeId,
-    };
-    const update = {
-      vlr_planejado: _updateBudgetDto.valor,
-    };
+    await this.prisma.$queryRawUnsafe(`
+    INSERT INTO tb_afe_projeto_plan (id_servico, id_projeto, vlr_planejado, dat_usu_create) 
+    VALUES (${_updateBudgetDto.atividadeId}, ${_updateBudgetDto.projetoId}, ${_updateBudgetDto.valor}, now())
+    ON CONFLICT (id_servico, id_projeto) DO UPDATE 
+      SET vlr_planejado =  ${_updateBudgetDto.valor}, 
+          dat_usu_edit = now();
+    `);
 
-    const create = {
-      ...update,
-      ...where,
-    };
+    // CONTIGENCIA
+    await this.prisma.$queryRawUnsafe(`
+    INSERT INTO tb_afe_projeto_plan (id_servico, id_projeto, vlr_planejado, dat_usu_create) 
+    VALUES (88, ${_updateBudgetDto.projetoId}, ${
+      _updateBudgetDto.valor * 0.05
+    }, now())
+    ON CONFLICT (id_servico, id_projeto) DO UPDATE 
+      SET vlr_planejado = (select vlr_planejado from tb_afe_projeto_plan where id_projeto = ${
+        _updateBudgetDto.projetoId
+      } and id_servico = 88) + ${_updateBudgetDto.valor * 0.05} , 
+          dat_usu_edit = now();
+    `);
 
-    return await this.prisma.atividadeCustoPlanejado.upsert({
-      where,
-      update,
-      create,
-    });
+    return _updateBudgetDto;
   }
 
   // async createBudgetReal(_updateBudgetReal: BudgetReal) {
@@ -52,6 +58,7 @@ export class BudgetsService {
   async createBudgetReal(createBudgetReal: BudgetReal) {
     const budgetReal = {
       id_fornecedor: +createBudgetReal.fornecedor,
+      id_projeto: +createBudgetReal.projetoId,
       dat_lcto: new Date(createBudgetReal.data).toISOString(),
       vlr_realizado: createBudgetReal.valor,
       txt_observacao: createBudgetReal.textPedido,
@@ -62,101 +69,90 @@ export class BudgetsService {
     };
 
     return await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_projetos_atividade_custo_real 
-      (
-        id_atividade,
-        id_fornecedor,
-        dat_lcto,
-        vlr_realizado,
-        txt_observacao,
-        nom_usu_create,
-        dat_usu_create,
-        num_pedido,
-        classe_servico
-      )
-      VALUES
-      (
-        ${budgetReal.id_atividade},
-        ${budgetReal.id_fornecedor},
-        '${budgetReal.dat_lcto}',
-        ${budgetReal.vlr_realizado},
-        '${budgetReal.txt_observacao}',
-        '${budgetReal.nom_usu_create}',
-        now(),
-        ${budgetReal.num_pedido},
-        '${budgetReal.classe_servico}'
-      )
+    INSERT INTO hmg.tb_afe_projeto_real
+    (
+      id_servico, 
+      id_fornecedor, 
+      id_projeto, 
+      dat_lcto,
+      vlr_realizado, 
+      txt_observacao, 
+      nom_usu_create,
+      dat_usu_create,
+      num_pedido, 
+      classe_servico
+    )
+    values (
+      ${budgetReal.id_atividade},
+      ${budgetReal.id_fornecedor},
+      ${budgetReal.id_projeto},
+      '${budgetReal.dat_lcto}',
+      ${budgetReal.vlr_realizado},
+      '${budgetReal.txt_observacao}',
+      '${budgetReal.nom_usu_create}',
+      now(),
+      ${budgetReal.num_pedido},
+      '${budgetReal.classe_servico}'
+    );
     `);
   }
 
   async findAll() {
     const pais: any[] = await this.prisma.$queryRawUnsafe(` 
-    select
-    sonda.id as id_pai,
-    sonda.nom_atividade as nome_pai,
-    sonda.id as id_campanha,
-    max(coalesce(planejado.vlr_planejado, 0)) as soma_planejado_filhos,
-    coalesce(sum(realizado.vlr_realizado), 0) as soma_realizado_filhos,
-    round(
-    case when max(coalesce(planejado.vlr_planejado, 0)) = 0 then 0
-    when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
-    else (coalesce(sum(realizado.vlr_realizado), 0)/max(coalesce(planejado.vlr_planejado, 0))) * 100 end, 0)as gap
-    from tb_projetos_atividade sonda
-    inner join tb_projetos_atividade poco
-    on poco.id_pai = sonda.id
-    inner join tb_projetos projetos
-    on projetos.id = sonda.id_projeto
-    left join tb_projetos_atividade atividades
-    on atividades.id_pai = poco.id
-    left join tb_projetos_atividade_custo_plan planejado
-    on planejado.id_atividade = atividades.id
-    left join tb_projetos_atividade_custo_real realizado
-    on realizado.id_atividade = atividades.id
-    where 
-    sonda.id_pai = 0 and projetos.tipo_projeto_id = 3
-    group by
-    sonda.id,
-    sonda.nom_atividade  
+      select
+      sonda.id as id_pai,
+      sonda.nom_atividade as nome_pai,
+      sonda.id as id_campanha,
+      max(coalesce(planejado.vlr_planejado, 0)) as soma_planejado_filhos,
+      coalesce(sum(realizado.vlr_realizado), 0) as soma_realizado_filhos,
+      round(
+      case when max(coalesce(planejado.vlr_planejado, 0)) = 0 then 0
+      when coalesce(sum(realizado.vlr_realizado), 0) = 0 then 0
+      else (coalesce(sum(realizado.vlr_realizado), 0)/max(coalesce(planejado.vlr_planejado, 0))) * 100 end, 0)as gap
+      from tb_projetos_atividade sonda
+      inner join tb_projetos_atividade poco
+      on poco.id_pai = sonda.id
+      inner join tb_projetos projetos
+      on projetos.id = sonda.id_projeto
+      left join tb_projetos_atividade atividades
+      on atividades.id_pai = poco.id
+      left join tb_afe_projeto_plan planejado
+        on poco.id = planejado.id_projeto
+      left join tb_afe_projeto_real realizado
+        on poco.id = realizado.id_projeto
+      where 
+      sonda.id_pai = 0 and projetos.tipo_projeto_id = 3
+      group by
+      sonda.id,
+      sonda.nom_atividade  
     `);
 
     const result = pais.map(async (pai, Pkey) => {
       const filhos: any[] = await this.prisma.$queryRawUnsafe(`
-      select 
-      poco.id as id_filho, 
-      poco.nom_atividade as nome_poco,
-      (
-         select 
-         sum(planejado.vlr_planejado) as total_planejado  
-         from tb_projetos_atividade_custo_plan planejado
-         inner join tb_projetos_atividade atividade on atividade.id = planejado.id_atividade
-         where atividade.id in (
-             select atividades.id from
-             tb_projetos_atividade sonda
-             inner join tb_projetos_atividade pocoInner
-             on pocoInner.id_pai = sonda.id
-             left join tb_projetos_atividade atividades
-             on atividades.id_pai = poco.id
-             where sonda.id_pai = 0 and sonda.id = ${pai.id_pai} and pocoInner.id = poco.id
-         )
-      ) as vlr_planejado,
-      sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
-      case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or sum(coalesce(planejado.vlr_planejado, 0)) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/sum(coalesce(planejado.vlr_planejado, 0)))* 100), 0), 0) end as gap
-      from tb_projetos_atividade sonda
-      inner join tb_projetos_atividade poco
-      on poco.id_pai = sonda.id
-      left join tb_projetos_atividade atividades
-      on (atividades.id_pai = poco.id)
-      left join
-      tb_projetos_atividade_custo_plan planejado
-      on planejado.id_atividade = atividades.id 
-      left join tb_projetos_atividade_custo_real realizado
-      on (realizado.id_atividade = planejado.id_atividade)
-      left join tb_projetos_operacao operacao
-      on (operacao.id = atividades.id_operacao)
-      where
-      sonda.id = ${pai.id_pai} and sonda.id_pai = 0
-      group by poco.id,  poco.nom_atividade    
+        select 
+          poco.id as id_filho, 
+          poco.nom_atividade as nome_poco,
+          (coalesce(
+          (
+            select sum(vlr_planejado)
+            from tb_afe_projeto_plan aa 
+            where 
+                id_projeto = poco.id
+          ), 0)) as vlr_planejado,
+          sum(coalesce(realizado.vlr_realizado, 0)) as vlr_realizado,
+          0 as gap
+          from tb_projetos_atividade sonda
+          inner join tb_projetos_atividade poco
+            on poco.id_pai = sonda.id
+          left join tb_projetos_atividade atividades
+            on (atividades.id_pai = poco.id)
+          left join tb_afe_projeto_real realizado
+            on poco.id = realizado.id_projeto
+          left join tb_projetos_operacao operacao
+            on (operacao.id = atividades.id_operacao)
+          where
+          sonda.id = ${pai.id_pai} and sonda.id_pai = 0
+          group by poco.id,  poco.nom_atividade
         `);
       return {
         id: pai.id_pai,
@@ -212,68 +208,55 @@ export class BudgetsService {
 
   async findAllDetail(id: number) {
     const pais: any[] = await this.prisma.$queryRawUnsafe(`
-    select 
-      poco.id as id_pai, 
-      poco.nom_atividade as nome_poco,
-      planejado.total_planejado as vlr_planejado,
-      coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-      case when sum(coalesce(realizado.vlr_realizado, 0)) = 0 or coalesce(planejado.total_planejado , 0) = 0 then 0 else
-      coalesce(ROUND(((sum(coalesce(realizado.vlr_realizado, 0))/coalesce(planejado.total_planejado, 0))* 100), 0), 0) end as gap
-      from tb_projetos_atividade sonda
-      inner join tb_projetos_atividade poco
-      on poco.id_pai = sonda.id
-      left join tb_projetos_atividade atividades
-      on (atividades.id_pai = poco.id)
-      left join
-      (
-         select 
-         atividade.id_pai as id,
-         sum(planejado.vlr_planejado) as total_planejado  
-         from tb_projetos_atividade_custo_plan planejado
-         inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
-         Group by 1
-      ) planejado
-      on planejado.id = atividades.id_pai
-      left join tb_projetos_atividade_custo_real realizado
-      on (realizado.id_atividade = atividades.id)
-      left join tb_projetos_operacao operacao
-      on (operacao.id = atividades.id_operacao)
-      where
-      poco.id = ${id} and sonda.id_pai = 0
-      group by poco.id, poco.nom_atividade, planejado.total_planejado`);
+    select
+    id_pai,
+    nome_poco,
+    vlr_planejado,
+    vlr_realizado,
+    case when vlr_planejado = 0 then 0 else round(((vlr_realizado / vlr_planejado) * 100),1) end as gap
+  from (
+      select 
+        a.id as id_pai,
+        a.nom_categoria as nome_poco,
+        coalesce ((
+            select sum(vlr_planejado) 
+            from tb_afe_projeto_plan aa 
+            inner join tb_afe_itens bb
+              on aa.id_servico = bb.id
+            where 
+                  id_projeto = ${id}
+            and 	bb.id_categoria = a.id
+        ), 0) as vlr_planejado,
+        coalesce ((
+            select sum(vlr_realizado) 
+            from tb_afe_projeto_real aa 
+            inner join tb_afe_itens bb
+              on aa.id_servico = bb.id
+            where 
+                  id_projeto = ${id}
+            and 	bb.id_categoria = a.id
+        ), 0) as vlr_realizado,
+        0 as gap
+      from tb_afe_categoria a
+  ) as q
+  `);
 
     const retornar = async () => {
       const tratamento: any = [];
       let pKey = 0;
       for (const e of pais) {
-        let fKey = 0;
+        const fKey = 0;
         const filhos: any[] = await this.prisma.$queryRawUnsafe(`
         select 
-        poco.id as id_filho, 
-        planejado.id as id_planejado,
-        atividades.id as id_atividade,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end as nom_atividade,
-        coalesce(planejado.vlr_planejado, 0) as vlr_planejado,
-        coalesce(sum(realizado.vlr_realizado), 0) as vlr_realizado,
-        100 - coalesce(ROUND(((sum(realizado.vlr_realizado)/planejado.vlr_planejado)* 100), 0), 0) as gap
-        from tb_projetos_atividade sonda
-        inner join tb_projetos_atividade poco
-        on poco.id_pai = sonda.id
-        left join tb_projetos_atividade atividades
-        on (atividades.id_pai = poco.id)
-        left join
-        tb_projetos_atividade_custo_plan planejado
-        on planejado.id_atividade = atividades.id 
-        left join tb_projetos_atividade_custo_real realizado
-        on (realizado.id_atividade = atividades.id)
-        left join tb_projetos_operacao operacao
-        on (operacao.id = atividades.id_operacao)
-        where
-        poco.id = ${e.id_pai} and sonda.id_pai = 0
-        and atividades.id is not null
-        group by poco.id, planejado.id,
-        atividades.id,
-        case when atividades.nom_atividade is null then operacao.nom_operacao else atividades.nom_atividade end
+            a.id_categoria as id_filho,
+            (select id from tb_afe_projeto_plan where id_servico = a.id and id_projeto = ${id}) as id_planejado,
+            a.id as id_atividade,
+            a.nom_servico as nom_atividade,
+            coalesce((select vlr_planejado from tb_afe_projeto_plan where id_servico = a.id and id_projeto = ${id}), 0) as vlr_planejado,
+            coalesce((select vlr_realizado from tb_afe_projeto_real where id_servico = a.id and id_projeto = ${id}), 0) as vlr_realizado,
+            0 gap
+        from tb_afe_itens a
+        where a.id_categoria = ${e.id_pai}
      `);
 
         const dados = {
@@ -292,8 +275,10 @@ export class BudgetsService {
 
         filhos.forEach((f) => {
           dados.filhos.push({
-            brt: `${pKey}.${++fKey}`,
+            //brt: `${pKey}.${++fKey}`,
+            brt: f.id_atividade,
             projeto: {
+              id_projeto: id,
               id: f.id_atividade,
               nome: f.nom_atividade,
             },
@@ -360,13 +345,13 @@ export class BudgetsService {
   async getSondaNome(id) {
     const query = await this.prisma.$queryRawUnsafe(
       `select
-      poco.nom_atividade as poco_nome,
-      sonda.nom_atividade as sonda_nome
-    from tb_projetos_atividade poco 
-    inner join tb_projetos_atividade sonda on sonda.id = poco.id_pai
-    where
-    poco.id =  ${id}
-    `,
+        poco.nom_atividade as poco_nome,
+        sonda.nom_atividade as sonda_nome
+      from tb_projetos_atividade poco 
+      inner join tb_projetos_atividade sonda on sonda.id = poco.id_pai
+      where
+      poco.id =  ${id}
+      `,
     );
 
     return query[0];
@@ -387,40 +372,45 @@ export class BudgetsService {
 
   async getTotalDiarioAcumulado(id) {
     const custoTotalAcumulado: { total_realizado: number }[] = await this.prisma
-      .$queryRawUnsafe(`select 
-    sum(realizado .vlr_realizado) as total_realizado  
-  from tb_projetos_atividade_custo_real realizado
-  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
-  where 
-  atividade.id_pai  = ${id}
-  Group by dat_ini_plan, id_projeto
-  having  
-  atividade.dat_ini_plan  between  min(atividade.dat_ini_plan) and now()`);
+      .$queryRawUnsafe(`
+        select sum(vlr_realizado) as total_realizado
+        from tb_afe_projeto_real aa 
+        inner join tb_afe_itens bb
+          on aa.id_servico = bb.id
+        where 
+            id_projeto = ${id}
+        --and dat_lcto between (select min(dat_lcto) from tb_afe_projeto_real where id_projeto = ${id} and now())
+      `);
 
     return +custoTotalAcumulado[0]?.total_realizado;
   }
 
   async getTotalPlanejado(id) {
     const custoPlanejado: { total_planjeado: number }[] = await this.prisma
-      .$queryRawUnsafe(`select 
-      sum(planejado.vlr_planejado) as total_planjeado  
-    from tb_projetos_atividade_custo_plan planejado
-    inner join tb_projetos_atividade atividade on atividade.id = planejado .id_atividade 
-    where 
-    atividade.id_pai  = ${id}
-    Group by    id_projeto`);
+      .$queryRawUnsafe(`
+
+      select sum(vlr_planejado) as total_planjeado
+		  from tb_afe_projeto_plan aa 
+		  inner join tb_afe_itens bb
+		   	on aa.id_servico = bb.id
+		  where 
+			  	id_projeto = ${id}
+      
+      `);
 
     return +custoPlanejado[0]?.total_planjeado;
   }
 
   async getTotalRealizdo(id) {
     const custoRealizado: { total_realizado: number }[] = await this.prisma
-      .$queryRawUnsafe(`select 
-    sum(realizado.vlr_realizado) as total_realizado  
-  from tb_projetos_atividade_custo_real realizado
-  inner join tb_projetos_atividade atividade on atividade.id = realizado .id_atividade 
-  where 
-  atividade.id_pai  = ${id} `);
+      .$queryRawUnsafe(`
+          select sum(vlr_realizado) as total_realizado
+          from tb_afe_projeto_real aa 
+          inner join tb_afe_itens bb
+            on aa.id_servico = bb.id
+          where 
+              id_projeto = ${id}
+      `);
     return +custoRealizado[0]?.total_realizado;
   }
 
@@ -491,39 +481,41 @@ export class BudgetsService {
       _custoDiario.endDate !== ''
     ) {
       data = await this.prisma.$queryRawUnsafe(`
-      select
-      realizado .id as id,
-      concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
-      atividades.nom_atividade as nome_atividade,
-      realizado.num_pedido,
-      realizado.txt_observacao,
-      fornecedores.nomefornecedor as fornecedor,
-      realizado.vlr_realizado as  valor_realizado
-      from tb_projetos_atividade_custo_real realizado
-      left join tb_projetos_atividade atividades
-      on (atividades.id = realizado.id_atividade)
-      left join tb_fornecedores fornecedores
-      on (fornecedores.id = realizado.id_fornecedor)
-      where
-          realizado.id_atividade =   ${id} and  realizado.dat_lcto >= '${_custoDiario.startDate}'
-          and realizado.dat_lcto <= '${_custoDiario.endDate}'`);
+        select 
+          a.id,
+          concat( date_part('year', a.dat_lcto),'-',date_part('month', a.dat_lcto), '-',  date_part('day', a.dat_lcto)) as data_realizado,
+          b.nom_servico,
+          a.num_pedido,
+          a.txt_observacao,
+          c.nomefornecedor as fornecedor,
+          a.vlr_realizado as valor_realizado
+        from tb_afe_projeto_real a 
+        inner join tb_afe_itens b 
+          on a.id_servico = b.id
+        inner join tb_fornecedores c 
+          on a.id_fornecedor = c.id
+        where 
+              id_projeto = 51
+        and 	b.id_categoria = ${id} and  a.dat_lcto >= '${_custoDiario.startDate}'
+          and a.dat_lcto <= '${_custoDiario.endDate}'`);
     } else {
       data = await this.prisma.$queryRawUnsafe(`
-        select
-        realizado .id as id,
-        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
-        atividades.nom_atividade as nome_atividade,
-        realizado.num_pedido,
-        realizado.txt_observacao,
-        fornecedores.nomefornecedor as fornecedor,
-        realizado.vlr_realizado as  valor_realizado
-        from tb_projetos_atividade_custo_real realizado
-        left join tb_projetos_atividade atividades
-        on (atividades.id = realizado.id_atividade)
-        left join tb_fornecedores fornecedores
-        on (fornecedores.id = realizado.id_fornecedor)
-        where
-            realizado.id_atividade =   ${id} `);
+        select 
+          a.id,
+          concat( date_part('year', a.dat_lcto),'-',date_part('month', a.dat_lcto), '-',  date_part('day', a.dat_lcto)) as data_realizado,
+          b.nom_servico,
+          a.num_pedido,
+          a.txt_observacao,
+          c.nomefornecedor as fornecedor,
+          a.vlr_realizado as valor_realizado
+        from tb_afe_projeto_real a 
+        inner join tb_afe_itens b 
+          on a.id_servico = b.id
+        inner join tb_fornecedores c 
+          on a.id_fornecedor = c.id
+        where 
+              id_projeto = 51
+        and 	b.id_categoria = ${id} `);
     }
 
     const retorno = data.map((custo) => {
@@ -550,39 +542,41 @@ export class BudgetsService {
       _custoDiario.endDate !== ''
     ) {
       data = await this.prisma.$queryRawUnsafe(`
-        select
-        realizado .id as id,
-        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
-        atividades.nom_atividade as nome_atividade,
-        realizado.num_pedido,
-        realizado.txt_observacao,
-        fornecedores.nomefornecedor as fornecedor,
-        realizado.vlr_realizado as valor_realizado
-        from tb_projetos_atividade_custo_real realizado
-        left join tb_projetos_atividade atividades
-        on (atividades.id = realizado.id_atividade)
-        left join tb_fornecedores fornecedores
-        on (fornecedores.id = realizado.id_fornecedor)
-        where
-            atividades.id_pai  =  ${id} and  realizado.dat_lcto >= '${_custoDiario.startDate}'
+        select 
+            a.id,
+            concat( date_part('year', a.dat_lcto),'-',date_part('month', a.dat_lcto), '-',  date_part('day', a.dat_lcto)) as data_realizado,
+            b.nom_servico,
+            a.num_pedido,
+            a.txt_observacao,
+            c.nomefornecedor as fornecedor,
+            a.vlr_realizado as valor_realizado
+          from tb_afe_projeto_real a 
+          inner join tb_afe_itens b 
+            on a.id_servico = b.id
+          inner join tb_fornecedores c 
+            on a.id_fornecedor = c.id
+          where 
+                id_projeto = 51
+          and 	b.id_categoria = ${id}  and  realizado.dat_lcto >= '${_custoDiario.startDate}'
           and realizado.dat_lcto <= '${_custoDiario.endDate}'`);
     } else {
       data = await this.prisma.$queryRawUnsafe(`
-        select
-        realizado.id as id,
-        concat( date_part('year', realizado.dat_lcto),'-',date_part('month', realizado.dat_lcto), '-',  date_part('day', realizado.dat_lcto)) as data_realizado,
-        atividades.nom_atividade as nome_atividade,
-        realizado.num_pedido,
-        realizado.txt_observacao,
-        fornecedores.nomefornecedor as fornecedor,
-        realizado.vlr_realizado as valor_realizado
-        from tb_projetos_atividade_custo_real realizado
-        left join tb_projetos_atividade atividades
-        on (atividades.id = realizado.id_atividade)
-        left join tb_fornecedores fornecedores
-        on (fornecedores.id = realizado.id_fornecedor)
-        where
-            atividades.id_pai  =  ${id} `);
+        select 
+          a.id,
+          concat( date_part('year', a.dat_lcto),'-',date_part('month', a.dat_lcto), '-',  date_part('day', a.dat_lcto)) as data_realizado,
+          b.nom_servico,
+          a.num_pedido,
+          a.txt_observacao,
+          c.nomefornecedor as fornecedor,
+          a.vlr_realizado as valor_realizado
+        from tb_afe_projeto_real a 
+        inner join tb_afe_itens b 
+          on a.id_servico = b.id
+        inner join tb_fornecedores c 
+          on a.id_fornecedor = c.id
+        where 
+              id_projeto = 51
+        and 	b.id_categoria = ${id} `);
     }
 
     const retorno = data.map((custo) => {

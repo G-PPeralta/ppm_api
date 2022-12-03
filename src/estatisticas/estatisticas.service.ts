@@ -28,7 +28,7 @@ export class EstatisticasService {
       and ind_atv_execucao = 1
       and pct_real > 0),
     0)
-     as flag,
+     as flag_old,
     case
       when atividades.nom_atividade is null then tarefas.nom_operacao
       else atividades.nom_atividade
@@ -55,6 +55,7 @@ export class EstatisticasService {
               )* 100, 1) as pct_plan,
     coalesce(atividades.pct_real, 0) as pct_real,
     responsaveis.nome_responsavel as nome_responsavel,
+    case when pocos.dat_usu_edit is not null then 1 else 0 end as flag,
     round(calc.vlr_min) as vlr_min,
     round(calc.vlr_max) as vlr_max,
     round(calc.vlr_med) as vlr_media,
@@ -158,12 +159,14 @@ export class EstatisticasService {
         dat_inicio: e.dat_inicio,
         dat_final: e.dat_final,
         pct_real: e.pct_real_consol,
+        dat_alteracao: e.dat_usu_edit,
       };
 
       const atividade = {
         nome_atividade: e.nome_atividade,
         id_atividade: e.id_atividade,
         custo: e.custo,
+        dat_alteracao: e.dat_usu_edit,
         inicio_planejado: e.inicio_planejado,
         fim_planejado: e.fim_planejado,
         hrs_totais: e.hrs_totais,

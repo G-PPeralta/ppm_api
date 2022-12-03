@@ -40,6 +40,18 @@ export class EditarAtividadeService {
         WHERE id = ${atividade.geral.id_atividade}
     `);
 
+    await this.prisma.$queryRawUnsafe(
+      `
+    call sp_up_cascateia_cronograma_execucao(${atividade.geral.id_atividade}, '` +
+        new Date(atividade.geral.fim_realizado).toISOString() +
+        `');
+    `,
+    );
+
+    await this.prisma.$queryRawUnsafe(
+      `call sp_up_atualiza_datas_cip10(${atividade.id_poco_pai});`,
+    );
+
     //criação ou atualização das anotações
     await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atv_notas
