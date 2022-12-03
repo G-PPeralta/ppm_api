@@ -1,6 +1,7 @@
 export interface BudgetReal {
   id?: number;
   atividadeId?: number;
+  projetoId?: number;
   valor: number;
   data: string;
   fornecedor: string;
