@@ -24,21 +24,17 @@ export class EditarAtividadeService {
           atividade.geral.fim_realizado === null
             ? null
             : "'" + new Date(atividade.geral.fim_realizado).toISOString() + "'"
-        },
-        dat_ini_plan = ${
-          atividade.geral.inicio_planejado === null
-            ? null
-            : "'" +
-              new Date(atividade.geral.inicio_planejado).toISOString() +
-              "'"
-        },
-        dat_fim_plan = ${
-          atividade.geral.fim_planejado === null
-            ? null
-            : "'" + new Date(atividade.geral.fim_planejado).toISOString() + "'"
         }
         WHERE id = ${atividade.geral.id_atividade}
     `);
+
+    Logger.log(
+      `
+    call sp_up_cascateia_cronograma_execucao(${atividade.geral.id_atividade}, '` +
+        new Date(atividade.geral.fim_realizado).toISOString() +
+        `');
+    `,
+    );
 
     //criação ou atualização das anotações
     await this.prisma.$queryRawUnsafe(`
