@@ -45,6 +45,11 @@ export class CampanhaController {
     return this.campanhaService.findAll(campanhaFiltro);
   }
 
+  @Post('gantt')
+  findAllGantt(@Body() campanhaFiltro: CampanhaFiltro) {
+    return this.campanhaService.findAllGantt(campanhaFiltro);
+  }
+
   @Get('precedentes')
   visaoPrecedentes() {
     return this.campanhaService.visaoPrecedentes();

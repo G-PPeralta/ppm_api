@@ -66,6 +66,11 @@ export class GanttController {
     return this.ganttService.findOneCampanha(+id);
   }
 
+  @Get('atividades/:id')
+  findOneCampanhaNew(@Param('id') id: string) {
+    return this.ganttService.findOneCampanhaNew(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ganttService.findOne(+id);

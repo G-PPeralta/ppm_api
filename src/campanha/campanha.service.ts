@@ -870,4 +870,145 @@ export class CampanhaService {
         id = ${id};
     `);
   }
+
+  async findAllGantt(campanhaFiltro: CampanhaFiltro) {
+    const where = await this.montaFiltros(campanhaFiltro);
+
+    let retorno: any[] = [];
+    retorno = await this.prisma.$queryRawUnsafe(`
+    select 
+        ordem,
+        id_campanha,
+        id,
+        id_poco,
+        sonda,
+        poco,
+        inicioPlanejado_fmt as inicioPlanejado,
+        finalPlanejado_fmt as finalPlanejado,
+        pct_plan as pct_plan,
+        pct_real as pct_real,
+        ind_alerta,
+        (select count(*) from tb_projetos_atividade where dat_usu_erase is null and nom_atividade = (
+        	ltrim(rtrim(substring(poco, position('- ' in poco) + 1)))
+        ))::integer
+        as existe_cronograma,
+        case when pct_real = 100 then
+          1
+        else
+          case when pct_real > 0 then
+            case when pct_real > pct_plan then
+              3
+            else
+              case when pct_real < pct_plan then
+                2
+              else
+                3
+              end
+            end
+          else 
+            case when pct_real < pct_plan then
+              2
+            else
+              4
+            end
+          end
+        end as ind_status
+      from (
+      select 
+        *,
+        case when fn_hrs_totais_cronograma_atvv(inicioPlanejado, finalPlanejado) > 0 and fn_hrs_totais_cronograma_atvv(inicioPlanejado, current_date) > 0 then
+            case when fn_hrs_totais_cronograma_atvv(inicioPlanejado, current_date) / fn_hrs_totais_cronograma_atvv(inicioPlanejado, finalPlanejado) > 1 then
+              100
+            else 
+              round(fn_hrs_totais_cronograma_atvv(inicioPlanejado, current_date) / fn_hrs_totais_cronograma_atvv(inicioPlanejado, finalPlanejado), 1) * 100
+            end
+          else
+            0
+          end as pct_plan
+      from (
+        select 
+            coalesce(ordem ,(select ordem from tb_projetos_atividade where id = pai.poco_id)) as ordem,
+          campanha.id as id_campanha,
+            pai.id as id,
+            pai.poco_id as id_poco,
+            coalesce((select case when pct_real > 0 then 1 else 0 end from tb_camp_atv_campanha tcac where id_pai = pai.id and ind_atv_execucao = 1),0) as ind_block,
+            (
+              select
+              concat(p.id, ' - ', p.nome_projeto)
+              from tb_projetos p
+              where p.nome_projeto = rtrim(ltrim(substring(campanha.nom_campanha from position('-' in campanha.nom_campanha) + 1)))
+            ) as sonda,
+            coalesce(poco.nom_poco, poco2.poco) as poco,
+            (select TO_CHAR(min(dat_ini_real), 'DD/MM/YYYY') from tb_camp_atv_campanha where id_pai = pai.id) as inicioPlanejado_fmt,
+            (select TO_CHAR(max(dat_fim_real), 'DD/MM/YYYY') from tb_camp_atv_campanha where id_pai = pai.id) as finalPlanejado_fmt,
+            (select TO_CHAR(min(dat_fim_real), 'DD/MM/YYYY') from tb_camp_atv_campanha where id_pai = pai.id) as inicioProjPlanejado_fmt,
+            TO_CHAR(fn_atv_maior_data(pai.id), 'DD/MM/YYYY') as finalProjPlanejado_fmt,
+            (select min(dat_ini_real) from tb_camp_atv_campanha where id_pai = pai.id) as inicioPlanejado,
+            (select max(dat_fim_real) from tb_camp_atv_campanha where id_pai = pai.id) as finalPlanejado,
+            (select min(dat_ini_real) from tb_camp_atv_campanha where id_pai = pai.id) as inicioProjPlanejado,
+            fn_atv_maior_data(pai.id) as finalProjPlanejado,
+            COALESCE(round(fn_atv_calc_pct_real(pai.id),1), 0) as pct_real,
+            case when (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pai.poco_id group by id_pai) < pai.dat_ini_plan then 
+                1
+            else 
+                0
+            end as ind_alerta
+            from 
+            tb_camp_atv_campanha pai
+            right join
+            tb_campanha campanha on campanha.id = pai.id_campanha 
+            left join 
+            (select 
+            a.id, concat(a.id, ' - ', nom_atividade) as nom_poco
+            from tb_projetos_atividade a  
+            where 
+            id_operacao is null
+            and id_pai <> 0) poco on poco.id = pai.poco_id
+            left join tb_intervencoes_pocos poco2
+            on poco2.id = pai.poco_id
+            ${where}
+            order by ordem, (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) asc
+      ) as qr
+      ) as qr2
+      where id is not null
+    `);
+
+    const tratamento: any = [];
+    retorno.forEach((element) => {
+      if (element.pct_real < element.pct_plan) {
+        element.comp_pct = 0;
+      } else {
+        element.comp_pct = 1;
+      }
+
+      const data = {
+        sonda: element.sonda,
+        id_campanha: element.id_campanha,
+        pocos: [],
+      };
+
+      let existe = false;
+
+      tratamento.forEach((inner) => {
+        if (inner.sonda === element.sonda) {
+          existe = true;
+        }
+      });
+
+      if (existe) {
+        tratamento.forEach((inner) => {
+          if (inner.sonda === element.sonda) {
+            const atual = inner.pocos;
+            atual.push(element);
+            inner.pocos = atual;
+          }
+        });
+      } else {
+        data.pocos.push(element);
+        tratamento.push(data);
+      }
+    });
+
+    return tratamento;
+  }
 }
