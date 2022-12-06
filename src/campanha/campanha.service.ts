@@ -547,7 +547,7 @@ export class CampanhaService {
             (select max(dat_fim_real) from tb_camp_atv_campanha where id_pai = pai.id and ind_atv_execucao = 1) as finalPlanejado,
             (select min(dat_ini_real) from tb_camp_atv_campanha where id_pai = pai.id) as inicioProjPlanejado,
             fn_atv_maior_data(pai.id) as finalProjPlanejado,
-            COALESCE(round(fn_atv_calc_pct_real((select id from tb_camp_atv_campanha where id_pai = pai.id and ind_atv_execucao = 1)),1), 0) as pct_real,
+            COALESCE(round((select pct_real::numeric from tb_camp_atv_campanha where id_pai = pai.id and ind_atv_execucao = 1),1), 0) as pct_real,
             case when (select min(dat_ini_plan) from tb_projetos_atividade tpa where id_pai = pai.poco_id group by id_pai) < pai.dat_ini_plan then 
                 1
             else 
@@ -570,6 +570,7 @@ export class CampanhaService {
             order by ordem, (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = pai.id) asc
       ) as qr
       ) as qr2
+      where pct_real < 100
     `);
 
     const tratamento: any = [];
@@ -663,8 +664,8 @@ export class CampanhaService {
         fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) as nm,
         fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) as ni,
         filho.dat_ini_plan as inicioplanejado,
-        TO_CHAR(filho.dat_ini_plan, 'DD/MM/YYYY')as inicioplanejado_fmt,
-        TO_CHAR(filho.dat_fim_plan, 'DD/MM/YYYY')as finalplanejado_fmt,
+        TO_CHAR(filho.dat_ini_real, 'DD/MM/YYYY')as inicioplanejado_fmt,
+        TO_CHAR(filho.dat_fim_real, 'DD/MM/YYYY')as finalplanejado_fmt,
         filho.dat_fim_plan as finalplanejado,
         filho.dat_ini_real as inicioreal,
         filho.dat_fim_real as fimreal,

@@ -41,15 +41,12 @@ export class OcorrenciasService {
 
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
-    SELECT 
-      case when b.id is null then 0 else b.id end as id, 
-      case when b.dsc_ocorrencia is null then a.dsc_ocorrencia else b.dsc_ocorrencia end as nome_ocorrencia, 
-      case when b.num_hrs_impacto is null then 0 else b.num_hrs_impacto end as impacto,
-      case when b.url_anexo is null then '' else b.url_anexo end as anexo
+    select 
+      (select id from tb_projetos_ocorrencias where id_ocorrencia = a.id and id_atv = ${id}) as id,
+      dsc_ocorrencia,
+      coalesce((select num_hrs_impacto  from tb_projetos_ocorrencias where id_ocorrencia = a.id and id_atv = ${id}),0) as impacto,
+      (select url_anexo from tb_projetos_ocorrencias where id_ocorrencia = a.id and id_atv = ${id}) as anexo
     from tb_ocorrencias a
-    left join tb_projetos_ocorrencias b
-		on a.id = b.id_ocorrencia
-    where b.dat_usu_erase is null and b.id_atv = ${id} or b.id_atv is null
     `);
   }
 

@@ -8,48 +8,36 @@ export class EditarAtividadeService {
 
   async upsert(atividade: EditarAtividadeDto) {
     //atualização da aba geral
-    await this.prisma.$queryRawUnsafe(`
-        UPDATE tb_projetos_atividade
-        SET
-        nom_atividade = '${atividade.geral.nome_atividade}',
-        pct_real = ${atividade.geral.pct_real},
-        dat_ini_real = ${
-          atividade.geral.inicio_realizado === null
-            ? null
-            : "'" +
-              new Date(atividade.geral.inicio_realizado).toISOString() +
-              "'"
-        },
-        dat_fim_real = ${
-          atividade.geral.fim_realizado === null
-            ? null
-            : "'" + new Date(atividade.geral.fim_realizado).toISOString() + "'"
-        },
-        dat_ini_plan = ${
-          atividade.geral.inicio_planejado === null
-            ? null
-            : "'" +
-              new Date(atividade.geral.inicio_planejado).toISOString() +
-              "'"
-        },
-        dat_fim_plan = ${
-          atividade.geral.fim_planejado === null
-            ? null
-            : "'" + new Date(atividade.geral.fim_planejado).toISOString() + "'"
-        }
-        WHERE id = ${atividade.geral.id_atividade}
-    `);
 
-    await this.prisma.$queryRawUnsafe(
+    Logger.log(
       `
-    call sp_up_cascateia_cronograma_execucao(${atividade.geral.id_atividade}, '` +
-        new Date(atividade.geral.fim_realizado).toISOString() +
-        `');
+        INSERT INTO tb_projetos_atv_notas
+        (id_atividade, txt_nota, nom_usu_create, dat_usu_create, ind_tipo_anotacao)
+        VALUES
+        (${atividade.geral.id_atividade}, '${atividade.anotacoes.anotacoes}', '${atividade.nom_usu_create}', now(), 1)
+        ON CONFLICT (id_atividade, ind_tipo_anotacao) DO
+        UPDATE
+        SET
+        txt_nota = '${atividade.anotacoes.anotacoes}'
+        WHERE
+        tb_projetos_atv_notas.id_atividade = ${atividade.geral.id_atividade}
     `,
     );
 
+    //return 1;
+
     await this.prisma.$queryRawUnsafe(
-      `call sp_up_atualiza_datas_cip10(${atividade.id_poco_pai});`,
+      `
+        CALL sp_up_projetos_atividade_mod_estatistico(
+            ${atividade.geral.id_atividade},
+            '${atividade.geral.inicio_planejado}',
+            ${atividade.geral.hrs_totais},
+            '${atividade.geral.inicio_realizado}',
+            ${atividade.geral.hrs_reais},
+            ${atividade.geral.pct_real},
+            ${atividade.geral.realEditado},
+            ${atividade.geral.flag}); 
+    `,
     );
 
     //criação ou atualização das anotações
@@ -90,10 +78,6 @@ export class EditarAtividadeService {
         (${atividade.geral.id_atividade}, '${apr.codigo_apr}', '${atividade.nom_usu_create}', now(), 3, '${apr.anexo}')
       `);
     });
-
-    await this.prisma.$queryRawUnsafe(`
-      call sp_up_atualiza_pct_real_campanha_execucao(${atividade.id_poco_pai})
-    `);
 
     return atividade;
   }
