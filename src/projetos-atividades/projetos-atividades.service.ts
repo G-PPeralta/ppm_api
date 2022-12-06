@@ -71,11 +71,11 @@ export class ProjetosAtividadesService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+      INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
       VALUES
-      ('${operacao[0].nom_operacao}', 0, ${dados_sonda_projeto[0].id}, ${
-      payload.id_poco
-    }, ${
+      ('${operacao[0].nom_operacao}', 
+      ${payload.flag},
+      0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
       payload.operacao_id
     }, '${data_inicio.toISOString()}', '${data_final.toISOString()}', '${
       payload.nom_usu_create

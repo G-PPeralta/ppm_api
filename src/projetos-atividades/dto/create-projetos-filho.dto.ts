@@ -7,4 +7,5 @@ export class CreateProjetosFilhoDto {
   data_fim: Date;
   metodo_elevacao_id: number;
   profundidade: number;
+  flag: number;
 }

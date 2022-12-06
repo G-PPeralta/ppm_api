@@ -9,6 +9,10 @@ export class EditarAtividadeDto {
     fim_realizado: Date;
     inicio_planejado: Date;
     fim_planejado: Date;
+    flag: number;
+    hrs_totais: number;
+    hrs_reais: number;
+    realEditado: number;
   };
   anotacoes: {
     anotacoes: string;

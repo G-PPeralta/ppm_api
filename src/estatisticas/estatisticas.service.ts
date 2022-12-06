@@ -17,6 +17,24 @@ export class EstatisticasService {
     pocos.nom_atividade as poco,
     pocos.id as id_poco,
     sonda.ordem as ordem,
+    (select count(*) from tb_projetos_atividade where id_pai = pocos.id)::integer as total_atv,
+    case when atividades.ordem = 1 then
+        case when (select case when coalesce(ind_status, 0) is null then 0 else coalesce(ind_status, 0) end from tb_projetos_atv_status where id_pai = pocos.id) in (1) then
+        0
+      else 
+        case when (select case when coalesce(ind_status, 0) is null then 0 else coalesce(ind_status, 0) end from tb_projetos_atv_status where id_pai = pocos.id) in (2) then 
+          3
+        else 
+          1
+        end
+        end
+    else 
+      case when (select case when coalesce(ind_status, 0) is null then 0 else coalesce(ind_status, 0) end from tb_projetos_atv_status where id_pai = pocos.id) in (2) then
+        3
+      else 
+        0
+      end
+    end as flag,
     coalesce (
     (
     select
@@ -55,7 +73,6 @@ export class EstatisticasService {
               )* 100, 1) as pct_plan,
     coalesce(atividades.pct_real, 0) as pct_real,
     responsaveis.nome_responsavel as nome_responsavel,
-    case when pocos.dat_usu_edit is not null then 1 else 0 end as flag,
     round(calc.vlr_min) as vlr_min,
     round(calc.vlr_max) as vlr_max,
     round(calc.vlr_med) as vlr_media,
@@ -156,6 +173,7 @@ export class EstatisticasService {
         id_poco: e.id_poco,
         poco: e.poco,
         atividades: [],
+        total_atv: e.total_atv,
         dat_inicio: e.dat_inicio,
         dat_final: e.dat_final,
         pct_real: e.pct_real_consol,
