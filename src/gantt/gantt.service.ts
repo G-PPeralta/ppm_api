@@ -298,6 +298,11 @@ export class GanttService {
     --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
     round(pct_real::numeric, 1) as Progress,
+    round(fn_atv_calc_pct_plan(
+      fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
+      fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
+      fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / fn_atv_calc_hrs_totais(id_pai) -- valor ponderado
+    )*100,1) as ProgressPlan,
     (
       select 
       case when count(p.id_prec) = 0 then null else
@@ -324,6 +329,7 @@ export class GanttService {
         BaselineDuration: el.baselineduration,
         Duration: el.duration,
         Progress: el.progress,
+        ProgressPlan: el.progressplan,
         Predecessor: el.predecessor,
         SubtaskAmount: el.subtasks,
         Responsavel: el.responsavel,
@@ -358,6 +364,11 @@ export class GanttService {
         --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
         round(pct_real::numeric, 1) as Progress,
+        round(fn_atv_calc_pct_plan(
+          fn_atv_calcular_hrs(dat_ini_plan), -- horas executadas
+          fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan),  -- horas totais
+          fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan) / fn_atv_calc_hrs_totais(a.id) -- valor ponderado
+        )*100,1) as ProgressPlan,
         (
           select 
           case when count(p.id_prec) = 0 then null else
@@ -383,6 +394,7 @@ export class GanttService {
           BaselineDuration: el.baselineduration,
           Duration: el.duration,
           Progress: el.progress,
+          ProgressPlan: el.progressplan,
           Predecessor: el.predecessor,
           SubtaskAmount: el.subtasks,
           Responsavel: el.responsavel,
