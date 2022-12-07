@@ -756,7 +756,13 @@ export class CampanhaService {
 
   async dataFinalCampanha(idCampanha: number) {
     const retorno = await this.prisma.$queryRawUnsafe(`
-    select max(dat_fim_plan) + interval '1' day as ultima_data from tb_camp_atv_campanha
+    select
+    case when (max(dat_fim_plan) + interval '1' day) is not null then
+      (max(dat_fim_plan) + interval '1' day)
+    else
+      current_timestamp
+    end as ultima_data 
+    from tb_camp_atv_campanha
     where id_pai in
       (
       select id from tb_camp_atv_campanha tcac 
