@@ -176,6 +176,11 @@ export class GanttService {
     )
     as Duration,
     coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
+    round(fn_atv_calc_pct_plan(
+      fn_atv_calcular_hrs(fn_atv_menor_data(campanha.id)), -- horas executadas
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(campanha.id), fn_atv_maior_data(campanha.id)),  -- horas totais
+      fn_hrs_uteis_totais_atv(fn_atv_menor_data(campanha.id), fn_atv_maior_data(campanha.id)) / fn_atv_calc_hrs_totais(campanha.id) -- valor ponderado
+  )*100,1) as ProgressPlanejado,
     null as Predecessor,
     (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id and dat_usu_erase is null )::int4 as subtasks
    from tb_camp_atv_campanha campanha
@@ -190,6 +195,7 @@ export class GanttService {
         TaskName: el.taskname,
         BaselineStartDate: el.baselinestartdate,
         BaselineEndDate: el.baselineenddate,
+        ProgressPlanejado: el.progressplanejado,
         StartDate: el.startdate,
         EndDate: el.enddate,
         BaselineDuration: el.baselineduration,
@@ -228,6 +234,15 @@ export class GanttService {
       fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan::date, campanha.dat_fim_plan::date)/24 as BaselineDuration,
       case when weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int end as Duration,
       coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
+      case when fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, campanha.dat_fim_plan) > 0 and fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, current_date) > 0 then
+          case when fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, campanha.dat_fim_plan) > 1 then
+            100
+          else 
+            round(fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan, campanha.dat_fim_plan), 1) * 100
+          end
+        else
+          0
+        end as ProgressPlanejado,
       null as Predecessor,
       (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
      from tb_camp_atv_campanha campanha
@@ -249,6 +264,7 @@ export class GanttService {
           Duration: el.duration,
           Progress: el.progress,
           Predecessor: el.predecessor,
+          ProgressPlanejado: el.progressplanejado,
           SubtaskAmount: el.subtasks,
           Responsavel: el.responsavel,
           subtasks: [],
