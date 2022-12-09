@@ -344,7 +344,7 @@ export class CampanhaService {
 
   async findDataInicial(id: number) {
     return await this.prisma.$queryRawUnsafe(
-      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = ${id} and ind_atv_execucao = 1;`,
+      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = (select id from tb_camp_atv_campanha where poco_id = ${id}) and ind_atv_execucao = 1;`,
     );
   }
 
@@ -356,15 +356,7 @@ export class CampanhaService {
 
     if (parseInt(respTotalAtv[0].total) === 0) {
       query = `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = (
-        select d.id from tb_projetos_atividade a
-        inner join tb_projetos b 
-          on a.id_projeto = b.id
-        inner join tb_campanha c
-          on c.id_projeto = b.id
-        inner join tb_camp_atv_campanha d 
-          on c.id = d.id_campanha 
-          and a.id = d.poco_id 
-        where a.id = ${id}
+        select id from tb_camp_atv_campanha where poco_id = ${id}
       ) and ind_atv_execucao = 1;
       `;
     } else {
@@ -808,8 +800,8 @@ export class CampanhaService {
   async dataFinalCampanha(idCampanha: number) {
     const retorno = await this.prisma.$queryRawUnsafe(`
     select
-    case when (max(dat_fim_plan)) is not null then
-      (max(dat_fim_plan))
+    case when (max(dat_fim_real)) is not null then
+      (max(dat_fim_real))
     else
       current_timestamp
     end as ultima_data 
