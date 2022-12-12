@@ -344,7 +344,7 @@ export class CampanhaService {
 
   async findDataInicial(id: number) {
     return await this.prisma.$queryRawUnsafe(
-      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = ${id} and ind_atv_execucao = 1;`,
+      `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = (select id from tb_camp_atv_campanha where poco_id = ${id}) and ind_atv_execucao = 1;`,
     );
   }
 
@@ -356,15 +356,7 @@ export class CampanhaService {
 
     if (parseInt(respTotalAtv[0].total) === 0) {
       query = `select dat_ini_plan, dat_fim_plan from tb_camp_atv_campanha tcac where id_pai = (
-        select d.id from tb_projetos_atividade a
-        inner join tb_projetos b 
-          on a.id_projeto = b.id
-        inner join tb_campanha c
-          on c.id_projeto = b.id
-        inner join tb_camp_atv_campanha d 
-          on c.id = d.id_campanha 
-          and a.id = d.poco_id 
-        where a.id = ${id}
+        select id from tb_camp_atv_campanha where poco_id = ${id}
       ) and ind_atv_execucao = 1;
       `;
     } else {
@@ -670,6 +662,7 @@ export class CampanhaService {
     select 
     id_filho,
     id_atividade,
+    fase,
     hoje,
     inicioplanejado_fmt as inicioplanejado,
     finalplanejado_fmt as finalplanejado,
@@ -711,6 +704,7 @@ export class CampanhaService {
     select 
         filho.id as id_filho,
         filho.tarefa_id as id_atividade,
+        fase.fase as fase,
         current_date as hoje,
         fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) as nm,
         fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) as ni,
@@ -726,11 +720,11 @@ export class CampanhaService {
         area_atuacao.tipo as nom_area,
         campanha.nom_campanha as sonda,
         filho.dsc_comentario as comentario,
-        case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 0 and fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) > 0 then
-          case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan) > 1 then
+        case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, filho.dat_fim_real) > 0 and fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, current_date) > 0 then
+          case when fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, filho.dat_fim_real) > 1 then
             100
           else 
-            round(fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_plan, filho.dat_fim_plan), 1) * 100
+            round(fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, current_date) / fn_hrs_totais_cronograma_atvv(filho.dat_ini_real, filho.dat_fim_real), 1) * 100
           end
         else
           0
@@ -748,12 +742,15 @@ export class CampanhaService {
         on area_atuacao.id = filho.area_id
         inner join tb_campanha campanha
         on campanha.id = pai.id_campanha 
+        left join tb_camp_atv_fase fase
+        	on tarefa.ind_fase = fase.id
         where pai.id_pai = 0
           and pai.id = ${id}
           and filho.dat_usu_erase is null
           and pai.dat_usu_erase is null
           order by filho.dat_ini_plan asc
     ) as q
+    order by inicioreal asc
     ;
     `);
 
@@ -808,8 +805,8 @@ export class CampanhaService {
   async dataFinalCampanha(idCampanha: number) {
     const retorno = await this.prisma.$queryRawUnsafe(`
     select
-    case when (max(dat_fim_plan)) is not null then
-      (max(dat_fim_plan))
+    case when (max(dat_fim_real)) is not null then
+      (max(dat_fim_real))
     else
       current_timestamp
     end as ultima_data 
@@ -868,6 +865,14 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
+    Logger.log(payload.inicioReal);
+    const dat_tmp_inireal =
+      new Date(payload.inicioReal).getTime() - 3 * 3600 * 1000;
+    const dat_ini_real = new Date(dat_tmp_inireal);
+    const dat_tmp_fimreal =
+      new Date(payload.fimReal).getTime() - 3 * 3600 * 1000;
+    const dat_fim_real = new Date(dat_tmp_fimreal);
+
     await this.prisma.$queryRawUnsafe(`
       DELETE FROM tb_camp_atv_precedente
       WHERE id_atividade = ${payload.atividadeId}
@@ -886,37 +891,53 @@ export class CampanhaService {
       `);
     });
 
+    Logger.log(`
+    UPDATE tb_camp_atv_campanha
+    SET
+    pct_real = ${payload.atividadeStatus},
+    --nom_atividade = '${payload.nome}',
+    responsavel_id = ${payload.responsavelId},
+    area_id = ${payload.areaId},
+    dat_ini_real = ${
+      payload.inicioReal === null
+        ? null
+        : "'" + dat_ini_real.toISOString() + "'"
+    },
+    dat_fim_real = ${
+      payload.fimReal === null ? null : "'" + dat_fim_real.toISOString() + "'"
+    },
+    dsc_comentario = '${payload.comentario}'
+    WHERE
+    id = ${payload.atividadeId}
+  `);
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
       pct_real = ${payload.atividadeStatus},
-      nom_atividade = '${payload.nome}',
+      --nom_atividade = '${payload.nome}',
       responsavel_id = ${payload.responsavelId},
       area_id = ${payload.areaId},
-      dat_ini_plan = '${new Date(payload.inicioPlanejado).toISOString()}',
-      dat_fim_plan = '${new Date(payload.fimPlanejado).toISOString()}',
       dat_ini_real = ${
         payload.inicioReal === null
           ? null
-          : "'" + new Date(payload.inicioReal).toISOString() + "'"
+          : "'" + dat_ini_real.toISOString() + "'"
       },
       dat_fim_real = ${
-        payload.fimReal === null
-          ? null
-          : "'" + new Date(payload.fimReal).toISOString() + "'"
+        payload.fimReal === null ? null : "'" + dat_fim_real.toISOString() + "'"
       },
       dsc_comentario = '${payload.comentario}'
       WHERE
       id = ${payload.atividadeId}
     `);
 
-    const id_pai = await this.prisma.$queryRawUnsafe(`
-      SELECT id_pai FROM tb_camp_atv_campanha where id = ${payload.atividadeId}
-    `);
+    // Removido trecho pois força um recalculo no cronograma e faz com que as atividades cuja dadas reais foram alteraadas voltem para a data planejada
+    // const id_pai = await this.prisma.$queryRawUnsafe(`
+    //   SELECT id_pai FROM tb_camp_atv_campanha where id = ${payload.atividadeId}
+    // `);
 
-    await this.prisma.$queryRawUnsafe(
-      `CALL sp_recalcula_data_real(${id_pai[0].id_pai})`,
-    );
+    // await this.prisma.$queryRawUnsafe(
+    //   `CALL sp_recalcula_data_real(${id_pai[0].id_pai})`,
+    // );
   }
 
   async remove(id: number, user: string) {

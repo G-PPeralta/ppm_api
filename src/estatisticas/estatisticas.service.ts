@@ -10,7 +10,6 @@ export class EstatisticasService {
   async estatisticasProjeto() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
-      
     select
     sonda.id as id_sonda,
     sonda.nom_atividade as sonda,
@@ -108,30 +107,24 @@ export class EstatisticasService {
   left join tb_responsaveis responsaveis
           on
     responsaveis.responsavel_id = atividades.id_responsavel
-  left join (
-    select
-      nom_atividade,
-      min(hr_total) as vlr_min,
-      max(hr_total) as vlr_max,
-      avg(hr_total) as vlr_med,
-      case
-        when round(stddev(hr_total)) is null then 0
-        else round(stddev(hr_total))
-      end as vlr_dp
-    from
-      (
-      select
-        nom_atividade,
-        fn_hrs_totais_cronograma_atvv(dat_ini_real,
-        dat_fim_real) as hr_total
-      from
-        tb_projetos_atividade
-            ) as q
-    group by
-      nom_atividade
-                ) as calc
-                on
-    calc.nom_atividade = atividades.nom_atividade
+    left join (
+      select 	
+          b.id,
+            b.nom_atividade,
+            min(hrs_totais) as vlr_min,
+            round(avg(hrs_totais), 0) as vlr_med,
+            max(hrs_totais) as vlr_max,
+            case
+              when round(stddev(hrs_totais)) is null then 0
+              else round(stddev(hrs_totais))
+          end as vlr_dp
+          from tb_hist_estatistica a
+          inner join tb_projetos_atividade b
+            on a.id_operacao = b.id_operacao
+          where ind_calcular = 1
+          group by b.id
+    ) as calc  
+      on calc.id = atividades.id
   where
     atividades.dat_usu_erase is null
     and pocos.dat_usu_erase is null
@@ -324,8 +317,11 @@ export class EstatisticasService {
   }
 
   async apagarAtividade(id: number, user: string) {
+    // await this.prisma.$queryRawUnsafe(`
+    //   UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}
+    // `);
     await this.prisma.$queryRawUnsafe(`
-      UPDATE tb_projetos_atividade set dat_usu_erase = now(), nom_usu_erase = '${user}' WHERE id = ${id}
+      DELETE FROM tb_projetos_atividade WHERE id = ${id};
     `);
   }
 }

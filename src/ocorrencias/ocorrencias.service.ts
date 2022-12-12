@@ -30,6 +30,8 @@ export class OcorrenciasService {
         tb_projetos_ocorrencias.id_atv = ${id_atv} AND
         tb_projetos_ocorrencias.dsc_ocorrencia = '${payload.ocorrencia}'
     `);
+
+    await this.prisma.$queryRawUnsafe(`call sp_in_historico_graf(${id_atv});`);
   }
 
   async findAll() {

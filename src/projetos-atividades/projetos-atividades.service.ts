@@ -85,9 +85,12 @@ export class ProjetosAtividadesService {
     `);
 
     await this.prisma.$queryRawUnsafe(`
-    call sp_up_atualiza_datas_cip10(${payload.id_poco});
-    
-  `);
+      call sp_up_atualiza_datas_cip10(${payload.id_poco});
+    `);
+
+    await this.prisma.$queryRawUnsafe(`
+      call sp_up_cascateia_cron_campanha(${payload.id_poco});
+    `);
 
     return { gravado: 1 };
   }
