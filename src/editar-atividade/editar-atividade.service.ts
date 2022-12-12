@@ -12,6 +12,7 @@ export class EditarAtividadeService {
     if (flag === undefined) {
       flag = 0;
     }
+
     Logger.log(
       `
         CALL sp_up_projetos_atividade_mod_estatistico(
@@ -22,10 +23,11 @@ export class EditarAtividadeService {
             ${atividade.geral.hrs_reais},
             ${atividade.geral.pct_real},
             ${atividade.geral.realEditado},
-            ${flag}); 
+            ${flag});
     `,
     );
 
+    // return 1;
     await this.prisma.$queryRawUnsafe(
       `
         CALL sp_up_projetos_atividade_mod_estatistico(
@@ -78,6 +80,14 @@ export class EditarAtividadeService {
         (${atividade.geral.id_atividade}, '${apr.codigo_apr}', '${atividade.nom_usu_create}', now(), 3, '${apr.anexo}')
       `);
     });
+
+    if (+atividade.geral.pct_real === 100) {
+      await this.prisma.$queryRawUnsafe(
+        `
+        call sp_in_historico_graf(${atividade.geral.id_atividade})
+        `,
+      );
+    }
 
     return atividade;
   }

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import e from 'express';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { ganttFormatter } from '../utils/gantt/gantConverter';
 import { CreateGanttDto, GanttPayload } from './dto/create-gantt.dto';
@@ -121,7 +122,10 @@ export class GanttService {
    from tb_camp_atv_campanha campanha
    left join tb_projetos_atividade vinculo_atv_poco
    on vinculo_atv_poco.id = campanha.poco_id
+   left join tb_camp_atv tarefa
+      on tarefa.id = campanha.tarefa_id
    where campanha.id_pai = 0 and campanha.id = ${id}
+   order by StartDate asc
     `);
 
     const tratar = retorno_inicial.map((el) => {
@@ -223,9 +227,11 @@ export class GanttService {
   async substasksRecursiveCampanha(element) {
     if (element.SubtaskAmount > 0) {
       const substasks: any[] = await this.prisma.$queryRawUnsafe(`
+        
       select
       campanha.id as TaskID,
       case when campanha.nom_atividade is null then tarefas.nom_atividade else campanha.nom_atividade end as TaskName,
+      tcaf.fase as Segment,
       campanha.dat_ini_plan as BaselineStartDate,
       campanha.dat_fim_plan as BaselineEndDate,
       campanha.dat_ini_real as StartDate,
@@ -245,12 +251,15 @@ export class GanttService {
         end as ProgressPlanejado,
       null as Predecessor,
       (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
-     from tb_camp_atv_campanha campanha
-     left join tb_responsaveis responsaveis
-     on responsaveis.responsavel_id = campanha.responsavel_id
-     left join tb_camp_atv tarefas
-     on tarefas.id = campanha.tarefa_id
+    from tb_camp_atv_campanha campanha
+    left join tb_responsaveis responsaveis
+    on responsaveis.responsavel_id = campanha.responsavel_id
+    left join tb_camp_atv tarefas
+    on tarefas.id = campanha.tarefa_id
+    left join tb_camp_atv_fase tcaf
+      on tarefas.ind_fase = tcaf.id
      where campanha.id_pai = ${element.TaskID} and campanha.dat_usu_erase is null
+     order by campanha.dat_ini_real asc
       `);
       const mapped = substasks.map((el) => {
         return {
@@ -267,6 +276,7 @@ export class GanttService {
           ProgressPlanejado: el.progressplanejado,
           SubtaskAmount: el.subtasks,
           Responsavel: el.responsavel,
+          Fase: el.fase,
           subtasks: [],
         };
       });
