@@ -9,8 +9,10 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async createFilho(payload: CreateProjetosFilhoDto) {
-    Logger.log(payload);
+    Logger.log(payload.duracao);
 
+    //return +payload.duracao;
+    const duracao = +payload.duracao;
     /*
 
     var Dia = 0;
@@ -35,8 +37,18 @@ export class ProjetosAtividadesService {
     );
 
     const data_final = new Date(
-      new Date(payload.data_fim).getTime() - 3 * 60 * 60 * 1000,
+      new Date(payload.data_inicio).getTime() - 3 * 60 * 60 * 1000,
     );
+
+    const dat_fim_tratado =
+      new Date(data_final).getTime() + duracao * 3600 * 1000;
+
+    // Logger.log(data_inicio);
+    Logger.log(new Date(dat_fim_tratado));
+
+    // data_final = new Date(data_final).getTime() + duracao * 3600 * 1000;
+
+    // return dat_fim_tratado;
 
     // Logger.log(data_tratado);
     // const dat_ini = data_tratado.toISOString(); //new Date(vincularAtividade.dat_inicio_plan).toISOString();
@@ -70,19 +82,37 @@ export class ProjetosAtividadesService {
     projetos_atv.id = ${payload.id_sonda}
     `);
 
+    // return `
+    //   INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+    //   VALUES
+    //   ('${operacao[0].nom_operacao}',
+    //   ${payload.flag},
+    //   0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
+    //   payload.operacao_id
+    // }, '${data_inicio.toISOString()}', '${new Date(
+    //   new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
+    // ).toISOString()}', '${
+    //   payload.nom_usu_create
+    // }', now(), '${data_inicio.toISOString()}}', '${data_final.toISOString()}', ${
+    //   payload.profundidade
+    // }, ${payload.metodo_elevacao_id})
+    // `;
+
     await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
-      VALUES
-      ('${operacao[0].nom_operacao}', 
-      ${payload.flag},
-      0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
+    INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+    VALUES
+    ('${operacao[0].nom_operacao}',
+    ${payload.flag},
+    0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
       payload.operacao_id
-    }, '${data_inicio.toISOString()}', '${data_final.toISOString()}', '${
+    }, '${data_inicio.toISOString()}', '${new Date(
+      new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
+    ).toISOString()}', '${
       payload.nom_usu_create
-    }', now(), '${data_inicio.toISOString()}}', '${data_final.toISOString()}', ${
-      payload.profundidade
-    }, ${payload.metodo_elevacao_id})
-    `);
+    }', now(), '${data_inicio.toISOString()}}', '${new Date(
+      new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
+    ).toISOString()}', ${payload.profundidade}, ${payload.metodo_elevacao_id})
+  `);
 
     await this.prisma.$queryRawUnsafe(`
       call sp_up_atualiza_datas_cip10(${payload.id_poco});

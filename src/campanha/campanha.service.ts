@@ -167,6 +167,14 @@ export class CampanhaService {
       RETURNING ID
     `);
 
+    Logger.log(`
+    INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+    VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.id_campanha}, '${new Date(
+      data,
+    ).toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
+   RETURNING ID
+ `);
+
     createCampanhaDto.atividades.forEach(async (atv) => {
       // const oldDate = new Date(data);
       let dat_inicio = new Date();
@@ -216,6 +224,22 @@ export class CampanhaService {
       ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
       returning ID
       `);
+
+      Logger.log(`
+      INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
+      VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
+        dat_inicio,
+      ).toISOString()}', '${new Date(
+        dat_inicio,
+      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
+        atv.area_id
+      }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
+        dat_inicio,
+      ).toISOString()}', '${new Date(
+        dat_inicio,
+      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
+    returning ID
+    `);
 
       atv.precedentes.forEach(async (p) => {
         const id_prec = await this.prisma.$queryRawUnsafe(`
