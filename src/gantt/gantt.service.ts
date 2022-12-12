@@ -99,7 +99,7 @@ export class GanttService {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select
     campanha.id as TaskID,
-    fase as fase,
+    fase.fase as fase,
     case when campanha.nom_atividade is null then vinculo_atv_poco.nom_atividade else campanha.nom_atividade end as TaskName,
     (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineStartDate,
     (select min(dat_fim_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineEndDate,
