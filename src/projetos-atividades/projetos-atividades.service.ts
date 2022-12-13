@@ -32,19 +32,23 @@ export class ProjetosAtividadesService {
 
     */
 
+    // por causa do .toISOString temos que diminuir 3 horas para igualar o fuso horário.
     const data_inicio = new Date(
       new Date(payload.data_inicio).getTime() - 3 * 60 * 60 * 1000,
     );
 
+    // mas neste caso, temos que manter 0, pq ainda não iremos usar este horário para adequar ao fuso...
     const data_final = new Date(
-      new Date(payload.data_inicio).getTime() - 3 * 60 * 60 * 1000,
+      new Date(payload.data_inicio).getTime() - 0 * 60 * 60 * 1000,
     );
 
+    // remove 3 horas da duração devido ao fuso horário.
     const dat_fim_tratado =
-      new Date(data_final).getTime() + duracao * 3600 * 1000;
+      new Date(data_final).getTime() + (duracao - 3) * 3600 * 1000;
 
-    // Logger.log(data_inicio);
-    Logger.log(new Date(dat_fim_tratado));
+    // Logger.log(duracao);
+    // Logger.log(new Date(data_inicio));
+    // Logger.log(new Date(dat_fim_tratado));
 
     // data_final = new Date(data_final).getTime() + duracao * 3600 * 1000;
 
@@ -89,30 +93,32 @@ export class ProjetosAtividadesService {
     //   ${payload.flag},
     //   0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
     //   payload.operacao_id
-    // }, '${data_inicio.toISOString()}', '${new Date(
-    //   new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
-    // ).toISOString()}', '${
-    //   payload.nom_usu_create
-    // }', now(), '${data_inicio.toISOString()}}', '${data_final.toISOString()}', ${
-    //   payload.profundidade
-    // }, ${payload.metodo_elevacao_id})
+    // }, 'to_timestamp(${+data_inicio / 1000})', 'to_timestamp(${
+    //   +dat_fim_tratado / 1000
+    // })', '${payload.nom_usu_create}', now(), 'to_timestamp(${
+    //   +data_inicio / 1000
+    // })', 'to_timestamp(${+dat_fim_tratado / 1000})', ${payload.profundidade}, ${
+    //   payload.metodo_elevacao_id
+    // })
     // `;
 
-    await this.prisma.$queryRawUnsafe(`
-    INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
-    VALUES
-    ('${operacao[0].nom_operacao}',
-    ${payload.flag},
-    0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
-      payload.operacao_id
-    }, '${data_inicio.toISOString()}', '${new Date(
-      new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
-    ).toISOString()}', '${
-      payload.nom_usu_create
-    }', now(), '${data_inicio.toISOString()}}', '${new Date(
-      new Date(dat_fim_tratado).getTime() - 3 * 3600 * 1000,
-    ).toISOString()}', ${payload.profundidade}, ${payload.metodo_elevacao_id})
-  `);
+    await this.prisma.$queryRawUnsafe(
+      `
+      INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+      VALUES
+      ('${operacao[0].nom_operacao}',
+      ${payload.flag},
+      0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
+        payload.operacao_id
+      }, to_timestamp(${+data_inicio / 1000}), to_timestamp(${
+        +dat_fim_tratado / 1000
+      }), '${payload.nom_usu_create}', now(), to_timestamp(${
+        +data_inicio / 1000
+      }), to_timestamp(${+dat_fim_tratado / 1000}), ${payload.profundidade}, ${
+        payload.metodo_elevacao_id
+      })
+    `,
+    );
 
     await this.prisma.$queryRawUnsafe(`
       call sp_up_atualiza_datas_cip10(${payload.id_poco});
