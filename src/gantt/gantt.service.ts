@@ -99,6 +99,7 @@ export class GanttService {
     const retorno_inicial: any[] = await this.prisma.$queryRawUnsafe(`
     select
     campanha.id as TaskID,
+    fase.fase as fase,
     case when campanha.nom_atividade is null then vinculo_atv_poco.nom_atividade else campanha.nom_atividade end as TaskName,
     (select min(dat_ini_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineStartDate,
     (select min(dat_fim_plan) from tb_camp_atv_campanha where id_pai = campanha.id) as BaselineEndDate,
@@ -124,6 +125,8 @@ export class GanttService {
    on vinculo_atv_poco.id = campanha.poco_id
    left join tb_camp_atv tarefa
       on tarefa.id = campanha.tarefa_id
+   left join tb_camp_atv_fase fase
+      on tarefa.ind_fase = fase.id
    where campanha.id_pai = 0 and campanha.id = ${id}
    order by StartDate asc
     `);
@@ -142,6 +145,7 @@ export class GanttService {
         Predecessor: el.predecessor,
         SubtaskAmount: el.subtasks,
         Responsavel: el.responsavel,
+        Fase: el.fase,
         subtasks: [],
       };
     });
@@ -237,6 +241,7 @@ export class GanttService {
       campanha.dat_ini_real as StartDate,
       campanha.dat_fim_real as EndDate, 
       responsaveis.nome_responsavel as Responsavel,
+      fase.fase as fase,
       fn_hrs_totais_cronograma_atvv(campanha.dat_ini_plan::date, campanha.dat_fim_plan::date)/24 as BaselineDuration,
       case when weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(campanha.dat_ini_real::date, campanha.dat_fim_real::date)::int end as Duration,
       coalesce(round(campanha.pct_real::numeric, 1), 0) as Progress,
@@ -256,6 +261,8 @@ export class GanttService {
     on responsaveis.responsavel_id = campanha.responsavel_id
     left join tb_camp_atv tarefas
     on tarefas.id = campanha.tarefa_id
+    left join tb_camp_atv_fase fase
+        on tarefas.ind_fase = fase.id
     left join tb_camp_atv_fase tcaf
       on tarefas.ind_fase = tcaf.id
      where campanha.id_pai = ${element.TaskID} and campanha.dat_usu_erase is null
