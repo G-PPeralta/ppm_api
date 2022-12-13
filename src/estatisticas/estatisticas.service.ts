@@ -46,6 +46,15 @@ export class EstatisticasService {
       and pct_real > 0),
     0)
      as flag_old,
+    coalesce (
+      (
+        select
+          distinct ordem
+        from
+          tb_camp_atv_campanha
+        where
+          poco_id = pocos.id)
+      , 0) as num_ordem,
     case
       when atividades.nom_atividade is null then tarefas.nom_operacao
       else atividades.nom_atividade
@@ -66,7 +75,7 @@ export class EstatisticasService {
     atividades.dat_ini_real as inicio_real,
     atividades.dat_fim_real as fim_real,
     round(fn_atv_calc_pct_plan(
-                  fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
+    fn_atv_calcular_hrs(atividades.dat_ini_plan), -- horas executadas
     fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan), -- horas totais
     fn_hrs_uteis_totais_atv(atividades.dat_ini_plan, atividades.dat_fim_plan) / fn_atv_calc_hrs_totais_por_data(atividades.dat_ini_plan)-- valor ponderado
               )* 100, 1) as pct_plan,
@@ -78,14 +87,14 @@ export class EstatisticasService {
     round(calc.vlr_dp) as vlr_dp,
     (
     select
-      min(dat_ini_plan)
+      min(dat_ini_real)
     from
       tb_projetos_atividade
     where
       id_pai = pocos.id) as dat_inicio,
     (
     select
-      max(dat_fim_plan)
+      max(dat_fim_real)
     from
       tb_projetos_atividade
     where
@@ -151,7 +160,7 @@ export class EstatisticasService {
     vlr_dp,
     vlr_med
   order by
-    sonda.ordem asc,
+    num_ordem asc,
     atividades.id asc,
     atividades.dat_ini_real asc,
     atividades.id_pai asc;
