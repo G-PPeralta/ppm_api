@@ -10,6 +10,7 @@ export class CreateCampanhaFilhoDto {
 }
 
 export class Atividades {
+  id_origem: string;
   tarefa_id: number;
   qtde_dias: number;
   responsavel_id: number;

@@ -107,7 +107,7 @@ export class CampanhaService {
     let ind_exec = 0;
     const msg = '';
     createCampanhaDto.atividades.forEach(async (atv) => {
-      // Logger.log(atv.ind_atv_execucao);
+      // Logger.log(atv.id_origem);
       //array.push(atv.area_id);
       if (atv.ind_atv_execucao === true) {
         ind_exec = 1;
@@ -117,6 +117,8 @@ export class CampanhaService {
         int_qtd_atv++;
       }
     });
+
+    // return createCampanhaDto;
 
     const poco_id_temp = createCampanhaDto.poco_id
       .split('-')[0]
@@ -167,20 +169,25 @@ export class CampanhaService {
       RETURNING ID
     `);
 
-    Logger.log(`
-    INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
-    VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.id_campanha}, '${new Date(
-      data,
-    ).toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
-   RETURNING ID
- `);
+    //     Logger.log(`
+    //     INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
+    //     VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.id_campanha}, '${new Date(
+    //       data,
+    //     ).toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
+    //    RETURNING ID
+    //  `);
 
     createCampanhaDto.atividades.forEach(async (atv) => {
+      // const dat_ini_exec: any = new Date();
       // const oldDate = new Date(data);
       let dat_inicio = new Date();
-      data = new Date(createCampanhaDto.dat_ini_prev);
+      let dat_final = new Date();
+      data = new Date(
+        new Date(createCampanhaDto.dat_ini_prev).setHours(9, 0, 0, 0),
+      );
       data = addWorkDays(data, -qtd_dias_acum);
       dat_inicio = data;
+      dat_final = new Date(new Date(dat_inicio).setHours(18, 0, 0, 0));
       // msg =
       //   'atv, ' +
       //   atv.tarefa_id +
@@ -214,32 +221,68 @@ export class CampanhaService {
         VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
         dat_inicio,
       ).toISOString()}', '${new Date(
-        dat_inicio,
+        dat_final,
       ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
         atv.area_id
       }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
         dat_inicio,
       ).toISOString()}', '${new Date(
-        dat_inicio,
+        dat_final,
       ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
       returning ID
       `);
 
-      Logger.log(`
-      INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
-      VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
-        dat_inicio,
-      ).toISOString()}', '${new Date(
-        dat_inicio,
-      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
-        atv.area_id
-      }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
-        dat_inicio,
-      ).toISOString()}', '${new Date(
-        dat_inicio,
-      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
-    returning ID
-    `);
+      // REGRA ADICIONADA A PEDIDO DA THAYNARA EM 13/12
+      // SEGUNDO ELA, O SISTEMA DEVE CONSIDERAR AS MESMAS DATAS DE EXECUCAO PARA CIP 11, 12, EGP 05 E 06 ...
+      // Logger.log(atv.id_origem);
+      if (
+        atv.id_origem === 'EGP05' ||
+        atv.id_origem === 'EGP06' ||
+        atv.id_origem === 'CIP11' ||
+        atv.id_origem === 'CIP12' ||
+        atv.id_origem === 'CIP10'
+      ) {
+        await this.prisma.$queryRawUnsafe(`
+          update tb_camp_atv_campanha
+          set 
+            dat_ini_plan = (select dat_ini_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_fim_plan = (select dat_ini_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_ini_real = (select dat_ini_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_fim_real = (select dat_ini_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id})
+          where
+          id = ${id_atv[0].id}
+      ;`);
+      }
+
+      // E A DATA FIM DE EXECUCAO DEVE MARCAR O INICIO DE CIP12 E 13.
+      if (atv.id_origem === 'CIP13' || atv.id_origem === 'CIP14') {
+        await this.prisma.$queryRawUnsafe(`
+          update tb_camp_atv_campanha
+          set 
+            dat_ini_plan = (select dat_fim_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_fim_plan = (select dat_fim_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_ini_real = (select dat_fim_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
+            dat_fim_real = (select dat_fim_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id})
+          where
+          id = ${id_atv[0].id}
+        ;`);
+      }
+
+      //   Logger.log(`
+      //   INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
+      //   VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
+      //     dat_inicio,
+      //   ).toISOString()}', '${new Date(
+      //     dat_inicio,
+      //   ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
+      //     atv.area_id
+      //   }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
+      //     dat_inicio,
+      //   ).toISOString()}', '${new Date(
+      //     dat_inicio,
+      //   ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
+      // returning ID
+      // `);
 
       atv.precedentes.forEach(async (p) => {
         const id_prec = await this.prisma.$queryRawUnsafe(`
@@ -268,6 +311,14 @@ export class CampanhaService {
       `);
       });
     });
+
+    //   Logger.log(`
+    //   call sp_recalcula_campanha_resolver_pos_interv_inclusao(${id_pai[0].id});
+    // `);
+    //   // ESTA PROCEDURE SERVE PARA RESOLVER GAP QUE FICA ENTRE AS DATAS DO CRONOGRAMA. REMOVER ESTA PROCEDURE VAI GERAR UM GAP NAS ATIVIDADES DE POS INTERVENÇÃO, ALEM DE GERAR UM BUG NA FERRAMENTA.
+    //   await this.prisma.$queryRawUnsafe(`
+    //     call sp_recalcula_campanha_resolver_pos_interv_inclusao(${id_pai[0].id});
+    //   `);
   }
 
   async visaoPrecedentes() {

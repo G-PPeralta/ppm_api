@@ -27,6 +27,17 @@ export class EditarAtividadeService {
     `,
     );
 
+    // item invertido para resolver o problema que a última atividade não era habilitado no histórico. Antes esta procedure ficava no final.
+    // dentro da procedure sp_up_projetos_atividade_mod_estatistico, há uma rotina que muda o indicador de leitura de 0 para 1 no histórico,
+    // o que significa que o sistema pode considerar na média para futuras intervenções.
+    if (+atividade.geral.pct_real === 100) {
+      await this.prisma.$queryRawUnsafe(
+        `
+        call sp_in_historico_graf(${atividade.geral.id_atividade})
+        `,
+      );
+    }
+
     // return 1;
     await this.prisma.$queryRawUnsafe(
       `
@@ -80,14 +91,6 @@ export class EditarAtividadeService {
         (${atividade.geral.id_atividade}, '${apr.codigo_apr}', '${atividade.nom_usu_create}', now(), 3, '${apr.anexo}')
       `);
     });
-
-    if (+atividade.geral.pct_real === 100) {
-      await this.prisma.$queryRawUnsafe(
-        `
-        call sp_in_historico_graf(${atividade.geral.id_atividade})
-        `,
-      );
-    }
 
     return atividade;
   }
