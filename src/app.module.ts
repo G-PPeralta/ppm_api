@@ -71,6 +71,7 @@ import { PdfModule } from './pdf/pdf.module';
 import { LixeiraModule } from './lixeira/lixeira.module';
 import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
 import { FeriadosModule } from './feriados/feriados.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -144,6 +145,7 @@ import { FeriadosModule } from './feriados/feriados.module';
     LixeiraModule,
     AreaResponsavelModule,
     FeriadosModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
