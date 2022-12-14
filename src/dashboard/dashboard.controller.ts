@@ -23,6 +23,11 @@ export class DashboardController {
     return this.dashboardService.getTotalProjetosGraficoMes();
   }
 
+  @Get('prioridades-complexidades')
+  getPrioridadeComplexidade() {
+    return this.dashboardService.getPrioridadeComplexidade();
+  }
+
   @Get('gates')
   getGates() {
     return this.dashboardService.getGates();

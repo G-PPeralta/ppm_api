@@ -104,6 +104,326 @@ export class DashboardService {
     return result;
   }
 
+  async getPrioridadeComplexidade() {
+    const query: any[] = await this.prisma.$queryRawUnsafe(
+      `
+      select
+      a.id,
+      a.nome_projeto,
+      responsavel,
+      vlr_cr,
+      vlr_orcado,
+      case
+        when vlr_orcado = 0 then 0
+        else case
+          when vlr_cr / vlr_orcado > 1 then 1
+          else vlr_cr / vlr_orcado
+        end
+      end as vlr_tpci,
+      (
+      select
+        opcoes.nom_opcao
+      from
+        tb_ranking ranking
+      inner join tb_projetos_ranking projeto_ranking
+        on
+        projeto_ranking.id_ranking = ranking.id
+      inner join tb_ranking_opcoes opcoes
+        on
+        opcoes.id = projeto_ranking.id_opcao
+      where
+        ranking.id = 4
+        and projeto_ranking.id_projeto = a.id
+        ) as prioridade,
+      case
+        when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100
+        else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0)
+      end as percent,
+      case
+        when vlr_orcado <= 300000 then
+        'B'
+        else 
+           case
+          when vlr_orcado between 300001 and 3000000 then
+             'M'
+          else 
+             'A'
+        end
+      end as complexidade,
+      polo_id,
+      polo,
+      coordenador,
+      coordenador_id,
+      (
+      select
+        case
+          when 
+          min(tpa.dat_ini_plan)
+          is not null
+          then
+          min(tpa.dat_ini_plan)
+          else coalesce(a.data_inicio, b.data_inicio)
+        end
+      from
+        tb_projetos_atividade tpa
+      where
+        tpa.dat_usu_erase is null
+        and tpa.id_pai = a.id
+        ) as data_inicio,
+      (
+      select
+        case
+          when 
+          max(tpa.dat_fim_plan)
+          is not null
+          then
+          max(tpa.dat_fim_plan)
+          else coalesce(a.data_fim, b.data_fim)
+        end
+      from
+        tb_projetos_atividade tpa
+      where
+        tpa.dat_usu_erase is null
+        and tpa.id_pai = a.id
+        ) as data_fim,
+      round((
+        select case when sum(fn_cron_calc_pct_real_projeto(tpa.id, tp.id)) is null then 0 else sum(fn_cron_calc_pct_real_projeto(tpa.id, tp.id)) end from tb_projetos_atividade tpa
+        inner join tb_projetos tp
+        on tp.id = tpa.id_projeto
+        where tp.id = a.id
+        ), 2) as pct,
+      coalesce(a.descricao, b.descricao) as descricao,
+      coalesce(a.justificativa, b.justificativa) as justificativa,
+      a.id as id_projeto_real,
+      coalesce((
+          select vlr_cpi from tb_projetos_spi_cpi
+          where id_projeto = a.id
+          ), 1) as vlr_cpi,
+      coalesce((
+          select vlr_spi from tb_projetos_spi_cpi
+          where id_projeto = a.id
+          ), 1) as vlr_spi,
+      case
+        when ranking is null then 0
+        else ranking
+      end as vlr_ranking
+    from
+      tb_projetos a
+    left join (
+      select
+        aa.id_projeto,
+        sum(bb.num_nota) as ranking
+      from
+        tb_projetos_ranking aa
+      inner join tb_ranking_opcoes bb
+          on
+        aa.id_ranking = bb.id_ranking
+        and aa.id_opcao = bb.id
+      group by
+        aa.id_projeto) as qr4
+          on
+      a.id = qr4.id_projeto
+    left join (
+      select
+        id as id_projeto,
+        trunc(case when coalesce(vlr_cr, 0) = 0 then 1 else vlr_va / vlr_cr end, 2) as vlr_cpi,
+        trunc(case when coalesce(vlr_vp, 0) = 0 then 1 else vlr_va / vlr_vp end, 2) as vlr_spi,
+        vlr_cr,
+        valor_total_previsto as vlr_orcado,
+        prioridade,
+        complexidade,
+        polo,
+        coordenador_nome as coordenador,
+        nome_responsavel as responsavel,
+        data_inicio,
+        data_fim,
+        0 as pct,
+        descricao,
+        justificativa,
+        nome_projeto
+      from
+        (
+        select
+          id,
+          (fn_cron_calc_pct_plan_projeto(0,
+          id)/ 100) * sum(vlr_planejado) as vlr_vp,
+          (fn_cron_calc_pct_real_projeto(0,
+          id)/ 100) * sum(vlr_planejado) as vlr_va,
+          sum(vlr_realizado) as vlr_cr,
+          valor_total_previsto,
+          prioridade,
+          complexidade,
+          polo,
+          coordenador_nome,
+          nome_responsavel,
+          data_inicio,
+          data_fim,
+          descricao,
+          justificativa,
+          nome_projeto
+        from
+          (
+          select
+            c.id,
+            case
+              when sum(c.valor_total_previsto) is null 
+                      then 0
+              else sum(valor_total_previsto)
+            end as vlr_planejado,
+            0 as vlr_realizado,
+            c.valor_total_previsto,
+            pri.prioridade,
+            cpx.classificacao as complexidade,
+            pls.polo,
+            crd.coordenador_nome,
+            rsp.nome_responsavel,
+            c.data_inicio,
+            c.data_fim,
+            c.descricao,
+            c.justificativa,
+            c.nome_projeto
+          from
+            tb_projetos c
+          left join tb_prioridades_projetos pri
+                    on
+            pri.id = c.prioridade_id
+          left join tb_classificacoes_projetos cpx
+                    on
+            cpx.id = c.complexidade_id
+          left join tb_polos pls
+                    on
+            pls.id = c.polo_id
+          left join tb_coordenadores crd
+                    on
+            crd.id_coordenador = c.coordenador_id
+          left join tb_responsaveis rsp
+                    on
+            rsp.responsavel_id = c.responsavel_id
+          group by
+            c.id,
+            c.valor_total_previsto,
+            pri.prioridade,
+            cpx.classificacao,
+            pls.polo,
+            crd.coordenador_nome,
+            rsp.nome_responsavel,
+            c.data_inicio,
+            c.data_fim,
+            c.descricao,
+            c.justificativa,
+            c.nome_projeto
+        union
+          select
+            c.id,
+            0 as vlr_planejado,
+            case
+              when sum(valor) is null 
+                      then 0
+              else sum(valor)
+            end as vlr_realizado,
+            c.valor_total_previsto,
+            pri.prioridade,
+            cpx.classificacao as complexidade,
+            pls.polo,
+            crd.coordenador_nome,
+            rsp.nome_responsavel,
+            c.data_inicio,
+            c.data_fim,
+            c.descricao,
+            c.justificativa,
+            c.nome_projeto
+          from
+            tb_centro_custo a
+          inner join tb_projetos c
+                    on
+            a.projeto_id = c.id
+          left join tb_prioridades_projetos pri
+                    on
+            pri.id = c.prioridade_id
+          left join tb_classificacoes_projetos cpx
+                    on
+            cpx.id = c.complexidade_id
+          left join tb_polos pls
+                    on
+            pls.id = c.polo_id
+          left join tb_coordenadores crd
+                    on
+            crd.id_coordenador = c.coordenador_id
+          left join tb_responsaveis rsp
+                    on
+            rsp.responsavel_id = c.responsavel_id
+          group by
+            c.id,
+            c.valor_total_previsto,
+            pri.prioridade,
+            cpx.classificacao,
+            pls.polo,
+            crd.coordenador_nome,
+            rsp.nome_responsavel,
+            c.data_inicio,
+            c.data_fim,
+            c.descricao,
+            c.justificativa,
+            c.nome_projeto
+                ) as qr
+        group by
+          qr.id,
+          qr.valor_total_previsto,
+          qr.prioridade,
+          qr.complexidade,
+          qr.polo,
+          qr.coordenador_nome,
+          qr.nome_responsavel,
+          qr.data_inicio,
+          qr.data_fim,
+          qr.descricao,
+          qr.justificativa,
+          qr.nome_projeto
+                ) as qr2
+          ) as b
+          on
+      a.id = b.id_projeto
+    where
+      a.tipo_projeto_id in (1, 2)
+      and a.dat_usu_erase is null
+    order by
+      vlr_ranking desc; 
+      `,
+    );
+
+    const prioridadeComplexidade =
+      query &&
+      query.map((element) => ({
+        prioridade: element.prioridade,
+        complexidade: element.complexidade,
+      }));
+
+    function getPrioridadeComplexidadeCounts(items: any[]) {
+      const counts = {
+        prioridade: {
+          Alto: 0,
+          Médio: 0,
+          Baixo: 0,
+        },
+        complexidade: {
+          A: 0,
+          M: 0,
+          B: 0,
+        },
+      };
+
+      for (const item of items) {
+        const { prioridade, complexidade } = item;
+        counts.prioridade[prioridade]++;
+        counts.complexidade[complexidade]++;
+      }
+
+      return counts;
+    }
+
+    return getPrioridadeComplexidadeCounts(prioridadeComplexidade);
+  }
+
   async getTotalProjetosSGrafico() {
     const retornoQuery: QueryTotalProjetosDto[] = await this.prisma
       .$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
