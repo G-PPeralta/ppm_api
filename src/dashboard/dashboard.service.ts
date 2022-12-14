@@ -57,7 +57,7 @@ export class DashboardService {
   }
 
   async getTotalProjetosGraficoMes() {
-    return await this.prisma.$queryRawUnsafe(`
+    const query: any[] = await this.prisma.$queryRawUnsafe(`
     select
     concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) as month,
     (count(status.id) filter (where status.id = 1))::int4 as nao_iniciados,
@@ -79,6 +79,29 @@ export class DashboardService {
     order by
     concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) desc
     `);
+
+    const result =
+      query &&
+      query.map((q) => ({
+        mes: q.month.substring(0, 3),
+        nao_iniciados: q.nao_iniciados,
+        holds: q.holds,
+        iniciados: q.iniciados,
+        em_analise: q.em_analise,
+        finalizados: q.finalizados,
+        cancelados: q.cancelados,
+        pre_aprovacao: q.pre_aprovacao,
+        reprogramado: q.reprogramado,
+        outros:
+          q.nao_iniciados +
+          q.em_analise +
+          q.cancelados +
+          q.reprogramado +
+          q.pre_aprovacao +
+          q.holds,
+      }));
+
+    return result;
   }
 
   async getTotalProjetosSGrafico() {
