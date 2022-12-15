@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
+import { GatesDto } from './dto/gates.dto';
 import { ProjetoDto } from './dto/projetos.dto';
 import { TotalNaoPrevistoDto } from './dto/total-nao-previsto.dto';
 import {
@@ -26,34 +27,42 @@ export class DashboardService {
   };
 
   async getGates() {
-    const retorno: any[] = await this.prisma.$queryRaw`
-    select gates.gate as name, count(projetos.gate_id)::integer as value from tb_gates gates
-    inner join tb_projetos projetos
-    on gates.id = projetos.gate_id
-    where tipo_projeto_id <> 3
-    group by gates.gate
-    union 
-    select gate as name, 0 as value from tb_gates
-    where gate not in (
-      select gates.gate from
-      tb_gates gates
-      inner join tb_projetos projetos
-      on projetos.gate_id = gates.id
-      where projetos.tipo_projeto_id <> 3
-    )
-    `;
+    // const retorno: any[] = await this.prisma.$queryRaw`
+    // select gates.gate as name, count(projetos.gate_id)::integer as value from tb_gates gates
+    // inner join tb_projetos projetos
+    // on gates.id = projetos.gate_id
+    // where tipo_projeto_id <> 3
+    // group by gates.gate
+    // union
+    // select gate as name, 0 as value from tb_gates
+    // where gate not in (
+    //   select gates.gate from
+    //   tb_gates gates
+    //   inner join tb_projetos projetos
+    //   on projetos.gate_id = gates.id
+    //   where projetos.tipo_projeto_id <> 3
+    // )
+    // `;
+    // let sum = 0;
+    // retorno.forEach((e) => {
+    //   sum += e.value;
+    // });
+    // return retorno.map((e) => {
+    //   return {
+    //     name: e.name,
+    //     value: Number((e.value > 0 ? e.value / sum : e.value) * 100),
+    //   };
+    // });
 
-    let sum = 0;
-    retorno.forEach((e) => {
-      sum += e.value;
-    });
+    const query: GatesDto[] = await this.prisma.$queryRawUnsafe(`
+    SELECT g.gate AS gate, COUNT(p.id)::numeric AS qtde,
+       COUNT(p.id) * 100.0 / (SELECT COUNT(*) FROM tb_projetos)::numeric(10, 5) AS pct
+FROM tb_gates g
+INNER JOIN tb_projetos p ON g.id = p.gate_id
+GROUP BY g.gate;
+    `);
 
-    return retorno.map((e) => {
-      return {
-        name: e.name,
-        value: Number((e.value > 0 ? e.value / sum : e.value) * 100),
-      };
-    });
+    return query;
   }
 
   async getTotalProjetosGraficoMes() {
