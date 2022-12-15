@@ -58,7 +58,7 @@ export class DashboardService {
     SELECT g.gate AS gate, COUNT(p.id)::numeric AS qtde,
        COUNT(p.id) * 100.0 / (SELECT COUNT(*) FROM tb_projetos)::numeric(10, 5) AS pct
 FROM tb_gates g
-INNER JOIN tb_projetos p ON g.id = p.gate_id
+LEFT JOIN tb_projetos p ON g.id = p.gate_id
 GROUP BY g.gate;
     `);
 
