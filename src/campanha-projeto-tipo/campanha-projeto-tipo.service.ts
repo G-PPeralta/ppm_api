@@ -38,8 +38,8 @@ export class CampanhaProjetoTipoService {
 
       atv.precedentes.forEach(async (prc) => {
         await this.prisma.$queryRawUnsafe(`
-          INSERT INTO tb_camp_projetos_atv_precedentes (id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo)
-          VALUES (${id_atividade[0].id}, ${prc.id}, ${id_projeto_tipo[0].id})
+          INSERT INTO tb_camp_projetos_atv_precedentes (id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo, id_tarefa)
+          VALUES (${id_atividade[0].id}, ${prc.id}, ${id_projeto_tipo[0].id}, ${atv.tarefa_id})
         `);
       });
     });
