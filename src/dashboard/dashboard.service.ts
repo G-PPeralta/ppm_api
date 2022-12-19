@@ -74,9 +74,9 @@ GROUP BY g.gate;
     (count(status.id) filter (where status.id = 3))::int4 as em_analise,
     (count(status.id) filter (where status.id = 4))::int4 as finalizados,
     (count(status.id) filter (where status.id = 5))::int4 as cancelados,
-    (count(status.id) filter (where status.id = 6))::int4 as reprogramado
+    (count(status.id) filter (where status.id = 6))::int4 as reprogramado,
     (count(status.id) filter (where status.id = 7))::int4 as iniciados,
-    (count(status.id) filter (where status.id = 8))::int4 as pre_aprovacao,
+    (count(status.id) filter (where status.id = 8))::int4 as pre_aprovacao
     from tb_status_projetos status
     inner join tb_projetos projetos
     on projetos.status_id = status.id
