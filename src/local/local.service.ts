@@ -11,8 +11,12 @@ export class LocalService {
   }
 
   findAll() {
-    const local = this.prisma.local.findMany();
-    if (!local) throw new Error('Falha na listagem de locais');
+    // const local = this.prisma.local.findMany();
+    // if (!local) throw new Error('Falha na listagem de locais');
+
+    const local = this.prisma.$queryRawUnsafe(`
+      select id, local from tb_locais where deletado = false order by local;
+    `);
     return local;
   }
 
