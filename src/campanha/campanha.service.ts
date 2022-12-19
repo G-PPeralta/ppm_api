@@ -176,7 +176,8 @@ export class CampanhaService {
     //     ).toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
     //    RETURNING ID
     //  `);
-
+    let tarefa_ant = 0;
+    let contador = 0;
     createCampanhaDto.atividades.forEach(async (atv) => {
       // const dat_ini_exec: any = new Date();
       // const oldDate = new Date(data);
@@ -216,102 +217,61 @@ export class CampanhaService {
       // returning ID
       // `);
 
-      const id_atv = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
-        VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
-        dat_inicio,
-      ).toISOString()}', '${new Date(
-        dat_final,
-      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
-        atv.area_id
-      }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
-        dat_inicio,
-      ).toISOString()}', '${new Date(
-        dat_final,
-      ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
-      returning ID
-      `);
+      // CRIAR NOVA PROCEDURE com os seguintes atributos
+      // id_pai
+      // id_atividade --> cadastrar a atv atual e identificar quais predecessoras estão associadas a essa atividade
+      // id_atividade_ant --> verificar a atividade anterior para pegar a data inicio e fim
+      // data inicio --> só será usado na primeira atividade
+      // qtde_dias --> para calcular a data final da atividade
+      // area id --> mero registro
+      // ind_atv_execucao --> registra a data que controla o cronograma de execução
+      //
 
-      // REGRA ADICIONADA A PEDIDO DA THAYNARA EM 13/12
-      // SEGUNDO ELA, O SISTEMA DEVE CONSIDERAR AS MESMAS DATAS DE EXECUCAO PARA CIP 11, 12, EGP 05 E 06 ...
-      // Logger.log(atv.id_origem);
-      if (
-        atv.id_origem === 'EGP05' ||
-        atv.id_origem === 'EGP06' ||
-        atv.id_origem === 'CIP11' ||
-        atv.id_origem === 'CIP12' ||
-        atv.id_origem === 'CIP10'
-      ) {
-        await this.prisma.$queryRawUnsafe(`
-          update tb_camp_atv_campanha
-          set 
-            dat_ini_plan = (select dat_ini_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_fim_plan = (select dat_ini_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_ini_real = (select dat_ini_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_fim_real = (select dat_ini_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id})
-          where
-          id = ${id_atv[0].id}
-      ;`);
+      if (contador === 0) {
+        await this.prisma.$queryRawUnsafe(
+          `call sp_in_create_campanha(${id_pai[0].id}, ${
+            atv.tarefa_id
+          }, ${tarefa_ant}, ${+dat_inicio / 1000}, ${atv.qtde_dias}, ${
+            atv.area_id
+          }, ${atv.ind_atv_execucao ? 1 : 0})`,
+        );
+        contador = contador + 1;
+      } else {
+        await this.prisma.$queryRawUnsafe(
+          `call sp_in_create_campanha(${id_pai[0].id}, ${
+            atv.tarefa_id
+          }, ${tarefa_ant}, 0, ${atv.qtde_dias}, ${atv.area_id}, ${
+            atv.ind_atv_execucao ? 1 : 0
+          })`,
+        );
       }
 
-      // E A DATA FIM DE EXECUCAO DEVE MARCAR O INICIO DE CIP12 E 13.
-      if (atv.id_origem === 'CIP13' || atv.id_origem === 'CIP14') {
-        await this.prisma.$queryRawUnsafe(`
-          update tb_camp_atv_campanha
-          set 
-            dat_ini_plan = (select dat_fim_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_fim_plan = (select dat_fim_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_ini_real = (select dat_fim_plan from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id}),
-            dat_fim_real = (select dat_fim_plan + interval '1 day' * ${atv.qtde_dias} from tb_camp_atv_campanha where ind_atv_execucao =  1 and id_pai = ${id_pai[0].id})
-          where
-          id = ${id_atv[0].id}
-        ;`);
-      }
+      Logger.log(
+        `call sp_in_create_campanha(${id_pai[0].id}, ${
+          atv.tarefa_id
+        }, ${tarefa_ant}, ${+dat_inicio / 1000}, ${atv.qtde_dias}, ${
+          atv.area_id
+        }, ${atv.ind_atv_execucao ? 1 : 0});`,
+      );
 
-      //   Logger.log(`
-      //   INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
-      //   VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
-      //     dat_inicio,
-      //   ).toISOString()}', '${new Date(
-      //     dat_inicio,
-      //   ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
-      //     atv.area_id
-      //   }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
-      //     dat_inicio,
-      //   ).toISOString()}', '${new Date(
-      //     dat_inicio,
-      //   ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
-      // returning ID
-      // `);
+      tarefa_ant = atv.tarefa_id;
 
-      atv.precedentes.forEach(async (p) => {
-        const id_prec = await this.prisma.$queryRawUnsafe(`
-          SELECT filhos.id FROM
-          tb_camp_atv_campanha filhos
-          inner join tb_camp_atv_campanha pai
-          on pai.id = (
-          select id_pai from tb_camp_atv_campanha
-          where id = ${id_atv[0].id}
-          ) and filhos.id_pai = pai.id
-          WHERE filhos.tarefa_id = ${p.id}
-        `);
-
-        const id_campanha = await this.prisma.$queryRawUnsafe(`
-          select pai.id_campanha from
-          tb_camp_atv_campanha filho
-          inner join tb_camp_atv_campanha pai
-          on pai.id = filho.id_pai
-          where
-          filho.id = ${id_atv[0].id}
-      `);
-
-        await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_atv_precedente (id_atividade, id_atv_precedente, id_campanha)
-        VALUES (${id_atv[0].id}, ${id_prec[0].id}, ${id_campanha[0].id_campanha})
-      `);
-      });
+      // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      // await sleep(1000);
+      Logger.log(
+        `call sp_in_create_atv_campanha(${id_pai[0].id}, ${
+          +new Date(createCampanhaDto.dat_ini_prev) / 1000
+        });`,
+      );
     });
 
+    await this.prisma.$queryRawUnsafe(
+      `call sp_in_create_atv_campanha(${id_pai[0].id}, ${
+        +new Date(createCampanhaDto.dat_ini_prev) / 1000
+      });`,
+    );
+
+    return createCampanhaDto;
     //   Logger.log(`
     //   call sp_recalcula_campanha_resolver_pos_interv_inclusao(${id_pai[0].id});
     // `);
