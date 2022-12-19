@@ -254,7 +254,10 @@ export class GanttService {
         else
           0
         end as ProgressPlanejado,
-      null as Predecessor,
+        (
+          select string_agg(concat(id_atv_precedente::varchar, 'FS'), ',') from tb_camp_atv_precedente
+          where id_atividade = campanha.id
+          ) as Predecessor,
       (select count(*) from tb_camp_atv_campanha where id_pai = campanha.id )::int4 as subtasks
     from tb_camp_atv_campanha campanha
     left join tb_responsaveis responsaveis
