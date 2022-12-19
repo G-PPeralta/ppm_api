@@ -15,7 +15,13 @@ export class LocalService {
     // if (!local) throw new Error('Falha na listagem de locais');
 
     const local = this.prisma.$queryRawUnsafe(`
-      select id, local from tb_locais where deletado = false order by local;
+      select a.id, concat(c.polo, ' - ', local) as local
+      from tb_locais a
+      inner join tb_polos_locais b 
+        on a.id = b.id_local
+      inner join tb_polos c 
+        on b.id_polo = c.id 
+      where a.deletado = false order by local;
     `);
     return local;
   }
