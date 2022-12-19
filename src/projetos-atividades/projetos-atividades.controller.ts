@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
+import { UpdateProfundidadeDTO } from './dto/update-profundidade.dto';
 import { ProjetosAtividadesService } from './projetos-atividades.service';
 
 @Controller('projetos-atividades')
@@ -69,5 +70,13 @@ export class ProjetosAtividadesController {
   @Get('/finddatafinalpredecessor/:id')
   async getDataFinalPredecessor(@Param('id') id: string) {
     return await this.projetosAtividadesService.findDataFinalPredecessor(+id);
+  }
+
+  @Post('/updateProfundidade')
+  async updateProfundiade(@Body() payload: UpdateProfundidadeDTO) {
+    return await this.projetosAtividadesService.updateProfundidade(
+      +payload.id_pai,
+      payload.profundidade,
+    );
   }
 }
