@@ -72,6 +72,7 @@ import { LixeiraModule } from './lixeira/lixeira.module';
 import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
 import { FeriadosModule } from './feriados/feriados.module';
 import { S3Module } from './s3/s3.module';
+import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
 
 @Module({
   imports: [
@@ -146,6 +147,7 @@ import { S3Module } from './s3/s3.module';
     AreaResponsavelModule,
     FeriadosModule,
     S3Module,
+    ProjetoCampoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
