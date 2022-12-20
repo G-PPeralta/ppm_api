@@ -135,13 +135,26 @@ export class ProjetosAtividadesService {
       )`,
     );
 
-    await this.prisma.$queryRawUnsafe(`
-      call sp_up_atualiza_datas_cip10(${payload.id_poco});
-    `);
+    Logger.log(`
+    call sp_in_create_atv_intervencao(
+      '${operacao[0].nom_operacao}',
+      ${payload.flag},
+      ${dados_sonda_projeto[0].id},
+      ${payload.id_poco},
+      ${payload.operacao_id},
+      ${+data_inicio / 1000},
+      '${payload.nom_usu_create}',
+      ${payload.metodo_elevacao_id},
+      ${duracao}
+    )`);
 
-    await this.prisma.$queryRawUnsafe(`
-      call sp_up_cascateia_cron_campanha(${payload.id_poco});
-    `);
+    // await this.prisma.$queryRawUnsafe(`
+    //   call sp_up_atualiza_datas_cip10(${payload.id_poco});
+    // `);
+
+    // await this.prisma.$queryRawUnsafe(`
+    //   call sp_up_cascateia_cron_campanha(${payload.id_poco});
+    // `);
 
     return { gravado: 1 };
   }

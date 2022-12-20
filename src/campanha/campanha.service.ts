@@ -169,6 +169,10 @@ export class CampanhaService {
       RETURNING ID
     `);
 
+    await this.prisma.$queryRawUnsafe(`
+      call sp_up_ordem_campanha(${createCampanhaDto.id_campanha});
+    `);
+
     //     Logger.log(`
     //     INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
     //     VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.id_campanha}, '${new Date(
@@ -186,7 +190,8 @@ export class CampanhaService {
       data = new Date(
         new Date(createCampanhaDto.dat_ini_prev).setHours(9, 0, 0, 0),
       );
-      data = addWorkDays(data, -qtd_dias_acum);
+      // regra desabilitada pois o sistema já faz o cálculo conforme o que vem do front, ou seja, a data de início da intervencão definida pelo ususário.
+      // data = addWorkDays(data, -qtd_dias_acum);
       dat_inicio = data;
       dat_final = new Date(new Date(dat_inicio).setHours(18, 0, 0, 0));
       // msg =
