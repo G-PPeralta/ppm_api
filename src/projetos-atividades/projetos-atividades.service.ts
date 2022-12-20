@@ -102,22 +102,37 @@ export class ProjetosAtividadesService {
     // })
     // `;
 
+    // duracao
+    // regra anterior
+
+    //   INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+    //   VALUES
+    //   (,
+    //   ,
+    //   0, , , ${
+
+    //   }, to_timestamp(), to_timestamp(${
+    //     +dat_fim_tratado / 1000
+    //   }), , now(), to_timestamp(${
+    //     +data_inicio / 1000
+    //   }), to_timestamp(${+dat_fim_tratado / 1000}), ${payload.profundidade}, ${
+
+    //   })
+    // `,
+
     await this.prisma.$queryRawUnsafe(
       `
-      INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
-      VALUES
-      ('${operacao[0].nom_operacao}',
-      ${payload.flag},
-      0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
-        payload.operacao_id
-      }, to_timestamp(${+data_inicio / 1000}), to_timestamp(${
-        +dat_fim_tratado / 1000
-      }), '${payload.nom_usu_create}', now(), to_timestamp(${
-        +data_inicio / 1000
-      }), to_timestamp(${+dat_fim_tratado / 1000}), ${payload.profundidade}, ${
-        payload.metodo_elevacao_id
-      })
-    `,
+      call sp_in_create_atv_intervencao(
+        '${operacao[0].nom_operacao}',
+        ${payload.flag},
+        ${dados_sonda_projeto[0].id},
+        ${payload.id_poco},
+        ${payload.operacao_id},
+        ${+data_inicio / 1000},
+        '${payload.nom_usu_create}',
+        ${payload.metodo_elevacao_id},
+        ${duracao}
+      )`,
     );
 
     await this.prisma.$queryRawUnsafe(`
