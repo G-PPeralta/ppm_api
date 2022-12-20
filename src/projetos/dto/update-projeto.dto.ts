@@ -23,4 +23,5 @@ export class UpdateProjetoDto {
   descricao?: string;
   justificativa?: string;
   valor_total_previsto: number;
+  campoId: number;
 }

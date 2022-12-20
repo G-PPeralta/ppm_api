@@ -382,4 +382,14 @@ where
       `  select dat_fim_plan from tb_projetos_atividade tpa where id = ${id};`,
     );
   }
+
+  async updateProfundidade(id_pai: number, profundidade: number) {
+    return await this.prisma.$queryRawUnsafe(
+      `update tb_projetos_atividade 
+      set
+          profundidade = '${profundidade}'
+      where 
+          id_pai = '${id_pai}'`,
+    );
+  }
 }

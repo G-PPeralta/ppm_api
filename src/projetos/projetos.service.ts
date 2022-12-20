@@ -447,7 +447,7 @@ export class ProjetosService {
     )}.${capexValor.substring(capexValor.length - 2)}`;
 
     return await this.prismaClient.$queryRawUnsafe(`
-      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create) VALUES ('${
+      INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create, campo_id) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
       createProjetoDto.justificativa
@@ -461,7 +461,7 @@ export class ProjetosService {
       createProjetoDto.responsavelId
     }, ${createProjetoDto.coordenadorId}, '${createProjetoDto.elementoPep}', '${
       createProjetoDto.nom_usu_create
-    }')
+    }, ${createProjetoDto.campoId}')
     `);
   }
 
@@ -784,6 +784,7 @@ export class ProjetosService {
           ? null
           : "'" + new Date(updateProjetoDto.data_fim_real).toISOString() + "'"
       },
+      campo_id = ${updateProjetoDto.campoId},
       dat_usu_update=now()
       WHERE id = ${id}
     `);
