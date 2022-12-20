@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { timeStamp } from 'console';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateTipoProjetoDto } from './dto/create-tipo-projeto.dto';
 import { UpdateTipoProjetoDto } from './dto/update-tipo-projeto.dto';
@@ -15,7 +16,10 @@ export class TipoProjetoService {
   }
 
   async findAll() {
-    return await this.prisma.tipoProjeto.findMany();
+    // return await this.prisma.tipoProjeto.findMany();
+    return await this.prisma.$queryRawUnsafe(`
+    select * from tb_tipos_projeto where deletado = false
+  `);
   }
 
   findOne(id: number) {
