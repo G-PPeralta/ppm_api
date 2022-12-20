@@ -246,23 +246,23 @@ export class CampanhaService {
         );
       }
 
-      Logger.log(
-        `call sp_in_create_campanha(${id_pai[0].id}, ${
-          atv.tarefa_id
-        }, ${tarefa_ant}, ${+dat_inicio / 1000}, ${atv.qtde_dias}, ${
-          atv.area_id
-        }, ${atv.ind_atv_execucao ? 1 : 0});`,
-      );
+      // Logger.log(
+      //   `call sp_in_create_campanha(${id_pai[0].id}, ${
+      //     atv.tarefa_id
+      //   }, ${tarefa_ant}, ${+dat_inicio / 1000}, ${atv.qtde_dias}, ${
+      //     atv.area_id
+      //   }, ${atv.ind_atv_execucao ? 1 : 0});`,
+      // );
 
       tarefa_ant = atv.tarefa_id;
 
-      // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-      // await sleep(1000);
-      Logger.log(
-        `call sp_in_create_atv_campanha(${id_pai[0].id}, ${
-          +new Date(createCampanhaDto.dat_ini_prev) / 1000
-        });`,
-      );
+      // // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      // // await sleep(1000);
+      // Logger.log(
+      //   `call sp_in_create_atv_campanha(${id_pai[0].id}, ${
+      //     +new Date(createCampanhaDto.dat_ini_prev) / 1000
+      //   });`,
+      // );
     });
 
     await this.prisma.$queryRawUnsafe(
@@ -272,13 +272,6 @@ export class CampanhaService {
     );
 
     return createCampanhaDto;
-    //   Logger.log(`
-    //   call sp_recalcula_campanha_resolver_pos_interv_inclusao(${id_pai[0].id});
-    // `);
-    //   // ESTA PROCEDURE SERVE PARA RESOLVER GAP QUE FICA ENTRE AS DATAS DO CRONOGRAMA. REMOVER ESTA PROCEDURE VAI GERAR UM GAP NAS ATIVIDADES DE POS INTERVENÇÃO, ALEM DE GERAR UM BUG NA FERRAMENTA.
-    //   await this.prisma.$queryRawUnsafe(`
-    //     call sp_recalcula_campanha_resolver_pos_interv_inclusao(${id_pai[0].id});
-    //   `);
   }
 
   async visaoPrecedentes() {

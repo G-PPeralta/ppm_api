@@ -24,7 +24,7 @@ export class ResponsavelExistsRule implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `Responsavel doesn't exist`;
+    return `Não há responsável cadastrado.`;
   }
 }
 
