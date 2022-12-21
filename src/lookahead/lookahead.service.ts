@@ -20,10 +20,24 @@ export class LookaheadService {
     `);
   }
 
+  async atividadesFilho(id: string) {
+    return await this.prisma.$queryRawUnsafe(`
+    select
+    filho.nom_atividade,
+    case when filho.dat_ini_plan is null then filho.dat_ini_real else filho.dat_ini_plan end as data_atividade
+    
+    from dev.tb_projetos_atividade pai
+    join dev.tb_projetos_atividade filho on pai.id = filho.id_pai    
+    
+    where pai.id = ${id}
+    and ((filho.dat_ini_plan is not null) or (filho.dat_ini_real is not null))
+    `);
+  }
+
   async atividadesPorProjeto(id: string) {
     if (id == '0') {
       return await this.prisma.$queryRawUnsafe(`
-      SELECT a.* from tb_projetos_atividade a  
+      SELECT distinct a.* from tb_projetos_atividade a  
       inner join tb_pocos c
         on a.nom_atividade = c.nom_poco 
     where 
