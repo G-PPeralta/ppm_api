@@ -255,15 +255,15 @@ export class GraficosService {
 
     const res2: any[] = await this.prisma.$queryRawUnsafe(query2);
 
-    const interv = res2.map((intervencao) => {
-      return {
-        id: intervencao.id,
-        status: intervencao.status,
-        color: intervencao.color,
-      };
-    });
+    // const interv = res2.map((intervencao) => {
+    //   return {
+    //     id: intervencao.id,
+    //     status: intervencao.status,
+    //     color: intervencao.color,
+    //   };
+    // });
 
-    tratar[0].intervencao.push(interv);
+    tratar[0].intervencao.push(res2);
 
     return tratar;
   }
