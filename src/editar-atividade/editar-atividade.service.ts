@@ -36,9 +36,10 @@ export class EditarAtividadeService {
         call sp_in_historico_graf(${atividade.geral.id_atividade})
         `,
       );
-    } else {
-      await this.prisma.$queryRawUnsafe(
-        `
+    }
+    // else {
+    await this.prisma.$queryRawUnsafe(
+      `
           CALL sp_up_projetos_atividade_mod_estatistico(
               ${atividade.geral.id_atividade},
               '${atividade.geral.inicio_planejado}',
@@ -49,8 +50,8 @@ export class EditarAtividadeService {
               ${atividade.geral.realEditado},
               ${flag}); 
       `,
-      );
-    }
+    );
+    // }
 
     //criação ou atualização das anotações
     await this.prisma.$queryRawUnsafe(`
