@@ -6,7 +6,7 @@ export class LookaheadService {
   constructor(private prisma: PrismaService) {}
 
   async projetosComAtividades() {
-    return await this.prisma.$queryRawUnsafe(`
+    /*return await this.prisma.$queryRawUnsafe(`
       SELECT DISTINCT
       PRJ.item,
       PRJ.id, 
@@ -17,7 +17,16 @@ export class LookaheadService {
       FROM tb_projetos PRJ
         JOIN tb_projetos_atividade PRJ_ATV ON PRJ.id = PRJ_ATV.id_projeto
       WHERE PRJ.tipo_projeto_id = 3;
-    `);
+    `);*/
+
+    return await this.prisma.$queryRawUnsafe(`select
+      pocos.id as item,
+      pocos.id as id,
+      pocos.nom_atividade as nome_projeto
+      from 
+      tb_projetos_atividade pocos
+      inner join tb_projetos projetos on projetos.id = pocos.id_projeto 	
+        WHERE projetos.tipo_projeto_id = 3  and pocos.id_pai in ( select id from  tb_projetos_atividade where id_pai  = 0  )`);
   }
 
   async atividadesFilho(id: string) {
