@@ -26,8 +26,8 @@ export class CampanhaProjetoTipoService {
       ordem += 1;
 
       const id_atividade = await this.prisma.$queryRawUnsafe(`
-        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase, ordem)
-        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id}, ${ordem})
+        INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase, ordem, ind_atv_execucao)
+        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id}, ${ordem}, ${atv.ind_atv_execucao})
         RETURNING id
       `);
 
@@ -90,7 +90,8 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
       tarefa.nom_atividade as nom_tarefa, 
       responsaveis.responsavel_id, 
       responsaveis.nome_responsavel,
-      atividades.id_fase
+      atividades.id_fase,
+      atividades.ind_atv_execucao
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
       on atividades.id_camp_projeto_tipo = projeto_tipo.id
