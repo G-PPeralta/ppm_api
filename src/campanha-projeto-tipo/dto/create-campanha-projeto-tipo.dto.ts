@@ -14,6 +14,7 @@ export class Atividades {
   qtde_dias: number;
   precedentes: Precedentes[];
   fase_id: number;
+  ind_atv_execucao: number;
 }
 
 export class Precedentes {

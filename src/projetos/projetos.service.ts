@@ -461,7 +461,7 @@ export class ProjetosService {
       createProjetoDto.responsavelId
     }, ${createProjetoDto.coordenadorId}, '${createProjetoDto.elementoPep}', '${
       createProjetoDto.nom_usu_create
-    }, ${createProjetoDto.campoId}')
+    }', '${createProjetoDto.campoId}')
     `);
   }
 
@@ -784,7 +784,7 @@ export class ProjetosService {
           ? null
           : "'" + new Date(updateProjetoDto.data_fim_real).toISOString() + "'"
       },
-      campo_id = ${updateProjetoDto.campoId},
+      campo_id = '${updateProjetoDto.campoId}',
       dat_usu_update=now()
       WHERE id = ${id}
     `);

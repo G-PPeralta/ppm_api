@@ -37,32 +37,21 @@ export class EditarAtividadeService {
         `,
       );
     }
-
-    Logger.log(`
-    CALL sp_up_projetos_atividade_mod_estatistico(
-        ${atividade.geral.id_atividade},
-        '${atividade.geral.inicio_planejado}',
-        ${atividade.geral.hrs_totais},
-        '${atividade.geral.inicio_realizado}',
-        ${atividade.geral.hrs_reais},
-        ${atividade.geral.pct_real},
-        ${atividade.geral.realEditado},
-        ${flag}); 
-`);
-    // return 1;
+    // else {
     await this.prisma.$queryRawUnsafe(
       `
-        CALL sp_up_projetos_atividade_mod_estatistico(
-            ${atividade.geral.id_atividade},
-            '${atividade.geral.inicio_planejado}',
-            ${atividade.geral.hrs_totais},
-            '${atividade.geral.inicio_realizado}',
-            ${atividade.geral.hrs_reais},
-            ${atividade.geral.pct_real},
-            ${atividade.geral.realEditado},
-            ${flag}); 
-    `,
+          CALL sp_up_projetos_atividade_mod_estatistico(
+              ${atividade.geral.id_atividade},
+              '${atividade.geral.inicio_planejado}',
+              ${atividade.geral.hrs_totais},
+              '${atividade.geral.inicio_realizado}',
+              ${atividade.geral.hrs_reais},
+              ${atividade.geral.pct_real},
+              ${atividade.geral.realEditado},
+              ${flag}); 
+      `,
     );
+    // }
 
     //criação ou atualização das anotações
     await this.prisma.$queryRawUnsafe(`

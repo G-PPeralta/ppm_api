@@ -24,5 +24,5 @@ export class CreateProjetoDto {
   coordenadorId?: number;
   elementoPep: string;
   nom_usu_create: string;
-  campoId: number;
+  campoId: string;
 }
