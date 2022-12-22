@@ -91,7 +91,7 @@ precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  
       responsaveis.responsavel_id, 
       responsaveis.nome_responsavel,
       atividades.id_fase,
-      atividades.ind_atv_execucao
+      atividades.ind_atv_execucao::bool as ind_atv_execucao
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
       on atividades.id_camp_projeto_tipo = projeto_tipo.id
