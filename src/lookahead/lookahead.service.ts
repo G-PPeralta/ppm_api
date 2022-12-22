@@ -33,13 +33,14 @@ export class LookaheadService {
     return await this.prisma.$queryRawUnsafe(`
     select
     filho.nom_atividade,
-    case when filho.dat_ini_plan is null then filho.dat_ini_real else filho.dat_ini_plan end as data_atividade
+    filho.dat_ini_real as data_atividade
     
     from dev.tb_projetos_atividade pai
     join dev.tb_projetos_atividade filho on pai.id = filho.id_pai    
     
     where pai.id = ${id}
-    and ((filho.dat_ini_plan is not null) or (filho.dat_ini_real is not null))
+    and filho.dat_ini_real is not null
+    order by filho.dat_ini_real
     `);
   }
 
