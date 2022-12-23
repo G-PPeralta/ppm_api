@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { BudgetsService } from './budgets.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
@@ -14,6 +16,7 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 import { CustoDiarioDto } from './dto/custos-diarios.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('budgets')
 export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}

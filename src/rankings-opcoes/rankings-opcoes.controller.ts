@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateRankingOpcoesDto } from './dto/create-ranking-opcoes.dto';
 import { RankingsOpcoesService } from './rankings-opcoes.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('rankings-opcoes')
 export class RankingsOpcoesController {
   constructor(private readonly rankingOpcoesService: RankingsOpcoesService) {}

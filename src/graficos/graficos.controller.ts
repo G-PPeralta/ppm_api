@@ -1,5 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { GraficosService } from './graficos.service';
+
+@UseGuards(JwtAuthGuard)
 @Controller('graficos')
 export class GraficosController {
   constructor(private readonly graficosService: GraficosService) {}

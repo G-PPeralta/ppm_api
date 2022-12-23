@@ -1,6 +1,8 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ServicosSondaPocoService } from './servicos-sonda-poco.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('servicos-sonda-poco')
 export class ServicosSondaPocoController {
   constructor(private readonly service: ServicosSondaPocoService) {}

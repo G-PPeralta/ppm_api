@@ -8,6 +8,7 @@ import {
   NotFoundException,
   InternalServerErrorException,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -16,7 +17,9 @@ import { UpdateProjetoDto } from './dto/update-projeto.dto';
 // import { prismaClient } from 'index.prisma';
 import { ResponsavelService } from '../responsavel/responsavel.service';
 import { VincularAtividade } from './dto/vincular-atividade.dto';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projetos')
 export class ProjetosController {
   constructor(

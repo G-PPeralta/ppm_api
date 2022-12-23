@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AtividadesRecursosService } from './atividades-recursos.service';
 import { CreateAtividadesRecursosDto } from './dto/create-atividades-recursos.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('atividades-recursos')
 export class AtividadesRecursosController {
   constructor(

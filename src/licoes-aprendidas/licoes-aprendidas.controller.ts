@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateLicoesAprendidasDto } from './dto/create-licoes-aprendidas.dto';
 import { LicoesAprendidasService } from './licoes-aprendidas.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('licoes-aprendidas')
 export class LicoesAprendidasController {
   constructor(

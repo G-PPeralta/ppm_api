@@ -1,7 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateProjetosAtividadeNotasDto } from './dto/create-projeto-atividade-notas.dto';
 import { ProjetosAtividadesNotasService } from './projetos-atividades-notas.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projetos-atividades-notas')
 export class ProjetosAtividadesNotasController {
   constructor(

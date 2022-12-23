@@ -13,7 +13,7 @@ import { CamposService } from './campos.service';
 import { CreateCampoDto } from './dto/create-campo.dto';
 import { UpdateCampoDto } from './dto/update-campo.dto';
 
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('campos')
 export class CamposController {
   constructor(private readonly camposService: CamposService) {}

@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { HistoricoEstatisticoDto } from './dto/historico-estatistico.dto';
 import { HistoricoEstatisticoService } from './historico-estatistico.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('historico-estatistico')
 export class HistoricoEstatisticoController {
   constructor(private readonly service: HistoricoEstatisticoService) {}

@@ -5,9 +5,12 @@ import {
   HttpCode,
   Param,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { LixeiraService } from './lixeira.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('lixeira')
 export class LixeiraController {
   constructor(private readonly service: LixeiraService) {}

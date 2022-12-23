@@ -1,6 +1,8 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { LookaheadService } from './lookahead.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('lookahead')
 export class LookaheadController {
   constructor(private readonly lookaheadService: LookaheadService) {}

@@ -1,6 +1,8 @@
-import { Controller, Param, Patch } from '@nestjs/common';
+import { Controller, Param, Patch, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { OperacaoIntervencaoService } from './operacao-intervencao.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('operacao-intervencao')
 export class OperacaoIntervencaoController {
   constructor(

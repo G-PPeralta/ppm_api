@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateProjetosRankingDto } from './dto/create-projetos-ranking.dto';
 import { ProjetosRankingService } from './projetos-ranking.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projetos-ranking')
 export class ProjetosRankingController {
   constructor(

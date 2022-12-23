@@ -6,11 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateEstatisticaDto } from './dto/create-estatistica.dto';
 import { EstatisticaDto } from './dto/update-estatistica.dto';
 import { EstatisticasService } from './estatisticas.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('estatisticas')
 export class EstatisticasController {
   constructor(private readonly estatisticasService: EstatisticasService) {}

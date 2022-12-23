@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AtividadeServicosService } from './atividade-servicos.service';
 import { CreateAtividadeServicoDto } from './dto/create-atividade-servico.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('atividade-servicos')
 export class AtividadeServicosController {
   constructor(

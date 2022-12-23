@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { S3DeletePayload } from './dto/s3delete.dto';
 import { S3UploadPayload } from './dto/s3upload.dto';
 import { S3Service } from './s3.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('s3')
 export class S3Controller {
   constructor(private readonly service: S3Service) {}

@@ -1,6 +1,8 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { ProjetosFinanceiroService } from './projetos-financeiro.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projetos-financeiro')
 export class ProjetosFinanceiroController {
   constructor(

@@ -1,18 +1,20 @@
 import {
   Controller,
   Get,
-  Logger,
   Param,
   Post,
   Res,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { createReadStream } from 'fs';
 import { diskStorage } from 'multer';
 
+@UseGuards(JwtAuthGuard)
 @Controller('pdf')
 export class PdfController {
   @Post('all')

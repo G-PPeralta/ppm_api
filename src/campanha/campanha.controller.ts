@@ -18,7 +18,7 @@ import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { TrocarPocoSondaDto } from './dto/trocar-poco-sonda.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('campanha')
 export class CampanhaController {
   constructor(private readonly campanhaService: CampanhaService) {}

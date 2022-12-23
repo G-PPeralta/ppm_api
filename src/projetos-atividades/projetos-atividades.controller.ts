@@ -6,12 +6,15 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
 import { UpdateProfundidadeDTO } from './dto/update-profundidade.dto';
 import { ProjetosAtividadesService } from './projetos-atividades.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projetos-atividades')
 export class ProjetosAtividadesController {
   constructor(

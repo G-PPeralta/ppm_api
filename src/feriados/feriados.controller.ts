@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { Feriado } from './dto/feriado.dto';
 import { FeriadosService } from './feriados.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('feriados')
 export class FeriadosController {
   constructor(private readonly service: FeriadosService) {}

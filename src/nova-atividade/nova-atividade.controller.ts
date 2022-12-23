@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateAtividade } from './dto/create-atividade.dto';
 import { CreateAtividadeOutro } from './dto/create-outros.dto';
 import { NovaAtividadeService } from './nova-atividade.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('nova-atividade')
 export class NovaAtividadeController {
   constructor(private readonly novaAtividadeService: NovaAtividadeService) {}

@@ -1,7 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CampanhaProjetoTipoService } from './campanha-projeto-tipo.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('campanha-projeto-tipo')
 export class CampanhaProjetoTipoController {
   constructor(private readonly service: CampanhaProjetoTipoService) {}

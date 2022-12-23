@@ -14,7 +14,7 @@ import { CreateGanttDto } from './dto/create-gantt.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateGanttDto } from './dto/update-gantt.dto';
 
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('gantt')
 export class GanttController {
   constructor(private readonly ganttService: GanttService) {}
