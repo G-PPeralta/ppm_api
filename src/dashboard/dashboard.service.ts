@@ -55,11 +55,37 @@ export class DashboardService {
     // });
 
     const query: GatesDto[] = await this.prisma.$queryRawUnsafe(`
-    SELECT g.gate AS gate, COUNT(p.id)::numeric AS qtde,
-       COUNT(p.id) * 100.0 / (SELECT COUNT(*) FROM tb_projetos tp where tp.tipo_projeto_id <> 3)::numeric(10, 5) AS pct
-FROM tb_gates g
-LEFT JOIN tb_projetos p ON g.id = p.gate_id
-GROUP BY g.gate;
+    SELECT
+    g.gate AS gate,
+    COUNT(p.id)::numeric AS qtde,
+    CASE
+        WHEN (
+            SELECT
+                COUNT(*)
+            FROM
+                tb_projetos tp
+            WHERE
+                tp.dat_usu_erase IS NULL AND
+                tp.tipo_projeto_id <> 3
+        ) = 0 THEN 0
+        ELSE COUNT(p.id) * 100.0 / (
+            SELECT
+                COUNT(*)
+            FROM
+                tb_projetos tp
+            WHERE
+                tp.dat_usu_erase IS NULL AND
+                tp.tipo_projeto_id <> 3
+        )
+    END AS pct
+FROM
+    tb_gates g
+LEFT JOIN tb_projetos p ON
+    g.id = p.gate_id
+WHERE
+    p.dat_usu_erase IS NULL
+GROUP BY
+    g.gate;
     `);
 
     return query;
@@ -478,16 +504,21 @@ GROUP BY g.gate;
 
   async getSolicitantes() {
     const retornoQuery: any = await this.prisma.$queryRaw(Prisma.sql`
-    SELECT 
-    b.solicitante as solicitante,
-    to_char(a.data_inicio, 'YYYY-MM') as data,
-    count(b.id) as quantia
-FROM tb_projetos a
-JOIN tb_solicitantes_projetos b ON a.solicitante_id = b.id
-WHERE a.data_inicio >
-   date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
-   and date_trunc('month', a.data_inicio) <= date_trunc('month', CURRENT_DATE)
-GROUP BY 1, 2;
+    SELECT
+    b.solicitante AS solicitante,
+    to_char(a.data_inicio, 'YYYY-MM') AS data,
+    COUNT(b.id) AS quantia
+FROM
+    tb_projetos a
+JOIN
+    tb_solicitantes_projetos b ON a.solicitante_id = b.id
+WHERE
+    a.data_inicio > date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+    AND date_trunc('month', a.data_inicio) <= date_trunc('month', CURRENT_DATE)
+    AND a.dat_usu_erase IS NULL
+    AND a.tipo_projeto_id <> 3
+GROUP BY
+    1, 2;
     `);
 
     const demandas = retornoQuery.map((deman) => ({
