@@ -130,7 +130,6 @@ GROUP BY
         outros:
           q.nao_iniciados +
           q.em_analise +
-          q.cancelados +
           q.reprogramado +
           q.pre_aprovacao +
           q.holds,
@@ -462,6 +461,7 @@ GROUP BY
   async getTotalProjetosSGrafico() {
     const retornoQuery: QueryTotalProjetosDto[] = await this.prisma
       .$queryRaw`SELECT * FROM v_dash_total_projetos_s_grafico`;
+
     const projetosPorStatus = retornoQuery.map(({ id, status, qtd }) => ({
       id,
       status,
