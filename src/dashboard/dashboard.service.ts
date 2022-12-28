@@ -572,7 +572,7 @@ GROUP BY
       .$queryRaw`select 
         coalesce(sum(valor_total_previsto), 0) as vlr_orcamento_total
       from tb_projetos tp 
-      where tipo_projeto_id in (1,2)`;
+      where tipo_projeto_id in (1,2) and  tp.dat_usu_erase IS NULL `;
 
     return retornoQuery.map((orc) => ({
       total: orc.vlr_orcamento_total.toLocaleString('pt-BR', {
@@ -586,7 +586,7 @@ GROUP BY
       .$queryRaw`     select sum(valor) as vlr_realizado from tb_centro_custo centro_custo
       inner join tb_projetos projetos
       on projetos.id = centro_custo.projeto_id
-    where projetos.tipo_projeto_id in (1, 2);`;
+    where projetos.tipo_projeto_id in (1, 2) and projetos.dat_usu_erase is null;`;
 
     return retornoQuery.map((tot) => ({
       totalRealizado: Number(tot.vlr_realizado),
