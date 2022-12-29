@@ -7,7 +7,10 @@ import { UpdateLocalDto } from './dto/update-local.dto';
 export class LocalService {
   constructor(private prisma: PrismaService) {}
   async create(createLocalDto: CreateLocalDto) {
-    await this.prisma.local.create({ data: createLocalDto });
+    // await this.prisma.local.create({ data: createLocalDto });
+    await this.prisma.$queryRawUnsafe(`
+      insert into tb_locais (local, deletado) values ('${createLocalDto.local}', ${createLocalDto.deletado});
+    `);
   }
 
   findAll() {

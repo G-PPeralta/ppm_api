@@ -7,27 +7,33 @@ export class ProjetosFinanceiroService {
 
   async findPais() {
     return this.prisma.$queryRawUnsafe(`
-    select 
-    projetos.id as idProjeto,
-    projetos.nome_projeto as nomeProjeto,
-    coalesce(projetos.elemento_pep, '') as elementoPep,
-    '' as denominacaoDeObjeto,
-    '' as textoDoPedido,
-    coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
-    coalesce(sum(centro_custo.valor), 0) as totalRealizado,
-    case
-	    when coalesce(sum(centro_custo.valor), 0) <= 0 then 0
-	    when coalesce(projetos.valor_total_previsto, 0) <= 0 then 0
-    	else    ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2) 
-    end as gap
-    from tb_projetos projetos
-    left join
+    select
+	projetos.id as idProjeto,
+	projetos.nome_projeto as nomeProjeto,
+	coalesce(projetos.elemento_pep, '') as elementoPep,
+	'' as denominacaoDeObjeto,
+	'' as textoDoPedido,
+	coalesce(projetos.valor_total_previsto, 0) as totalPrevisto,
+	coalesce(sum(centro_custo.valor), 0) as totalRealizado,
+	case
+		when coalesce(sum(centro_custo.valor), 0) <= 0 then 0
+		when coalesce(projetos.valor_total_previsto, 0) <= 0 then 0
+		else ROUND(((1 - coalesce(sum(centro_custo.valor), 0) / coalesce(projetos.valor_total_previsto, 0)) * 100), 2)
+	end as gap
+from
+	tb_projetos projetos
+left join
     tb_centro_custo centro_custo
-    on centro_custo.projeto_id = projetos.id
-    where
-    projetos.tipo_projeto_id in (1, 2)
-    group by 
-    projetos.id, projetos.nome_projeto, projetos.elemento_pep, projetos.valor_total_previsto
+    on
+	centro_custo.projeto_id = projetos.id
+where
+	projetos.tipo_projeto_id in (1, 2)
+	and projetos.dat_usu_erase is null
+group by
+	projetos.id,
+	projetos.nome_projeto,
+	projetos.elemento_pep,
+	projetos.valor_total_previsto;
     `);
   }
 
