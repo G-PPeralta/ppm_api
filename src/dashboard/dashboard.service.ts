@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import { GatesDto } from './dto/gates.dto';
-import { ProjetoDto } from './dto/projetos.dto';
+// import { ProjetoDto } from './dto/projetos.dto';
 import { TotalNaoPrevistoDto } from './dto/total-nao-previsto.dto';
 import {
   TotalOrcamentoDto,
@@ -136,6 +136,93 @@ GROUP BY
       }));
 
     return result;
+  }
+
+  async getPrevistoRealizadoBarras() {
+    await this.prisma.$queryRawUnsafe(`
+    select 
+    (
+    (
+    (
+    select sum(valor_total_previsto) from tb_projetos tp 
+    where tp.dat_usu_erase is null and tp.tipo_projeto_id <> 3 
+    )
+    /sum(capex_previsto)
+    ) * 100
+    ) tot_previsto_percent, 
+    (
+    case when sum(capex_realizado) > 0 then (sum(capex_previsto)/
+    sum(capex_realizado)) * 100 else 0 end
+    )
+    as tot_realizado_percent,
+    sum(capex_realizado) as tot_realizado,
+    (
+    select sum(valor_total_previsto) / 12 from tb_projetos tp 
+    where tp.dat_usu_erase is null and tp.tipo_projeto_id <> 3 
+    ) * count(mes) as tot_previsto_base_periodo
+    from (
+    select 
+        concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
+        pct_capex_plan as capex_previsto,
+        pct_capex_real as capex_realizado
+      from (
+          select 
+            ano,
+            mes,
+            sum(vlr_plan) as pct_capex_plan,
+            sum(vlr_real) as pct_capex_real
+          from (    
+            select 
+               extract(year from dat_ini_plan) as ano,
+               extract(month from dat_ini_plan) as mes,
+               concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+               (
+               select
+               sum(projetos.valor_total_previsto)
+               from tb_projetos projetos
+               inner join tb_projetos_atividade topo
+               on topo.id_projeto = projetos.id 
+               inner join tb_projetos_atividade atividades
+               on atividades.id_pai = topo.id
+               where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
+               and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
+               and projetos.tipo_projeto_id <> 3
+               and (topo.id_pai is null or topo.id_pai = 0)
+               ) as vlr_plan,
+               (
+               select
+               sum(centro_custo.valor_pago)
+               from tb_projetos projetos
+               inner join tb_projetos_atividade topo
+               on topo.id_projeto = projetos.id 
+               inner join tb_centro_custo centro_custo
+               on centro_custo.projeto_id = projetos.id
+               inner join tb_projetos_atividade atividades
+               on atividades.id_pai = topo.id
+               where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
+               and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
+               and projetos.tipo_projeto_id <> 3
+               and (topo.id_pai is null or topo.id_pai = 0)
+               ) as vlr_real
+            from tb_projetos_atividade tpa 
+            where dat_usu_erase is null
+            and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
+            union
+            select 
+               extract(year from dat_ini_plan) as ano,
+               extract(month from dat_ini_plan) as mes,
+                concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+               0 as vlr_plan,
+               0 as vlr_real
+            from tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
+            and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
+          ) as qr
+        group by ano, mes
+      ) as qr2
+      group by qr2.mes, ano, pct_capex_plan, pct_capex_real
+      order by qr2.mes, ano desc
+     ) base
+    `);
   }
 
   async getPrioridadeComplexidade() {

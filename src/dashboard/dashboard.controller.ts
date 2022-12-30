@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   Controller,
   Get,
-  Query,
+  // Query,
   UseGuards,
   // UseGuards,
 } from '@nestjs/common';
@@ -54,7 +54,12 @@ export class DashboardController {
   //   return this.dashboardService.getTotalOrcamentoPrevisto(numberPoloId);
   // }
 
-  @Get('orcamento-total')
+  @Get('previsto-barra')
+  async getPrevistoRealizadoBarras() {
+    return await this.dashboardService.getPrevistoRealizadoBarras();
+  }
+
+  @Get('previstoBarras')
   getTotalOrcamentoPrevisto() {
     return this.dashboardService.getTotalOrcamentoPrevisto();
   }
