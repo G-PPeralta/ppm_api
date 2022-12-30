@@ -59,6 +59,15 @@ export class ResponsavelController {
     }
   }
 
+  @Get('projetos/:tipo')
+  async findAllProjetos(@Param('tipo') tipo: string) {
+    try {
+      return this.responsavelService.findAllProjetos(tipo);
+    } catch (error: any) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.responsavelService.findOne(+id);

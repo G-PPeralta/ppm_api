@@ -20,7 +20,7 @@ export class ProjetosFinanceiroController {
   }
 
   @Delete('delete/:id')
-  apagarFinanceirosPorPai(@Param('id') id: string) {
-    return this.projetosFinanceiroService.apagarFinanceirosPorPai(+id);
+  async apagarFinanceirosPorPai(@Param('id') id: string) {
+    return await this.projetosFinanceiroService.apagarFinanceirosPorPai(+id);
   }
 }

@@ -39,7 +39,7 @@ group by
   }
 
   async apagarFinanceirosPorPai(id: number) {
-    this.prisma.$queryRawUnsafe(`
+    await this.prisma.$queryRawUnsafe(`
     update tb_centro_custo 
     set dat_usu_erase = now()
     where projeto_id = ${id}

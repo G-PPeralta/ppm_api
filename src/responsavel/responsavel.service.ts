@@ -21,6 +21,12 @@ export class ResponsavelService {
     return responsaveis;
   }
 
+  async findAllProjetos(tipo: string) {
+    return await this.prisma.$queryRawUnsafe(`
+    select nome_responsavel as nome, responsavel_id as id from tb_responsaveis where ind_sistema='${tipo}'
+   `);
+  }
+
   async findByName(nome: string) {
     // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
     // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
