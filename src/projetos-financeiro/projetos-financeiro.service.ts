@@ -29,11 +29,20 @@ left join
 where
 	projetos.tipo_projeto_id in (1, 2)
 	and projetos.dat_usu_erase is null
+  and centro_custo.dat_usu_erase is null
 group by
 	projetos.id,
 	projetos.nome_projeto,
 	projetos.elemento_pep,
 	projetos.valor_total_previsto;
+    `);
+  }
+
+  async apagarFinanceirosPorPai(id: number) {
+    this.prisma.$queryRawUnsafe(`
+    update tb_centro_custo 
+    set dat_usu_erase = now()
+    where projeto_id = ${id}
     `);
   }
 
