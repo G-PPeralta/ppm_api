@@ -54,14 +54,14 @@ export class DashboardController {
   //   return this.dashboardService.getTotalOrcamentoPrevisto(numberPoloId);
   // }
 
-  @Get('previsto-barra')
+  @Get('previsto-realizado-barras')
   async getPrevistoRealizadoBarras() {
     return await this.dashboardService.getPrevistoRealizadoBarras();
   }
 
   @Get('previstoBarras')
-  getTotalOrcamentoPrevisto() {
-    return this.dashboardService.getTotalOrcamentoPrevisto();
+  async getTotalOrcamentoPrevisto() {
+    return await this.dashboardService.getTotalOrcamentoPrevisto();
   }
 
   @Get('realizado')

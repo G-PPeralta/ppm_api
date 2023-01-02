@@ -139,7 +139,7 @@ GROUP BY
   }
 
   async getPrevistoRealizadoBarras() {
-    await this.prisma.$queryRawUnsafe(`
+    return await this.prisma.$queryRawUnsafe(`
     select 
     (
     (
