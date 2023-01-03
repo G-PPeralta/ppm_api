@@ -116,4 +116,9 @@ export class CampanhaController {
   remove(@Param('id') id: string, @Param('user') user: string) {
     return this.campanhaService.remove(+id, user);
   }
+
+  @Delete('delete/:idCamp/:idAtv')
+  removePoco(@Param('idCamp') id: string, @Param('idAtv') user: string) {
+    return this.campanhaService.removeCamp(+idCamp, +idAtv);
+  }
 }
