@@ -985,9 +985,15 @@ export class CampanhaService {
   }
 
   async removeCamp(idCamp: number, idAtv: number) {
-    return await this.prisma.$queryRawUnsafe(`
+    Logger.log(`
       call sp_de_campanha_poco(${idCamp}, ${idAtv});
     `);
+
+    await this.prisma.$queryRawUnsafe(`
+      call sp_de_campanha_poco(${idCamp}, ${idAtv});
+    `);
+
+    return 1;
   }
 
   async findAllGantt(campanhaFiltro: CampanhaFiltro) {
