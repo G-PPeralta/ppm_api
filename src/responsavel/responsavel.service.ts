@@ -17,7 +17,7 @@ export class ResponsavelService {
 
   async create(responsavel: CreateResponsavelDto) {
     return await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_responsaveis (nome_responsavel, ind_sistema) values ('${responsavel.nome}', 'p')
+      INSERT INTO tb_responsaveis (nome_responsavel, ind_sistema) values ('${responsavel.nome}', '${responsavel.ind_sistema}')
     `);
   }
 
