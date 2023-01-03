@@ -33,9 +33,9 @@ export class ResponsavelController {
     //   return await this.responsavelService.create(res);
     // });
 
-    const responsavelAlreadyExists = await this.responsavelService.findByName(
-      createResponsavelDto.nome,
-    );
+    // const responsavelAlreadyExists = await this.responsavelService.findByName(
+    //   createResponsavelDto.nome,
+    // );
 
     //if (responsavelAlreadyExists) {
     //  throw new ConflictException(

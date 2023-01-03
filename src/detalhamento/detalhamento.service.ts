@@ -40,6 +40,7 @@ export class DetalhamentoService {
 	    demanda,
       descricao,
       justificativa,
+      campo_id,
 	    tr.nome_responsavel,
 	    tc.coordenador_nome,
 	    tsp.solicitante,
