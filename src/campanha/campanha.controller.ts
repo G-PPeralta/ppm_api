@@ -18,7 +18,7 @@ import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { TrocarPocoSondaDto } from './dto/trocar-poco-sonda.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 @Controller('campanha')
 export class CampanhaController {
   constructor(private readonly campanhaService: CampanhaService) {}
@@ -117,7 +117,7 @@ export class CampanhaController {
     return this.campanhaService.remove(+id, user);
   }
 
-  @Delete('delete/:idCamp/:idAtv')
+  @Post('delete/:idCamp/:idAtv')
   removePoco(@Param('idCamp') idCamp: string, @Param('idAtv') idAtv: string) {
     return this.campanhaService.removeCamp(+idCamp, +idAtv);
   }
