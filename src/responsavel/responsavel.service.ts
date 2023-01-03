@@ -9,10 +9,16 @@ import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
 export class ResponsavelService {
   constructor(private prisma: PrismaService) {}
 
+  // async create(responsavel: CreateResponsavelDto) {
+  //   return await this.prisma.responsavel.create({
+  //     data: responsavel,
+  //   });
+  // }
+
   async create(responsavel: CreateResponsavelDto) {
-    return await this.prisma.responsavel.create({
-      data: responsavel,
-    });
+    return await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_responsaveis (nome_responsavel, ind_sistema) values ('${responsavel.nome}', '${responsavel.ind_sistema}')
+    `);
   }
 
   async findAll() {
