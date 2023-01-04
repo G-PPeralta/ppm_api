@@ -95,24 +95,67 @@ GROUP BY
     const query: any[] = await this.prisma.$queryRawUnsafe(`
     select
     concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) as month,
-    (count(status.id) filter (where status.status = '1. Não Iniciado'))::int4 as nao_iniciados,
-    (count(status.id) filter (where status.status = '5. Hold'))::int4 as holds,
-    (count(status.id) filter (where status.status = '2. Em analise'))::int4 as em_analise,
-    (count(status.id) filter (where status.status = '7. Concluído'))::int4 as finalizados,
-    (count(status.id) filter (where status.status = '8. Cancelado'))::int4 as cancelados,
-    (count(status.id) filter (where status.status = '6. Reprogramado'))::int4 as reprogramado,
-    (count(status.id) filter (where status.status = '4. Em andamento'))::int4 as iniciados,
-    (count(status.id) filter (where status.status = '3. Pré Aprovação Diretor'))::int4 as pre_aprovacao
-    from tb_status_projetos status
-    inner join tb_projetos projetos
-    on projetos.status_id = status.id
-    where
+    (
+    select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '1. Não Iniciado'
+    ) as nao_iniciados,
+    (
+    select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '5. Hold'
+    ) as holds,
+        (
+    select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '2. Em analise'
+    ) as em_analise,
+        (
+    select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '7. Concluído'
+    ) as finalizados,
+        (
+    select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '8. Cancelado'
+    ) as cancelados,
+    (select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '6. Reprogramado'
+    ) as reprogramado,
+    (select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '4. Em andamento'
+    ) as iniciados,
+    (select count(status.id)::int
+    FROM hmg.tb_projetos projs
+      inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
+      WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
+      and status.status =  '3. Pré Aprovação Diretor'
+    ) as pre_aprovacao
+from
+tb_projetos projetos
+where
     projetos.tipo_projeto_id <> 3
     and projetos.data_inicio is not null
-    group by
-    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY'))
-    order by
-    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) desc
+group by 1
+order by
+    concat(substring(namemonth(extract(month from projetos.data_inicio)::int4) from 1 for 3), '/', to_char(projetos.data_inicio, 'YY')) desc;
     `);
 
     const result =
