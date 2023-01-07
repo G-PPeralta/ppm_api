@@ -15,7 +15,12 @@ export class PriorizacoesService {
   async insertPriorizacoes(priorizacoes: PriorizacoesDto[]) {
     for (const p of priorizacoes) {
       await this.prismaClient.$queryRawUnsafe(
-        `INSERT INTO tb_priorizacao_projetos (id_projeto, prioridade) VALUES (${p.id_projeto}, ${p.prioridade})`,
+        `
+        INSERT INTO tb_priorizacao_projetos (id_projeto, prioridade) VALUES (${p.id_projeto}, ${p.prioridade})
+        ON CONFLICT (id_projeto)
+        DO UPDATE
+        SET prioridade = ${p.prioridade}
+        `,
       );
     }
   }
