@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { PriorizacoesDto } from './dto/priorizacoes.dto';
 import { PriorizacoesService } from './priorizacoes.service';
@@ -14,7 +14,7 @@ export class PriorizacoesController {
   }
 
   @Post()
-  insertPriorizacoes(priorizacoes: PriorizacoesDto[]) {
+  insertPriorizacoes(@Body() priorizacoes: PriorizacoesDto[]) {
     return this.service.insertPriorizacoes(priorizacoes);
   }
 }
