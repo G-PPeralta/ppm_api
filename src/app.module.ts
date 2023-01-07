@@ -73,6 +73,8 @@ import { AreaResponsavelModule } from './area_responsavel/area_responsavel.modul
 import { FeriadosModule } from './feriados/feriados.module';
 import { S3Module } from './s3/s3.module';
 import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
+import { PriorizacoesController } from './priorizacoes/priorizacoes.controller';
+import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
 
 @Module({
   imports: [
@@ -148,8 +150,9 @@ import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
     FeriadosModule,
     S3Module,
     ProjetoCampoModule,
+    PriorizacoesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, PriorizacoesController],
   providers: [AppService],
 })
 export class AppModule {}

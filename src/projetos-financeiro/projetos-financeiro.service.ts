@@ -22,7 +22,7 @@ export class ProjetosFinanceiroService {
 	end as gap
 from
 	tb_projetos projetos
-inner join
+left join
     tb_centro_custo centro_custo
     on
 	centro_custo.projeto_id = projetos.id
