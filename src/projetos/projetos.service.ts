@@ -397,6 +397,7 @@ export class ProjetosService {
                 ON crd.id_coordenador = c.coordenador_id
               LEFT JOIN tb_responsaveis rsp
                 ON rsp.responsavel_id = c.responsavel_id
+              WHERE a.dat_usu_erase is null
               GROUP BY
                 c.id,
                 c.valor_total_previsto,

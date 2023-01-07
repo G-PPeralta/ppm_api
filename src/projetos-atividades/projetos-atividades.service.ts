@@ -319,7 +319,7 @@ where
     pa.id,
     pa.nom_atividade,
     (
-    select sum(tcc.valor) from tb_centro_custo tcc where tcc.projeto_id = tp.id
+      select case when sum(tcc.valor) is null then 0 else sum(tcc.valor) end from tb_centro_custo tcc where tcc.projeto_id = tp.id and tcc.dat_usu_erase is null
     ) as vlr_realizado,
     tp.responsavel_id as id_responsavel,
     res.nome_responsavel,
