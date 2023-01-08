@@ -9,4 +9,5 @@ export class CreateProjetosFilhoDto {
   metodo_elevacao_id: number;
   profundidade: number;
   flag: number;
+  naoIniciarAntesDe: number;
 }

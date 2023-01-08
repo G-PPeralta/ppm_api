@@ -9,8 +9,6 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async createFilho(payload: CreateProjetosFilhoDto) {
-    Logger.log(payload.duracao);
-
     //return +payload.duracao;
     const duracao = +payload.duracao;
     /*
@@ -120,33 +118,145 @@ export class ProjetosAtividadesService {
     //   })
     // `,
 
-    await this.prisma.$queryRawUnsafe(
-      `
-      call sp_in_create_atv_intervencao(
-        '${operacao[0].nom_operacao}',
-        ${payload.flag},
-        ${dados_sonda_projeto[0].id},
-        ${payload.id_poco},
-        ${payload.operacao_id},
-        ${+data_inicio / 1000},
-        '${payload.nom_usu_create}',
-        ${payload.metodo_elevacao_id},
-        ${duracao}
-      )`,
-    );
+    if (payload.naoIniciarAntesDe) {
+      const dados: any[] = await this.prisma.$queryRawUnsafe(`
+        SELECT * FROM tb_projetos_atividade WHERE id_pai = ${payload.id_poco} AND dat_usu_erase is null ORDER BY dat_ini_plan
+      `);
 
-    Logger.log(`
-    call sp_in_create_atv_intervencao(
-      '${operacao[0].nom_operacao}',
-      ${payload.flag},
-      ${dados_sonda_projeto[0].id},
-      ${payload.id_poco},
-      ${payload.operacao_id},
-      ${+data_inicio / 1000},
-      '${payload.nom_usu_create}',
-      ${payload.metodo_elevacao_id},
-      ${duracao}
-    )`);
+      const pos = dados.findIndex((d) => {
+        return d.id === payload.naoIniciarAntesDe;
+      });
+
+      const newDados = dados.splice(pos);
+
+      if (newDados.length > 1) {
+        const inserted = await this.prisma.$queryRawUnsafe(`
+        INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
+        VALUES
+          (
+            '${operacao[0].nom_operacao}',
+            ${payload.flag},
+            0, 
+            ${dados_sonda_projeto[0].id},
+            ${payload.id_poco},
+            ${payload.operacao_id},
+            (select dat_fim_real from tb_projetos_atividade where id = ${payload.naoIniciarAntesDe}),
+            (select dat_fim_real from tb_projetos_atividade where id = ${payload.naoIniciarAntesDe}) + interval '1 hour' * ${duracao},
+            '${payload.nom_usu_create}',
+            now(),
+            (select dat_fim_real from tb_projetos_atividade where id = ${payload.naoIniciarAntesDe}),
+            (select dat_fim_real from tb_projetos_atividade where id = ${payload.naoIniciarAntesDe}) + interval '1 hour' * ${duracao},
+            0,
+            ${payload.metodo_elevacao_id}
+          )
+          RETURNING *
+        `);
+
+        for (let i = 1; i < newDados.length; i++) {
+          if (i === 1) {
+            await this.prisma.$queryRawUnsafe(`
+                UPDATE tb_projetos_atividade 
+                SET 
+                dat_ini_plan = to_timestamp(${
+                  +inserted[0].dat_fim_plan / 1000
+                }),
+                dat_ini_real = to_timestamp(${
+                  +inserted[0].dat_fim_plan / 1000
+                }),
+                dat_fim_plan = (to_timestamp(${
+                  +inserted[0].dat_fim_plan / 1000
+                }) + interval '1 hour' * ${duracao}) + interval '1 hour' * (extract(EPOCH from dat_fim_plan - dat_ini_plan)/3600),
+                dat_fim_real = (to_timestamp(${
+                  +inserted[0].dat_fim_plan / 1000
+                }) + interval '1 hour' * ${duracao}) + interval '1 hour' * (extract(EPOCH from dat_fim_real - dat_ini_real)/3600)
+                WHERE
+                id = ${newDados[i].id}
+              `);
+          } else {
+            const dadosAnteriores = await this.prisma.$queryRawUnsafe(`
+                SELECT *, (extract(EPOCH from dat_fim_plan - dat_ini_plan)/3600) as dur_plan, (extract(EPOCH from dat_fim_real - dat_ini_real)/3600) as dur_real FROM tb_projetos_atividade WHERE id = ${
+                  newDados[i - 1].id
+                } AND dat_usu_erase is null
+              `);
+
+            await this.prisma.$queryRawUnsafe(`
+                UPDATE tb_projetos_atividade 
+                SET 
+                dat_ini_plan = to_timestamp(${
+                  +dadosAnteriores[0].dat_fim_plan / 1000
+                }),
+                dat_ini_real = to_timestamp(${
+                  +dadosAnteriores[0].dat_fim_real / 1000
+                }),
+                dat_fim_plan = (to_timestamp(${
+                  +dadosAnteriores[0].dat_fim_plan / 1000
+                }) + interval '1 hour' * ${
+              dadosAnteriores[0].dur_plan
+            }) + interval '1 hour' * (extract(EPOCH from dat_fim_plan - dat_ini_plan)/3600),
+                dat_fim_real = (to_timestamp(${
+                  +dadosAnteriores[0].dat_fim_real / 1000
+                }) + interval '1 hour' * ${
+              dadosAnteriores[0].dur_real
+            }) + interval '1 hour' * (extract(EPOCH from dat_fim_real - dat_ini_real)/3600)
+                WHERE
+                id = ${newDados[i].id}
+              `);
+          }
+
+          await this.prisma.$queryRawUnsafe(`
+              call sp_up_atualiza_datas_cip10(${payload.id_poco})
+            `);
+
+          await this.prisma.$queryRawUnsafe(`
+              call sp_up_cascateia_cron_campanha(${payload.id_poco})
+            `);
+        }
+      } else {
+        Logger.log('chama a procedure');
+        await this.prisma.$queryRawUnsafe(
+          `
+              call sp_in_create_atv_intervencao(
+                '${operacao[0].nom_operacao}',
+                ${payload.flag},
+                ${dados_sonda_projeto[0].id},
+                ${payload.id_poco},
+                ${payload.operacao_id},
+                ${+data_inicio / 1000},
+                '${payload.nom_usu_create}',
+                ${payload.metodo_elevacao_id},
+                ${duracao}
+              )`,
+        );
+      }
+    } else {
+      await this.prisma.$queryRawUnsafe(
+        `
+        call sp_in_create_atv_intervencao(
+          '${operacao[0].nom_operacao}',
+          ${payload.flag},
+          ${dados_sonda_projeto[0].id},
+          ${payload.id_poco},
+          ${payload.operacao_id},
+          ${+data_inicio / 1000},
+          '${payload.nom_usu_create}',
+          ${payload.metodo_elevacao_id},
+          ${duracao}
+        )`,
+      );
+    }
+
+    // Logger.log(`
+    // call sp_in_create_atv_intervencao(
+    //   '${operacao[0].nom_operacao}',
+    //   ${payload.flag},
+    //   ${dados_sonda_projeto[0].id},
+    //   ${payload.id_poco},
+    //   ${payload.operacao_id},
+    //   ${+data_inicio / 1000},
+    //   '${payload.nom_usu_create}',
+    //   ${payload.metodo_elevacao_id},
+    //   ${duracao}
+    // )`);
 
     // await this.prisma.$queryRawUnsafe(`
     //   call sp_up_atualiza_datas_cip10(${payload.id_poco});

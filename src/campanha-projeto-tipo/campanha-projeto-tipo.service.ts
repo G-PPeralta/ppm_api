@@ -38,8 +38,8 @@ export class CampanhaProjetoTipoService {
 
       atv.precedentes.forEach(async (prc) => {
         await this.prisma.$queryRawUnsafe(`
-          INSERT INTO tb_camp_projetos_atv_precedentes (id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo, id_tarefa)
-          VALUES (${id_atividade[0].id}, ${prc.id}, ${id_projeto_tipo[0].id}, ${atv.tarefa_id})
+          INSERT INTO tb_camp_projetos_atv_precedentes (id_camp_projetos_atv, id_precedente, id_camp_projeto_tipo, id_tarefa, tipo)
+          VALUES (${id_atividade[0].id}, ${prc.id}, ${id_projeto_tipo[0].id}, ${atv.tarefa_id}, '${prc.tipo}')
         `);
       });
     });
@@ -54,7 +54,7 @@ export class CampanhaProjetoTipoService {
   async findPrecedentes(id: number, id_atividade: number) {
     return await this.prisma.$queryRawUnsafe(`
     select
-precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  as nome
+precedentes.id_precedente as id, true as checked, atv_precedente.nom_atividade  as nome, precedentes.tipo as tipo
     from tb_camp_projeto_tipo projeto_tipo
     inner join tb_camp_projetos_atv atividades
     on atividades.id_camp_projeto_tipo = projeto_tipo.id
