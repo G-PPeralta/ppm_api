@@ -21,4 +21,5 @@ export class Precedentes {
   id: number;
   nome: string;
   checked: boolean;
+  tipo: string;
 }
