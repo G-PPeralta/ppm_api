@@ -927,14 +927,14 @@ export class ProjetosService {
       `);
 
       const id_atv = await this.prismaClient.$queryRawUnsafe(`
-        INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL)
+        INSERT INTO tb_projetos_atividade (ID_PAI, NOM_ATIVIDADE, PCT_REAL, DAT_INI_PLAN, DAT_INI_REAL, DAT_FIM_PLAN, DAT_FIM_REAL, NOM_USU_CREATE, DAT_USU_CREATE, ID_PROJETO, ID_RESPONSAVEL, macro_id)
         VALUES (${id_ret[0].id}, '${
         vincularAtividade.nom_atividade
       }', 0, '${dat_ini}', '${dat_ini}', '${dat_fim.toISOString()}', '${dat_fim.toISOString()}', '${
         vincularAtividade.nom_usu_create
       }', NOW(), ${vincularAtividade.id_projeto}, ${
         vincularAtividade.responsavel_id
-      })
+      }, ${vincularAtividade.macro_id})
         RETURNING ID
       `);
 
