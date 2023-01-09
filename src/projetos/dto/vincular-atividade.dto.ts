@@ -23,4 +23,5 @@ export class VincularAtividade {
       dias: number;
     },
   ];
+  macro_id: number;
 }
