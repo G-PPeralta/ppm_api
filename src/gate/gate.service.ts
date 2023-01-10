@@ -7,7 +7,15 @@ import { UpdateGateDto } from './dto/update-gate.dto';
 export class GateService {
   constructor(private prisma: PrismaService) {}
   async create(createGateDto: CreateGateDto) {
-    await this.prisma.gate.create({ data: createGateDto });
+    await this.prisma.$queryRawUnsafe(`
+
+        INSERT INTO tb_gates(gate, deletado)
+        VALUES
+        ('${createGateDto.gate}', false)
+        ON CONFLICT (gate)
+        DO update SET gate = '${createGateDto.gate}', deletado = false
+
+      `);
   }
 
   findAll() {

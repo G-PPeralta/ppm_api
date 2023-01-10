@@ -8,9 +8,15 @@ export class SolicitanteService {
   constructor(private prisma: PrismaService) {}
 
   async create(createSolicitanteDto: CreateSolicitanteDto) {
-    await this.prisma.solicitanteProjeto.create({
-      data: createSolicitanteDto,
-    });
+    await this.prisma.$queryRawUnsafe(`
+
+      INSERT INTO tb_solicitantes_projetos (solicitante, deletado)
+      VALUES
+      ('${createSolicitanteDto.solicitante}', false)
+      ON CONFLICT (solicitante)
+      DO update SET solicitante = '${createSolicitanteDto.solicitante}', deletado=false
+
+`);
   }
 
   async findAll() {

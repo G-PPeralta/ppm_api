@@ -7,7 +7,16 @@ import { UpdatePoloDto } from './dto/update-polo.dto';
 export class PoloService {
   constructor(private prisma: PrismaService) {}
   async create(createPoloDto: CreatePoloDto) {
-    await this.prisma.polo.create({ data: createPoloDto });
+    await this.prisma.$queryRawUnsafe(`
+     
+      INSERT INTO tb_polos (polo, deletado)
+      values
+            ('${createPoloDto.polo}', false)
+            on conflict (polo)
+            do update set polo = '${createPoloDto.polo}', deletado=false
+            
+            
+      `);
   }
 
   findAll() {
