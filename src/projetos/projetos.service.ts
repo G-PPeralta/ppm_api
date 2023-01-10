@@ -221,7 +221,7 @@ export class ProjetosService {
     where ranking.id = 4
     and projeto_ranking.id_projeto = a.id
     ) as prioridade,
-    0 as percent, --case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
+    case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
     case when vlr_orcado <= 300000 then
 		'B'
    	else 
