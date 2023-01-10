@@ -80,7 +80,7 @@ export class DashboardService {
     END AS pct
 FROM
     tb_gates g
-LEFT JOIN tb_projetos p ON
+INNER JOIN tb_projetos p ON
     g.id = p.gate_id
 WHERE
     p.dat_usu_erase IS NULL
