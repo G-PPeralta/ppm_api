@@ -221,7 +221,7 @@ export class ProjetosService {
     where ranking.id = 4
     and projeto_ranking.id_projeto = a.id
     ) as prioridade,
-    case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
+    0 as percent, --case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
     case when vlr_orcado <= 300000 then
 		'B'
    	else 
@@ -447,7 +447,7 @@ export class ProjetosService {
       capexValor.length - 2,
     )}.${capexValor.substring(capexValor.length - 2)}`;
 
-    return await this.prismaClient.$queryRawUnsafe(`
+    const retorno = await this.prismaClient.$queryRawUnsafe(`
       INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create, campo_id) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
@@ -463,7 +463,15 @@ export class ProjetosService {
     }, ${createProjetoDto.coordenadorId}, '${createProjetoDto.elementoPep}', '${
       createProjetoDto.nom_usu_create
     }', '${createProjetoDto.campoId}')
+      RETURNING id
     `);
+
+    await this.prismaClient.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_ranking (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
+      VALUES (${retorno[0].id}, 4, 12, '', '${createProjetoDto.nom_usu_create}', now())
+    `);
+
+    return retorno;
   }
 
   async findAllProjetosPrazos() {
