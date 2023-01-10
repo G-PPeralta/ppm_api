@@ -11,7 +11,9 @@ export class DivisaoService {
   }
 
   findAll() {
-    const divisoes = this.prisma.divisaoProjeto.findMany();
+    const divisoes = this.prisma.divisaoProjeto.findMany({
+      where: { deletado: false },
+    });
     if (!divisoes) throw new Error('Falha na listagem de divisões');
     return divisoes;
   }

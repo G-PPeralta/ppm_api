@@ -7,7 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  Headers,
+  Logger,
 } from '@nestjs/common';
+// import { createClient } from 'redis';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CampanhaService } from './campanha.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -18,7 +22,7 @@ import { ReplanejarCampanhaDto } from './dto/replanejar-campanha.dto';
 import { TrocarPocoSondaDto } from './dto/trocar-poco-sonda.dto';
 import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('campanha')
 export class CampanhaController {
   constructor(private readonly campanhaService: CampanhaService) {}
@@ -76,8 +80,21 @@ export class CampanhaController {
   }
 
   @Get('find/:id')
-  findOne(@Param('id') id: string) {
-    return this.campanhaService.findOne(+id);
+  async findOne(@Param('id') id: string, @Headers() headers) {
+    // const redis = createClient();
+    // await redis.connect();
+
+    // const cache = await redis.get(`campanhaControllerFind${id}`)
+
+    // if(cache){
+    //   return JSON.parse(cache);
+    // } else {
+    const retorno = this.campanhaService.findOne(+id);
+
+    //   redis.set(`campanhaControllerFind${id}`, JSON.stringify(retorno));
+
+    return retorno;
+    // }
   }
 
   @Patch()

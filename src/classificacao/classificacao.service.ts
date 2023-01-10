@@ -14,7 +14,9 @@ export class ClassificacaoService {
   }
 
   async findAll() {
-    const classificacao = await this.prisma.classificacaoProjeto.findMany();
+    const classificacao = await this.prisma.classificacaoProjeto.findMany({
+      where: { deletado: false },
+    });
     if (!classificacao) throw new Error('Falha na listagem de classificações');
     return classificacao;
   }
