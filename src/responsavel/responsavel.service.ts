@@ -29,7 +29,7 @@ export class ResponsavelService {
 
   async findAllProjetos(tipo: string) {
     return await this.prisma.$queryRawUnsafe(`
-    select nome_responsavel as nome, responsavel_id as id from tb_responsaveis where ind_sistema='${tipo}'
+    select nome_responsavel as nome, responsavel_id as id from tb_responsaveis where ind_sistema='${tipo}' and dat_usu_erase is null
    `);
   }
 
