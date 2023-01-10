@@ -477,7 +477,8 @@ export class GanttService {
           updateGannt.nome_atividade === null
             ? null
             : "'" + updateGannt.nome_atividade + "'"
-        }
+        },
+        ${updateGannt.macro_id}
     );
   `;
 
