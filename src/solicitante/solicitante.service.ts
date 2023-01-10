@@ -14,7 +14,11 @@ export class SolicitanteService {
   }
 
   async findAll() {
-    const solicitante = await this.prisma.solicitanteProjeto.findMany();
+    const solicitante = await this.prisma.solicitanteProjeto.findMany({
+      where: {
+        deletado: false,
+      },
+    });
     if (!solicitante) throw new Error('Falha na listagem de solicitantes');
     return solicitante;
   }

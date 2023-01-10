@@ -81,10 +81,10 @@ export class EstatisticasService {
               )* 100, 1) as pct_plan,
     coalesce(atividades.pct_real, 0) as pct_real,
     responsaveis.nome_responsavel as nome_responsavel,
-    round(calc.vlr_min) as vlr_min,
-    round(calc.vlr_max) as vlr_max,
-    round(calc.vlr_med) as vlr_media,
-    round(calc.vlr_dp) as vlr_dp,
+    case when calc.vlr_min is null then 0 else round(calc.vlr_min) end as vlr_min,
+    case when calc.vlr_max is null then 0 else round(calc.vlr_max) end as vlr_max,
+    case when calc.vlr_med is null then 0 else round(calc.vlr_med) end as vlr_media,
+    case when calc.vlr_dp is null then 0 else round(calc.vlr_dp) end as vlr_dp,
     (
     select
       min(dat_ini_real)
@@ -118,20 +118,20 @@ export class EstatisticasService {
     responsaveis.responsavel_id = atividades.id_responsavel
     left join (
       select 	
-          b.id,
-            b.nom_atividade,
-            min(hrs_totais) as vlr_min,
-            round(avg(hrs_totais), 0) as vlr_med,
-            max(hrs_totais) as vlr_max,
-            case
-              when round(stddev(hrs_totais)) is null then 0
-              else round(stddev(hrs_totais))
-          end as vlr_dp
-          from tb_hist_estatistica a
-          inner join tb_projetos_atividade b
-            on a.id_operacao = b.id_operacao
-          where ind_calcular = 1
-          group by b.id
+        b.id,
+          b.nom_atividade,
+          min(hrs_totais) as vlr_min,
+          round(sum(log(hrs_totais)), 0) as vlr_med,
+          max(hrs_totais) as vlr_max,
+          case
+            when round(stddev(hrs_totais)) is null then 0
+            else round(stddev(hrs_totais))
+        end as vlr_dp
+        from tb_hist_estatistica a
+        inner join tb_projetos_atividade b
+          on a.id_operacao = b.id_operacao
+        where ind_calcular = 1 and not a.hrs_totais = 0
+        group by b.id
     ) as calc  
       on calc.id = atividades.id
   where

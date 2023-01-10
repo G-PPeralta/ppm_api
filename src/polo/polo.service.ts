@@ -11,7 +11,11 @@ export class PoloService {
   }
 
   findAll() {
-    const polos = this.prisma.polo.findMany();
+    const polos = this.prisma.polo.findMany({
+      where: {
+        deletado: false,
+      },
+    });
     if (!polos) throw new Error('Falha na listagem de polos');
     return polos;
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { FiltroDto } from './dto/filtros.dto';
 
@@ -84,7 +84,7 @@ export class FiltrosService {
   async getMediaDuracao(filtro: FiltroDto) {
     const query = `
     select 
-      round(avg(hrs_totais),0) as hrs_media
+      round(sum(log(hrs_totais)),0) as hrs_media
       from tb_hist_estatistica hist
       inner join tb_pocos tp on hist.id_poco = tp.id
       where 1=1
@@ -102,6 +102,8 @@ export class FiltrosService {
       ${filtro.sondaId > 0 ? ` AND id_sonda = ${filtro.sondaId} ` : ``}
       ${filtro.dataDe ? ` AND dat_conclusao >= '${filtro.dataDe}' ` : ``}
       ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
+      ${filtro.idOperacao ? ` AND id_operacao = ${filtro.idOperacao}` : ``}
+      and hist.ind_calcular = 1 and hist.hrs_totais > 0   
       and substring(trim(nom_poco), 1, 3) in (
         select campo from (
         select substring(trim(nom_poco), 1, 3) as campo 
@@ -110,6 +112,7 @@ export class FiltrosService {
         order by campo asc
         )
     `;
+    Logger.log(query);
     const retorno = await this.prisma.$queryRawUnsafe(query);
     return retorno[0].hrs_media;
   }
@@ -117,9 +120,9 @@ export class FiltrosService {
   async MediaHoraById(id: string) {
     const query = `
     select 
-    coalesce(round(avg(hrs_totais),0), 0) as hrs_media
+    coalesce(round(sum(log(hrs_totais)),0), 0) as hrs_media
     from tb_hist_estatistica
-    where id_operacao = ${id}
+    where id_operacao = ${id} and ind_calcular = 1 and hrs_totais > 0   
     `;
     const resp = await this.prisma.$queryRawUnsafe(query);
     return resp[0];
