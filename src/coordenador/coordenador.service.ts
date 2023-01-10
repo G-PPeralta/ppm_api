@@ -14,7 +14,7 @@ export class CoordenadorService {
 
   async findAll() {
     const retorno: any[] = await this.prisma.$queryRawUnsafe(`
-      select id_coordenador, coordenador_nome from tb_coordenadores
+      select id_coordenador, coordenador_nome from tb_coordenadores where dat_usu_erase is null
     `);
 
     return retorno.map((el) => {

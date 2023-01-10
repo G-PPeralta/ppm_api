@@ -11,7 +11,7 @@ export class GateService {
   }
 
   findAll() {
-    const gates = this.prisma.gate.findMany();
+    const gates = this.prisma.gate.findMany({ where: { deletado: false } });
     if (!gates) throw new Error('Falha na listagem de gates');
     return gates;
   }
