@@ -54,8 +54,8 @@ export class NovaOperacaoService {
 
   async createSonda(createSonda: CreateSonda) {
     await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_projetos (nome_projeto, polo_id, local_id, tipo_projeto_id, status_id)
-      VALUES ('${createSonda.nome}', 1, 4, 3, 1)
+      INSERT INTO tb_sondas (id, nom_sonda, nom_usu_create, dat_usu_create)
+      VALUES ((select max(id) + 1 from tb_sondas) ,'${createSonda.nome}', '${createSonda.nom_usu_create}', now())
     `);
   }
 

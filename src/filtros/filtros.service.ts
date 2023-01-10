@@ -102,6 +102,7 @@ export class FiltrosService {
       ${filtro.sondaId > 0 ? ` AND id_sonda = ${filtro.sondaId} ` : ``}
       ${filtro.dataDe ? ` AND dat_conclusao >= '${filtro.dataDe}' ` : ``}
       ${filtro.dataAte ? ` AND dat_conclusao <= '${filtro.dataAte}' ` : ``}
+      ${filtro.idOperacao ? ` AND id_operacao = ${filtro.idOperacao}` : ``}
       and hist.ind_calcular = 1 and hist.hrs_totais > 0   
       and substring(trim(nom_poco), 1, 3) in (
         select campo from (

@@ -7,4 +7,5 @@ export class FiltroDto {
   metodoElevacaoId: number;
   dataDe: string;
   dataAte: string;
+  idOperacao: number;
 }
