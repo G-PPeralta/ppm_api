@@ -14,7 +14,9 @@ export class StatusProjetoService {
   }
 
   async findAll() {
-    return await this.prisma.statusProjeto.findMany();
+    return await this.prisma.statusProjeto.findMany({
+      where: { deletado: false },
+    });
   }
 
   findOne(id: number) {
