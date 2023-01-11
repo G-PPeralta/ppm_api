@@ -14,7 +14,7 @@ import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
 import { UpdateProfundidadeDTO } from './dto/update-profundidade.dto';
 import { ProjetosAtividadesService } from './projetos-atividades.service';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('projetos-atividades')
 export class ProjetosAtividadesController {
   constructor(
@@ -85,6 +85,6 @@ export class ProjetosAtividadesController {
 
   @Get('/getProfundidade/:id')
   async getProfundidade(@Param('id') id: string) {
-    return this.projetosAtividadesService.getProfundidadeById(+id);
+    return await this.projetosAtividadesService.getProfundidadeById(+id);
   }
 }

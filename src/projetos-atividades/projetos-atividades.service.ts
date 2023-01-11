@@ -507,5 +507,6 @@ where
     const retorno = await this.prisma.$queryRawUnsafe(`
       SELECT profundidade FROM tb_projetos_atividade WHERE id_pai = ${id} GROUP BY profundidade
     `);
+    return retorno;
   }
 }
