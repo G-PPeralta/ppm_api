@@ -636,49 +636,62 @@ order by
     const retornoQuery: any = await this.prisma.$queryRaw(Prisma.sql`
     SELECT
     b.solicitante AS solicitante,
-    to_char(a.data_inicio, 'YYYY-MM') AS data,
+    to_char(qr.data_inicio, 'YYYY-MM') AS data,
     COUNT(b.id) AS quantia
 FROM
     tb_projetos a
-JOIN
+inner join
     tb_solicitantes_projetos b ON a.solicitante_id = b.id
+inner join
+(
+select pai.id_projeto, min(filho.dat_ini_real) as data_inicio
+from
+	tb_projetos_atividade pai
+inner join
+	tb_projetos_atividade filho on filho.id_pai = pai.id
+where 
+    (pai.id_pai = 0 or pai.id_pai is null)
+    and pai.dat_usu_erase is null
+    and filho.dat_usu_erase is null
+group by 1
+) qr on qr.id_projeto = a.id
 WHERE
-    a.data_inicio > date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
-    AND date_trunc('month', a.data_inicio) <= date_trunc('month', CURRENT_DATE)
+    qr.data_inicio > date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+    AND date_trunc('month', qr.data_inicio) <= date_trunc('month', CURRENT_DATE)
     AND a.dat_usu_erase IS NULL
     AND a.tipo_projeto_id <> 3
 GROUP BY
     1, 2;
     `);
 
-    const demandas = retornoQuery.map((deman) => ({
-      month: Number(deman.data.split('-')[1]),
-      sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
-      regulatorio:
-        deman.solicitante == 'Regulatório' ? Number(deman.quantia) : 0,
-      operacao: deman.solicitante == 'Operação' ? Number(deman.quantia) : 0,
-      outros:
-        deman.solicitante !== 'Operação' &&
-        deman.solicitante !== 'SMS' &&
-        deman.solicitante !== 'Regulatório'
-          ? Number(deman.quantia)
-          : 0,
-    }));
+    // const demandas = retornoQuery.map((deman) => ({
+    //   month: Number(deman.data.split('-')[1]),
+    //   sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
+    //   regulatorio:
+    //     deman.solicitante == 'Regulatório' ? Number(deman.quantia) : 0,
+    //   operacao: deman.solicitante == 'Operação' ? Number(deman.quantia) : 0,
+    //   outros:
+    //     deman.solicitante !== 'Operação' &&
+    //     deman.solicitante !== 'SMS' &&
+    //     deman.solicitante !== 'Regulatório'
+    //       ? Number(deman.quantia)
+    //       : 0,
+    // }));
 
-    const demandasCompletas = demandas.reduce((acc, curr) => {
-      const index = acc.findIndex((item) => item.month === curr.month);
-      if (index === -1) {
-        acc.push(curr);
-      } else {
-        acc[index].sms += curr.sms;
-        acc[index].regulatorio += curr.regulatorio;
-        acc[index].operacao += curr.operacao;
-        acc[index].outros += curr.outros;
-      }
-      return acc;
-    }, []);
+    // const demandasCompletas = demandas.reduce((acc, curr) => {
+    //   const index = acc.findIndex((item) => item.month === curr.month);
+    //   if (index === -1) {
+    //     acc.push(curr);
+    //   } else {
+    //     acc[index].sms += curr.sms;
+    //     acc[index].regulatorio += curr.regulatorio;
+    //     acc[index].operacao += curr.operacao;
+    //     acc[index].outros += curr.outros;
+    //   }
+    //   return acc;
+    // }, []);
 
-    return demandasCompletas;
+    return retornoQuery;
   }
 
   // async getTotalOrcamentoPrevisto(poloId?: number) {
