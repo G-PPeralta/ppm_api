@@ -636,7 +636,7 @@ order by
     const retornoQuery: any = await this.prisma.$queryRaw(Prisma.sql`
     SELECT
     b.solicitante AS solicitante,
-    to_char(qr.data_inicio, 'YYYY-MM') AS data,
+    concat(substring(namemonth(extract(month from qr.data_inicio)::int4) from 1 for 3), '/', to_char(qr.data_inicio, 'YY')) as data,
     COUNT(b.id)::integer AS quantia
 FROM
     tb_projetos a
