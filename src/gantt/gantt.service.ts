@@ -314,6 +314,7 @@ export class GanttService {
     dat_ini_real as StartDate,
     dat_fim_real as EndDate,
     nom_responsavel as Responsavel,
+    macro_id as macro,
     fn_hrs_totais_cronograma_atvv(dat_ini_plan::date, dat_fim_plan::date)/24 as BaselineDuration,
     --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
     case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -353,6 +354,7 @@ export class GanttService {
         Predecessor: el.predecessor,
         SubtaskAmount: el.subtasks,
         Responsavel: el.responsavel,
+        macro_id: el.macro,
         subtasks: [],
       };
     });
@@ -380,6 +382,7 @@ export class GanttService {
         dat_ini_real as StartDate,
         dat_fim_real as EndDate,
         nom_responsavel as Responsavel,
+        macro_id as macro,
         fn_hrs_totais_cronograma_atvv(dat_ini_plan::date, dat_fim_plan::date)/24 as BaselineDuration,
         --case when weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int <= 0 then 0 else weekdays_sql(dat_ini_plan::date, dat_fim_plan::date)::int end as BaselineDuration,
         case when weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int <= 0 then 0 else weekdays_sql(dat_ini_real::date, dat_fim_real::date)::int end as Duration,
@@ -418,6 +421,7 @@ export class GanttService {
           Predecessor: el.predecessor,
           SubtaskAmount: el.subtasks,
           Responsavel: el.responsavel,
+          macro_id: el.macro,
           subtasks: [],
         };
       });
@@ -473,7 +477,8 @@ export class GanttService {
           updateGannt.nome_atividade === null
             ? null
             : "'" + updateGannt.nome_atividade + "'"
-        }
+        },
+        ${updateGannt.macro_id}
     );
   `;
 
@@ -485,6 +490,8 @@ export class GanttService {
     await this.prisma.$queryRawUnsafe(`
       update tb_projetos set dat_usu_update = now() where id = (${id_projeto});
     `);
+
+    Logger.log(sqlQuery);
     return await this.prisma.$queryRawUnsafe(sqlQuery);
   }
 

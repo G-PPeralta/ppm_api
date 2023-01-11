@@ -209,6 +209,7 @@ export class ProjetosService {
     a.id,
     a.nome_projeto,
     responsavel,
+    campo_id,
     vlr_cr,
     vlr_orcado,
     case when vlr_orcado = 0 then 0 else case when vlr_cr / vlr_orcado > 1 then 1 else vlr_cr / vlr_orcado end end as vlr_tpci, 
@@ -221,7 +222,7 @@ export class ProjetosService {
     where ranking.id = 4
     and projeto_ranking.id_projeto = a.id
     ) as prioridade,
-    case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
+    0 as percent, --case when round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) > 100 then 100 else round(fn_cron_calc_pct_real_regra_aprovada(a.id), 0) end as percent,
     case when vlr_orcado <= 300000 then
 		'B'
    	else 
@@ -447,7 +448,7 @@ export class ProjetosService {
       capexValor.length - 2,
     )}.${capexValor.substring(capexValor.length - 2)}`;
 
-    return await this.prismaClient.$queryRawUnsafe(`
+    const retorno = await this.prismaClient.$queryRawUnsafe(`
       INSERT INTO tb_projetos(nome_projeto, descricao, justificativa, valor_total_previsto, polo_id, local_id, solicitante_id, classificacao_id, divisao_id, gate_id, tipo_projeto_id, status_id, prioridade_id, comentarios, responsavel_id, coordenador_id, elemento_pep, nom_usu_create, campo_id) VALUES ('${
         createProjetoDto.nomeProjeto
       }', '${createProjetoDto.descricao}',  '${
@@ -463,7 +464,15 @@ export class ProjetosService {
     }, ${createProjetoDto.coordenadorId}, '${createProjetoDto.elementoPep}', '${
       createProjetoDto.nom_usu_create
     }', '${createProjetoDto.campoId}')
+      RETURNING id
     `);
+
+    await this.prismaClient.$queryRawUnsafe(`
+      INSERT INTO tb_projetos_ranking (id_projeto, id_ranking, id_opcao, dsc_comentario, nom_usu_create, dat_usu_create)
+      VALUES (${retorno[0].id}, 4, 12, '', '${createProjetoDto.nom_usu_create}', now())
+    `);
+
+    return retorno;
   }
 
   async findAllProjetosPrazos() {
@@ -799,7 +808,8 @@ export class ProjetosService {
     UPDATE tb_projetos
     SET
     descricao='${updateProjetoDto.descricao}',
-    justificativa='${updateProjetoDto.justificativa}'
+    justificativa='${updateProjetoDto.justificativa}',
+    dat_usu_update=now()
     where id=${id}
     `);
   }
@@ -995,5 +1005,14 @@ export class ProjetosService {
         update tb_projetos set dat_usu_update = now() where id = (${vincularAtividade.id_projeto});
       `);
     }
+  }
+
+  async gerarIds() {
+    return await this.prismaClient.$queryRawUnsafe(`
+    select 
+    concat('P', right(concat('0000', ((count(campo_id) filter (where left(campo_id, 1) = 'P' )) + 1)::integer ), 5)) as id_projeto,
+    concat('E', right(concat('0000', ((count(campo_id) filter (where left(campo_id, 1) = 'E' )) + 1)::integer ), 5)) as id_estudo
+    from tb_projetos
+    `);
   }
 }

@@ -35,8 +35,8 @@ export class LookaheadService {
     filho.nom_atividade,
     filho.dat_ini_real as data_atividade
     
-    from dev.tb_projetos_atividade pai
-    join dev.tb_projetos_atividade filho on pai.id = filho.id_pai    
+    from tb_projetos_atividade pai
+    join tb_projetos_atividade filho on pai.id = filho.id_pai    
     
     where pai.id = ${id}
     and filho.dat_ini_real is not null

@@ -15,7 +15,8 @@ export class FiltrosService {
 
   async findDuracaoMedia(nome_operacao: string) {
     return await this.prisma.$queryRawUnsafe(`
-    select avg(historico.hrs_totais) as duracao_media from tb_hist_estatistica historico
+    coalesce(round((max(hrs_totais) - min(hrs_totais)) / case when (ln(max(hrs_totais)) - ln(min(hrs_totais))) = 0 then 1 else (ln(max(hrs_totais)) - ln(min(hrs_totais))) end ,0), 0) as duracao_media 
+    from tb_hist_estatistica historico
     inner join tb_projetos_operacao operacao
     on operacao.id = historico.id_operacao
     where operacao.nom_operacao like '%${nome_operacao}%'
@@ -52,7 +53,7 @@ export class FiltrosService {
     const query = `
     select 
     id_operacao,
-    round(avg(hrs_totais),0) as hrs_media
+    coalesce(round((max(hrs_totais) - min(hrs_totais)) / case when (ln(max(hrs_totais)) - ln(min(hrs_totais))) = 0 then 1 else (ln(max(hrs_totais)) - ln(min(hrs_totais))) end ,0), 0) as hrs_media
     from tb_hist_estatistica
     where 1=1
         ${filtro.pocoId > 0 ? ` AND id_poco = ${filtro.pocoId} ` : ``}
@@ -84,7 +85,7 @@ export class FiltrosService {
   async getMediaDuracao(filtro: FiltroDto) {
     const query = `
     select 
-      round(sum(log(hrs_totais)),0) as hrs_media
+    coalesce(round((max(hrs_totais) - min(hrs_totais)) / case when (ln(max(hrs_totais)) - ln(min(hrs_totais))) = 0 then 1 else (ln(max(hrs_totais)) - ln(min(hrs_totais))) end ,0), 0) as hrs_media
       from tb_hist_estatistica hist
       inner join tb_pocos tp on hist.id_poco = tp.id
       where 1=1
@@ -120,7 +121,7 @@ export class FiltrosService {
   async MediaHoraById(id: string) {
     const query = `
     select 
-    coalesce(round(sum(log(hrs_totais)),0), 0) as hrs_media
+    coalesce(round((max(hrs_totais) - min(hrs_totais)) / case when (ln(max(hrs_totais)) - ln(min(hrs_totais))) = 0 then 1 else (ln(max(hrs_totais)) - ln(min(hrs_totais))) end ,0), 0) as hrs_media
     from tb_hist_estatistica
     where id_operacao = ${id} and ind_calcular = 1 and hrs_totais > 0   
     `;

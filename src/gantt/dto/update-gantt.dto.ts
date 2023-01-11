@@ -7,4 +7,5 @@ export class UpdateGanttDto {
   pct_real: number;
   responsavel_id: number;
   nome_atividade: string;
+  macro_id: number;
 }

@@ -28,6 +28,11 @@ export class AreaAtuacaoController {
     return this.areaAtuacaoService.findAll();
   }
 
+  @Get('/tipo/:tipo')
+  findByAreaSistema(@Param('tipo') tipo: string) {
+    return this.areaAtuacaoService.findByTipo(tipo);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.areaAtuacaoService.findOne(+id);
