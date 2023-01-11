@@ -165,4 +165,9 @@ export class ProjetosController {
   async remove(@Param('id') id: string, @Param('user') user: string) {
     return await this.projetosService.remove(+id, user);
   }
+
+  @Get('/gerar_ids')
+  async gerarIds() {
+    return await this.projetosService.gerarIds();
+  }
 }
