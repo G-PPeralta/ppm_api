@@ -807,7 +807,8 @@ export class ProjetosService {
     UPDATE tb_projetos
     SET
     descricao='${updateProjetoDto.descricao}',
-    justificativa='${updateProjetoDto.justificativa}'
+    justificativa='${updateProjetoDto.justificativa}',
+    dat_usu_update=now()
     where id=${id}
     `);
   }
