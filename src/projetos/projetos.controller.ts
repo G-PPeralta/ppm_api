@@ -19,7 +19,7 @@ import { ResponsavelService } from '../responsavel/responsavel.service';
 import { VincularAtividade } from './dto/vincular-atividade.dto';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('projetos')
 export class ProjetosController {
   constructor(
@@ -166,7 +166,7 @@ export class ProjetosController {
     return await this.projetosService.remove(+id, user);
   }
 
-  @Get('/gerar_ids')
+  @Get('/gerar/ids')
   async gerarIds() {
     return await this.projetosService.gerarIds();
   }
