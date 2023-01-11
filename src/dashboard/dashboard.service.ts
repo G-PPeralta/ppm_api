@@ -140,7 +140,7 @@ GROUP BY
     FROM hmg.tb_projetos projs
       inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
       WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
-      and status.status =  '4. Em andamento'
+      and status.status =  '3. Em andamento'
     ) as iniciados,
     (select count(status.id)::int
     FROM hmg.tb_projetos projs
