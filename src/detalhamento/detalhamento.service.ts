@@ -23,13 +23,13 @@ export class DetalhamentoService {
 		tp.id,
 	    nome_projeto,
 	    coalesce((
-	    	select min(atividades.dat_ini_plan) from
+	    	select min(atividades.dat_ini_real) from
 	    	tb_projetos_atividade atividades
 	    	where atividades.id_pai = topo.id
 	    	and atividades.dat_usu_erase is null
 	    ), data_inicio) as data_inicio,
 	    coalesce((
-	    	select max(atividades.dat_fim_plan) from
+	    	select max(atividades.dat_fim_real) from
 	    	tb_projetos_atividade atividades
 	    	where atividades.id_pai = topo.id
 	    	and atividades.dat_usu_erase is null
