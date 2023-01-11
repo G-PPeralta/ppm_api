@@ -27,7 +27,11 @@ export class CampanhaProjetoTipoService {
 
       const id_atividade = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_camp_projetos_atv (id_camp_projeto_tipo, id_area, id_tarefa, qtde_dias, nom_usu_create, id_fase, ordem, ind_atv_execucao)
-        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${atv.qtde_dias}, '${createCampanhaProjetoTipo.nom_usu_create}', ${atv.fase_id}, ${ordem}, ${atv.ind_atv_execucao})
+        VALUES (${id_projeto_tipo[0].id}, ${atv.area_id}, ${atv.tarefa_id}, ${
+        atv.qtde_dias
+      }, '${createCampanhaProjetoTipo.nom_usu_create}', ${
+        atv.fase_id
+      }, ${ordem}, ${atv.ind_atv_execucao ? 1 : 0})
         RETURNING id
       `);
 
