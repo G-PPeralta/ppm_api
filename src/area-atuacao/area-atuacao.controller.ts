@@ -23,6 +23,11 @@ export class AreaAtuacaoController {
     return this.areaAtuacaoService.create(createAreaAtuacaoDto);
   }
 
+  @Post('/projeto')
+  createAreaParaProjeto(@Body() createAreaAtuacaoDto: CreateAreaAtuacaoDto) {
+    return this.areaAtuacaoService.createAreaParaProjeto(createAreaAtuacaoDto);
+  }
+
   @Get()
   findAll() {
     return this.areaAtuacaoService.findAll();

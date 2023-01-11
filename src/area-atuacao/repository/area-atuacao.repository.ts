@@ -18,4 +18,10 @@ export class AreaAtuacaoRepository {
   async save(area: CreateAreaAtuacaoDto) {
     return await this.prisma.areaAtuacao.create({ data: area });
   }
+
+  async saveProjetos(area: CreateAreaAtuacaoDto) {
+    return await this.prisma.$queryRawUnsafe(`
+      INSERT INTO tb_areas_atuacoes (tipo, area_sistema) values('${area.tipo}', 'P');
+    `);
+  }
 }

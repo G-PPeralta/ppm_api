@@ -19,6 +19,14 @@ export class AreaAtuacaoService {
     }
   }
 
+  createAreaParaProjeto(createAreaAtuacaoDto: CreateAreaAtuacaoDto) {
+    try {
+      return this.repo.saveProjetos(createAreaAtuacaoDto);
+    } catch (e) {
+      return 'Nâo foi possivel salvar area de atuação.';
+    }
+  }
+
   findAll() {
     const area = this.repo.getAll();
     return area;
