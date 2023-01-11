@@ -12,7 +12,11 @@ export class AreaAtuacaoRepository {
   }
 
   async getAll() {
-    return await this.prisma.areaAtuacao.findMany();
+    // return await this.prisma.areaAtuacao.findMany();
+
+    return await this.prisma.$queryRawUnsafe(`
+    SELECT * FROM tb_areas_atuacoes WHERE deletado = false;
+    `);
   }
 
   async save(area: CreateAreaAtuacaoDto) {
