@@ -490,6 +490,8 @@ export class GanttService {
     await this.prisma.$queryRawUnsafe(`
       update tb_projetos set dat_usu_update = now() where id = (${id_projeto});
     `);
+
+    Logger.log(sqlQuery);
     return await this.prisma.$queryRawUnsafe(sqlQuery);
   }
 
