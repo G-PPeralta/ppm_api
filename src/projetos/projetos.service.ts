@@ -1006,4 +1006,13 @@ export class ProjetosService {
       `);
     }
   }
+
+  async gerarIds() {
+    return await this.prismaClient.$queryRawUnsafe(`
+    select 
+    concat('P', right(concat('0000', ((count(campo_id) filter (where left(campo_id, 1) = 'P' )) + 1)::integer ), 5)) as id_projeto,
+    concat('E', right(concat('0000', ((count(campo_id) filter (where left(campo_id, 1) = 'E' )) + 1)::integer ), 5)) as id_estudo
+    from tb_projetos
+    `);
+  }
 }
