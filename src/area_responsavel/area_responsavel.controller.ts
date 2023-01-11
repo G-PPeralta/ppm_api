@@ -1,6 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AreaResponsavelService } from './area_responsavel.service';
+import { CreateAreaResponsavel } from './dto/create-responsavel.dto';
 
 @Controller('area-responsavel')
 export class AreaResponsavelController {
@@ -8,7 +9,12 @@ export class AreaResponsavelController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  getAll() {
-    return this.service.getAll();
+  async getAll() {
+    return await this.service.getAll();
+  }
+
+  @Post()
+  async create(@Body() area: CreateAreaResponsavel) {
+    return await this.service.createArea(area);
   }
 }
