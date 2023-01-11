@@ -7,7 +7,7 @@ export class AreaResponsavelService {
 
   async getAll() {
     return await this.prisma.$queryRawUnsafe(`
-        SELECT * FROM tb_responsavel_atv_projeto
+        SELECT * FROM tb_responsavel_atv_projeto where dat_usu_erase is null
     `);
   }
 }
