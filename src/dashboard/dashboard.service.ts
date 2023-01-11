@@ -114,7 +114,7 @@ GROUP BY
     FROM hmg.tb_projetos projs
       inner JOIN hmg.tb_status_projetos status ON status.id = projs.status_id
       WHERE (projs.tipo_projeto_id = ANY (ARRAY[1, 2])) AND projs.dat_usu_erase IS null
-      and status.status =  '2. Em analise'
+      and status.status =  '2. Em análise'
     ) as em_analise,
         (
     select count(status.id)::int
