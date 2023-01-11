@@ -637,7 +637,7 @@ order by
     SELECT
     b.solicitante AS solicitante,
     to_char(qr.data_inicio, 'YYYY-MM') AS data,
-    COUNT(b.id) AS quantia
+    COUNT(b.id)::integer AS quantia
 FROM
     tb_projetos a
 inner join
