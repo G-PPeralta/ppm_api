@@ -209,6 +209,7 @@ export class ProjetosService {
     a.id,
     a.nome_projeto,
     responsavel,
+    campo_id,
     vlr_cr,
     vlr_orcado,
     case when vlr_orcado = 0 then 0 else case when vlr_cr / vlr_orcado > 1 then 1 else vlr_cr / vlr_orcado end end as vlr_tpci, 
