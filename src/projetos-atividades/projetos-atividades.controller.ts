@@ -82,4 +82,9 @@ export class ProjetosAtividadesController {
       payload.profundidade,
     );
   }
+
+  @Get('/getProfundidade/:id')
+  async getProfundidade(@Param('id') id: string) {
+    return this.projetosAtividadesService.getProfundidadeById(+id);
+  }
 }
