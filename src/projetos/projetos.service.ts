@@ -700,7 +700,7 @@ export class ProjetosService {
       case when max(a.pct_capex_plan) is null then 0 else max(a.pct_capex_plan) * 100 end as capex_previsto,
       case when max(a.pct_capex_real) is null then 0 else max(a.pct_capex_real) * 100 end as capex_realizado
     from tb_grafico_curva_s a
-    where a.id_projeto = 12 --or a.hrs_totais is null
+    where a.id_projeto = ${id} 
     group by 1, 2
     order by mesano
     ;`);
