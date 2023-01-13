@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateAtividade } from './dto/create-atividade.dto';
 import { CreateAtividadeOutro } from './dto/create-outros.dto';
@@ -35,5 +44,15 @@ export class NovaAtividadeController {
       createAtividade.atividade_id,
       createAtividade,
     );
+  }
+
+  @Patch(':id')
+  update(@Body() atividade: CreateAtividade, @Param('id') id: string) {
+    return this.novaAtividadeService.update(atividade, +id);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.novaAtividadeService.delete(+id);
   }
 }

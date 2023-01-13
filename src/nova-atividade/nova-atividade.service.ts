@@ -73,7 +73,26 @@ export class NovaAtividadeService {
   async findTarefas() {
     return this.prisma.$queryRawUnsafe(`
       SELECT distinct on (nom_atividade) * FROM tb_camp_atv
+      WHERE dat_usu_erase is null
       order by nom_atividade 
+    `);
+  }
+
+  async update(atividade: CreateAtividade, id: number) {
+    return this.prisma.$queryRawUnsafe(`
+    UPDATE tb_camp_atv
+    SET
+    id_origem = '${atividade.id_origem}',
+    nom_atividade = '${atividade.nom_atividade}',
+    responsavel_id = ${atividade.responsavel_id},
+    ind_fase = ${atividade.fase_id}
+    WHERE id = ${id}
+    `);
+  }
+
+  async delete(id: number) {
+    return this.prisma.$queryRawUnsafe(`
+    UPDATE tb_camp_atv SET dat_usu_erase = now() WHERE id = ${id}
     `);
   }
 }
