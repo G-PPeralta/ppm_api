@@ -76,6 +76,7 @@ import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
 import { PriorizacoesController } from './priorizacoes/priorizacoes.controller';
 import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
 import { DescribeModule } from './describe/describe.module';
+import { MacroModule } from './macro/macro.module';
 
 @Module({
   imports: [
@@ -153,6 +154,7 @@ import { DescribeModule } from './describe/describe.module';
     ProjetoCampoModule,
     PriorizacoesModule,
     DescribeModule,
+    MacroModule,
   ],
   controllers: [AppController, PriorizacoesController],
   providers: [AppService],
