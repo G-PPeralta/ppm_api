@@ -75,6 +75,8 @@ import { S3Module } from './s3/s3.module';
 import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
 import { PriorizacoesController } from './priorizacoes/priorizacoes.controller';
 import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
+import { DescribeModule } from './describe/describe.module';
+import { MacroModule } from './macro/macro.module';
 
 @Module({
   imports: [
@@ -151,6 +153,8 @@ import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
     S3Module,
     ProjetoCampoModule,
     PriorizacoesModule,
+    DescribeModule,
+    MacroModule,
   ],
   controllers: [AppController, PriorizacoesController],
   providers: [AppService],

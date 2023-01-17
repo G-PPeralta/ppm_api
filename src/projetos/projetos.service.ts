@@ -563,83 +563,101 @@ export class ProjetosService {
   }
 
   async previstoXRealizadoGeral() {
+    //   const query: any[] = await this.prismaClient.$queryRawUnsafe(`
+    //   select
+    //   concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
+    //   round(avg(pct_plan)::numeric, 2) as pct_plan,
+    //   round(avg(pct_real)::numeric, 2) as pct_real,
+    //   pct_capex_plan as capex_previsto,
+    //   pct_capex_real as capex_realizado
+    // from (
+    //     select
+    //       ano,
+    //       mes,
+    //       case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
+    //       case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
+    //       sum(vlr_plan) as pct_capex_plan,
+    //       sum(vlr_real) as pct_capex_real
+    //     from (
+    //       select
+    //          extract(year from dat_ini_plan) as ano,
+    //          extract(month from dat_ini_plan) as mes,
+    //          concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
+    //          case when (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
+    //          else
+    //            (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
+    //          end as horas_planejadas,
+    //          0 as horas_totais_real,
+    //          0 as horas_realizadas,
+    //          (
+    //          select
+    //          sum(projetos.valor_total_previsto)
+    //          from tb_projetos projetos
+    //          inner join tb_projetos_atividade topo
+    //          on topo.id_projeto = projetos.id
+    //          inner join tb_projetos_atividade atividades
+    //          on atividades.id_pai = topo.id
+    //          where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
+    //          and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
+    //          and projetos.tipo_projeto_id <> 3
+    //          and (topo.id_pai is null or topo.id_pai = 0)
+    //          ) as vlr_plan,
+    //          (
+    //          select
+    //          sum(centro_custo.valor_pago)
+    //          from tb_projetos projetos
+    //          inner join tb_projetos_atividade topo
+    //          on topo.id_projeto = projetos.id
+    //          inner join tb_centro_custo centro_custo
+    //          on centro_custo.projeto_id = projetos.id
+    //          inner join tb_projetos_atividade atividades
+    //          on atividades.id_pai = topo.id
+    //          where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
+    //          and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
+    //          and projetos.tipo_projeto_id <> 3
+    //          and (topo.id_pai is null or topo.id_pai = 0)
+    //          ) as vlr_real
+    //       from tb_projetos_atividade tpa
+    //       where dat_usu_erase is null
+    //       and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
+    //       union
+    //       select
+    //          extract(year from dat_ini_plan) as ano,
+    //          extract(month from dat_ini_plan) as mes,
+    //           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
+    //          0 as horas_totais_plan,
+    //          0 as horas_planejadas,
+    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
+    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
+    //          0 as vlr_plan,
+    //          0 as vlr_real
+    //       from tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
+    //       and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
+    //     ) as qr
+    //   group by ano, mes
+    // ) as qr2
+    // group by qr2.mes, ano, pct_capex_plan, pct_capex_real
+    // order by qr2.mes, ano desc
+    // ;`);
+
     const query: any[] = await this.prismaClient.$queryRawUnsafe(`
-    select 
-    concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
-    round(avg(pct_plan)::numeric, 2) as pct_plan,
-    round(avg(pct_real)::numeric, 2) as pct_real,
-    pct_capex_plan as capex_previsto,
-    pct_capex_real as capex_realizado
-  from (
+    select * from
+    (
       select 
-        ano,
-        mes,
-        case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
-        case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
-        sum(vlr_plan) as pct_capex_plan,
-        sum(vlr_real) as pct_capex_real
-      from (	
-        select 
-           extract(year from dat_ini_plan) as ano,
-           extract(month from dat_ini_plan) as mes,
-           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
-           case when (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
-           else 
-             (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
-           end as horas_planejadas,
-           0 as horas_totais_real,
-           0 as horas_realizadas,
-           (
-           select
-           sum(projetos.valor_total_previsto)
-           from tb_projetos projetos
-           inner join tb_projetos_atividade topo
-           on topo.id_projeto = projetos.id 
-           inner join tb_projetos_atividade atividades
-           on atividades.id_pai = topo.id
-           where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
-           and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
-           and projetos.tipo_projeto_id <> 3
-           and (topo.id_pai is null or topo.id_pai = 0)
-           ) as vlr_plan,
-           (
-           select
-           sum(centro_custo.valor_pago)
-           from tb_projetos projetos
-           inner join tb_projetos_atividade topo
-           on topo.id_projeto = projetos.id 
-           inner join tb_centro_custo centro_custo
-           on centro_custo.projeto_id = projetos.id
-           inner join tb_projetos_atividade atividades
-           on atividades.id_pai = topo.id
-           where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
-           and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
-           and projetos.tipo_projeto_id <> 3
-           and (topo.id_pai is null or topo.id_pai = 0)
-           ) as vlr_real
-        from tb_projetos_atividade tpa 
-        where dat_usu_erase is null
-        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
-        union
-        select 
-           extract(year from dat_ini_plan) as ano,
-           extract(month from dat_ini_plan) as mes,
-            concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-           0 as horas_totais_plan,
-           0 as horas_planejadas,
-           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
-           (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
-           0 as vlr_plan,
-           0 as vlr_real
-        from tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
-        and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
-      ) as qr
-    group by ano, mes
-  ) as qr2
-  group by qr2.mes, ano, pct_capex_plan, pct_capex_real
-  order by qr2.mes, ano desc
-  ;`);
+      concat(substring(namemonth(right(mesano::varchar,2)::int4) from 1 for 3), '/', left(mesano::varchar,4)) as mes,
+      mesano,
+      case when max(a.pct_plan) is null then 0 else max(a.pct_plan) * 100 end as pct_plan,
+      case when max(a.pct_real) is null then 0 else max(a.pct_real) * 100 end as pct_real,
+      case when max(a.pct_capex_plan) is null then 0 else max(a.pct_capex_plan) * 100 end as capex_previsto,
+      case when max(a.pct_capex_real) is null then 0 else max(a.pct_capex_real) * 100 end as capex_realizado
+      from tb_grafico_curva_s a
+      group by 1, 2
+      order by mesano desc
+      limit 12
+    ) qr
+    order by 2
+    `);
 
     return query.map((el) => {
       return {
