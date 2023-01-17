@@ -1,7 +1,12 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Service de manipulçao de pocos.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreatePocoDto } from './dto/create-poco.dto';
-import { UpdatePocoDto } from './dto/update-poco.dto';
 
 @Injectable()
 export class PocoService {
@@ -21,14 +26,6 @@ export class PocoService {
     return await this.prisma.$queryRawUnsafe(`
       select * from tb_pocos where dat_usu_erase is null
     `);
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} poco`;
-  }
-
-  update(id: number, updatePocoDto: UpdatePocoDto) {
-    return `This action updates a #${id} poco`;
   }
 
   remove(id: number) {
