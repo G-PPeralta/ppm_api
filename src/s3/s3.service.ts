@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 14/12/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: S3 É UM SERVIÇO DA AMAZON PARA UPLOAD DE ARQUIVOS, É USADO NA PARTE DE CRONOGRAMAS (INTERVENÇÕES)
+ */
+
 import { Injectable } from '@nestjs/common';
 import { Credentials } from 'aws-sdk';
 import S3 from 'aws-sdk/clients/s3';

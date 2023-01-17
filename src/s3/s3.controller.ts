@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 14/12/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: S3 É UM SERVIÇO DA AMAZON PARA UPLOAD DE ARQUIVOS, É USADO NA PARTE DE CRONOGRAMAS (INTERVENÇÕES)
+ */
+
 import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { S3DeletePayload } from './dto/s3delete.dto';

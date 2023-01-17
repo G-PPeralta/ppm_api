@@ -1,3 +1,11 @@
+/**
+ * CRIADO EM: 28/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: SERVIÇO DE CRIAÇÃO E LISTAGEM DE TAREFAS.
+ * TAREFAS SÃO CRIADAS NA TELA DE DETALHAMENTO DE UM PROJETO
+ * SÃO RELACIONADAS A ATIVIDADES DE UM PROJETO (CADA ATIVIDADE PODE TER UMA OU MAIS TAREFAS)
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateTarefas } from './dto/create-tarefas.dto';
@@ -54,6 +62,7 @@ export class TarefasService {
     }
   }
 
+  // DELETE VIRTUAL
   delete(id: number, user: string) {
     return this.prisma.$queryRawUnsafe(`
    UPDATE tb_tarefas set dat_usu_erase = now(), nom_usu_erase = '${user}'

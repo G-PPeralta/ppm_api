@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 02/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: SERVIÇO DE CRIAÇÃO, LISTAGEM, ATUALIZAÇÃO E REMOÇÃO DE SONDA
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateSondaDto } from './dto/create-sonda.dto';

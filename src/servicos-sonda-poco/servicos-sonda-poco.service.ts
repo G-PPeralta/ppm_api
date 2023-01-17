@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 04/10/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: SERVIÇO DE RELAÇÃO DE POÇOS E SONDAS
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 

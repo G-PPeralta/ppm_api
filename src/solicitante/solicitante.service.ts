@@ -1,7 +1,13 @@
+/**
+ * CRIADO EM: 27/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: SERVIÇO DE CRIAÇÃO E LISTAGEM DE SOLICITANTES DE UM PROJETO.
+ * DIZ RESPEITO A QUAL ÁREA DA ORIGEM ESTÁ SOLICITANDO UM PROJETO QUE ESTÁ SENDO CADASTRADO
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
-import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
 
 @Injectable()
 export class SolicitanteService {
@@ -27,17 +33,5 @@ export class SolicitanteService {
     });
     if (!solicitante) throw new Error('Falha na listagem de solicitantes');
     return solicitante;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} solicitante`;
-  }
-
-  update(id: number, updateSolicitanteDto: UpdateSolicitanteDto) {
-    return `This action updates a #${id} solicitante`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} solicitante`;
   }
 }
