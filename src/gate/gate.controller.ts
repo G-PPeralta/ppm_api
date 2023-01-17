@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 02/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a gate
+ */
+
 import {
   Controller,
   Get,

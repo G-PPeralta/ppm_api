@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 02/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO:  Manipulação informações pertinestes a gate
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateGateDto } from './dto/create-gate.dto';
