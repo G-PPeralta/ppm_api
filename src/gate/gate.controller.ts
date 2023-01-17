@@ -3,15 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
 import { GateService } from './gate.service';
 import { CreateGateDto } from './dto/create-gate.dto';
-import { UpdateGateDto } from './dto/update-gate.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -31,20 +27,5 @@ export class GateController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gateService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGateDto: UpdateGateDto) {
-    return this.gateService.update(+id, updateGateDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gateService.remove(+id);
   }
 }
