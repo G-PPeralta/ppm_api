@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+/**
+ *  CRIADO EM: 21/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação informações pertinestes a feriados
+ */
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { Feriado } from './dto/feriado.dto';
 
