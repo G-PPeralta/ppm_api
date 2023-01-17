@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 23/12/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface Ocorrencia
+ */
+
 export class CreateOcorrenciaDto {
   user: string;
   ocorrencia: string;

@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação de ocorrencias.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
@@ -34,13 +40,6 @@ export class OcorrenciasService {
     await this.prisma.$queryRawUnsafe(`call sp_in_historico_graf(${id_atv});`);
   }
 
-  async findAll() {
-    return await this.prisma.$queryRawUnsafe(`
-    SELECT id, dsc_ocorrencia as nome_ocorrencia, observacoes, num_hrs_impacto as impacto, url_anexo as anexo
-    FROM tb_projetos_ocorrencias;
-    `);
-  }
-
   async findOne(id: number) {
     return await this.prisma.$queryRawUnsafe(`
     select 
@@ -49,13 +48,6 @@ export class OcorrenciasService {
       coalesce((select num_hrs_impacto  from tb_projetos_ocorrencias where id_ocorrencia = a.id and id_atv = ${id}),0) as impacto,
       (select url_anexo from tb_projetos_ocorrencias where id_ocorrencia = a.id and id_atv = ${id}) as anexo
     from tb_ocorrencias a
-    `);
-  }
-
-  async delete(id: number) {
-    return await this.prisma.$queryRawUnsafe(`
-    UPDATE tb_projetos_ocorrencias set dat_usu_erase = now()
-    WHERE id = ${id};
     `);
   }
 }
