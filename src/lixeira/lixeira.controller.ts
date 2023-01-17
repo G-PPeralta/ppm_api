@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 17/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a lixeira
+ */
+
 import {
   Controller,
   Delete,

@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 17/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: manipulação de  lixeira
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 
@@ -19,16 +24,16 @@ export class LixeiraService {
         let consulta: any[];
         if (e.table_name === 'tb_projetos_atividade') {
           consulta = await this.prisma.$queryRawUnsafe(`
-                 select id,
-                 case when id_pai <> 0 then concat((select nom_atividade from tb_projetos_atividade where id = deletado.id_pai), ' > ', nom_atividade)
-                 else nom_atividade end as local_deletado,
-                 case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
-                 else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
-                 case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
-                 else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
-                 from tb_projetos_atividade deletado
-                 where id in (${e.rows_id})
-                 `);
+              select id,
+              case when id_pai <> 0 then concat((select nom_atividade from tb_projetos_atividade where id = deletado.id_pai), ' > ', nom_atividade)
+              else nom_atividade end as local_deletado,
+              case when nom_usu_erase is not null then concat(to_char(dat_usu_erase, 'DD/MM/YYYY'),' por ', nom_usu_erase)
+              else to_char(dat_usu_erase, 'DD/MM/YYYY') end as exclusao,
+              case when nom_usu_create is not null then concat(to_char(dat_usu_create, 'DD/MM/YYYY'),' por ', nom_usu_create)
+              else to_char(dat_usu_create, 'DD/MM/YYYY') end as criado
+              from tb_projetos_atividade deletado
+              where id in (${e.rows_id})
+            `);
         }
         if (e.table_name === 'tb_tarefas') {
           consulta = await this.prisma.$queryRawUnsafe(`
