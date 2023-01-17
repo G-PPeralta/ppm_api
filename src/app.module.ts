@@ -47,7 +47,6 @@ import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
 import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
 import { AreasModule } from './areas/areas.module';
 import { CategoriasModule } from './categorias/categorias.module';
-import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { EstatisticasModule } from './estatisticas/estatisticas.module';
 import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
@@ -76,7 +75,6 @@ import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
 import { PriorizacoesController } from './priorizacoes/priorizacoes.controller';
 import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
 import { DescribeModule } from './describe/describe.module';
-import { MacroModule } from './macro/macro.module';
 
 @Module({
   imports: [
@@ -126,7 +124,6 @@ import { MacroModule } from './macro/macro.module';
     ProjetosRankingModule,
     AreasModule,
     CategoriasModule,
-    OperacaoIntervencaoModule,
     BudgetsModule,
     EstatisticasModule,
     CampanhaProjetoTipoModule,
@@ -154,7 +151,6 @@ import { MacroModule } from './macro/macro.module';
     ProjetoCampoModule,
     PriorizacoesModule,
     DescribeModule,
-    MacroModule,
   ],
   controllers: [AppController, PriorizacoesController],
   providers: [AppService],
