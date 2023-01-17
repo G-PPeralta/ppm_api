@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO:  Interface de estatisticas
+ */
 export class EstatisticaDto {
   id_atividade: number;
   inicio_realizado: string;

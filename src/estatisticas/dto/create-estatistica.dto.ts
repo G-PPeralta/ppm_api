@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface de  estatisticas
+ */
+
 export class CreateEstatisticaDto {
   id_sonda: number;
   id_poco: number;
