@@ -1,6 +1,10 @@
+/**
+ *  CRIADO EM: 17/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface intervenção
+ */
 import { IsNotEmpty } from 'class-validator';
 import { SondaExists } from '../../sonda/validators/exists-sondas.validator';
-import { PocoExists } from '../../poco/validators/exists-pocos.validator';
 import { AtividadeIntervencaoExists } from 'atividades-intervencoes/validators/exitis-atividades-intervencoes.validator';
 
 export class Atividades {
@@ -26,6 +30,5 @@ export class CreateIntervencaoDto {
   sptId: number;
 
   @IsNotEmpty()
-  @PocoExists()
   pocoId: number;
 }

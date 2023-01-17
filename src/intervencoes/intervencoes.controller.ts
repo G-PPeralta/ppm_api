@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 05/09/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a intervencoes
+ */
+
 import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { IntervencoesService } from './intervencoes.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
@@ -17,19 +23,4 @@ export class IntervencoesController {
   findAll() {
     return this.intervencoesService.findAll();
   }
-
-  /*@Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.intervencoesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateIntervencoeDto: UpdateIntervencoeDto) {
-    return this.intervencoesService.update(+id, updateIntervencoeDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.intervencoesService.remove(+id);
-  }*/
 }

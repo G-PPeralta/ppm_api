@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 17/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a lixeira
+ */
+
 import { Injectable } from '@nestjs/common';
 import { ProjetoIntervencaoService } from 'projeto-intervencao/projeto-intervencao.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
@@ -41,16 +47,4 @@ export class IntervencoesService {
   findOneByAtividade(id: number) {
     return this.repo.findOneByAtividade(id);
   }
-
-  /*findOne(id: number) {
-    return `This action returns a #${id} intervencoe`;
-  }
-
-  update(id: number, updateIntervencoeDto: UpdateIntervencoeDto) {
-    return `This action updates a #${id} intervencoe`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} intervencoe`;
-  }*/
 }
