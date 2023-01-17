@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 15/07/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a gant
+ */
+
 import {
   Controller,
   Get,
@@ -26,11 +32,6 @@ export class GanttController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
-  }
-
-  @Post()
-  create(@Body() createGanttDto: CreateGanttDto) {
-    return this.ganttService.create(createGanttDto);
   }
 
   @Get()
