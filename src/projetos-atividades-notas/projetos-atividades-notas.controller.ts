@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 18/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Endpoints que criam, listam, atualizam e removem anotações em projetos de intervenção. Essas anotações acompanham um arquivo que o usuário anexa no projeto.
+ */
+
 import {
   Body,
   Controller,

@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 22/06/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: endpoints que retorna os roles que determinam os níveis de acesso da aplicação
+ */
+
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { Roles } from '../auth/roles/roles.decorator';

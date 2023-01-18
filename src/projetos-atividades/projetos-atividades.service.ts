@@ -1,5 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import e from 'express';
+/**
+ * CRIADO EM: 18/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Serviço que cria, lista, atualiza e remove atividades de um projeto. São atividades listadas no gráfico de gantt da tela de detalhamento. Serve também para abastecer o gráfico de curva S e listar operações do módulo de estatística
+ */
+
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeDto } from './dto/create-projetos-atividades.dto';
 import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
@@ -9,67 +14,14 @@ export class ProjetosAtividadesService {
   constructor(private prisma: PrismaService) {}
 
   async createFilho(payload: CreateProjetosFilhoDto) {
-    //return +payload.duracao;
+    // Criação de atividades filhas
+
     const duracao = +payload.duracao;
-    /*
-
-    var Dia = 0;
-    Dia = Dia*60*60*24
-
-    var Hora = 1;
-    Hora = Hora*60*60;
-
-    var Minuto = 30;
-    Minuto = Minuto*60
-
-    var Segundos = 0;
-    Segundos = Segundos*1;
-
-    unix = new Date().getTime() - ((Dia+Hora+Minuto+Segundos)*1000);
-    resultado = new Date(unix);
-
-    */
 
     // por causa do .toISOString temos que diminuir 3 horas para igualar o fuso horário.
     const data_inicio = new Date(
       new Date(payload.data_inicio).getTime() - 3 * 60 * 60 * 1000,
     );
-
-    // mas neste caso, temos que manter 0, pq ainda não iremos usar este horário para adequar ao fuso...
-    const data_final = new Date(
-      new Date(payload.data_inicio).getTime() - 0 * 60 * 60 * 1000,
-    );
-
-    // remove 3 horas da duração devido ao fuso horário.
-    const dat_fim_tratado =
-      new Date(data_final).getTime() + (duracao - 3) * 3600 * 1000;
-
-    // Logger.log(duracao);
-    // Logger.log(new Date(data_inicio));
-    // Logger.log(new Date(dat_fim_tratado));
-
-    // data_final = new Date(data_final).getTime() + duracao * 3600 * 1000;
-
-    // return dat_fim_tratado;
-
-    // Logger.log(data_tratado);
-    // const dat_ini = data_tratado.toISOString(); //new Date(vincularAtividade.dat_inicio_plan).toISOString();
-    // const data_fim_tratado = addWorkDays(
-    //   new Date(dat_ini),
-    //   vincularAtividade.duracao_plan + 1, // o front está subtraindo um dia da duração, sabe lá por que...
-    // );
-
-    // const dat_fim = new Date(
-    //   new Date(data_fim_tratado).getTime() + 9 * 60 * 60 * 1000,
-    // );
-
-    // return {
-    //   data: dat_ini,
-    //   dat_fim: data_fim_tratado,
-    //   duracao: vincularAtividade.duracao_plan,
-    // };
-
-    // return data_inicio.toISOString();
 
     const operacao: any[] = await this.prisma.$queryRawUnsafe(`
     SELECT nom_operacao FROM tb_projetos_operacao
@@ -83,40 +35,6 @@ export class ProjetosAtividadesService {
     where
     projetos_atv.id = ${payload.id_sonda}
     `);
-
-    // return `
-    //   INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
-    //   VALUES
-    //   ('${operacao[0].nom_operacao}',
-    //   ${payload.flag},
-    //   0, ${dados_sonda_projeto[0].id}, ${payload.id_poco}, ${
-    //   payload.operacao_id
-    // }, 'to_timestamp(${+data_inicio / 1000})', 'to_timestamp(${
-    //   +dat_fim_tratado / 1000
-    // })', '${payload.nom_usu_create}', now(), 'to_timestamp(${
-    //   +data_inicio / 1000
-    // })', 'to_timestamp(${+dat_fim_tratado / 1000})', ${payload.profundidade}, ${
-    //   payload.metodo_elevacao_id
-    // })
-    // `;
-
-    // duracao
-    // regra anterior
-
-    //   INSERT INTO tb_projetos_atividade (nom_atividade, ordem, pct_real, id_projeto, id_pai, id_operacao, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real, profundidade, metodo_elevacao_id)
-    //   VALUES
-    //   (,
-    //   ,
-    //   0, , , ${
-
-    //   }, to_timestamp(), to_timestamp(${
-    //     +dat_fim_tratado / 1000
-    //   }), , now(), to_timestamp(${
-    //     +data_inicio / 1000
-    //   }), to_timestamp(${+dat_fim_tratado / 1000}), ${payload.profundidade}, ${
-
-    //   })
-    // `,
 
     if (payload.naoIniciarAntesDe) {
       const dados: any[] = await this.prisma.$queryRawUnsafe(`
@@ -212,7 +130,6 @@ export class ProjetosAtividadesService {
             `);
         }
       } else {
-        Logger.log('chama a procedure');
         await this.prisma.$queryRawUnsafe(
           `
               call sp_in_create_atv_intervencao(
@@ -244,27 +161,6 @@ export class ProjetosAtividadesService {
         )`,
       );
     }
-
-    // Logger.log(`
-    // call sp_in_create_atv_intervencao(
-    //   '${operacao[0].nom_operacao}',
-    //   ${payload.flag},
-    //   ${dados_sonda_projeto[0].id},
-    //   ${payload.id_poco},
-    //   ${payload.operacao_id},
-    //   ${+data_inicio / 1000},
-    //   '${payload.nom_usu_create}',
-    //   ${payload.metodo_elevacao_id},
-    //   ${duracao}
-    // )`);
-
-    // await this.prisma.$queryRawUnsafe(`
-    //   call sp_up_atualiza_datas_cip10(${payload.id_poco});
-    // `);
-
-    // await this.prisma.$queryRawUnsafe(`
-    //   call sp_up_cascateia_cron_campanha(${payload.id_poco});
-    // `);
 
     return { gravado: 1 };
   }
@@ -343,8 +239,6 @@ export class ProjetosAtividadesService {
         SELECT * FROM tb_projetos_operacao WHERE id = ${atv.operacao_id}
       `);
 
-      Logger.log(`${new Date(atv.data_inicio).toISOString()}`);
-
       const id_atv = await this.prisma.$queryRawUnsafe(`
         INSERT INTO tb_projetos_atividade (nom_atividade, pct_real, id_projeto, id_pai, id_operacao, id_area, id_responsavel, dat_ini_plan, dat_fim_plan, nom_usu_create, dat_usu_create, dat_ini_real, dat_fim_real)
         VALUES ('${operacao[0].nom_operacao}', 0, ${id_projeto}, ${
@@ -369,6 +263,7 @@ export class ProjetosAtividadesService {
   }
 
   async findOperacoes() {
+    // retorna todas as operações, encontradas no módulo de estatística
     return await this.prisma.$queryRawUnsafe(`
     SELECT * FROM tb_projetos_operacao
     `);
@@ -389,10 +284,6 @@ left join tb_projetos_atividade b
 where 
     b.id_pai = 0 or b.id_pai is null;
     `);
-  }
-
-  async findOne(id: number) {
-    return null;
   }
 
   async update(id: number, campo: string, valor: string) {
@@ -471,6 +362,7 @@ where
   }
 
   async getCurvaS(idProjeto: string) {
+    // abastece o gráfico da curva S, do detalhamento de um projeto
     const query = `
     SELECT         
     id_projeto,

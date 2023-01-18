@@ -1,6 +1,11 @@
+/**
+ * CRIADO EM: 07/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Serviço que cria, lista, atualiza e remove um projeto.
+ */
+
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { LogController } from 'log/log.controller';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
@@ -12,6 +17,7 @@ export class ProjetosService {
   constructor(private prismaClient: PrismaService) {}
 
   async filtroProjetos(nomProjeto: string) {
+    //select que preenche a tabela da tela de projetos. Leva em consideração o ranking, para ordenar de acordo.
     const query = `
     select 
           a.id,
@@ -204,6 +210,7 @@ export class ProjetosService {
   }
 
   async getProjetosDetalhados() {
+    // informações completas detalhadas de um projeto
     const query = `
     select 
     a.id,
@@ -439,6 +446,7 @@ export class ProjetosService {
   }
 
   async create(createProjetoDto: CreateProjetoDto) {
+    //cria um novo projeto, utilizado na tela de cadastro de um projeto
     const capexValor = createProjetoDto.capexPrevisto
       .replace('.', '')
       .replace(',', '');
@@ -563,84 +571,6 @@ export class ProjetosService {
   }
 
   async previstoXRealizadoGeral() {
-    //   const query: any[] = await this.prismaClient.$queryRawUnsafe(`
-    //   select
-    //   concat(substring(namemonth(mes::int4) from 1 for 3), '/', ano) as mes,
-    //   round(avg(pct_plan)::numeric, 2) as pct_plan,
-    //   round(avg(pct_real)::numeric, 2) as pct_real,
-    //   pct_capex_plan as capex_previsto,
-    //   pct_capex_real as capex_realizado
-    // from (
-    //     select
-    //       ano,
-    //       mes,
-    //       case when sum(horas_totais_plan) = 0 or sum(horas_totais_plan) is null then 0 else (sum(horas_planejadas)/sum(horas_totais_plan))*100 end as pct_plan,
-    //       case when sum(horas_totais_real) = 0 or sum(horas_totais_real) is null then 0 else (sum(horas_realizadas)/sum(horas_totais_real))*100 end as pct_real,
-    //       sum(vlr_plan) as pct_capex_plan,
-    //       sum(vlr_real) as pct_capex_real
-    //     from (
-    //       select
-    //          extract(year from dat_ini_plan) as ano,
-    //          extract(month from dat_ini_plan) as mes,
-    //          concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_plan,
-    //          case when (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end)) <= 0 then 0
-    //          else
-    //            (fn_hrs_uteis_totais_atv(dat_ini_plan, case when dat_fim_plan <= current_date then dat_fim_plan else current_date end))
-    //          end as horas_planejadas,
-    //          0 as horas_totais_real,
-    //          0 as horas_realizadas,
-    //          (
-    //          select
-    //          sum(projetos.valor_total_previsto)
-    //          from tb_projetos projetos
-    //          inner join tb_projetos_atividade topo
-    //          on topo.id_projeto = projetos.id
-    //          inner join tb_projetos_atividade atividades
-    //          on atividades.id_pai = topo.id
-    //          where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
-    //          and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
-    //          and projetos.tipo_projeto_id <> 3
-    //          and (topo.id_pai is null or topo.id_pai = 0)
-    //          ) as vlr_plan,
-    //          (
-    //          select
-    //          sum(centro_custo.valor_pago)
-    //          from tb_projetos projetos
-    //          inner join tb_projetos_atividade topo
-    //          on topo.id_projeto = projetos.id
-    //          inner join tb_centro_custo centro_custo
-    //          on centro_custo.projeto_id = projetos.id
-    //          inner join tb_projetos_atividade atividades
-    //          on atividades.id_pai = topo.id
-    //          where extract(year from atividades.dat_ini_plan) = extract(year from tpa.dat_ini_plan)
-    //          and extract(month from atividades.dat_ini_plan) = extract(month from tpa.dat_ini_plan)
-    //          and projetos.tipo_projeto_id <> 3
-    //          and (topo.id_pai is null or topo.id_pai = 0)
-    //          ) as vlr_real
-    //       from tb_projetos_atividade tpa
-    //       where dat_usu_erase is null
-    //       and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59' -- and id_projeto = 519
-    //       union
-    //       select
-    //          extract(year from dat_ini_plan) as ano,
-    //          extract(month from dat_ini_plan) as mes,
-    //           concat(extract(year from dat_ini_plan), extract(month from dat_ini_real)) as mesano,
-    //          0 as horas_totais_plan,
-    //          0 as horas_planejadas,
-    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) as horas_totais_real,
-    //          (fn_hrs_uteis_totais_atv(dat_ini_plan, dat_fim_plan)) * (pct_real/100) as horas_realizadas,
-    //          0 as vlr_plan,
-    //          0 as vlr_real
-    //       from tb_projetos_atividade tcac where dat_usu_erase is null -- and id_projeto = 519
-    //       and dat_ini_plan between '2022-01-01 00:00:00' and '2022-12-31 23:59:59'
-    //     ) as qr
-    //   group by ano, mes
-    // ) as qr2
-    // group by qr2.mes, ano, pct_capex_plan, pct_capex_real
-    // order by qr2.mes, ano desc
-    // ;`);
-
     const query: any[] = await this.prismaClient.$queryRawUnsafe(`
     select * from
     (
@@ -759,17 +689,6 @@ export class ProjetosService {
     });
     return project;
   }
-
-  // async update(id: number, updateProjetoDto: UpdateProjetoDto) {
-  //   const projeto = await this.prismaClient.projeto.update({
-  //     where: {
-  //       id,
-  //     },
-  //     data: updateProjetoDto,
-  //   });
-
-  //   return projeto;
-  // }
 
   async update(id: number, updateProjetoDto: UpdateProjetoDto) {
     return await this.prismaClient.$queryRawUnsafe(`
@@ -896,30 +815,6 @@ export class ProjetosService {
     }  
     `);
 
-    // const dat_ini = new Date(
-    //   vincularAtividade.dat_inicio_plan.replace(/\//g, '-').replace(' ', 'T'),
-    // );
-    // dat_ini.setHours(dat_ini.getHours() - 3);
-
-    /*
-
-    var Dia = 0;
-    Dia = Dia*60*60*24
-
-    var Hora = 1;
-    Hora = Hora*60*60;
-
-    var Minuto = 30;
-    Minuto = Minuto*60
-
-    var Segundos = 0;
-    Segundos = Segundos*1;
-
-    unix = new Date().getTime() - ((Dia+Hora+Minuto+Segundos)*1000);
-    resultado = new Date(unix);
-
-    */
-
     const data_tratado = new Date(
       new Date(vincularAtividade.dat_inicio_plan).getTime() +
         3 * 3600 -
@@ -936,12 +831,6 @@ export class ProjetosService {
     const dat_fim = new Date(
       new Date(data_fim_tratado).getTime() + 9 * 60 * 60 * 1000,
     );
-
-    // return {
-    //   data: dat_ini,
-    //   dat_fim: data_fim_tratado,
-    //   duracao: vincularAtividade.duracao_plan,
-    // };
 
     if (existe[0].existe > 0) {
       const id_ret = await this.prismaClient.$queryRawUnsafe(`

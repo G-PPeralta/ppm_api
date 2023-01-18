@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ProjetoIntervencaoService } from 'projeto-intervencao/projeto-intervencao.service';
 import { CreateIntervencaoDto } from './dto/create-intervencao.dto';
 import { IntervencaoRepository } from './repositories/intervencoes.repository';
 // import { UpdateIntervencoeDto } from './dto/update-intervencao.dto';
 
 @Injectable()
 export class IntervencoesService {
-  constructor(
-    private repo: IntervencaoRepository,
-    private projetoIntervencaoService: ProjetoIntervencaoService,
-  ) {}
+  constructor(private repo: IntervencaoRepository) {}
 
   async create(createIntervencoeDto: CreateIntervencaoDto) {
     const intervencao = {

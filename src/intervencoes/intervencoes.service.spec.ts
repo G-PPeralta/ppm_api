@@ -3,7 +3,6 @@ import { PocoModule } from '../poco/poco.module';
 import { SondaModule } from '../sonda/sonda.module';
 import { PrismaModule } from '../services/prisma/prisma.module';
 import { IntervencoesService } from './intervencoes.service';
-import { IntervencaoRepository } from './repositories/intervencoes.repository';
 import { IntervencoesModule } from './intervencoes.module';
 
 describe('IntervencoesService', () => {

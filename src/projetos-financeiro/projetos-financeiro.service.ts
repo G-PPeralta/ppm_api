@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 13/10/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: serviço que lista projetos com suas respectivas informações financeiras (orçamento, total gasto, gap)
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 
@@ -47,6 +53,7 @@ group by
   }
 
   async findFilhos(id: number) {
+    // Lista as informações específicas dos gastos de um projeto. Retorna dados dos prestadores de serviço que consumiram o orçamento do projeto.
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
     select 
