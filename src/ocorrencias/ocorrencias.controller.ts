@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 23/12/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a ocorrencias.
+ */
+
 import {
   Body,
   Controller,
@@ -21,18 +27,8 @@ export class OcorrenciasController {
     return this.service.create(payload, +id);
   }
 
-  @Get()
-  findAll() {
-    return this.service.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
-  }
-
-  @Patch(':id')
-  delete(@Param('id') id: string) {
-    return this.service.delete(+id);
   }
 }

@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação informações pertinestes a estatisticas
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateEstatisticaDto } from './dto/create-estatistica.dto';

@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 17/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface  Editar-atividade
+ */
 export class EditarAtividadeDto {
   nom_usu_create: string;
   id_poco_pai: string;

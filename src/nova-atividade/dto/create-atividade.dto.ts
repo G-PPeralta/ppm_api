@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 13/01/2023
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interfaces Atividade
+ */
+
 export class CreateAtividade {
   nom_usu_create: string;
   id_origem: string;

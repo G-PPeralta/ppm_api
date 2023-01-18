@@ -1,39 +1,26 @@
+/**
+ *  CRIADO EM: 15/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a detalhamento
+ */
 import {
   Controller,
   Get,
   NotFoundException,
-  // Post,
-  // Body,
-  // Patch,
   Param,
   UseGuards,
-  // UseGuards,
-  // Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DetalhamentoService } from './detalhamento.service';
-// import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
-// import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('detalhamento')
 export class DetalhamentoController {
   constructor(private readonly detalhamentoService: DetalhamentoService) {}
 
-  // @Post()
-  // create(@Body() createDetalhamentoDto: CreateDetalhamentoDto) {
-  //   return this.detalhamentoService.create(createDetalhamentoDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.detalhamentoService.findAll();
-  // }
-
   @Get('/progresso/:id')
   async findOneProgresso(@Param('id') id: number) {
     const percentual = this.detalhamentoService.findOneProgresso(+id);
-    // console.log(percentual);
     return percentual;
   }
 
@@ -82,25 +69,4 @@ export class DetalhamentoController {
     const cpiSpi = await this.detalhamentoService.findOneCpiSpi(+id);
     return cpiSpi;
   }
-
-  // @Get('/remanescente/:id')
-  // async findOneRemanescente(@Param('id') id: number) {
-  //   const remanescente = await this.detalhamentoService.findOneRemanescente(
-  //     +id,
-  //   );
-  //   return remanescente;
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateDetalhamentoDto: UpdateDetalhamentoDto,
-  // ) {
-  //   return this.detalhamentoService.update(+id, updateDetalhamentoDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.detalhamentoService.remove(+id);
-  // }
 }

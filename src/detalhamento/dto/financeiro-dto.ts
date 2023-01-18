@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 15/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO:  Interface Finaceiro
+ */
 export class InfoFinanceiro {
   pct_remanescente: number;
   pct_realizado: number;

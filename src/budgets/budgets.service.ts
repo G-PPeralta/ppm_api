@@ -1,11 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
-import { LogController } from 'log/log.controller';
+import { Injectable } from '@nestjs/common';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
-import { CreateBudgetDto } from './dto/create-budget.dto';
 import { CustoDiarioDto, CustoDiarioORMDto } from './dto/custos-diarios.dto';
 // import { UpdateBudgetDto } from './dto/update-budget.dto';
 
@@ -39,21 +37,6 @@ export class BudgetsService {
 
     return _updateBudgetDto;
   }
-
-  // async createBudgetReal(_updateBudgetReal: BudgetReal) {
-  //   const budgetReal = {
-  //     id_fornecedor: +_updateBudgetReal.fornecedor,
-  //     dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
-  //     vlr_realizado: _updateBudgetReal.valor,
-  //     txt_observacao: _updateBudgetReal.textPedido,
-  //     num_pedido: _updateBudgetReal.pedido,
-  //     nom_usu_create: _updateBudgetReal.nom_usu_create,
-  //     id_atividade: +_updateBudgetReal.atividadeId,
-  //   };
-  //   return this.prisma.atividadeCustosRealizado.create({
-  //     data: budgetReal,
-  //   });
-  // }
 
   async createBudgetReal(createBudgetReal: BudgetReal) {
     const budgetReal = {
@@ -245,7 +228,7 @@ export class BudgetsService {
       const tratamento: any = [];
       let pKey = 0;
       for (const e of pais) {
-        const fKey = 0;
+        // const fKey = 0;
         const filhos: any[] = await this.prisma.$queryRawUnsafe(`
         select 
             a.id_categoria as id_filho,
@@ -275,7 +258,6 @@ export class BudgetsService {
 
         filhos.forEach((f) => {
           dados.filhos.push({
-            //brt: `${pKey}.${++fKey}`,
             brt: f.id_atividade,
             projeto: {
               id_projeto: id,
@@ -332,14 +314,6 @@ export class BudgetsService {
     sonda.id,
     sonda.nom_atividade
     order by nome `);
-    /*const projetos = await this.prisma.tb_projetos_atividade.findMany({
-      select: { nom_atividade: true, id: true },
-      where: { id_pai: 0 },
-    });
-
-    return projetos.map((data) => {
-      return { nome: data.nom_atividade, id: data.id };
-    });*/
   }
 
   async getSondaNome(id) {
@@ -462,17 +436,6 @@ export class BudgetsService {
   }
 
   async custosDiariosFilhoList(id: string, _custoDiario: CustoDiarioDto) {
-    /*return this.prisma.atividadeCustosRealizado.findMany({
-      select: { vlr_realizado: true, dat_lcto: true },
-      where: {
-        id_atividade: +id,
-        dat_lcto: {
-          lte: _custoDiario.endDate,
-          // gte: _custoDiario.startDate,
-        },
-      },
-    });*/
-
     let data: CustoDiarioORMDto[] = [];
     if (
       _custoDiario.startDate !== null &&

@@ -1,17 +1,19 @@
+/**
+ *  CRIADO EM: 02/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controller informações pertinestes a polo
+ */
+
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
 import { PoloService } from './polo.service';
 import { CreatePoloDto } from './dto/create-polo.dto';
-import { UpdatePoloDto } from './dto/update-polo.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -31,20 +33,5 @@ export class PoloController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.poloService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePoloDto: UpdatePoloDto) {
-    return this.poloService.update(+id, updatePoloDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.poloService.remove(+id);
   }
 }
