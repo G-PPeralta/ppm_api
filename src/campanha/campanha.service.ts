@@ -1,5 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { addWorkDays } from 'utils/days/daysUtil';
+/**
+ * CRIADO EM: 28/08/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a campanha (intervenção)
+ */
+
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
 import { CreateAtividadeCampanhaDto } from './dto/create-atividade-campanha.dto';
@@ -13,6 +18,7 @@ import { UpdateCampanhaDto } from './dto/update-campanha.dto';
 export class CampanhaService {
   constructor(private prisma: PrismaService) {}
 
+  //cria um novo poço e sonda caso necessário
   async createPai(createCampanhaDto: CreateCampanhaDto) {
     const sonda_id_temp = createCampanhaDto.id_projeto
       .split('-')[0]
@@ -67,6 +73,7 @@ export class CampanhaService {
     return id;
   }
 
+  //cria uma nova atividade para poço
   async createAtividade(
     createAtividadeCampanhaDto: CreateAtividadeCampanhaDto,
   ) {
@@ -99,16 +106,14 @@ export class CampanhaService {
     return retorno;
   }
 
+  //insere no cronograma nova atividade
   async createFilho(createCampanhaDto: CreateCampanhaFilhoDto) {
     let data = new Date(createCampanhaDto.dat_ini_prev);
     let qtd_dias_acum = 0;
     let int_qtd_atv = 0;
-    let array: any[];
     let ind_exec = 0;
-    const msg = '';
+
     createCampanhaDto.atividades.forEach(async (atv) => {
-      // Logger.log(atv.id_origem);
-      //array.push(atv.area_id);
       if (atv.ind_atv_execucao === true) {
         ind_exec = 1;
       }
@@ -117,8 +122,6 @@ export class CampanhaService {
         int_qtd_atv++;
       }
     });
-
-    // return createCampanhaDto;
 
     const poco_id_temp = createCampanhaDto.poco_id
       .split('-')[0]
@@ -173,64 +176,19 @@ export class CampanhaService {
       call sp_up_ordem_campanha(${createCampanhaDto.id_campanha});
     `);
 
-    //     Logger.log(`
-    //     INSERT INTO tb_camp_atv_campanha (id_pai, poco_id, id_campanha, dat_ini_plan, nom_usu_create, dat_usu_create)
-    //     VALUES (0, ${poco_id[0].id}, ${createCampanhaDto.id_campanha}, '${new Date(
-    //       data,
-    //     ).toISOString()}', '${createCampanhaDto.nom_usu_create}', NOW())
-    //    RETURNING ID
-    //  `);
     let tarefa_ant = 0;
     let contador = 0;
     createCampanhaDto.atividades.forEach(async (atv) => {
-      // const dat_ini_exec: any = new Date();
-      // const oldDate = new Date(data);
       let dat_inicio = new Date();
       let dat_final = new Date();
       data = new Date(
         new Date(createCampanhaDto.dat_ini_prev).setHours(9, 0, 0, 0),
       );
-      // regra desabilitada pois o sistema já faz o cálculo conforme o que vem do front, ou seja, a data de início da intervencão definida pelo ususário.
-      // data = addWorkDays(data, -qtd_dias_acum);
+
       dat_inicio = data;
       dat_final = new Date(new Date(dat_inicio).setHours(18, 0, 0, 0));
-      // msg =
-      //   'atv, ' +
-      //   atv.tarefa_id +
-      //   ' . Estado, ' +
-      //   atv.ind_atv_execucao +
-      //   ' .  Data I ----->, ' +
-      //   dat_inicio;
-
-      // Logger.log(msg);
 
       qtd_dias_acum -= atv.qtde_dias;
-
-      // Logger.log(`
-      //   INSERT INTO tb_camp_atv_campanha (id_pai, tarefa_id, dat_ini_plan, dat_fim_plan, area_id, responsavel_id, ind_atv_execucao, dat_ini_real, dat_fim_real)
-      //   VALUES (${id_pai[0].id}, ${atv.tarefa_id}, '${new Date(
-      //   dat_inicio,
-      // ).toISOString()}', '${new Date(
-      //   dat_inicio,
-      // ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias} , ${
-      //   atv.area_id
-      // }, 107, ${atv.ind_atv_execucao ? 1 : 0}, '${new Date(
-      //   dat_inicio,
-      // ).toISOString()}', '${new Date(
-      //   dat_inicio,
-      // ).toISOString()}'::timestamp + interval '1 day' * ${atv.qtde_dias})
-      // returning ID
-      // `);
-
-      // CRIAR NOVA PROCEDURE com os seguintes atributos
-      // id_pai
-      // id_atividade --> cadastrar a atv atual e identificar quais predecessoras estão associadas a essa atividade
-      // id_atividade_ant --> verificar a atividade anterior para pegar a data inicio e fim
-      // data inicio --> só será usado na primeira atividade
-      // qtde_dias --> para calcular a data final da atividade
-      // area id --> mero registro
-      // ind_atv_execucao --> registra a data que controla o cronograma de execução
-      //
 
       if (contador === 0) {
         await this.prisma.$queryRawUnsafe(
@@ -250,24 +208,7 @@ export class CampanhaService {
           })`,
         );
       }
-
-      // Logger.log(
-      //   `call sp_in_create_campanha(${id_pai[0].id}, ${
-      //     atv.tarefa_id
-      //   }, ${tarefa_ant}, ${+dat_inicio / 1000}, ${atv.qtde_dias}, ${
-      //     atv.area_id
-      //   }, ${atv.ind_atv_execucao ? 1 : 0});`,
-      // );
-
       tarefa_ant = atv.tarefa_id;
-
-      // // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-      // // await sleep(1000);
-      // Logger.log(
-      //   `call sp_in_create_atv_campanha(${id_pai[0].id}, ${
-      //     +new Date(createCampanhaDto.dat_ini_prev) / 1000
-      //   });`,
-      // );
     });
 
     await this.prisma.$queryRawUnsafe(
@@ -279,6 +220,7 @@ export class CampanhaService {
     return createCampanhaDto;
   }
 
+  //retorna todos os precedentes de um filho
   async visaoPrecedentes() {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
@@ -415,6 +357,7 @@ export class CampanhaService {
     where pai.id = ${id} and pai.id_pai = 0`);
   }
 
+  //monta filtro dinamico de acordo com payload do front
   async montaFiltros(campanhaFiltro: CampanhaFiltro): Promise<string> {
     let where = `
     WHERE 
@@ -547,6 +490,7 @@ export class CampanhaService {
     return where;
   }
 
+  //retorna dados para visão da tela de campanha
   async findAll(campanhaFiltro: CampanhaFiltro) {
     const where = await this.montaFiltros(campanhaFiltro);
 
@@ -688,6 +632,7 @@ export class CampanhaService {
     return tratamento;
   }
 
+  //volta uma unica campanha
   async findOne(id: number) {
     let retorno: any[] = [];
     retorno = await this.prisma.$queryRawUnsafe(`
@@ -829,6 +774,7 @@ export class CampanhaService {
     }
   }
 
+  //troca poço entre duas sondas
   async trocarPocoSonda(payload: TrocarPocoSondaDto) {
     await this.prisma.$queryRawUnsafe(`
       CALL sp_troca_poco_sonda(${payload.id_campanha_original}, ${payload.id_campanha_destino}, ${payload.id_cronograma_original})
@@ -855,6 +801,7 @@ export class CampanhaService {
     return retorno[0];
   }
 
+  //replaneja e recalcula cronograma de acordo com payload do front
   async replanejar(payload: ReplanejarCampanhaDto[], id_campanha: number) {
     await payload.reduce(async (prev, cur, curIdx, arr) => {
       if (curIdx < payload.length - 1) {
@@ -898,7 +845,6 @@ export class CampanhaService {
   }
 
   async updatePayload(payload: UpdateCampanhaDto) {
-    Logger.log(payload.inicioReal);
     const dat_tmp_inireal =
       new Date(payload.inicioReal).getTime() - 3 * 3600 * 1000;
     const dat_ini_real = new Date(dat_tmp_inireal);
@@ -924,25 +870,6 @@ export class CampanhaService {
       `);
     });
 
-    Logger.log(`
-    UPDATE tb_camp_atv_campanha
-    SET
-    pct_real = ${payload.atividadeStatus},
-    --nom_atividade = '${payload.nome}',
-    responsavel_id = ${payload.responsavelId},
-    area_id = ${payload.areaId},
-    dat_ini_real = ${
-      payload.inicioReal === null
-        ? null
-        : "'" + dat_ini_real.toISOString() + "'"
-    },
-    dat_fim_real = ${
-      payload.fimReal === null ? null : "'" + dat_fim_real.toISOString() + "'"
-    },
-    dsc_comentario = '${payload.comentario}'
-    WHERE
-    id = ${payload.atividadeId}
-  `);
     await this.prisma.$queryRawUnsafe(`
       UPDATE tb_camp_atv_campanha
       SET
@@ -962,15 +889,6 @@ export class CampanhaService {
       WHERE
       id = ${payload.atividadeId}
     `);
-
-    // Removido trecho pois força um recalculo no cronograma e faz com que as atividades cuja dadas reais foram alteraadas voltem para a data planejada
-    // const id_pai = await this.prisma.$queryRawUnsafe(`
-    //   SELECT id_pai FROM tb_camp_atv_campanha where id = ${payload.atividadeId}
-    // `);
-
-    // await this.prisma.$queryRawUnsafe(
-    //   `CALL sp_recalcula_data_real(${id_pai[0].id_pai})`,
-    // );
   }
 
   async remove(id: number, user: string) {
@@ -985,10 +903,6 @@ export class CampanhaService {
   }
 
   async removeCamp(idCamp: number, idAtv: number) {
-    Logger.log(`
-      call sp_de_campanha_poco(${idCamp}, ${idAtv});
-    `);
-
     await this.prisma.$queryRawUnsafe(`
       call sp_de_campanha_poco(${idCamp}, ${idAtv});
     `);
@@ -996,6 +910,7 @@ export class CampanhaService {
     return 1;
   }
 
+  //volta visão filtrada do gantt
   async findAllGantt(campanhaFiltro: CampanhaFiltro) {
     const where = await this.montaFiltros(campanhaFiltro);
 

@@ -1,17 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ * CRIADO EM: 03/09/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a atividades de intervenção
+ */
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AtividadesIntervencoesService } from './atividades-intervencoes.service';
-import { CreateAtividadesIntervencoeDto } from './dto/create-atividades-intervencao.dto';
-import { UpdateAtividadesIntervencoeDto } from './dto/update-atividades-intervencao.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('atividades-intervencoes')
@@ -20,38 +14,8 @@ export class AtividadesIntervencoesController {
     private readonly atividadesIntervencoesService: AtividadesIntervencoesService,
   ) {}
 
-  @Post()
-  create(
-    @Body() createAtividadesIntervencoeDto: CreateAtividadesIntervencoeDto,
-  ) {
-    return this.atividadesIntervencoesService.create(
-      createAtividadesIntervencoeDto,
-    );
-  }
-
   @Get()
   findAll() {
     return this.atividadesIntervencoesService.findAll();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.atividadesIntervencoesService.findOne(+id);
-  }
-
-  /* @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAtividadesIntervencoeDto: UpdateAtividadesIntervencoeDto,
-  ) {
-    return this.atividadesIntervencoesService.update(
-      +id,
-      updateAtividadesIntervencoeDto,
-    );
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.atividadesIntervencoesService.remove(+id);
-  } */
 }

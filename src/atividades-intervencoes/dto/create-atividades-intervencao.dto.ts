@@ -1,6 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 
-import { AreaAtuacaoExists } from '../../area-atuacao/validators/exists-area-atuacao.validator';
 export class CreateAtividadesIntervencoeDto {
   obs: string;
 
@@ -8,7 +7,6 @@ export class CreateAtividadesIntervencoeDto {
   tarefaId: number;
 
   @IsNotEmpty()
-  @AreaAtuacaoExists()
   areaAtuacaoId: number;
   dias: number;
 }

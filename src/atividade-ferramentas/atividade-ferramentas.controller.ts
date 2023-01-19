@@ -1,4 +1,9 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a dados de para ferramentas utilizadas em atividades
+ */
+import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AtividadeFerramentasService } from './atividade-ferramentas.service';
 import { CreateAtividadeFerramentaDto } from './dto/create-atividade-ferramenta.dto';
@@ -19,23 +24,8 @@ export class AtividadeFerramentasController {
     );
   }
 
-  @Get()
-  async findAll() {
-    return await this.atividadeFerramentasService.findAll();
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.atividadeFerramentasService.findById(+id);
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.atividadeFerramentasService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAtividadeFerramentaDto: UpdateAtividadeFerramentaDto) {
-  //   return this.atividadeFerramentasService.update(+id, updateAtividadeFerramentaDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.atividadeFerramentasService.remove(+id);
-  // }
 }

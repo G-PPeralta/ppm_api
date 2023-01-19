@@ -1,12 +1,9 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ * CRIADO EM: 25/09/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado ao template de projetos
+ */
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CampanhaProjetoTipoService } from './campanha-projeto-tipo.service';
 import { CreateCampanhaProjetoTipo } from './dto/create-campanha-projeto-tipo.dto';
@@ -29,10 +26,5 @@ export class CampanhaProjetoTipoController {
   @Get(':id')
   findByProjetos(@Param('id') id: string) {
     return this.service.findRelacaoByProjeto(+id);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.service.delete(+id);
   }
 }

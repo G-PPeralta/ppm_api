@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 25/09/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado ao financeiro
+ */
 import {
   Controller,
   Get,
@@ -12,9 +17,7 @@ import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { BudgetsService } from './budgets.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
-import { CreateBudgetDto } from './dto/create-budget.dto';
 import { CustoDiarioDto } from './dto/custos-diarios.dto';
-import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('budgets')
@@ -72,24 +75,5 @@ export class BudgetsController {
   @Get('/custoDiario/:id')
   getCustosDiario(@Param('id') id: string) {
     return this.budgetsService.getCustoDiario(id);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.budgetsService.findOne(+id);
-  }
-
-  @Patch(':id/:campo/:valor')
-  update(
-    @Param('id') id: string,
-    @Param('campo') campo: string,
-    @Param('valor') valor: string,
-  ) {
-    return this.budgetsService.update(+id, campo, valor);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.budgetsService.remove(+id);
   }
 }

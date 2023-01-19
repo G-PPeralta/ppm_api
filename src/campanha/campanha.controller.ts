@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 28/08/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a campanha (intervenção)
+ */
 import {
   Controller,
   Get,
@@ -7,11 +12,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
   Headers,
-  Logger,
 } from '@nestjs/common';
-// import { createClient } from 'redis';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CampanhaService } from './campanha.service';
 import { CampanhaFiltro } from './dto/campanha-filtro.dto';
@@ -81,20 +83,8 @@ export class CampanhaController {
 
   @Get('find/:id')
   async findOne(@Param('id') id: string, @Headers() headers) {
-    // const redis = createClient();
-    // await redis.connect();
-
-    // const cache = await redis.get(`campanhaControllerFind${id}`)
-
-    // if(cache){
-    //   return JSON.parse(cache);
-    // } else {
     const retorno = this.campanhaService.findOne(+id);
-
-    //   redis.set(`campanhaControllerFind${id}`, JSON.stringify(retorno));
-
     return retorno;
-    // }
   }
 
   @Patch()

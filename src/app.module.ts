@@ -30,8 +30,6 @@ import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
-import { AtividadesRecursosModule } from './atividades-recursos/atividades-recursos.module';
-import { AtividadesNotasModule } from './atividades-notas/atividades-notas.module';
 import { ProjetosAtividadesModule } from './projetos-atividades/projetos-atividades.module';
 import { ProjetosAtividadesNotasModule } from './projetos-atividades-notas/projetos-atividades-notas.module';
 import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-licoes-aprendidas/projetos-atividades-licoes-aprendidas.module';
@@ -98,8 +96,6 @@ import { DescribeModule } from './describe/describe.module';
     PocoModule,
     CamposModule,
     FornecedoresModule,
-    AtividadesRecursosModule,
-    AtividadesNotasModule,
     ProjetosAtividadesModule,
     ProjetosAtividadesNotasModule,
     ProjetosAtividadesLicoesAprendidasModule,

@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviços relacionado a areas de serviços do projeto
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 
@@ -8,13 +13,6 @@ export class AreasService {
   async findAll() {
     return this.prisma.$queryRawUnsafe(`
         select * from tb_area where dat_usu_erase is null;
-    `);
-  }
-
-  async delete(id: number) {
-    return this.prisma.$queryRawUnsafe(`
-    UPDATE tb_area set dat_usu_erase = now()
-    WHERE id = ${id};
     `);
   }
 }

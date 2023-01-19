@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 31/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a tabela dinamica
+ */
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { DescribeService } from './describe.service';

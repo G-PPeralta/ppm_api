@@ -1,7 +1,11 @@
+/**
+ * CRIADO EM: 31/07/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a classificação de projetos
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
-import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
 
 @Injectable()
 export class ClassificacaoService {
@@ -19,17 +23,5 @@ export class ClassificacaoService {
     });
     if (!classificacao) throw new Error('Falha na listagem de classificações');
     return classificacao;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} classificacao`;
-  }
-
-  update(id: number, updateClassificacaoDto: UpdateClassificacaoDto) {
-    return `This action updates a #${id} classificacao`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} classificacao`;
   }
 }

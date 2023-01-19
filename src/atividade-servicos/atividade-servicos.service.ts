@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 18/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a dados de atividades executadas
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateAtividadeServicoDto } from './dto/create-atividade-servico.dto';
