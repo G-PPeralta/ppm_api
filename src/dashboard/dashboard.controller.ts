@@ -1,11 +1,9 @@
-import {
-  // BadRequestException,
-  Controller,
-  Get,
-  // Query,
-  UseGuards,
-  // UseGuards,
-} from '@nestjs/common';
+/**
+ * CRIADO EM: 23/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a dados do dashboard
+ */
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DashboardService } from './dashboard.service';
 
@@ -43,16 +41,6 @@ export class DashboardController {
   getSolicitantes() {
     return this.dashboardService.getSolicitantes();
   }
-
-  // @Get('orcamento-total')
-  // getTotalOrcamentoPrevisto(@Query('polo_id_param') polo_id_param?: string) {
-  //   if (polo_id_param && isNaN(Number(polo_id_param)))
-  //     throw new BadRequestException(
-  //       DashboardService.errors.totalOrcamento.badRequestError,
-  //     );
-  //   const numberPoloId = polo_id_param ? Number(polo_id_param) : null;
-  //   return this.dashboardService.getTotalOrcamentoPrevisto(numberPoloId);
-  // }
 
   @Get('previsto-realizado-barras')
   async getPrevistoRealizadoBarras() {

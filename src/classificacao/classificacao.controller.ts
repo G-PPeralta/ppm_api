@@ -1,18 +1,19 @@
+/**
+ * CRIADO EM: 31/07/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a classificação de projetos
+ */
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ClassificacaoService } from './classificacao.service';
 import { CreateClassificacaoDto } from './dto/create-classificacao.dto';
-import { UpdateClassificacaoDto } from './dto/update-classificacao.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('classificacao')
@@ -31,23 +32,5 @@ export class ClassificacaoController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.classificacaoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateClassificacaoDto: UpdateClassificacaoDto,
-  ) {
-    return this.classificacaoService.update(+id, updateClassificacaoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.classificacaoService.remove(+id);
   }
 }

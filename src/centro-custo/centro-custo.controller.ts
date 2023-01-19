@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 16/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a centro de custo
+ */
 import {
   Body,
   Controller,

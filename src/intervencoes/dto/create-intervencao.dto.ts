@@ -1,10 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
 import { SondaExists } from '../../sonda/validators/exists-sondas.validator';
 import { PocoExists } from '../../poco/validators/exists-pocos.validator';
-import { AtividadeIntervencaoExists } from 'atividades-intervencoes/validators/exitis-atividades-intervencoes.validator';
 
 export class Atividades {
-  @AtividadeIntervencaoExists()
   atividadeId: number;
 
   ordem: number;

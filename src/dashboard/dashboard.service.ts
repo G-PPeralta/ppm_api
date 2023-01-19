@@ -1,14 +1,15 @@
+/**
+ * CRIADO EM: 23/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviços relacionados a dados do dashboard
+ */
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { QueryAreasDemandadasDto } from './dto/areas-demandadas-projetos.dto';
 import { GatesDto } from './dto/gates.dto';
-// import { ProjetoDto } from './dto/projetos.dto';
 import { TotalNaoPrevistoDto } from './dto/total-nao-previsto.dto';
-import {
-  TotalOrcamentoDto,
-  // TransformNumberDto,
-} from './dto/total-orcamento.dto';
+import { TotalOrcamentoDto } from './dto/total-orcamento.dto';
 import {
   ComplexidadesProjetoDto,
   PrioridadesProjetoDto,
@@ -27,33 +28,6 @@ export class DashboardService {
   };
 
   async getGates() {
-    // const retorno: any[] = await this.prisma.$queryRaw`
-    // select gates.gate as name, count(projetos.gate_id)::integer as value from tb_gates gates
-    // inner join tb_projetos projetos
-    // on gates.id = projetos.gate_id
-    // where tipo_projeto_id <> 3
-    // group by gates.gate
-    // union
-    // select gate as name, 0 as value from tb_gates
-    // where gate not in (
-    //   select gates.gate from
-    //   tb_gates gates
-    //   inner join tb_projetos projetos
-    //   on projetos.gate_id = gates.id
-    //   where projetos.tipo_projeto_id <> 3
-    // )
-    // `;
-    // let sum = 0;
-    // retorno.forEach((e) => {
-    //   sum += e.value;
-    // });
-    // return retorno.map((e) => {
-    //   return {
-    //     name: e.name,
-    //     value: Number((e.value > 0 ? e.value / sum : e.value) * 100),
-    //   };
-    // });
-
     const query: GatesDto[] = await this.prisma.$queryRawUnsafe(`
     SELECT
     g.gate AS gate,
@@ -91,6 +65,7 @@ GROUP BY
     return query;
   }
 
+  //retorna tipo de status por mês
   async getTotalProjetosGraficoMes() {
     const query: any[] = await this.prisma.$queryRawUnsafe(`
     select
@@ -181,6 +156,7 @@ order by
     return result;
   }
 
+  //retorna grafico de previsto x realizado
   async getPrevistoRealizadoBarras() {
     return await this.prisma.$queryRawUnsafe(`
     select 
@@ -664,51 +640,8 @@ GROUP BY
     1, 2;
     `);
 
-    // const demandas = retornoQuery.map((deman) => ({
-    //   month: Number(deman.data.split('-')[1]),
-    //   sms: deman.solicitante == 'SMS' ? Number(deman.quantia) : 0,
-    //   regulatorio:
-    //     deman.solicitante == 'Regulatório' ? Number(deman.quantia) : 0,
-    //   operacao: deman.solicitante == 'Operação' ? Number(deman.quantia) : 0,
-    //   outros:
-    //     deman.solicitante !== 'Operação' &&
-    //     deman.solicitante !== 'SMS' &&
-    //     deman.solicitante !== 'Regulatório'
-    //       ? Number(deman.quantia)
-    //       : 0,
-    // }));
-
-    // const demandasCompletas = demandas.reduce((acc, curr) => {
-    //   const index = acc.findIndex((item) => item.month === curr.month);
-    //   if (index === -1) {
-    //     acc.push(curr);
-    //   } else {
-    //     acc[index].sms += curr.sms;
-    //     acc[index].regulatorio += curr.regulatorio;
-    //     acc[index].operacao += curr.operacao;
-    //     acc[index].outros += curr.outros;
-    //   }
-    //   return acc;
-    // }, []);
-
     return retornoQuery;
   }
-
-  // async getTotalOrcamentoPrevisto(poloId?: number) {
-  //   const retornoQuery: TotalOrcamentoDto[] = await this.prisma
-  //     .$queryRaw`select * from f_orcado_realizado_polo_id(${Prisma.sql`${
-  //     poloId ? poloId : null
-  //   }`})`;
-
-  //   const tranformTotalInNumber: TransformNumberDto[] = retornoQuery.map(
-  //     ({ total, tipo_valor }) => ({
-  //       total: Number(total),
-  //       tipo_valor,
-  //     }),
-  //   );
-
-  //   return tranformTotalInNumber;
-  // }
 
   async getTotalOrcamentoPrevisto() {
     const retornoQuery: TotalOrcamentoDto[] = await this.prisma

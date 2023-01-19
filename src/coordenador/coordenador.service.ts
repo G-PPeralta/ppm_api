@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 14/08/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a coordenadores
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateCoordenadorDto } from './dto/create-coordenador.dto';

@@ -1,13 +1,16 @@
+/**
+ * CRIADO EM: 25/09/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a financeiro
+ */
+
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
-import { LogController } from 'log/log.controller';
+import { Injectable } from '@nestjs/common';
 import { firstValueFrom, map } from 'rxjs';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { BudgetReal } from './dto/creat-budget-real.dto';
 import { BudgetPlan } from './dto/create-budget-plan.dto';
-import { CreateBudgetDto } from './dto/create-budget.dto';
 import { CustoDiarioDto, CustoDiarioORMDto } from './dto/custos-diarios.dto';
-// import { UpdateBudgetDto } from './dto/update-budget.dto';
 
 @Injectable()
 export class BudgetsService {
@@ -15,7 +18,9 @@ export class BudgetsService {
     private prisma: PrismaService,
     private readonly httpService: HttpService,
   ) {}
+
   async updateBudgetPlan(_updateBudgetDto: BudgetPlan) {
+    //substituido por um upsert, o valor dado pelo financeiro é sempre o maior apontado para um serviço por projeto
     await this.prisma.$queryRawUnsafe(`
     INSERT INTO tb_afe_projeto_plan (id_servico, id_projeto, vlr_planejado, dat_usu_create) 
     VALUES (${_updateBudgetDto.atividadeId}, ${_updateBudgetDto.projetoId}, ${_updateBudgetDto.valor}, now())
@@ -24,36 +29,23 @@ export class BudgetsService {
           dat_usu_edit = now();
     `);
 
-    // CONTIGENCIA
+    // CONTIGENCIA - sempre será adicionado 5% do valor caso exista, ou o valor será 5%
     await this.prisma.$queryRawUnsafe(`
     INSERT INTO tb_afe_projeto_plan (id_servico, id_projeto, vlr_planejado, dat_usu_create) 
-    VALUES (88, ${_updateBudgetDto.projetoId}, ${
+    VALUES (${_updateBudgetDto.atividadeId}, ${_updateBudgetDto.projetoId}, ${
       _updateBudgetDto.valor * 0.05
     }, now())
     ON CONFLICT (id_servico, id_projeto) DO UPDATE 
       SET vlr_planejado = (select vlr_planejado from tb_afe_projeto_plan where id_projeto = ${
         _updateBudgetDto.projetoId
-      } and id_servico = 88) + ${_updateBudgetDto.valor * 0.05} , 
+      } and id_servico = ${_updateBudgetDto.atividadeId}) + ${
+      _updateBudgetDto.valor * 0.05
+    } , 
           dat_usu_edit = now();
     `);
 
     return _updateBudgetDto;
   }
-
-  // async createBudgetReal(_updateBudgetReal: BudgetReal) {
-  //   const budgetReal = {
-  //     id_fornecedor: +_updateBudgetReal.fornecedor,
-  //     dat_lcto: new Date(_updateBudgetReal.data).toISOString(),
-  //     vlr_realizado: _updateBudgetReal.valor,
-  //     txt_observacao: _updateBudgetReal.textPedido,
-  //     num_pedido: _updateBudgetReal.pedido,
-  //     nom_usu_create: _updateBudgetReal.nom_usu_create,
-  //     id_atividade: +_updateBudgetReal.atividadeId,
-  //   };
-  //   return this.prisma.atividadeCustosRealizado.create({
-  //     data: budgetReal,
-  //   });
-  // }
 
   async createBudgetReal(createBudgetReal: BudgetReal) {
     const budgetReal = {
@@ -69,7 +61,7 @@ export class BudgetsService {
     };
 
     return await this.prisma.$queryRawUnsafe(`
-    INSERT INTO hmg.tb_afe_projeto_real
+    INSERT INTO tb_afe_projeto_real
     (
       id_servico, 
       id_fornecedor, 
@@ -98,6 +90,11 @@ export class BudgetsService {
   }
 
   async findAll() {
+    //como é selecionado o pai de um budget
+    //pai nao possui o id_pai
+    //filho sempre possui o id_pai apontando para coluna id do pai
+    //pai e filho residem na tabela tb_projetos_atividade
+    //um pai tem relação com sonda e poco, e sempre será o tipo_projeto_id 3 para intervenção
     const pais: any[] = await this.prisma.$queryRawUnsafe(` 
       select
         sonda.id as id_pai,
@@ -127,6 +124,8 @@ export class BudgetsService {
       sonda.nom_atividade  
     `);
 
+    //atribuição de filhos após separar cada pai anteriormente
+    //a soma de valor planejado se da pela tabela tb_afe_projeto_plan
     const result = pais.map(async (pai, Pkey) => {
       const filhos: any[] = await this.prisma.$queryRawUnsafe(`
         select 
@@ -185,11 +184,8 @@ export class BudgetsService {
     return await Promise.all(result);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} budget`;
-  }
-
   async update(id: number, campo: string, valor: string) {
+    //update de campo dinamico
     const existe = await this.prisma.$queryRawUnsafe(`
     select CAST(count(*) AS INT) as qt from tb_camp_atv_campanha where id = ${id} and dat_ini_real is null;
     `);
@@ -202,11 +198,11 @@ export class BudgetsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} budget`;
-  }
-
   async findAllDetail(id: number) {
+    //retorna todos os dados por pai, ou seja, o id dele na tabela tb_projetos_atividades
+    //qual poço é relacionado
+    //seus valores
+    //calculo de gap financeiro
     const pais: any[] = await this.prisma.$queryRawUnsafe(`
     select
     id_pai,
@@ -241,6 +237,8 @@ export class BudgetsService {
   ) as q
   `);
 
+    //faz a vinculação dos dados do filho
+    //a tb_afe_itens tem sua categoria de acordo com o id_pai
     const retornar = async () => {
       const tratamento: any = [];
       let pKey = 0;
@@ -275,7 +273,6 @@ export class BudgetsService {
 
         filhos.forEach((f) => {
           dados.filhos.push({
-            //brt: `${pKey}.${++fKey}`,
             brt: f.id_atividade,
             projeto: {
               id_projeto: id,
@@ -312,6 +309,7 @@ export class BudgetsService {
   }
 
   async findAllProjects() {
+    //retorna todos os projetos de intervenção
     return this.prisma.$queryRawUnsafe(`select
     sonda.id as id,
     sonda.nom_atividade as nome
@@ -332,17 +330,10 @@ export class BudgetsService {
     sonda.id,
     sonda.nom_atividade
     order by nome `);
-    /*const projetos = await this.prisma.tb_projetos_atividade.findMany({
-      select: { nom_atividade: true, id: true },
-      where: { id_pai: 0 },
-    });
-
-    return projetos.map((data) => {
-      return { nome: data.nom_atividade, id: data.id };
-    });*/
   }
 
   async getSondaNome(id) {
+    //valida vinculo de poço de acordo com a relação em tb_projetos_atividade
     const query = await this.prisma.$queryRawUnsafe(
       `select
         poco.nom_atividade as poco_nome,
@@ -462,17 +453,6 @@ export class BudgetsService {
   }
 
   async custosDiariosFilhoList(id: string, _custoDiario: CustoDiarioDto) {
-    /*return this.prisma.atividadeCustosRealizado.findMany({
-      select: { vlr_realizado: true, dat_lcto: true },
-      where: {
-        id_atividade: +id,
-        dat_lcto: {
-          lte: _custoDiario.endDate,
-          // gte: _custoDiario.startDate,
-        },
-      },
-    });*/
-
     let data: CustoDiarioORMDto[] = [];
     if (
       _custoDiario.startDate !== null &&

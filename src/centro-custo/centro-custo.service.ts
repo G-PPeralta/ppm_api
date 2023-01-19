@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 16/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviços relacionados a centro de custo
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateCentroCustoDto } from './dto/create-centro-custo.dto';

@@ -1,8 +1,6 @@
-import { AtividadeIntervencaoExists } from '../../atividades-intervencoes/validators/exitis-atividades-intervencoes.validator';
 import { IsNotEmpty } from 'class-validator';
 
 export class Atividades {
-  @AtividadeIntervencaoExists()
   atividadeId: number;
 
   ordem: number;
