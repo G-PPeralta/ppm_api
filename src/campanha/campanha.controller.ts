@@ -46,11 +46,6 @@ export class CampanhaController {
     return this.campanhaService.createAtividade(createAtividadeCampanhaDto);
   }
 
-  @Post()
-  findAll(@Body() campanhaFiltro: CampanhaFiltro) {
-    return this.campanhaService.findAll(campanhaFiltro);
-  }
-
   @Post('gantt')
   findAllGantt(@Body() campanhaFiltro: CampanhaFiltro) {
     return this.campanhaService.findAllGantt(campanhaFiltro);

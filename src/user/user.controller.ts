@@ -107,13 +107,6 @@ export class UserController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get()
-  async findAll() {
-    return await this.userService.findAll();
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.userService.findOne(+id);

@@ -34,11 +34,6 @@ export class UserService {
     return await this.prisma.user.create({ data: createUserDto });
   }
 
-  async findAll() {
-    const users = await this.prisma.$queryRaw`select * from v_users_with_role`;
-    return users;
-  }
-
   async findOne(id: number) {
     const users = await this.prisma
       .$queryRaw`select * from v_users_with_role where id = ${id}`;
