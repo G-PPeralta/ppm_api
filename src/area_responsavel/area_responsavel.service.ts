@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a dados de responsaveis de projetos
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateAreaResponsavel } from './dto/create-responsavel.dto';

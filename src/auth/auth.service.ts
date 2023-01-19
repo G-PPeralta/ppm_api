@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 16/06/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço de autenticação
+ */
+
 import { LoginDto } from './../user/dto/login.dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  //validação de usuário mantido em BD
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
     const crypt = new Encrypt64();

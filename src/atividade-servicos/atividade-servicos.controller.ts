@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 18/10/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a dados de atividades executadas
+ */
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AtividadeServicosService } from './atividade-servicos.service';
@@ -21,19 +26,4 @@ export class AtividadeServicosController {
   async findAll() {
     return await this.atividadeServicosService.findAll();
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.atividadeServicosService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAtividadeServicoDto: UpdateAtividadeServicoDto) {
-  //   return this.atividadeServicosService.update(+id, updateAtividadeServicoDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.atividadeServicosService.remove(+id);
-  // }
 }

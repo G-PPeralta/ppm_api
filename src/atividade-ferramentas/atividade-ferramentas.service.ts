@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Serviço relacionado a ferramentas utilizadas para uma atividade
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateAtividadeFerramentaDto } from './dto/create-atividade-ferramenta.dto';
@@ -16,13 +22,6 @@ export class AtividadeFerramentasService {
     `);
 
     return data;
-  };
-
-  public findAll = async () => {
-    const ferramentas = await this.prisma.$queryRawUnsafe(
-      'select * from tb_atividade_ferramentas',
-    );
-    return ferramentas;
   };
 
   public findById = async (id: number) => {

@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Controlador relacionado a areas de serviços do projeto
+ */
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AreasService } from './areas.service';
@@ -10,10 +15,5 @@ export class AreasController {
   @Get()
   findAll() {
     return this.areasService.findAll();
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.areasService.delete(+id);
   }
 }

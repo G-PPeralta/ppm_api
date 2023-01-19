@@ -1,3 +1,8 @@
+/**
+ * CRIADO EM: 20/11/2022
+ * AUTOR: Pedro de França Lopes
+ * DESCRIÇÃO DO ARQUIVO: Repositorio com ações relacionadas a area atuação
+ */
 import { Injectable } from '@nestjs/common';
 import { AreaAtuacaoEntity } from '../entities/area-atuacao.entity';
 import { PrismaService } from '../../services/prisma/prisma.service';
@@ -12,8 +17,6 @@ export class AreaAtuacaoRepository {
   }
 
   async getAll() {
-    // return await this.prisma.areaAtuacao.findMany();
-
     return await this.prisma.$queryRawUnsafe(`
     SELECT * FROM tb_areas_atuacoes WHERE deletado = false;
     `);
