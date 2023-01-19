@@ -1,9 +1,14 @@
+/**
+ *  CRIADO EM: 13/01/2023
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação de  nova atividade
+ */
+
 import { Injectable } from '@nestjs/common';
 import { CampanhaService } from 'campanha/campanha.service';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { addWorkDays } from 'utils/days/daysUtil';
 import { CreateAtividade } from './dto/create-atividade.dto';
-import { CreateAtividadeOutro } from './dto/create-outros.dto';
 
 @Injectable()
 export class NovaAtividadeService {
@@ -11,14 +16,6 @@ export class NovaAtividadeService {
     private prisma: PrismaService,
     private campanhaService: CampanhaService,
   ) {}
-
-  async createOutros(createOutros: CreateAtividadeOutro) {
-    return await this.prisma.$queryRawUnsafe(`
-      INSERT INTO tb_camp_atv (nom_atividade, responsavel_id, area_atuacao)
-      VALUES
-      ('${createOutros.nom_atividade}', 0, 0)
-    `);
-  }
 
   async create(createAtividade: CreateAtividade) {
     return await this.prisma
@@ -75,24 +72,6 @@ export class NovaAtividadeService {
       SELECT distinct on (nom_atividade) * FROM tb_camp_atv
       WHERE dat_usu_erase is null
       order by nom_atividade 
-    `);
-  }
-
-  async update(atividade: CreateAtividade, id: number) {
-    return this.prisma.$queryRawUnsafe(`
-    UPDATE tb_camp_atv
-    SET
-    id_origem = '${atividade.id_origem}',
-    nom_atividade = '${atividade.nom_atividade}',
-    responsavel_id = ${atividade.responsavel_id},
-    ind_fase = ${atividade.fase_id}
-    WHERE id = ${id}
-    `);
-  }
-
-  async delete(id: number) {
-    return this.prisma.$queryRawUnsafe(`
-    UPDATE tb_camp_atv SET dat_usu_erase = now() WHERE id = ${id}
     `);
   }
 }

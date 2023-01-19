@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   ValidatorConstraintInterface,
-  ValidationArguments,
   ValidatorConstraint,
   registerDecorator,
   ValidationOptions,
@@ -23,7 +22,7 @@ export class SondaExistsRule implements ValidatorConstraintInterface {
     return true;
   }
 
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `Sonda doesn't exist`;
   }
 }

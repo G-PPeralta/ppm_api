@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 14/09/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação de informações pertinestes a fornecedores
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';

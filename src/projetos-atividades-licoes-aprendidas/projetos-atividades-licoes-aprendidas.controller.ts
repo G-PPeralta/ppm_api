@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 18/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Endpoints que criam, listam, atualizam e removem lições aprendidas das atividades de um projeto.
+ */
+
 import {
   Body,
   Controller,
@@ -77,17 +83,6 @@ export class ProjetosAtividadesLicoesAprendidasController {
       payload,
     );
   }
-
-  // @Delete(':id_do_projeto/:id_da_licao')
-  // removeOne(
-  //   @Param('id_do_projeto') id_do_projeto: string,
-  //   @Param('id_da_licao') id_da_licao: string,
-  // ) {
-  //   return this.projetosAtividadesLicoesAprendidasService.removeOne(
-  //     +id_do_projeto,
-  //     +id_da_licao,
-  //   );
-  // }
 
   @Delete(':id/:user')
   remove(@Param('id') id: string, @Param('user') user: string) {

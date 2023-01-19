@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 24/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a Editar-atividade
+ */
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { EditarAtividadeDto } from './dto/editar-atividade.dto';

@@ -1,16 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ * CRIADO EM: 27/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: ENDPOINTS DE CRIAÇÃO E LISTAGEM DE TIPOS DE PROJETO (Ex: Estudo, Projeto)
+ */
+
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { TipoProjetoService } from './tipo-projeto.service';
 import { CreateTipoProjetoDto } from './dto/create-tipo-projeto.dto';
-import { UpdateTipoProjetoDto } from './dto/update-tipo-projeto.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -26,23 +22,5 @@ export class TipoProjetoController {
   @Get()
   findAll() {
     return this.tipoProjetoService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tipoProjetoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTipoProjetoDto: UpdateTipoProjetoDto,
-  ) {
-    return this.tipoProjetoService.update(+id, updateTipoProjetoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tipoProjetoService.remove(+id);
   }
 }

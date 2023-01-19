@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 14/09/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface Fornecedores
+ */
 export class UpdateFornecedorDto {
   id: number;
   poloid: number;

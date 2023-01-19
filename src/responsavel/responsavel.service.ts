@@ -1,21 +1,19 @@
+/**
+ * CRIADO EM: 27/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Serviço de criação e listagem de responsáveis de um projeto.
+ */
+
 import { Injectable } from '@nestjs/common';
-// import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateResponsavelDto } from './dto/create-responsavel.dto';
-import { UpdateResponsavelDto } from './dto/update-responsavel.dto';
-// import { ResponsavelEntity } from './entities/responsavel.entity';
-
 @Injectable()
 export class ResponsavelService {
   constructor(private prisma: PrismaService) {}
 
-  // async create(responsavel: CreateResponsavelDto) {
-  //   return await this.prisma.responsavel.create({
-  //     data: responsavel,
-  //   });
-  // }
-
   async create(responsavel: CreateResponsavelDto) {
+    //ind_sistema é uma coluna da tabela de responsáveis que indica o tipo de projeto/área pelo qual a pessoa responde. Por exemplo, ind_sistema = 'p' indica projeto, já ind_sistema = 'i', indica que é um responsável por projeto de intervenção
+
     return await this.prisma.$queryRawUnsafe(`
       INSERT INTO tb_responsaveis (nome_responsavel, ind_sistema) values ('${responsavel.nome}', '${responsavel.ind_sistema}')
     `);
@@ -34,26 +32,11 @@ export class ResponsavelService {
   }
 
   async findByName(nome: string) {
-    // const coordenador = await prismaClient.$queryRaw(Prisma.sql`
-    // select coordenador_nome from dev.tb_coordenadores tc where coordenador_nome=${nome};
-    // `);
     const responsavel = await this.prisma.responsavel.findFirst({
       where: {
         nome,
       },
     });
     return responsavel;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} responsavel`;
-  }
-
-  update(id: number, updateResponsavelDto: UpdateResponsavelDto) {
-    return `This action updates a #${id} responsavel`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} responsavel`;
   }
 }

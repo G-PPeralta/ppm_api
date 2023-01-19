@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 15/07/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: manipulacao informações pertinestes a gant
+ */
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import e from 'express';
@@ -9,9 +14,6 @@ import { UpdateGanttDto } from './dto/update-gantt.dto';
 @Injectable()
 export class GanttService {
   constructor(private prisma: PrismaService) {}
-  create(createGanttDto: CreateGanttDto) {
-    return 'This action adds a new gantt';
-  }
 
   async findAll() {
     const gantt: GanttPayload[] = await this.prisma.$queryRaw(Prisma.sql`

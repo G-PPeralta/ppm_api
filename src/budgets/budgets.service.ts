@@ -243,7 +243,7 @@ export class BudgetsService {
       const tratamento: any = [];
       let pKey = 0;
       for (const e of pais) {
-        const fKey = 0;
+        // const fKey = 0;
         const filhos: any[] = await this.prisma.$queryRawUnsafe(`
         select 
             a.id_categoria as id_filho,

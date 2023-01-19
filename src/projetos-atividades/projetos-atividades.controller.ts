@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 18/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Endpoints que criam, listam, atualizam e removem atividades de um projeto. São atividades listadas no gráfico de gantt da tela de detalhamento. Servem também para abastecer o gráfico de curva S e listar operações do módulo de estatística
+ */
+
 import {
   Body,
   Controller,
@@ -14,7 +20,7 @@ import { CreateProjetosFilhoDto } from './dto/create-projetos-filho.dto';
 import { UpdateProfundidadeDTO } from './dto/update-profundidade.dto';
 import { ProjetosAtividadesService } from './projetos-atividades.service';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('projetos-atividades')
 export class ProjetosAtividadesController {
   constructor(
@@ -39,11 +45,6 @@ export class ProjetosAtividadesController {
   @Get()
   findAll() {
     return this.projetosAtividadesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projetosAtividadesService.findOne(+id);
   }
 
   @Get('/pendencia/:idprojeto')

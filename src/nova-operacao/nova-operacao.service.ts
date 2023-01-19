@@ -1,3 +1,9 @@
+/**
+ *  CRIADO EM: 23/12/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação de informações de nova operação
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateNovaOperacao } from './dto/create-nova-operacao.dto';
@@ -16,11 +22,11 @@ export class NovaOperacaoService {
         ('${createNovaOperacao.id_origem}', '${
       createNovaOperacao.nom_operacao
     }',
-         ${createNovaOperacao.responsavel_id || null}, ${
+      ${createNovaOperacao.responsavel_id || null}, ${
       createNovaOperacao.area_id || null
     },
-         ${null}, ${null}, false, '${createNovaOperacao.nom_usu_create}', NOW()
-         )
+      ${null}, ${null}, false, '${createNovaOperacao.nom_usu_create}', NOW()
+      )
     `);
   }
 

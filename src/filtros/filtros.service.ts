@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 23/12/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação informações pertinestes a fitros
+ */
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { FiltroDto } from './dto/filtros.dto';

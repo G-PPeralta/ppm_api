@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 18/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Serviço que cria, lista, atualiza e remove anotações em projetos de intervenção. Essas anotações acompanham um arquivo que o usuário anexa no projeto.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosAtividadeNotasDto } from './dto/create-projeto-atividade-notas.dto';

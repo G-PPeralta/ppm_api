@@ -1,17 +1,20 @@
+/**
+ * CRIADO EM: 27/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: ENDPOINTS DE CRIAÇÃO E LISTAGEM DE SOLICITANTES DE UM PROJETO.
+ * DIZ RESPEITO A QUAL ÁREA DA ORIGEM ESTÁ SOLICITANDO UM PROJETO QUE ESTÁ SENDO CADASTRADO
+ */
+
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
 import { SolicitanteService } from './solicitante.service';
 import { CreateSolicitanteDto } from './dto/create-solicitante.dto';
-import { UpdateSolicitanteDto } from './dto/update-solicitante.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -31,23 +34,5 @@ export class SolicitanteController {
     } catch (error: any) {
       throw new NotFoundException(error.message);
     }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.solicitanteService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateSolicitanteDto: UpdateSolicitanteDto,
-  ) {
-    return this.solicitanteService.update(+id, updateSolicitanteDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.solicitanteService.remove(+id);
   }
 }

@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 07/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: Endpoints que criam, listam, atualizam e removem um projeto.
+ */
+
 import {
   Controller,
   Get,
@@ -13,19 +19,13 @@ import {
 import { ProjetosService } from './projetos.service';
 import { CreateProjetoDto } from './dto/create-projeto.dto';
 import { UpdateProjetoDto } from './dto/update-projeto.dto';
-// import { CreateResponsavelDto } from 'responsavel/dto/create-responsavel.dto';
-// import { prismaClient } from 'index.prisma';
-import { ResponsavelService } from '../responsavel/responsavel.service';
 import { VincularAtividade } from './dto/vincular-atividade.dto';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('projetos')
 export class ProjetosController {
-  constructor(
-    private readonly projetosService: ProjetosService,
-    private readonly responsavelService: ResponsavelService,
-  ) {}
+  constructor(private readonly projetosService: ProjetosService) {}
 
   @Get('detalhados')
   async getProjetosDetalhados() {

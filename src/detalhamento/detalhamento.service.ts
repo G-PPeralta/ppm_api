@@ -1,21 +1,17 @@
+/**
+ *  CRIADO EM: 15/08/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: manipulação informações pertinestes a detalhamento
+ */
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CpiSpi } from './dto/cpi-spi.dto';
 import { InfoFinanceiro } from './dto/financeiro-dto';
-// import { CreateDetalhamentoDto } from './dto/create-detalhamento.dto';
-// import { UpdateDetalhamentoDto } from './dto/update-detalhamento.dto';
 
 @Injectable()
 export class DetalhamentoService {
   constructor(private prisma: PrismaService) {}
-  // create(createDetalhamentoDto: CreateDetalhamentoDto) {
-  //   return 'This action adds a new detalhamento';
-  // }
-
-  // findAll() {
-  //   return `This action returns all detalhamento`;
-  // }
 
   async findOne(id: number) {
     const projeto = await this.prisma.$queryRaw(Prisma.sql`
@@ -233,29 +229,4 @@ export class DetalhamentoService {
       spi: Number(calc.vlr_spi),
     }));
   }
-
-  // async findOneRemanescente(id: number) {
-  //   let remanescente = { valor: 0 };
-  //   const orcamento = await this.findOneOrcamento(id);
-  //   const realizado = await this.findOneRealizado(id);
-
-  //   if (orcamento !== null && realizado !== null) {
-  //     remanescente.valor =
-  //       Number(orcamento.valorTotalPrevisto) - Number(realizado.valor);
-  //   }
-
-  //   if (remanescente.valor === Number(orcamento.valorTotalPrevisto)) {
-  //     remanescente = { valor: 0 };
-  //   }
-
-  //   return remanescente;
-  // }
-
-  // update(id: number, updateDetalhamentoDto: UpdateDetalhamentoDto) {
-  //   return `This action updates a #${id} detalhamento`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} detalhamento`;
-  // }
 }

@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 07/01/2023
+ * AUTOR: PEDRO FRANCA
+ * DESCRIÇÃO: Serviço que cria e lista priorizações de um projeto.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { PriorizacoesDto } from './dto/priorizacoes.dto';

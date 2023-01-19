@@ -1,6 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 import { SondaExists } from '../../sonda/validators/exists-sondas.validator';
-import { PocoExists } from '../../poco/validators/exists-pocos.validator';
 
 export class Atividades {
   atividadeId: number;
@@ -24,6 +23,5 @@ export class CreateIntervencaoDto {
   sptId: number;
 
   @IsNotEmpty()
-  @PocoExists()
   pocoId: number;
 }

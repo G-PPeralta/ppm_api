@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 20/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: serviço que cria, lista e atualiza projetos de acordo com o peso no ranking. Ranking determina a ordem de prioridade de um projeto. Projetos prioritários aparecerão em primeiro na listagem que existe no front-end
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'services/prisma/prisma.service';
 import { CreateProjetosRankingDto } from './dto/create-projetos-ranking.dto';

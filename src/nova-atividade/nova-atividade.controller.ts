@@ -1,16 +1,12 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ *  CRIADO EM: 13/01/2023
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a nova atividade.
+ */
+
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreateAtividade } from './dto/create-atividade.dto';
-import { CreateAtividadeOutro } from './dto/create-outros.dto';
 import { NovaAtividadeService } from './nova-atividade.service';
 
 @UseGuards(JwtAuthGuard)
@@ -28,11 +24,6 @@ export class NovaAtividadeController {
     return this.novaAtividadeService.create(createAtividade);
   }
 
-  @Post('outros')
-  createOutros(@Body() createOutros: CreateAtividadeOutro) {
-    return this.novaAtividadeService.createOutros(createOutros);
-  }
-
   @Post('intervencao/:id')
   async vinculaIntervencao(
     @Param('id') id: string,
@@ -44,15 +35,5 @@ export class NovaAtividadeController {
       createAtividade.atividade_id,
       createAtividade,
     );
-  }
-
-  @Patch(':id')
-  update(@Body() atividade: CreateAtividade, @Param('id') id: string) {
-    return this.novaAtividadeService.update(atividade, +id);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.novaAtividadeService.delete(+id);
   }
 }

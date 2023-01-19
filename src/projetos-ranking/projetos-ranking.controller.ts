@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 20/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: endpoints que criam, listam e atualizam projetos de acordo com o peso no ranking. Ranking determina a ordem de prioridade de um projeto. Projetos prioritários aparecerão em primeiro na listagem que existe no front-end
+ */
+
 import {
   Body,
   Controller,

@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 21/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface feriado
+ */
 export class Feriado {
   ind_global: number;
   id_projeto: number;

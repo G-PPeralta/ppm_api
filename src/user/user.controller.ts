@@ -19,7 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesGuard } from 'auth/guards/roles.guard';
 import { Roles } from 'auth/roles/roles.decorator';
 import { Perfil } from 'types/roles';
-import { LoggerDB } from 'decorators/logger-db.decorator';
+// import { LoggerDB } from 'decorators/logger-db.decorator';
 import { sendConfirmationEmail } from 'utils/email/sendgrid';
 
 @Controller('user')
@@ -73,7 +73,7 @@ export class UserController {
   async createUserFromAdmin(
     @Body() createUserDto: CreateUserDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @LoggerDB() req,
+    // @LoggerDB() req,
   ) {
     try {
       const hasRoleId = createUserDto.roleId;
@@ -126,7 +126,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @LoggerDB() req,
+    // @LoggerDB() req,
   ) {
     try {
       const user = await this.userService.update(+id, updateUserDto);
@@ -140,7 +140,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  remove(@Param('id') id: string, @LoggerDB() req) {
+  remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
 }

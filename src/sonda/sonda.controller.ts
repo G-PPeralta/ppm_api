@@ -1,3 +1,9 @@
+/**
+ * CRIADO EM: 02/09/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: ENDPOINTS DE CRIAÇÃO, LISTAGEM, ATUALIZAÇÃO E REMOÇÃO DE SONDA
+ */
+
 import {
   Controller,
   Get,

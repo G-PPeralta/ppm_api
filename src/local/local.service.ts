@@ -1,7 +1,12 @@
+/**
+ *  CRIADO EM: 2/10/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Manipulação de local.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../services/prisma/prisma.service';
 import { CreateLocalDto } from './dto/create-local.dto';
-import { UpdateLocalDto } from './dto/update-local.dto';
 
 @Injectable()
 export class LocalService {
@@ -27,17 +32,5 @@ export class LocalService {
       where a.deletado = false order by local;
     `);
     return local;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} local`;
-  }
-
-  update(id: number, updateLocalDto: UpdateLocalDto) {
-    return `This action updates a #${id} local`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} local`;
   }
 }

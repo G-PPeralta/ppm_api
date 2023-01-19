@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 14/09/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Interface Fornecedores
+ */
 export class CreateFornecedoreDto {
   nom_usu_create: string;
   poloId: number;

@@ -1,3 +1,8 @@
+/**
+ *  CRIADO EM: 16/11/2022
+ *  AUTOR: Felipe Mateus
+ *  DESCRIÇÃO DO ARQUIVO: Controle informações pertinestes a estatisticas
+ */
 import {
   Body,
   Controller,

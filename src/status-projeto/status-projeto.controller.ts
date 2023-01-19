@@ -1,16 +1,15 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ * CRIADO EM: 27/07/2022
+ * AUTOR: GABRIEL PERALTA
+ * DESCRIÇÃO: ENDPOINTS DE CRIAÇÃO E LISTAGEM DE STATUS DE UM PROJETO.
+ * O STATUS DE UM PROJETO É INFORMADO NA TELA DE CADASTRO DE UM PROJETO
+ * ESSAS ROTAS SÃO USADAS PARA ABASTECER AS OPTIONS DE UM SELECT, QUE FARÁ PARTE
+ * DO PAYLOAD DO CADASTRO DE UM PROJETO
+ */
+
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { StatusProjetoService } from './status-projeto.service';
 import { CreateStatusProjetoDto } from './dto/create-status-projeto.dto';
-import { UpdateStatusProjetoDto } from './dto/update-status-projeto.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -26,23 +25,5 @@ export class StatusProjetoController {
   @Get()
   findAll() {
     return this.statusProjetoService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.statusProjetoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateStatusProjetoDto: UpdateStatusProjetoDto,
-  ) {
-    return this.statusProjetoService.update(+id, updateStatusProjetoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.statusProjetoService.remove(+id);
   }
 }

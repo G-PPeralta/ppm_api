@@ -7,7 +7,6 @@ import { UserModule } from './user/user.module';
 import { RolesModule } from './roles/roles.module';
 import { ProjetosModule } from './projetos/projetos.module';
 import { GanttModule } from './gantt/gantt.module';
-import { LogModule } from './log/log.module';
 import { PoloModule } from './polo/polo.module';
 import { LocalModule } from './local/local.module';
 import { SolicitanteModule } from './solicitante/solicitante.module';
@@ -20,24 +19,18 @@ import { StatusProjetoModule } from './status-projeto/status-projeto.module';
 import { PrioridadeModule } from './prioridade/prioridade.module';
 import { ComplexidadeModule } from './complexidade/complexidade.module';
 import { ResponsavelModule } from './responsavel/responsavel.module';
-import { TipoResponsavelModule } from './tipo-responsavel/tipo-responsavel.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DetalhamentoModule } from './detalhamento/detalhamento.module';
 import { CoordenadorModule } from './coordenador/coordenador.module';
 import { CampanhaModule } from './campanha/campanha.module';
-import { IntervencoesModule } from './intervencoes/intervencoes.module';
 import { PrismaModule } from 'services/prisma/prisma.module';
-import { TarefaModule } from './tarefa/tarefa.module';
 import { SondaModule } from './sonda/sonda.module';
 import { AtividadesIntervencoesModule } from 'atividades-intervencoes/atividades-intervencoes.module';
 import { AreaAtuacaoModule } from './area-atuacao/area-atuacao.module';
 import { PocoModule } from './poco/poco.module';
 import { CamposModule } from './campos/campos.module';
-import { ProjetoIntervencaoModule } from './projeto-intervencao/projeto-intervencao.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
-import { LicoesAprendidasModule } from './licoes-aprendidas/licoes-aprendidas.module';
 import { ProjetosAtividadesModule } from './projetos-atividades/projetos-atividades.module';
-import { ProjetosAtividadesRecursosModule } from './projetos-atividades-recursos/projetos-atividades-recursos.module';
 import { ProjetosAtividadesNotasModule } from './projetos-atividades-notas/projetos-atividades-notas.module';
 import { ProjetosAtividadesLicoesAprendidasModule } from './projetos-atividades-licoes-aprendidas/projetos-atividades-licoes-aprendidas.module';
 import { RankingsModule } from './rankings/rankings.module';
@@ -45,7 +38,6 @@ import { RankingsOpcoesModule } from './rankings-opcoes/rankings-opcoes.module';
 import { ProjetosRankingModule } from './projetos-ranking/projetos-ranking.module';
 import { AreasModule } from './areas/areas.module';
 import { CategoriasModule } from './categorias/categorias.module';
-import { OperacaoIntervencaoModule } from './operacao-intervencao/operacao-intervencao.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { EstatisticasModule } from './estatisticas/estatisticas.module';
 import { CampanhaProjetoTipoModule } from './campanha-projeto-tipo/campanha-projeto-tipo.module';
@@ -63,18 +55,15 @@ import { ClasseServicoModule } from './classe-servico/classe-servico.module';
 import { OcorrenciasModule } from './ocorrencias/ocorrencias.module';
 import { FiltrosModule } from './filtros/filtros.module';
 import { EditarAtividadeModule } from './editar-atividade/editar-atividade.module';
-import { HistoricoEstatisticoModule } from './historico-estatistico/historico-estatistico.module';
 import { GraficosModule } from './graficos/graficos.module';
 import { PdfModule } from './pdf/pdf.module';
 import { LixeiraModule } from './lixeira/lixeira.module';
 import { AreaResponsavelModule } from './area_responsavel/area_responsavel.module';
 import { FeriadosModule } from './feriados/feriados.module';
 import { S3Module } from './s3/s3.module';
-import { ProjetoCampoModule } from './projeto_campo/projeto_campo.module';
 import { PriorizacoesController } from './priorizacoes/priorizacoes.controller';
 import { PriorizacoesModule } from './priorizacoes/priorizacoes.module';
 import { DescribeModule } from './describe/describe.module';
-import { MacroModule } from './macro/macro.module';
 
 @Module({
   imports: [
@@ -84,7 +73,6 @@ import { MacroModule } from './macro/macro.module';
     RolesModule,
     ProjetosModule,
     GanttModule,
-    LogModule,
     PoloModule,
     LocalModule,
     SolicitanteModule,
@@ -97,24 +85,18 @@ import { MacroModule } from './macro/macro.module';
     PrioridadeModule,
     ComplexidadeModule,
     ResponsavelModule,
-    TipoResponsavelModule,
     DashboardModule,
     DetalhamentoModule,
     CoordenadorModule,
     CampanhaModule,
-    IntervencoesModule,
     PrismaModule,
-    TarefaModule,
     SondaModule,
     AtividadesIntervencoesModule,
     AreaAtuacaoModule,
     PocoModule,
     CamposModule,
-    ProjetoIntervencaoModule,
     FornecedoresModule,
-    LicoesAprendidasModule,
     ProjetosAtividadesModule,
-    ProjetosAtividadesRecursosModule,
     ProjetosAtividadesNotasModule,
     ProjetosAtividadesLicoesAprendidasModule,
     RankingsModule,
@@ -122,7 +104,6 @@ import { MacroModule } from './macro/macro.module';
     ProjetosRankingModule,
     AreasModule,
     CategoriasModule,
-    OperacaoIntervencaoModule,
     BudgetsModule,
     EstatisticasModule,
     CampanhaProjetoTipoModule,
@@ -140,17 +121,14 @@ import { MacroModule } from './macro/macro.module';
     OcorrenciasModule,
     FiltrosModule,
     EditarAtividadeModule,
-    HistoricoEstatisticoModule,
     GraficosModule,
     PdfModule,
     LixeiraModule,
     AreaResponsavelModule,
     FeriadosModule,
     S3Module,
-    ProjetoCampoModule,
     PriorizacoesModule,
     DescribeModule,
-    MacroModule,
   ],
   controllers: [AppController, PriorizacoesController],
   providers: [AppService],
